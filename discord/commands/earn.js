@@ -31,7 +31,7 @@ module.exports = {
             
         }
 
-        await interaction.reply({ content: `${me ? 'You have' : `<@${user.id}> has`} <:robux:1056759250367565844> R$${roundDecimal(user.unclaimed)} unclaimed.`, ephemeral: true });
+        await interaction.reply({ content: `${me ? 'You have' : `<@${user.id}> has`} 🪙 ${roundDecimal(user.unclaimed)} Coins unclaimed.`, ephemeral: true });
 
     }
 };

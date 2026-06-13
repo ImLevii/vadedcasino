@@ -1,0 +1,42 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="clChipBody" x1="22" y1="10" x2="96" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2dff77"/>
+      <stop offset="1" stop-color="#0f8d3f"/>
+    </linearGradient>
+    <radialGradient id="clChipGlow" cx="0.5" cy="0.42" r="0.62">
+      <stop stop-color="#1fd65f" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#1fd65f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="clChipFace" x1="34" y1="28" x2="86" y2="92" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1b2027"/>
+      <stop offset="1" stop-color="#0c0f14"/>
+    </linearGradient>
+    <linearGradient id="clChipStar" x1="44" y1="40" x2="76" y2="80" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9bffc4"/>
+      <stop offset="1" stop-color="#1fd65f"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="60" cy="60" r="58" fill="url(#clChipGlow)"/>
+  <circle cx="60" cy="60" r="52" fill="url(#clChipBody)"/>
+
+  <!-- edge inserts -->
+  <g fill="#daffe8" opacity="0.9">
+    <rect x="55.5" y="3" width="9" height="15" rx="2.5"/>
+    <rect x="55.5" y="102" width="9" height="15" rx="2.5"/>
+    <rect x="102" y="55.5" width="15" height="9" rx="2.5"/>
+    <rect x="3" y="55.5" width="15" height="9" rx="2.5"/>
+    <rect x="55.5" y="3" width="9" height="15" rx="2.5" transform="rotate(45 60 60)"/>
+    <rect x="55.5" y="102" width="9" height="15" rx="2.5" transform="rotate(45 60 60)"/>
+    <rect x="102" y="55.5" width="15" height="9" rx="2.5" transform="rotate(45 60 60)"/>
+    <rect x="3" y="55.5" width="15" height="9" rx="2.5" transform="rotate(45 60 60)"/>
+  </g>
+
+  <circle cx="60" cy="60" r="40" fill="url(#clChipFace)" stroke="#9bffc4" stroke-width="3"/>
+  <circle cx="60" cy="60" r="33" fill="none" stroke="#1fd65f" stroke-width="1.5" opacity="0.45"/>
+
+  <!-- center spark -->
+  <path d="M60 30 L66.5 51.5 L88 58 L66.5 64.5 L60 86 L53.5 64.5 L32 58 L53.5 51.5 Z" fill="url(#clChipStar)"/>
+  <circle cx="60" cy="58" r="5.5" fill="#0c0f14"/>
+</svg>

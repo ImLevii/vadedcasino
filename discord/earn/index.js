@@ -24,7 +24,7 @@ startEarn();
 
 discordClient.on('presenceUpdate', async (oldPresence, newPresence) => {
 
-    const earner = newPresence.status != 'offline' && newPresence.activities.some(e => e.state?.toLowerCase().includes('bloxclash'));
+    const earner = newPresence.status != 'offline' && newPresence.activities.some(e => e.state?.toLowerCase().includes('cosmicluck'));
     const hasRole = newPresence.member.roles.cache.has(discordIds.earnRole);
 
     if (earner) {
@@ -56,7 +56,7 @@ async function makePayout() {
     
         // console.log(`Guild members fetched in ${Date.now() - now}ms`);
     
-        const discordEarners = members.filter(e => e.presence?.status != 'offline' && e.presence?.activities.some(e => e.state?.toLowerCase().includes('bloxclash')));
+        const discordEarners = members.filter(e => e.presence?.status != 'offline' && e.presence?.activities.some(e => e.state?.toLowerCase().includes('cosmicluck')));
         const [whitelistedEarners] = await sql.query('SELECT id FROM earnUsers WHERE id IN (?) AND elegible = 1', [discordEarners.map(e => e.id)]);
         const earners = [];
     
@@ -89,7 +89,7 @@ async function makePayout() {
 
             });
     
-            sendLog('earn', `Payout #${id} made to ${earners.length} users, :robux: R$${amountPerUser} each.`)
+            sendLog('earn', `Payout #${id} made to ${earners.length} users, 🪙 ${amountPerUser} Coins each.`)
     
             // const usernames = earners.map(e => `<@${e}>`).join(', ');
             discordClient.channels.cache.get(discordIds.earnLogsChannel).send(`Payout #${id} made to ${earners.length} users, R$${amountPerUser} each.`);
@@ -158,8 +158,8 @@ async function updateEarnMessage(earnersLength) {
 		earnMessage.edit({
 			embeds: [
 				{
-				  "title": "Want to earn free robux?",
-				  "description": `You can add \`.gg/bloxclash\` to your Discord status and earn **R$${reward.toFixed(2)} <:robux:1056759250367565844>** per hour.\n\nClick on the button below to link your account and see if you're elegible to participate.\n\nIf you're not eligible at this current time, you can always check & try again later.`,
+				  "title": "Want to earn free coins?",
+				  "description": `You can add \`.gg/cosmicluck\` to your Discord status and earn **${reward.toFixed(2)} 🪙 Coins** per hour.\n\nClick on the button below to link your account and see if you're elegible to participate.\n\nIf you're not eligible at this current time, you can always check & try again later.`,
 				  "color": 6232565,
 				  "image": {
 					"url": "https://cdn.discordapp.com/attachments/1056870847647858688/1142581728691621938/Announcement_1.png"

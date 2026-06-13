@@ -3,10 +3,9 @@ const { sql } = require('../../../../database');
 const { formatConsoleError } = require('../../../../utils');
 
 const Coinpayments = require('coinpayments');
-const coinpayments = new Coinpayments({
-    key: process.env.COINPAYMENTS_KEY,
-    secret: process.env.COINPAYMENTS_SECRET
-});
+const coinpayments = (process.env.COINPAYMENTS_KEY && process.env.COINPAYMENTS_SECRET)
+    ? new Coinpayments({ key: process.env.COINPAYMENTS_KEY, secret: process.env.COINPAYMENTS_SECRET })
+    : null;
 
 
 const cryptoData = {
@@ -97,13 +96,15 @@ async function updateRates() {
             }
         });
 
-        const rates = await coinpayments.rates();
+        const rates = coinpayments ? await coinpayments.rates() : null;
         const query = [];
     
         Object.values(cryptoData.currencies).forEach(currency => {
             cryptoData.currencies[currency.id].price = data[currency.coingeckoId].usd;
-            cryptoData.currencies[currency.id].confirmations = rates[currency.id].confirms;
-            cryptoData.currencies[currency.id].explorer = rates[currency.id].explorer;
+            if (rates && rates[currency.id]) {
+                cryptoData.currencies[currency.id].confirmations = rates[currency.id].confirms;
+                cryptoData.currencies[currency.id].explorer = rates[currency.id].explorer;
+            }
             query.push([currency.id, currency.name, currency.coingeckoId, currency.price]);
         });
             

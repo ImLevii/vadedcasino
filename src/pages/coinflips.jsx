@@ -121,9 +121,9 @@ function Coinflips(props) {
 
     return (
         <>
-            <Title>BloxClash | Coinflips</Title>
+            <Title>Cosmic Luck | Coinflips</Title>
             <Meta name='title' content='Coinflip'></Meta>
-            <Meta name='description' content='Flip Limiteds And Robux For Free On BloxClash, Make Free Robux And Win Conflips!'></Meta>
+            <Meta name='description' content='Flip Coins For Free On Cosmic Luck, Win Big With Coinflips!'></Meta>
 
             {create() && (
                 <CreateCoinflip close={() => setCreate(false)} setViewing={setViewing}/>
@@ -247,7 +247,7 @@ function Coinflips(props) {
                 align-items: center;
                 gap: 6px;
                 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
               }
@@ -262,7 +262,7 @@ function Coinflips(props) {
                 
                 padding: 0 15px;
                 border-radius: 3px;
-                background: rgba(89, 232, 120, 0.24);
+                background: rgba(31, 214, 95, 0.24);
               }
               
               .create {
@@ -279,7 +279,7 @@ function Coinflips(props) {
                 align-items: center;
                 gap: 8px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
               }
@@ -295,7 +295,7 @@ function Coinflips(props) {
               .bar {
                 flex: 1;
                 height: 1px;
-                background: #5A5499;
+                background: #3a4250;
                 margin: 25px 0;
               }
               

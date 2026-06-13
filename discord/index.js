@@ -16,12 +16,14 @@ const discordIds = {
 }
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildPresences] });
-client.login(process.env.DISCORD_BOT_TOKEN);
 
-client.once(Events.ClientReady, c => {
+if (process.env.DISCORD_BOT_TOKEN) {
+    client.login(process.env.DISCORD_BOT_TOKEN);
+
+    client.once(Events.ClientReady, c => {
 
 	console.log(`Discord Client Ready! Logged in as ${c.user.tag}`);
-	client.bloxClashGuild = client.guilds.cache.get(discordIds.guild);
+	client.cosmicLuckGuild = client.guilds.cache.get(discordIds.guild);
 
 	if (process.env.NODE_ENV == 'production') {
 		require('./earn');
@@ -29,7 +31,11 @@ client.once(Events.ClientReady, c => {
 		require('./giveaways');
 	}
 
-});
+    });
+
+} else {
+    console.warn('[discord] DISCORD_BOT_TOKEN not set, bot disabled.');
+}
 	
 if (process.env.NODE_ENV == 'production') {
 

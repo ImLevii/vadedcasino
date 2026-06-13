@@ -245,7 +245,7 @@ async function sendLog(channel, message) {
 
     await logsQueue.add(async () => {
 
-        if (process.env.NODE_ENV != 'production') channel = 'dev';
+        if (process.env.NODE_ENV != 'production') return; // skip Slack logs in dev
 
         if (typeof message === 'string') {
             message = {

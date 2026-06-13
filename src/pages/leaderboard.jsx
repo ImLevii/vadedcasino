@@ -48,9 +48,9 @@ function Leaderboard(props) {
 
     return (
         <>
-            <Title>BloxClash | Leaderboard</Title>
+            <Title>Cosmic Luck | Leaderboard</Title>
             <Meta name='title' content='Leaderboard'></Meta>
-            <Meta name='description' content='Bet Robux On BloxClash The Best Roblox Gaming Platform To Win Free Robux And Prizes!'></Meta>
+            <Meta name='description' content='Play On Cosmic Luck The Best Casino Platform To Win Coins And Prizes!'></Meta>
 
             <div class='leaderboard-container fadein'>
                 <div class='leaderboard-banner'>
@@ -58,9 +58,9 @@ function Leaderboard(props) {
                     <img class='art right' src='/assets/art/goldswiggle.png' width='380' height='86'/>
 
                     <img class='coin' src='/assets/icons/coin.svg' width='100' height='88'/>
-                    <img class='coin two' src='/assets/icons/coinreverse.png' width='53' height='57'/>
+                    <img class='coin two' src='/assets/icons/coin2.svg' width='53' height='57'/>
                     <img class='coin three' src='/assets/icons/coin.svg' width='96' height='86'/>
-                    <img class='coin four' src='/assets/icons/coinreverse.png' width='63' height='68'/>
+                    <img class='coin four' src='/assets/icons/coin2.svg' width='63' height='68'/>
 
                     <h1 class='title'>THE CLASH</h1>
                     <p class='desc'>
@@ -227,7 +227,7 @@ function Leaderboard(props) {
                 height: 165px;
 
                 border-radius: 8px;
-                border: 1px dashed #FCA31E;
+                border: 1px dashed #1fd65f;
                 background: linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.30) 100%), radial-gradient(102.11% 102.11% at 50.00% 103.31%, rgba(255, 171, 46, 0.78) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(0deg, rgba(0, 0, 0, 0.30) 0%, rgba(0, 0, 0, 0.20) 100%), radial-gradient(4404.69% 184.13% at 1.21% 0.00%, rgba(245, 170, 56, 0.60) 0%, rgba(0, 0, 0, 0.00) 100%), radial-gradient(7956.17% 242.63% at 105.07% -21.99%, rgba(255, 168, 0, 0.74) 0%, rgba(0, 0, 0, 0.00) 100%), #F4AD59;
 
                 display: flex;
@@ -326,9 +326,9 @@ function Leaderboard(props) {
               .period.active {
                 box-shadow: unset;
                 border-radius: 3px;
-                border: 1px solid #FCA31E;
-                background: rgba(252, 163, 30, 0.25);
-                color: #FCA31E;
+                border: 1px solid #1fd65f;
+                background: rgba(31, 214, 95, 0.25);
+                color: #1fd65f;
               }
               
               .time {
@@ -376,7 +376,7 @@ function Leaderboard(props) {
                 width: 100%;
                 min-height: 1px;
                 margin: 6px 0;
-                background: #5A5499;
+                background: #3a4250;
               }
               
               .bar.divider {
@@ -389,7 +389,7 @@ function Leaderboard(props) {
               
               .cost {
                 border-radius: 3px;
-                background: rgba(252, 163, 30, 0.24);
+                background: rgba(31, 214, 95, 0.24);
                 min-height: 30px;
                 padding: 0 12px;
               }
@@ -411,7 +411,7 @@ function Leaderboard(props) {
               
               .first {
                 height: 312px;
-                background: radial-gradient(134.74% 103.27% at 50.00% 103.27%, rgba(252, 163, 30, 0.34) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(143deg, rgba(255, 153, 0, 0.15) 30.03%, rgba(249, 172, 57, 0.15) 42.84%);
+                background: radial-gradient(134.74% 103.27% at 50.00% 103.27%, rgba(31, 214, 95, 0.34) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(143deg, rgba(255, 153, 0, 0.15) 30.03%, rgba(249, 172, 57, 0.15) 42.84%);
                 border-color: rgb(249, 172, 57);
                 order: 2;
               }
@@ -468,7 +468,7 @@ function Leaderboard(props) {
                 display: flex;
                 align-items: center;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 14px;
                 font-weight: 700;
               }
@@ -491,7 +491,7 @@ function Leaderboard(props) {
                 padding: 0 15px;
                 border-radius: 2px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
               }

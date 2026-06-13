@@ -139,7 +139,7 @@ function BottomNavBar(props) {
 
                 gap: 5px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
                 font-family: "Geogrotesque Wide";
@@ -153,7 +153,7 @@ function BottomNavBar(props) {
               }
 
               .button:hover svg {
-                fill: #ADA3EF;
+                fill: #8b92a0;
               }
               
               .button.active {
@@ -161,7 +161,7 @@ function BottomNavBar(props) {
               }
 
               .button.active svg {
-                fill: #FCA31E;
+                fill: #1fd65f;
               }
 
               .dropdown {
@@ -211,7 +211,7 @@ function BottomNavBar(props) {
                 font-family: 'Geogrotesque Wide';
                 font-weight: 600;
                 font-size: 13px;
-                color: #ADA3EF;
+                color: #8b92a0;
 
                 display: flex;
                 flex-direction: column;
@@ -269,7 +269,7 @@ function BottomNavBar(props) {
                   height: 60px;
                   width: 100%;
                   
-                  background: #262147;
+                  background: #1a1f29;
                   box-shadow: 0px -5px 15px 0px rgba(0, 0, 0, 0.25);
                   
                   align-items: center;

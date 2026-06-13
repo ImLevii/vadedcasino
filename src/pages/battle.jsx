@@ -161,7 +161,7 @@ function Battle(props) {
 
     return (
         <>
-            <Title>BloxClash | Battle</Title>
+            <Title>Cosmic Luck | Battle</Title>
 
             <div class='battle-container fadein'>
                 <BattleHeader battle={battle()} round={round()} state={state()} block={block()}/>

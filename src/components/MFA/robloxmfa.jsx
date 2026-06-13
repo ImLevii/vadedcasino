@@ -55,7 +55,7 @@ function RobloxMFA(props) {
 
                   width: 100%;
 
-                  background: #2C2952;
+                  background: #1a1f29;
                   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
                   border-radius: 15px;
 
@@ -73,7 +73,7 @@ function RobloxMFA(props) {
                 .mfa-header {
                   width: 100%;
                   height: 60px;
-                  background: #322F5F;
+                  background: #232a36;
                   
                   display: flex;
                   align-items: center;
@@ -113,7 +113,7 @@ function RobloxMFA(props) {
                   width: 100%;
                   height: 90px;
 
-                  color: #ADA3EF;
+                  color: #8b92a0;
                   font-family: Geogrotesque Wide, sans-serif;
                   font-size: 13px;
                   font-weight: 600;
@@ -164,7 +164,7 @@ function RobloxMFA(props) {
                   justify-content: center;
 
                   font-weight: 700;
-                  color: #ADA3EF;
+                  color: #8b92a0;
                   cursor: pointer;
                 }
                 

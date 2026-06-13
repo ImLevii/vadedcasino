@@ -104,7 +104,7 @@ function Notification(props) {
           padding: 0 12px;
 
           border-radius: 3px 0px;
-          background: linear-gradient(0deg, rgba(255, 190, 24, 0.25) 0%, rgba(255, 190, 24, 0.25) 100%), linear-gradient(253deg, #1A0E33 -27.53%, #423C7A 175.86%), #312A5E;
+          background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%), #1f242e;
 
           color: #FFF;
           font-family: Geogrotesque Wide, sans-serif;
@@ -147,13 +147,13 @@ function Notification(props) {
         }
 
         .gold {
-          color: rgba(252, 163, 30, 0.75) !important;
+          color: rgba(31, 214, 95, 0.75) !important;
         }
 
         .fancyamt {
           border-radius: 4px;
-          border: 1px solid #866FEA;
-          background: radial-gradient(60% 60% at 50% 50%, rgba(147, 126, 236, 0.15) 0%, rgba(102, 83, 184, 0.15) 100%), linear-gradient(253deg, #1A0E33 -27.53%, #423C7A 175.86%);
+          border: 1px solid #45e57f;
+          background: radial-gradient(60% 60% at 50% 50%, rgba(147, 126, 236, 0.15) 0%, rgba(102, 83, 184, 0.15) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
           box-shadow: 0px 0px 35px 0px rgba(180, 22, 255, 0.10), 0px 1px 5px 0px rgba(0, 0, 0, 0.25) inset;
 
           height: 30px;

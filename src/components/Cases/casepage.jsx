@@ -66,7 +66,7 @@ function CasePage(props) {
 
   function buyCases(results, newBal) {
     let winningItems = []
-    for (let result of results) { // dont need pf data rn ig
+    for (let result of results) {
       winningItems.push(result.item)
     }
     spinCases(winningItems, newBal)
@@ -78,7 +78,7 @@ function CasePage(props) {
   }
 
   function spinCases(winningItems, newBal) {
-    setOffset(getRandomNumber(-64, 64)) // item width is 130px, center is at 65px, so we have 64px of space
+    setOffset(getRandomNumber(-64, 64))
 
     let items = []
     for (let i = 0; i < amount(); i++) {
@@ -91,7 +91,6 @@ function CasePage(props) {
     setSpinning('spinning')
     setTimeout(() => {
       setSpinning('win')
-
       if (newBal)
         setBalance(newBal)
     }, spinTime() + 500)
@@ -111,431 +110,534 @@ function CasePage(props) {
 
   return (
     <>
-      <div class='case-container fadein'>
-        <div class='controls'>
-          <button class='bevel-light back'>
+      <div class='case-page fadein'>
+
+        {/* ── Top header bar ── */}
+        <div class='page-header'>
+          <A href='/cases' class='back-btn'>
             <svg xmlns="http://www.w3.org/2000/svg" width="5" height="8" viewBox="0 0 5 8" fill="none">
               <path
                 d="M0.4976 4.00267C0.4976 3.87722 0.545618 3.75178 0.641454 3.65613L3.65872 0.646285C3.85066 0.454819 4.16185 0.454819 4.35371 0.646285C4.54556 0.837673 4.4976 1.00269 4.4976 1.33952L4.4976 4.00267L4.4976 6.50269C4.4976 7.00269 4.54547 7.16764 4.35361 7.35902C4.16175 7.55057 3.85056 7.55057 3.65863 7.35902L0.641361 4.34921C0.545509 4.25352 0.4976 4.12808 0.4976 4.00267Z"
-                fill="#ADA3EF"/>
+                fill="#8b92a0"/>
             </svg>
-            BACK TO CASES
+            Go back
+          </A>
 
-            <A href='/cases' class='gamemode-link'></A>
-          </button>
+          <Show when={!caseObj.loading}>
+            <div class='header-case-info'>
+              <div class='header-case-img'>
+                <img src={`${import.meta.env.VITE_SERVER_URL}${caseObj()?.img}`} alt=''/>
+              </div>
+              <div>
+                <p class='header-case-name'>{caseObj()?.name}</p>
+                <div class='header-case-price'>
+                  <img src='/assets/icons/coin.svg' height='14'/>
+                  <span>{(caseObj()?.price * amount())?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                </div>
+              </div>
+            </div>
+          </Show>
 
-          <div class='fast' onClick={() => {
-            if (spinning() !== '') return
-            setItemTime(itemTime() === 1500 ? 3000 : 1500)
-            setSpinTime(spinTime() === 3000 ? 7000 : 3000)
-          }}>
-            <Toggle active={spinTime() === 3000} toggle={() => null}/>
-            <p>FAST OPEN</p>
+          <div class='header-actions'>
+            <A href='/docs/provably' class='action-btn provably-btn'>
+              <svg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                <path d='M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z' fill='#1fd65f'/>
+              </svg>
+              THIS GAME IS PROVABLY FAIR
+            </A>
+            <button class='action-btn share-btn'>
+              <svg width='13' height='13' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                <path d='M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+              </svg>
+              SHARE CASE
+            </button>
           </div>
         </div>
 
-        <Show when={!caseObj.loading} fallback={<></>}>
-          <div class='mobile-info'>
-            <CaseTitle name={caseObj()?.name} full={true}/>
-
-            <div class='cost'>
-              <img src='/assets/icons/coin.svg' height='15'/>
-              {(caseObj()?.price * amount())?.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              })}
-            </div>
-          </div>
-        </Show>
-
-        <div class='case-content-container'>
-          <div class='case-open-container'>
-            <Show when={!caseObj.loading} fallback={<Loader/>}>
-              <>
-                <div class='case-image'>
-                  <div class='image-wrapper'>
-                    <img src={`${import.meta.env.VITE_SERVER_URL}${caseObj()?.img}`}/>
-                  </div>
-
-                  <A href='/docs/provably' class='provably'>PROVABLY FAIR</A>
-                </div>
-
-                <div class='controls-container'>
-                                    <span class='title-wrapper'>
-                                        <CaseTitle name={caseObj()?.name}/>
-                                    </span>
-
-                  <div class='cost hide'>
-                    <img src='/assets/icons/coin.svg' height='15'/>
-                    {(caseObj()?.price * amount())?.toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2
-                    })}
-                  </div>
-
-                  <div class='case-amount'>
-                    <button class={'amount ' + (amount() === 1 ? 'active' : '')}
-                            onClick={() => setCasesToOpen(1)}>1
-                    </button>
-                    <button class={'amount ' + (amount() === 2 ? 'active' : '')}
-                            onClick={() => setCasesToOpen(2)}>2
-                    </button>
-                    <button class={'amount ' + (amount() === 3 ? 'active' : '')}
-                            onClick={() => setCasesToOpen(3)}>3
-                    </button>
-                    <button class={'amount ' + (amount() === 4 ? 'active' : '')}
-                            onClick={() => setCasesToOpen(4)}>4
-                    </button>
-                  </div>
-
-                  <button class='bevel-light demo' onClick={() => demoSpin()}>DEMO OPEN</button>
-                  <button class={'bevel-gold open ' + (spinning() !== '' ? 'active' : '')} onClick={async () => {
-                    if (spinning() !== '') return
-
-                    setSpinning('loading')
-                    let res = await authedAPI(`/cases/${caseObj()?.id}/open`, 'POST', JSON.stringify({
-                      amount: amount()
-                    }), true)
-
-                    if (!res.results) return setSpinning('')
-                    buyCases(res.results, res.balance)
-                  }}>
-                    {spinning() !== '' ? (
-                      <div class='loader-container'>
-                        <div class='loader'/>
-                        <p>OPENING CASE</p>
-                      </div>
-                    ) : (
-                      <p>OPEN CASE</p>
-                    )}
-                  </button>
-                </div>
-
-                <div class='items'>
-                  <For each={caseObj()?.items}>{(item, index) => <CaseItem {...item}/>}</For>
-                </div>
-              </>
-            </Show>
+        {/* ── Spinner section ── */}
+        <div class='spinner-section'>
+          <div class='spinner-indicator'>
+            <svg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'>
+              <path d='M6 8L0.803847 0.5H11.1962L6 8Z' fill='#5b5ba8'/>
+            </svg>
           </div>
 
-          <div class='case-spinner-container'>
-            <Show when={!caseObj.loading}>
+          <Show when={!caseObj.loading} fallback={<div class='spinner-loader'><Loader/></div>}>
+            <div class='spinner-track'>
               {spinning() !== 'win' ? (
-                <For each={Array(amount())}>{(spinner, index) => <CaseSpinner spinTime={spinTime()} offset={offset()}
-                                                                              items={spinnerItems()[index()]}
-                                                                              spinning={spinning()}
-                                                                              position={index()}/>}</For>
+                <For each={Array(amount())}>{(spinner, index) =>
+                  <CaseSpinner spinTime={spinTime()} offset={offset()}
+                               items={spinnerItems()[index()]}
+                               spinning={spinning()}
+                               position={index()}/>
+                }</For>
               ) : (
                 <div class='winnings'>
                   <For each={winningItems()}>{(item, index) => <PlainItem {...item}/>}</For>
                 </div>
               )}
+            </div>
+          </Show>
+        </div>
+
+        {/* ── Controls bar ── */}
+        <div class='controls-bar'>
+          <div class='controls-left'>
+            {/* Amount selectors */}
+            <div class='amount-group'>
+              {[1,2,3,4].map(n => (
+                <button
+                  class={'amt-btn ' + (amount() === n ? 'active' : '')}
+                  onClick={() => setCasesToOpen(n)}
+                >{n}</button>
+              ))}
+            </div>
+
+            {/* Price display */}
+            <Show when={!caseObj.loading}>
+              <div class='price-display'>
+                <img src='/assets/icons/coin.svg' height='15'/>
+                <span>{(caseObj()?.price * amount())?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              </div>
             </Show>
+
+            {/* Open Case button */}
+            <button
+              class={'open-btn ' + (spinning() !== '' ? 'loading' : '')}
+              onClick={async () => {
+                if (spinning() !== '') return
+                setSpinning('loading')
+                let res = await authedAPI(`/cases/${caseObj()?.id}/open`, 'POST', JSON.stringify({ amount: amount() }), true)
+                if (!res.results) return setSpinning('')
+                buyCases(res.results, res.balance)
+              }}
+            >
+              {spinning() !== '' ? (
+                <div class='open-loader-row'>
+                  <div class='open-loader'/>
+                  OPENING...
+                </div>
+              ) : (
+                <>
+                  Open Case
+                  <svg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                    <path d='M13 2L3 14h9l-1 8 10-12h-9l1-8z' fill='currentColor'/>
+                  </svg>
+                </>
+              )}
+            </button>
+          </div>
+
+          <div class='controls-right'>
+            {/* Fast open */}
+            <div class='fast-toggle' onClick={() => {
+              if (spinning() !== '') return
+              setItemTime(itemTime() === 1500 ? 3000 : 1500)
+              setSpinTime(spinTime() === 3000 ? 7000 : 3000)
+            }}>
+              <Toggle active={spinTime() === 3000} toggle={() => null}/>
+              <span>FAST OPEN</span>
+            </div>
+
+            {/* Demo spin */}
+            <button class='demo-btn' onClick={() => demoSpin()}>Demo Spin</button>
           </div>
         </div>
+
+        {/* ── Case contains grid ── */}
+        <Show when={!caseObj.loading}>
+          <div class='items-section'>
+            <p class='items-label'>Case contains</p>
+            <div class='items-grid'>
+              <For each={caseObj()?.items}>{(item) => <CaseItem {...item} grid={true}/>}</For>
+            </div>
+          </div>
+        </Show>
+
       </div>
 
       <style jsx>{`
-        .case-container {
+        .case-page {
           width: 100%;
           height: fit-content;
+          display: flex;
+          flex-direction: column;
+          gap: 0;
         }
 
-        .controls {
+        /* ── Page header ── */
+        .page-header {
           display: flex;
-          width: 100%;
           align-items: center;
           justify-content: space-between;
+          gap: 16px;
+          padding: 10px 0 14px 0;
+          flex-wrap: wrap;
         }
 
-        .fast {
+        .back-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 13px;
+          font-weight: 700;
+          color: #8b92a0;
+          text-decoration: none;
+          transition: color .2s;
+        }
+
+        .back-btn:hover {
+          color: #c3cad6;
+        }
+
+        .header-case-info {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          flex: 1;
+        }
+
+        .header-case-img {
+          width: 54px;
+          height: 54px;
+          border-radius: 8px;
+          background: rgba(255,255,255,0.05);
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-
-          color: #9A90D1;
-          font-size: 13px;
-          font-weight: 700;
-
-          border-radius: 3px;
-          background: rgba(154, 144, 209, 0.15);
-
-          width: 110px;
-          height: 30px;
-
-          cursor: pointer;
+          overflow: hidden;
+          flex-shrink: 0;
         }
 
-        .back {
-          font-size: 12px;
+        .header-case-img img {
+          width: 46px;
+          object-fit: contain;
+        }
+
+        .header-case-name {
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 15px;
           font-weight: 700;
-          padding: 7px 10px;
+          color: #fff;
+          margin-bottom: 4px;
+        }
 
-          position: relative;
-
+        .header-case-price {
           display: flex;
           align-items: center;
-          gap: 7.5px;
+          gap: 6px;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 13px;
+          font-weight: 700;
+          color: #f0c040;
         }
 
-        .case-content-container {
-          border-radius: 10px;
-          background: rgba(45, 42, 81, 0.80);
-          cubic-bezier(0, 1, 0, 1);
+        .header-case-price span {
+          color: #fff;
         }
 
-        .case-open-container {
-          width: 100%;
-          height: 250px;
-
-          margin-top: 20px;
+        .header-actions {
           display: flex;
-          gap: 30px;
-
-          border-radius: 10px 10px 0px 0px;
-          background: rgba(0, 0, 0, 0.21);
-
-          padding: 25px;
+          align-items: center;
+          gap: 8px;
         }
 
-        .case-spinner-container {
-          min-height: 230px;
-          height: fit-content;
-          width: 100%;
-          padding: 25px;
+        .action-btn {
+          display: flex;
+          align-items: center;
+          gap: 6px;
 
+          height: 32px;
+          padding: 0 12px;
+          border-radius: 6px;
+
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          text-decoration: none;
+
+          outline: none;
+          cursor: pointer;
+          transition: background .2s;
+        }
+
+        .provably-btn {
+          color: #1fd65f;
+          border: 1px solid rgba(31, 214, 95, 0.3);
+          background: rgba(31, 214, 95, 0.08);
+        }
+
+        .provably-btn:hover {
+          background: rgba(31, 214, 95, 0.16);
+        }
+
+        .share-btn {
+          color: #8b92a0;
+          border: 1px solid rgba(255,255,255,0.08);
+          background: rgba(255,255,255,0.04);
+        }
+
+        .share-btn:hover {
+          background: rgba(255,255,255,0.08);
+          color: #c3cad6;
+        }
+
+        /* ── Spinner ── */
+        .spinner-section {
+          width: 100%;
+          border-radius: 10px;
+          background: #0f111a;
+          border: 1px solid rgba(255,255,255,0.06);
+          overflow: hidden;
+          position: relative;
+        }
+
+        .spinner-indicator {
+          display: flex;
+          justify-content: center;
+          padding-top: 6px;
+        }
+
+        .spinner-track {
+          min-height: 160px;
           display: flex;
           flex-wrap: wrap;
           gap: 12px;
+          padding: 10px 20px 20px 20px;
         }
 
-        .case-image {
-          height: 100%;
-          min-width: 182px;
-          width: 182px;
-
-          display: flex;
-          flex-direction: column;
-
-          border-radius: 10px 10px 3px 3px;
-          box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.10) inset;
-          overflow: hidden;
-        }
-
-        .image-wrapper {
+        .spinner-loader {
           display: flex;
           align-items: center;
           justify-content: center;
-
+          min-height: 160px;
           width: 100%;
-          height: 100%;
-          background: rgba(0, 0, 0, 0.15);
-        }
-
-        .image-wrapper img {
-          width: 150px;
-        }
-
-        .controls-container {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          justify-content: space-between;
-        }
-
-        .cost {
-          height: 26px;
-        }
-
-        .case-amount {
-          width: 100%;
-          display: flex;
-          gap: 8px;
-        }
-
-        .amount {
-          height: 34px;
-          flex: 1;
-
-          border-radius: 3px;
-          border: 1px solid #302D57;
-          background: rgba(47, 43, 83, 0.48);
-
-          color: #ADA3EF;
-          font-family: Geogrotesque Wide;
-          font-size: 12px;
-          font-weight: 700;
-
-          cursor: pointer;
-          transition: all .3s;
-        }
-
-        .amount.active {
-          border: 1px solid #59E878;
-          background: rgba(89, 232, 120, 0.25);
-          color: #FFF;
-        }
-
-        .demo {
-          height: 30px;
-          width: 100%;
-
-          color: #ADA3EF;
-          font-size: 13px;
-          font-weight: 700;
-        }
-
-        .open {
-          outline: unset;
-          border: unset;
-          height: 30px;
-
-          color: #FFF;
-          font-family: Geogrotesque Wide;
-          font-size: 14px;
-          font-weight: 700;
-          cursor: pointer;
-        }
-
-        .open.active {
-          box-shadow: unset;
-          background: linear-gradient(0deg, rgba(255, 190, 24, 0.25) 0%, rgba(255, 190, 24, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
-          border: 1px solid #FCA31E;
-          color: #FCA31E;
-        }
-
-        .loader-container {
-          display: flex;
-          gap: 8px;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .loader {
-          height: 12px;
-          width: 12px;
-          border-top: 2px solid #FCA31E;
-          border-left: 2px solid #FCA31E;
-          border-right: 2px solid #FCA31E;
-          border-radius: 50%;
-          animation: infinite linear spin 1s;
-        }
-
-        .items {
-          width: 100%;
-          height: 100%;
-
-          display: flex;
-          gap: 10px;
-          padding: 15px;
-
-          border-radius: 10px;
-          background: rgba(0, 0, 0, 0.21);
-          overflow-x: scroll;
-          scrollbar-color: rgba(173, 163, 239, 0.29) rgba(0, 0, 0, 0.21);
-        }
-
-        .items::-webkit-scrollbar {
-          height: 3px;
-        }
-
-        .items::-webkit-scrollbar-track {
-          border-radius: 10px;
-          background: rgba(0, 0, 0, 0.21);
-        }
-
-        .items::-webkit-scrollbar-thumb {
-          border-radius: 10px;
-          background: rgba(173, 163, 239, 0.29);
         }
 
         .winnings {
           flex: 1;
-          min-width: 500px;
-
           min-height: 130px;
-          height: 210px;
-
+          height: 200px;
           border-radius: 10px;
-          background: rgba(144, 138, 255, 0.06);
-          overflow: hidden;
-          position: relative;
-
+          background: rgba(31, 214, 95, 0.05);
+          border: 1px solid rgba(31, 214, 95, 0.15);
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 15px;
+          overflow: hidden;
+          position: relative;
         }
 
-        .mobile-info {
-          display: none;
+        /* ── Controls bar ── */
+        .controls-bar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 14px 0;
+          flex-wrap: wrap;
+        }
+
+        .controls-left {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+
+        .controls-right {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .amount-group {
+          display: flex;
+          gap: 6px;
+        }
+
+        .amt-btn {
+          width: 36px;
+          height: 36px;
+          border-radius: 6px;
+          border: 1px solid rgba(255,255,255,0.08);
+          background: #1a1f29;
+
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 13px;
+          font-weight: 700;
+          color: #8b92a0;
+
+          cursor: pointer;
+          transition: all .2s;
+        }
+
+        .amt-btn:hover {
+          border-color: rgba(31, 214, 95, 0.4);
+          color: #fff;
+        }
+
+        .amt-btn.active {
+          border-color: #1fd65f;
+          background: rgba(31, 214, 95, 0.18);
+          color: #fff;
+        }
+
+        .price-display {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+
+          height: 36px;
+          padding: 0 14px;
+          border-radius: 6px;
+          border: 1px solid rgba(31, 214, 95, 0.3);
+          background: rgba(31, 214, 95, 0.08);
+
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 13px;
+          font-weight: 700;
+          color: #fff;
+        }
+
+        .open-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          height: 36px;
+          padding: 0 20px;
+          border-radius: 6px;
+          border: none;
+          outline: none;
+
+          background: linear-gradient(135deg, #1fd65f 0%, #14b04a 100%);
+          box-shadow: 0 0 18px rgba(31, 214, 95, 0.35), 0 2px 0 #0f8a36;
+
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 13px;
+          font-weight: 700;
+          color: #fff;
+
+          cursor: pointer;
+          transition: filter .2s, box-shadow .2s;
+        }
+
+        .open-btn:hover {
+          filter: brightness(1.08);
+        }
+
+        .open-btn.loading {
+          background: linear-gradient(135deg, rgba(31,214,95,0.4) 0%, rgba(20,176,74,0.4) 100%);
+          box-shadow: none;
+          color: #1fd65f;
+          cursor: not-allowed;
+        }
+
+        .open-loader-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .open-loader {
+          width: 12px;
+          height: 12px;
+          border: 2px solid rgba(31,214,95,0.3);
+          border-top-color: #1fd65f;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+
+        .fast-toggle {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 12px;
+          font-weight: 700;
+          color: #8b92a0;
+
+          cursor: pointer;
+          user-select: none;
+          transition: color .2s;
+        }
+
+        .fast-toggle:hover {
+          color: #c3cad6;
+        }
+
+        .demo-btn {
+          height: 36px;
+          padding: 0 16px;
+          border-radius: 6px;
+          border: 1px solid rgba(255,255,255,0.08);
+          background: #1a1f29;
+
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 13px;
+          font-weight: 700;
+          color: #8b92a0;
+
+          cursor: pointer;
+          transition: background .2s, color .2s;
+        }
+
+        .demo-btn:hover {
+          background: #222a36;
+          color: #fff;
+        }
+
+        /* ── Items grid ── */
+        .items-section {
+          margin-top: 6px;
+        }
+
+        .items-label {
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 14px;
+          font-weight: 700;
+          color: #f0c040;
+          margin-bottom: 12px;
+        }
+
+        .items-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 8px;
         }
 
         @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
+          to { transform: rotate(360deg); }
+        }
+
+        @media only screen and (max-width: 1100px) {
+          .items-grid {
+            grid-template-columns: repeat(3, 1fr);
           }
         }
 
-        @media only screen and (max-width: 700px) {
-          .items {
+        @media only screen and (max-width: 750px) {
+          .items-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .header-actions {
             display: none;
           }
 
-          .case-open-container {
-            justify-content: space-between;
-          }
-        }
-
-        @media only screen and (max-width: 560px) {
-          .case-open-container {
-            padding: 0;
-            height: 155px;
-            gap: 0px;
-            margin-top: 12px;
-          }
-
-          .case-image {
-            width: 130px;
-            min-width: 130px;
-          }
-
-          .image-wrapper img {
-            width: 110px;
-          }
-
-          .title-wrapper {
-            display: none;
-          }
-
-          .cost.hide {
-            display: none;
-          }
-
-          .cost {
-            flex: 1;
-          }
-
-          .mobile-info {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            justify-content: space-between;
-            gap: 12px;
-            margin-top: 20px;
-          }
-
-          .controls-container {
-            width: 100%;
-            padding: 15px;
-          }
-
-          .case-spinner-container {
+          .controls-bar {
             flex-direction: column;
+            align-items: flex-start;
+          }
+        }
+
+        @media only screen and (max-width: 480px) {
+          .items-grid {
+            grid-template-columns: 1fr;
           }
         }
       `}</style>

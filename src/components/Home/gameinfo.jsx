@@ -31,8 +31,8 @@ function GameInfo(props) {
                   justify-content: center;
 
                   border-radius: 5px;
-                  background: radial-gradient(60.00% 60.00% at 50.00% 50.00%, #937EEC 0%, #6653B8 100%);
-                  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.10), 0px 0.5px 0px 0px #6B59BA, 0px -0.5px 0px 0px #A08AFF;
+                  background: radial-gradient(60.00% 60.00% at 50.00% 50.00%, #25e06b 0%, #18b853 100%);
+                  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.10), 0px 0.5px 0px 0px #16a049, 0px -0.5px 0px 0px #5ceb90;
                   
                   position: relative;
                   z-index: 2;
@@ -52,7 +52,7 @@ function GameInfo(props) {
                   height: 25px;
                   right: 27px;
 
-                  color: #ADA3EF;
+                  color: #8b92a0;
                   font-size: 12px;
                   font-weight: 700;
                   white-space: nowrap;

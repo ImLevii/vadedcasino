@@ -4,7 +4,7 @@ function SystemMessage(props) {
             <div class='chatmessage-container'>
                 <div class='user'>
                     <div class='avatar'>
-                        <img src='/assets/icons/orangesword.png' alt='' height='25'/>
+                        <img src='/assets/icons/coin.svg' alt='' height='25'/>
                     </div>
 
                     <p class='username'>BOT</p>

@@ -135,7 +135,7 @@ function AdminRain(props) {
                 display: flex;
                 align-items: center;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 14px;
                 font-weight: 700;
               }
@@ -162,7 +162,7 @@ function AdminRain(props) {
                 padding: 0 15px;
                 border-radius: 2px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
               }
@@ -176,7 +176,7 @@ function AdminRain(props) {
                 align-items: center;
                 gap: 6px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 14px;
                 font-weight: 700;
@@ -274,7 +274,7 @@ function AdminRain(props) {
                 height: 40px;
 
                 border-radius: 3px;
-                background: #59E878;
+                background: #1fd65f;
                 box-shadow: 0px 1px 0px 0px #339548, 0px -1px 0px 0px #88FFA2;
 
                 color: #FFF;

@@ -31,12 +31,12 @@ function Toggle(props) {
                 }
                 
                 .toggle.active {
-                  background: rgba(89, 232, 120, 0.25);
-                  border: 1px solid rgba(89, 232, 120, 1);
+                  background: rgba(31, 214, 95, 0.25);
+                  border: 1px solid rgba(31, 214, 95, 1);
                 }
                 
                 .toggle.active svg {
-                  fill: #59E878;
+                  fill: #1fd65f;
                 }
             `}</style>
         </>

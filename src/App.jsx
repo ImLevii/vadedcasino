@@ -460,6 +460,7 @@ function App() {
         }
 
         .background {
+          display: none;
           position: absolute;
           max-width: 1500px;
           top: 0;

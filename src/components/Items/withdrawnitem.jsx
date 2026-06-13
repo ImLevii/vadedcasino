@@ -71,8 +71,8 @@ function WithdrawItem(props) {
                 }
 
                 .active {
-                    border: 1px solid #FCA31E;
-                    background: linear-gradient(0deg, rgba(255, 190, 24, 0.25) 0%, rgba(255, 190, 24, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+                    border: 1px solid #1fd65f;
+                    background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
                     box-shadow: 0px 2px 15px 0px rgba(0, 0, 0, 0.10);
                 }
 
@@ -164,7 +164,7 @@ function WithdrawItem(props) {
                 }
 
                 .name {
-                    color: #ADA3EF;
+                    color: #8b92a0;
                     text-align: center;
                     font-size: 12px;
                     font-weight: 700;
@@ -189,12 +189,12 @@ function WithdrawItem(props) {
                     height: 20px;
                     padding: 0 8px;
 
-                    color: #59E878;
+                    color: #1fd65f;
                     font-size: 10px;
                     font-weight: 700;
 
                     border-radius: 6px 0;
-                    background: linear-gradient(0deg, rgba(89, 232, 120, 0.35) 0%, rgba(89, 232, 120, 0.35) 100%), linear-gradient(130deg, rgba(86, 83, 154, 0.41) 27.25%, rgba(70, 67, 124, 0.41) 103.79%);
+                    background: linear-gradient(0deg, rgba(31, 214, 95, 0.35) 0%, rgba(31, 214, 95, 0.35) 100%), linear-gradient(130deg, rgba(86, 83, 154, 0.41) 27.25%, rgba(70, 67, 124, 0.41) 103.79%);
                     line-height: 20px;
                 }
 

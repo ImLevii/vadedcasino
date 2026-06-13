@@ -72,11 +72,11 @@ function SidebarRain(props) {
                 {userRain() ? (
                     <Avatar id={userRain()?.host?.id} xp={userRain()?.host?.xp} height='30'/>
                 ) : (
-                    <img src='/assets/icons/logoswords.png' height='41' alt=''/>
+                    <img src='/assets/icons/logoswords.svg' height='41' alt=''/>
                 )}
                 <p>{userRain()?.host?.username || 'BLOXCLASH'} <span className='gold'>HOSTED A RAIN</span></p>
                 <div className='amount-backing'>
-                    <img className='coin' src='/assets/icons/fancycoin.png' alt='' height='60'/>
+                    <img className='coin' src='/assets/icons/coin.svg' alt='' height='60'/>
 
                     <div class='timer'>
                         <img src='/assets/icons/timer.svg' height='20'/>
@@ -84,7 +84,7 @@ function SidebarRain(props) {
                     </div>
 
                     <div className='amount-container'>
-                        <img src='/assets/icons/fancycoin.png' alt='' height='20'/>
+                        <img src='/assets/icons/coin.svg' alt='' height='20'/>
                         <p><Countup end={userRain()?.amount || rain()?.amount || 0} gray={true}/></p>
                     </div>
                 </div>
@@ -205,9 +205,9 @@ function SidebarRain(props) {
               
               .claim:disabled {
                 box-shadow: unset;
-                background: linear-gradient(0deg, rgba(255, 190, 24, 0.25) 0%, rgba(255, 190, 24, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
-                border: 1px solid #FCA31E;
-                color: #FCA31E;
+                background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
+                border: 1px solid #1fd65f;
+                color: #1fd65f;
               }
               
               .fadein {

@@ -10,6 +10,14 @@ import {createNotification} from "../../util/api";
 import SidebarRain from "./rain";
 import {A} from "@solidjs/router";
 
+const ROOM_NAMES = {
+  EN: 'ENGLISH',
+  TR: 'TURKISH',
+  GR: 'GERMAN',
+  BEG: 'BEGGING',
+  VIP: 'WHALE LOUNGE',
+}
+
 function SideBar(props) {
 
   let previousState = false
@@ -80,14 +88,24 @@ function SideBar(props) {
       <div class={'sidebar-container ' + (props.chat ? 'active' : '')}>
         <div class='top-container'>
           {!rain()?.active && !userRain() ? (
-            <div className='logo-container'>
-              <img src='/assets/logo/blox-clash-logo.gif' height='90'/>
-              <img src='/assets/logo/blox-clash-words.png' height='21'/>
-              <A href='/' class='gamemode-link'></A>
+            <div class='chat-header'>
+              <div class='room-title' style="display: flex; align-items: center;"><img src='/assets/logo/cosmic-luck-logo.png' alt='Cosmic Luck' height='22'/></div>
+              <button class='menu-dot' aria-label='Chat options'>
+                <svg width='4' height='16' viewBox='0 0 4 16' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                  <circle cx='2' cy='2' r='2' fill='currentColor'/>
+                  <circle cx='2' cy='8' r='2' fill='currentColor'/>
+                  <circle cx='2' cy='14' r='2' fill='currentColor'/>
+                </svg>
+              </button>
             </div>
           ) : (
             <SidebarRain/>
           )}
+        </div>
+
+        <div class='announcement'>
+          <span class='ann-dot'/>
+          <p>Sol withdrawals are now live</p>
         </div>
 
         <div class='options'>
@@ -114,13 +132,14 @@ function SideBar(props) {
           display: flex;
           flex-direction: column;
 
-          background: var(--gradient-bg);
+          background: #0e1116;
+          border-right: 1px solid rgba(255, 255, 255, 0.05);
           overflow: hidden;
           transition: left .3s;
         }
 
         .options {
-          padding: 15px 15px;
+          padding: 12px 14px;
 
           display: flex;
           flex-direction: column;
@@ -138,46 +157,84 @@ function SideBar(props) {
 
         .top-container {
           width: 100%;
-          min-height: 180px;
-          background: rgb(23, 20, 48);
           position: relative;
         }
 
-        .logo-container {
+        .chat-header {
           width: 100%;
-          min-height: 100%;
+          height: 52px;
 
           display: flex;
-          flex-direction: column;
+          align-items: center;
+          justify-content: space-between;
 
+          padding: 0 16px;
+          box-sizing: border-box;
+
+          background: #12151c;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .room-title {
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-weight: 700;
+          font-size: 15px;
+          color: #fff;
+        }
+
+        .room-title span {
+          color: #6b7280;
+          font-weight: 600;
+        }
+
+        .menu-dot {
+          display: flex;
           align-items: center;
           justify-content: center;
-          gap: 20px;
 
-          position: relative;
+          width: 28px;
+          height: 28px;
+          border-radius: 6px;
 
-          background: linear-gradient(277.39deg,rgba(19,17,41,.65) -69.8%, rgba(37, 31, 78, .65) 144.89%);
+          outline: unset;
+          border: unset;
+          background: transparent;
+          color: #6b7280;
+
+          cursor: pointer;
+          transition: background .2s, color .2s;
         }
 
-        .logo-container > * {
-          position: relative;
-          z-index: 1;
+        .menu-dot:hover {
+          background: rgba(255, 255, 255, 0.05);
+          color: #c3cad6;
         }
 
-        .logo-container:after {
-          position: absolute;
-          left: 0;
-          top: 0;
+        .announcement {
+          display: flex;
+          align-items: center;
+          gap: 9px;
 
-          content: '';
+          margin: 12px 14px 0 14px;
+          padding: 9px 12px;
+          border-radius: 8px;
 
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(to bottom right, rgba(37, 31, 78, .7), rgba(19, 17, 41, .95)), url('/assets/icons/bgsword.png');
-          background-size: cover;
-          background-position: 50%;
+          background: rgba(31, 214, 95, 0.1);
+          border: 1px solid rgba(31, 214, 95, 0.25);
 
-          z-index: 0;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-weight: 700;
+          font-size: 12px;
+          color: #1fd65f;
+        }
+
+        .ann-dot {
+          width: 7px;
+          height: 7px;
+          flex-shrink: 0;
+          border-radius: 50%;
+          background: #1fd65f;
+          box-shadow: 0 0 8px rgba(31, 214, 95, 0.9);
         }
 
         @media only screen and (max-width: 1250px) {

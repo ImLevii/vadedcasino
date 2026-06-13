@@ -22,10 +22,18 @@ const roulette = {
 
 const lastResults = 100;
 
+async function createRouletteRound() {
+    const result = Math.floor(Math.random() * 15); // 0-14
+    const color = result === 0 ? 0 : result <= 7 ? 1 : 2;
+    const [ins] = await sql.query('INSERT INTO roulette (result, color) VALUES (?, ?)', [result, color]);
+    const [[newRound]] = await sql.query('SELECT * FROM roulette WHERE id = ?', [ins.insertId]);
+    return newRound;
+}
+
 async function getRouletteRound() {
 
     const [[round]] = await sql.query('SELECT * FROM roulette WHERE endedAt IS NULL ORDER BY id ASC LIMIT 1');
-    if (!round) return;
+    if (!round) return createRouletteRound();
 
     const now = new Date();
 
@@ -92,11 +100,12 @@ async function cacheRoulette() {
 
 async function rouletteInterval() {
 
-    // const startedAgo = new Date() - roulette.round.createdAt;
-
-    // if (startedAgo < betTime) {
-    //     await sleep(betTime - startedAgo);
-    // }
+    // Guard: if no active round (shouldn't happen after fix, but just in case)
+    if (!roulette.round || !roulette.round.id) {
+        await sleep(2000);
+        await updateRoulette();
+        return rouletteInterval();
+    }
 
     if (!roulette.round.rolledAt) {
 

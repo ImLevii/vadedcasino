@@ -93,7 +93,7 @@ function Docs(props) {
               
               .bar {
                 border-radius: 555px;
-                background: linear-gradient(135deg, #5A5499 0%, rgba(90, 84, 153, 0.00) 100%);
+                background: linear-gradient(135deg, #3a4250 0%, rgba(90, 84, 153, 0.00) 100%);
                 height: 1px;
                 flex: 1;
               }
@@ -102,7 +102,7 @@ function Docs(props) {
                 box-shadow: unset;
                 
                 border-radius: 3px;
-                border: 1px solid #4A457D;
+                border: 1px solid #2c3340;
                 background: #363262;
                 
                 color: white;

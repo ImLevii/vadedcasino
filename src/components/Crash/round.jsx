@@ -35,7 +35,7 @@ function CrashRound(props) {
               }
               
               .gold p {
-                background: linear-gradient(180deg, #FCA31E 42.21%, #FDC470 57.73%, #FFD596 100%);
+                background: linear-gradient(180deg, #1fd65f 42.21%, #FDC470 57.73%, #FFD596 100%);
                 background-clip: text;
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;

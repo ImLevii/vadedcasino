@@ -61,7 +61,8 @@ function RouletteSpinner(props) {
     return (
         <>
             <div class='spinner-wrapper'>
-                <img class='selector' src='/assets/icons/selector.png' alt='' width='20'/>
+                <div class='selector top'/>
+                <div class='selector bottom'/>
                 <div class='spinner-container'>
                     <div class='icons' ref={icons}>
                         <For each={[...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS]}>{(num, index) =>
@@ -94,8 +95,12 @@ function RouletteSpinner(props) {
                 width: 100%;
                 height: 125px;
 
-                border-radius: 7px 7px 0px 0px;
-                background: rgba(27, 24, 46, 0.50);
+                border-radius: 12px 12px 0 0;
+                background:
+                  radial-gradient(120% 140% at 50% 0%, rgba(31, 214, 95, 0.08) 0%, rgba(31, 214, 95, 0) 55%),
+                  #0c0e13;
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                border-bottom: none;
                 overflow: hidden;
                 
                 position: relative;
@@ -103,12 +108,12 @@ function RouletteSpinner(props) {
               
               .numbers-container {
                 width: 100%;
-                height: 45px;
-                margin-top: 1px;
+                height: 42px;
 
-                border-radius: 0px 0px 7px 7px;
-                background: #2B2750;
-                box-shadow: 0px 2px 0px 0px rgba(28, 26, 43, 0.45);
+                border-radius: 0 0 12px 12px;
+                background: #11141b;
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                border-top: 1px solid rgba(255, 255, 255, 0.04);
                 overflow: hidden;
 
                 position: relative;
@@ -119,9 +124,10 @@ function RouletteSpinner(props) {
                 width: 100%;
                 height: 100%;
                 content: '';
-                border-radius: 7px 7px 0px 0px;
-                background: rgba(37, 34, 57, 0.01);
-                box-shadow: 25px 0px 15px 0px rgba(0, 0, 0, 0.05) inset, -25px 0px 15px 0px rgba(0, 0, 0, 0.05) inset;
+                z-index: 1;
+                pointer-events: none;
+                border-radius: 12px 12px 0 0;
+                box-shadow: 60px 0 45px -20px rgba(12, 14, 19, 0.95) inset, -60px 0 45px -20px rgba(12, 14, 19, 0.95) inset;
               }
               
               .icons, .numbers {
@@ -145,10 +151,27 @@ function RouletteSpinner(props) {
               
               .selector {
                 position: absolute;
-                transform: translateX(-8px);
-                top: -10px;
                 left: 50%;
-                z-index: 1;
+                transform: translateX(-50%);
+                z-index: 3;
+                width: 0;
+                height: 0;
+              }
+
+              .selector.top {
+                top: -2px;
+                border-left: 8px solid transparent;
+                border-right: 8px solid transparent;
+                border-top: 11px solid #1fd65f;
+                filter: drop-shadow(0 0 6px rgba(31, 214, 95, 0.9));
+              }
+
+              .selector.bottom {
+                top: 116px;
+                border-left: 8px solid transparent;
+                border-right: 8px solid transparent;
+                border-bottom: 11px solid #1fd65f;
+                filter: drop-shadow(0 0 6px rgba(31, 214, 95, 0.9));
               }
             `}</style>
         </>

@@ -38,14 +38,14 @@ function Profile(props) {
 
     return (
         <>
-            <Title>BloxClash | Profile</Title>
+            <Title>Cosmic Luck | Profile</Title>
 
             <div class='profile-container fadein'>
 
                 <div class='user-info'>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="19" viewBox="0 0 16 19" fill="none">
-                        <path d="M7.99971 0.104492C5.35299 0.104492 3.19971 2.25777 3.19971 4.90449C3.19971 7.55121 5.35299 9.70449 7.99971 9.70449C10.6464 9.70449 12.7997 7.55121 12.7997 4.90449C12.7997 2.25777 10.6464 0.104492 7.99971 0.104492Z" fill="#ADA3EF"/>
-                        <path d="M13.9721 12.8403C12.658 11.506 10.9159 10.7712 9.06667 10.7712H6.93333C5.08416 10.7712 3.34201 11.506 2.02788 12.8403C0.720178 14.1681 0 15.9208 0 17.7756C0 18.0702 0.238791 18.309 0.533333 18.309H15.4667C15.7612 18.309 16 18.0702 16 17.7756C16 15.9208 15.2798 14.1681 13.9721 12.8403Z" fill="#ADA3EF"/>
+                        <path d="M7.99971 0.104492C5.35299 0.104492 3.19971 2.25777 3.19971 4.90449C3.19971 7.55121 5.35299 9.70449 7.99971 9.70449C10.6464 9.70449 12.7997 7.55121 12.7997 4.90449C12.7997 2.25777 10.6464 0.104492 7.99971 0.104492Z" fill="#8b92a0"/>
+                        <path d="M13.9721 12.8403C12.658 11.506 10.9159 10.7712 9.06667 10.7712H6.93333C5.08416 10.7712 3.34201 11.506 2.02788 12.8403C0.720178 14.1681 0 15.9208 0 17.7756C0 18.0702 0.238791 18.309 0.533333 18.309H15.4667C15.7612 18.309 16 18.0702 16 17.7756C16 15.9208 15.2798 14.1681 13.9721 12.8403Z" fill="#8b92a0"/>
                     </svg>
 
                     <p>
@@ -162,7 +162,7 @@ function Profile(props) {
                 width: 100%;
                 height: 1px;
                 min-height: 1px;
-                background: #5A5499;
+                background: #3a4250;
               }
               
               .user-info {
@@ -221,11 +221,11 @@ function Profile(props) {
               }
 
               .stat.green {
-                background: rgba(89, 232, 120, 0.15);
+                background: rgba(31, 214, 95, 0.15);
               }
 
               .stat p:last-child {
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 13px;
                 font-weight: 600;
               }
@@ -237,13 +237,13 @@ function Profile(props) {
               }
 
               .green {
-                color: #59E878 !important;
+                color: #1fd65f !important;
               }
 
               .pagination {
                 width: 100%;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: "Noto Sans", sans-serif;
                 font-size: 14px;
                 font-weight: 900;
@@ -270,7 +270,7 @@ function Profile(props) {
                 justify-content: center;
                 gap: 8px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 15px;
                 font-weight: 700;
@@ -340,7 +340,7 @@ function Profile(props) {
               }
               
               .page.active {
-                border: 1px solid #4A457D;
+                border: 1px solid #2c3340;
                 background: #363262;
                 color: white;
                 box-shadow: unset;

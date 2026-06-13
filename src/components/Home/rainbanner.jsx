@@ -42,7 +42,7 @@ function RainBanner(props) {
 
         <h2>TIP, WAGER & PLAY TO INCREASE THE RAIN ON SITE!</h2>
 
-        <img src='/assets/icons/coinreverse.png' class='coinart first' height='48' width='48' alt=''/>
+        <img src='/assets/icons/coin.svg' class='coinart first' height='48' width='48' alt=''/>
         <img src='/assets/icons/coin.svg' class='coinart second' height='70' height='60' alt=''/>
         <div class='swords'/>
       </div>
@@ -125,7 +125,7 @@ function RainBanner(props) {
         .coin {
           border-radius: 6px;
           border: 1px solid #B17818;
-          background: linear-gradient(0deg, rgba(255, 190, 24, 0.25) 0%, rgba(255, 190, 24, 0.25) 100%), linear-gradient(253deg, #1A0E33 -27.53%, #423C7A 175.86%);
+          background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
           
           width: 40px;
           height: 40px;
@@ -137,7 +137,7 @@ function RainBanner(props) {
 
         .amount {
           border-radius: 3px;
-          background: linear-gradient(0deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.08) 100%), linear-gradient(180deg, rgba(191, 128, 255, 0.15) 0%, rgba(191, 128, 255, 0.00) 100%), linear-gradient(253deg, #1A0E33 -27.53%, #423C7A 175.86%);
+          background: linear-gradient(0deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.08) 100%), linear-gradient(180deg, rgba(191, 128, 255, 0.15) 0%, rgba(191, 128, 255, 0.00) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
           box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.32) inset, 0px -2px 4px 0px rgba(0, 0, 0, 0.05) inset;
 
           height: 40px;
@@ -185,7 +185,7 @@ function RainBanner(props) {
 
           border-radius: 4px;
           border: 1px solid #7718B1;
-          background: linear-gradient(268deg, rgba(79, 37, 136, 0.55) 0.82%, rgba(97, 55, 120, 0.55) 108.47%), linear-gradient(253deg, #1A0E33 -27.53%, #423C7A 175.86%);
+          background: linear-gradient(268deg, rgba(79, 37, 136, 0.55) 0.82%, rgba(97, 55, 120, 0.55) 108.47%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
         }
 
         .swords {
@@ -198,7 +198,7 @@ function RainBanner(props) {
           z-index: 0 !important;
 
           opacity: 0.1;
-          background-image: url("/assets/art/rainswords.png");
+          background-image: url("/assets/art/rainchips.svg");
           background-position: center;
           background-size: cover;
           border-radius: 8px;

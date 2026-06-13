@@ -89,7 +89,7 @@ function TipRain(props) {
                 left: 1px;
                 z-index: -1;
 
-                background: linear-gradient(0deg, rgba(255, 190, 24, 0.25), rgba(255, 190, 24, 0.25)), linear-gradient(252.77deg, #1A0E33 -27.53%, #423C7A 175.86%);
+                background: linear-gradient(0deg, rgba(31, 214, 95, 0.25), rgba(31, 214, 95, 0.25)), linear-gradient(252.77deg, #12151c -27.53%, #1f242e 175.86%);
               }
 
               .tip-rain button {
@@ -149,11 +149,11 @@ function TipRain(props) {
               }
               
               .dropdown-container {
-                color: #FCA31E;
+                color: #1fd65f;
                 padding: 12px 20px;
                 margin-top: 9px;
                 
-                background: linear-gradient(252.77deg, #1A0E33 -27.53%, #423C7A 175.86%);
+                background: linear-gradient(252.77deg, #12151c -27.53%, #1f242e 175.86%);
                 border: 1px solid #3B2D67;
                 
                 display: flex;
@@ -179,7 +179,7 @@ function TipRain(props) {
                 width: 100%;
                 height: 30px;
 
-                background: linear-gradient(0deg, #1C1438, #1C1438), linear-gradient(252.77deg, #1A0E33 -27.53%, #423C7A 175.86%);
+                background: linear-gradient(0deg, #1C1438, #1C1438), linear-gradient(252.77deg, #12151c -27.53%, #1f242e 175.86%);
                 
                 padding: 0px 10px;
                 

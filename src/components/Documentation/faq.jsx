@@ -9,7 +9,7 @@ function FAQ(props) {
             <div class='tos-container'>
                 <div class='dropdown-wrapper'>
                     <button onClick={toggleDropdown}>
-                        Is there a reason why you need my Roblox credentials / Roblosecurity?
+                        How does Cosmic Luck keep my account and balance secure?
 
                         <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
                             <path
@@ -20,18 +20,17 @@ function FAQ(props) {
 
                     <div class='dropdown'>
                         <p>
-                            We use your roblox authentication in order to automate our Peer-to-Peer (P2P) system for
-                            Roblox deposits & withdraws. We never hold your Robux when you initate a deposit listing,
-                            instead we store it in our queue system until a withdrawer initates the process. Automating
-                            the P2P process makes it safer for both users and a more convenient experience. As a
-                            reminder, we do not have access to your credentials.
+                            Your account balance is stored securely on-site as Coins. We use industry-standard
+                            authentication and encryption to protect your account, and your deposits and withdrawals
+                            are processed through our secured cashier system. We never share your personal information
+                            with third parties.
                         </p>
                     </div>
                 </div>
 
                 <div className='dropdown-wrapper'>
                     <button onClick={toggleDropdown}>
-                        How do I deposit my Robux to play on the site?
+                        How do I deposit to play on the site?
 
                         <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
                             <path
@@ -42,16 +41,16 @@ function FAQ(props) {
 
                     <div className='dropdown'>
                         <p>
-                            You can create a Robux or Limited item deposit listing by clicking the Deposit tab, at the
-                            top of the screen. Select the deposit method you'd like to use and then enter in the
-                            required information into the boxes shown.
+                            You can deposit by clicking the Deposit tab at the top of the screen. Select the deposit
+                            method you'd like to use, such as cryptocurrency, credit card or gift card, and then enter
+                            the required information into the boxes shown. Your balance will be credited in Coins.
                         </p>
                     </div>
                 </div>
 
                 <div className='dropdown-wrapper'>
                     <button onClick={toggleDropdown}>
-                        Why have I been restricted from tipping users and raining Robux?
+                        Why have I been restricted from tipping users and raining Coins?
 
                         <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
                             <path
@@ -62,7 +61,7 @@ function FAQ(props) {
 
                     <div className='dropdown'>
                         <p>
-                            BloxClash uses a system to ensure users are not exploiting the site's balance system in any
+                            Cosmic Luck uses a system to ensure users are not exploiting the site's balance system in any
                             way.This could be by mass- joining the site rains that we provide on multiple accounts, or
                             stealing user's accounts to tip the balance to your own. Ultimately, we have the final
                             decision when it comes to restricting you from creating & joining rains as well as receiving
@@ -84,7 +83,7 @@ function FAQ(props) {
 
                     <div className='dropdown'>
                         <p>
-                            BloxClash offers a 0.5% incentive to affiliate code holders. You may also receive additional
+                            Cosmic Luck offers a 0.5% incentive to affiliate code holders. You may also receive additional
                             perks & incentives if you have a large number of users under your affiliate code.
                         </p>
                     </div>
@@ -104,7 +103,7 @@ function FAQ(props) {
                     <div className='dropdown'>
                         <p>
                             We have a partnership channel in our discord that explains how to become partnered and what
-                            we look for in creators. You may also email marketing@bloxclash.com with your channel link &
+                            we look for in creators. You may also email marketing@cosmicluck.gg with your channel link &
                             information and we will review your request.
                         </p>
                     </div>
@@ -163,8 +162,8 @@ function FAQ(props) {
 
                     <div className='dropdown'>
                         <p>
-                            You can email us directly at support@bloxclash.com or you can alternatively join our discord
-                            server with the vanity URL being discord.gg/bloxclash.
+                            You can email us directly at support@cosmicluck.gg or you can alternatively join our discord
+                            server with the vanity URL being discord.gg/cosmicluck.
                         </p>
                     </div>
                 </div>
@@ -182,7 +181,7 @@ function FAQ(props) {
 
                     <div className='dropdown'>
                         <p>
-                            BloxClash has a state-of-the-art provably fair system to ensure all wagers that any users
+                            Cosmic Luck has a state-of-the-art provably fair system to ensure all wagers that any users
                             place are fair and free from third-party manipulation. You can verify this by clicking the
                             Provably fair button at the top right of the site, or at the bottom of the site.
                         </p>
@@ -191,7 +190,7 @@ function FAQ(props) {
 
                 <div className='dropdown-wrapper'>
                     <button onClick={toggleDropdown}>
-                        I've opened a case and I did not receive the limited.
+                        I've opened a case and I did not receive the item.
 
                         <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
                             <path
@@ -202,9 +201,9 @@ function FAQ(props) {
 
                     <div className='dropdown'>
                         <p>
-                            BloxClash.com uses a balance system to facilitate users withdrawals & deposits instead of an
-                            on-site inventory. This is used to mitigate Roblox terminations which allows us to reward
-                            our players with more incentives.
+                            Cosmic Luck uses a balance system to facilitate users withdrawals & deposits instead of an
+                            on-site inventory. Case rewards are credited directly to your Coins balance, which allows us
+                            to reward our players with more incentives.
                         </p>
                     </div>
                 </div>
@@ -222,10 +221,9 @@ function FAQ(props) {
 
                     <div className='dropdown'>
                         <p>
-                            Our Robux & Limited deposit system is Peer-to-Peer (P2P), which means a user must withdraw
-                            in order to facilitate your deposit. In this instance, you must be patient. In the
-                            circumstance where you haven't received your deposit but your Robux was taken from your
-                            account, please contact support.
+                            Most deposits are credited automatically. In the rare circumstance where you haven't
+                            received your balance after a completed deposit, please contact support with your
+                            transaction details and we will resolve it as quickly as possible.
                         </p>
                     </div>
                 </div>
@@ -302,7 +300,7 @@ function FAQ(props) {
                 padding: 30px 0;
                 margin: 0 auto;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 13px;
                 font-weight: 400;
@@ -322,7 +320,7 @@ function FAQ(props) {
                 outline: unset;
                 cursor: pointer;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 12px;
                 font-weight: 700;
@@ -343,7 +341,7 @@ function FAQ(props) {
               
               .active button {
                 border-radius: 2px;
-                border: 1px solid #5A5499;
+                border: 1px solid #3a4250;
                 background: rgba(90, 84, 153, 0.05);
               }
               

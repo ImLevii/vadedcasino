@@ -5,9 +5,9 @@ function TOS(props) {
 
                 <div class='sections'>
                     <p>
-                        Welcome to BloxClash.com, a website dedicated to
+                        Welcome to Cosmic Luck, a website dedicated to
                         providing an exciting and entertaining online gaming
-                        experience for users of the Roblox platform. These terms of
+                        experience. These terms of
                         service govern your use of our website, which includes our
                         games, content, and virtual currency. By accessing our website,
                         you agree to be bound by these terms of service.
@@ -16,8 +16,8 @@ function TOS(props) {
                     <div class='section'>
                         <h2 class='point'>1. Use of the Website</h2>
                         <p>
-                            a. BloxClash.com offers a range of games for users of the Roblox platform.
-                            To play our games, you must have a Roblox account.
+                            a. Cosmic Luck offers a range of games to its users.
+                            To play our games, you must register for an account.
                         </p>
 
                         <p>
@@ -37,12 +37,12 @@ function TOS(props) {
                     <div class='section'>
                         <h2 class='point'>2. Virtual Currency</h2>
                         <p>
-                            a. BloxClash.com makes available virtual currency called Robux
-                            for use within our games on the Roblox platform.
+                            a. Cosmic Luck makes available virtual currency called Coins
+                            for use within our games.
                         </p>
 
                         <p>
-                            b. You may also have the ability to withdraw on-site Robux to Roblox.com,
+                            b. You may also have the ability to withdraw on-site Coins via our supported cashout methods,
                             subject to availability and any restrictions we may impose.
                         </p>
 
@@ -54,7 +54,7 @@ function TOS(props) {
                         <p>
                             d. You acknowledge and agree that virtual currency has no real-world
                             value and cannot be exchanged for legal tender, credit, or other
-                            tangible assets from BloxClash.com or any third party.
+                            tangible assets from Cosmic Luck or any third party.
                         </p>
                     </div>
 
@@ -83,7 +83,7 @@ function TOS(props) {
                         </p>
 
                         <p>
-                            b. You may register for an account using your Roblox credentials or a RobloSecurity token.
+                            b. You may register for an account using your email address or supported authentication methods.
                         </p>
 
                         <p>
@@ -97,7 +97,7 @@ function TOS(props) {
                         </p>
 
                         <p>
-                            e. BloxClash.com reserves the right to terminate or suspend your account at any time,
+                            e. Cosmic Luck reserves the right to terminate or suspend your account at any time,
                             without notice and for any reason, including if we believe that you have violated these
                             terms of service.
                         </p>
@@ -106,13 +106,13 @@ function TOS(props) {
                     <div class='section'>
                         <h2 class='point'>5. Chargebacks and Refunds</h2>
                         <p>
-                            a. Any chargeback resulting from your BloxClash.com account may result in
+                            a. Any chargeback resulting from your Cosmic Luck account may result in
                             indefinite suspension of your account.
                         </p>
 
                         <p>
                             b. We do not offer refunds for any digital products or virtual currency sold on
-                            BloxClash.com or any third-party marketplaces.
+                            Cosmic Luck or any third-party marketplaces.
                         </p>
 
                         <p>
@@ -120,14 +120,14 @@ function TOS(props) {
                         </p>
 
                         <p>
-                            d. If you have any questions or concerns about a purchase, please contact us at support@bloxclash.com.
+                            d. If you have any questions or concerns about a purchase, please contact us at support@cosmicluck.gg.
                         </p>
                     </div>
 
                     <div class='section'>
                         <h2 class='point'>6. KYC Documentation</h2>
                         <p>
-                            a. BloxClash.com reserves the right to request Know Your Customer (KYC)
+                            a. Cosmic Luck reserves the right to request Know Your Customer (KYC)
                             documentation from any user at any time.
                         </p>
 
@@ -136,7 +136,7 @@ function TOS(props) {
                         </p>
 
                         <p>
-                            c. BloxClash.com may use the information provided in KYC documentation for identity
+                            c. Cosmic Luck may use the information provided in KYC documentation for identity
                             verification and fraud prevention purposes.
                         </p>
                     </div>
@@ -144,8 +144,8 @@ function TOS(props) {
                     <div class='section'>
                         <h2 class='point'>7. Intellectual Property</h2>
                         <p>
-                            a. All content on BloxClash.com, including but not limited to graphics, logos, images,
-                            and text, is the property of BloxClash.com or its licensors and is protected by copyright laws.
+                            a. All content on Cosmic Luck, including but not limited to graphics, logos, images,
+                            and text, is the property of Cosmic Luck or its licensors and is protected by copyright laws.
                         </p>
 
                         <p>
@@ -157,7 +157,7 @@ function TOS(props) {
                     <div class='section'>
                         <h2 class='point'>8. Limitation of Liability</h2>
                         <p>
-                            a. BloxClash.com is not responsible for any loss or damage resulting from your use of our
+                            a. Cosmic Luck is not responsible for any loss or damage resulting from your use of our
                             website, including but not limited to loss of virtual currency or loss of data.
                         </p>
 
@@ -174,7 +174,7 @@ function TOS(props) {
                     <div class='section'>
                         <h2 class='point'>9. Disclaimer of Warranties</h2>
                         <p>
-                            a. BloxClash.com provides its website on an "as is" basis without any warranty of any kind.
+                            a. Cosmic Luck provides its website on an "as is" basis without any warranty of any kind.
                         </p>
 
                         <p>
@@ -190,16 +190,16 @@ function TOS(props) {
                     <div class='section'>
                         <h2 class='point'>10. Indemnification</h2>
                         <p>
-                            a. You agree to indemnify, defend, and hold BloxClash.com and its officers, directors,
+                            a. You agree to indemnify, defend, and hold Cosmic Luck and its officers, directors,
                             employees, agents, and affiliates harmless from and against any and all claims, demands,
                             damages, losses, costs, and expenses (including reasonable attorneys' fees) arising out of
                             or in connection with your use of our website or any violation of these terms of service.
                         </p>
 
                         <p>
-                            b. BloxClash.com reserves the right to assume the exclusive defense and control of any
+                            b. Cosmic Luck reserves the right to assume the exclusive defense and control of any
                             matter subject to indemnification by you, in which event you will cooperate with
-                            BloxClash.com in asserting any available defenses.
+                            Cosmic Luck in asserting any available defenses.
                         </p>
                     </div>
 
@@ -247,7 +247,7 @@ function TOS(props) {
                         <h2 class='point'>14. Entire Agreement</h2>
                         <p>
                             a. These terms of service, along with any additional policies or rules posted on our
-                            website, constitute the entire agreement between you and BloxClash.com regarding
+                            website, constitute the entire agreement between you and Cosmic Luck regarding
                             your use of our website.
                         </p>
 
@@ -262,7 +262,7 @@ function TOS(props) {
                         </p>
 
                         <p>
-                            d. Failure by BloxClash.com to enforce any right or provision of these terms of service
+                            d. Failure by Cosmic Luck to enforce any right or provision of these terms of service
                             shall not be deemed a waiver of such right or provision.
                         </p>
                     </div>
@@ -279,7 +279,7 @@ function TOS(props) {
                 padding: 30px 0;
                 margin: 0 auto;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 13px;
                 font-weight: 400;

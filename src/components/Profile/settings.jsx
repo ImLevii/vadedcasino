@@ -150,7 +150,7 @@ function Settings(props) {
                 width: 100%;
                 height: 1px;
                 min-height: 1px;
-                background: #5A5499;
+                background: #3a4250;
               }
               
               .table-header {
@@ -170,7 +170,7 @@ function Settings(props) {
                 display: flex;
                 align-items: center;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 14px;
                 font-weight: 600;
               }
@@ -198,7 +198,7 @@ function Settings(props) {
                 padding: 0 15px;
                 border-radius: 2px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
                 text-transform: uppercase;

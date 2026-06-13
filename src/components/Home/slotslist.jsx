@@ -97,7 +97,7 @@ function SlotsList() {
         }
 
         .title {
-          color: #ADA3EF;
+          color: #8b92a0;
           font-size: 18px;
           font-weight: 600;
           user-select: none;
@@ -134,7 +134,7 @@ function SlotsList() {
           height: 1px;
 
           border-radius: 2525px;
-          background: linear-gradient(90deg, #5A5499 0%, rgba(90, 84, 153, 0.00) 100%);
+          background: linear-gradient(90deg, #3a4250 0%, rgba(90, 84, 153, 0.00) 100%);
         }
 
         .slots {

@@ -24,15 +24,15 @@ function Admin(props) {
             <div class='admin-container fadein'>
 
                 <div class='banner'>
-                    <img src='/assets/icons/logoswords.png' width='25' height='19' alt=''/>
+                    <img src='/assets/icons/logoswords.svg' width='25' height='19' alt=''/>
                     <p>ADMIN PANEL</p>
                     <div className='line'/>
                 </div>
 
                 <div class='user-info'>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="19" viewBox="0 0 16 19" fill="none">
-                        <path d="M7.99971 0.104492C5.35299 0.104492 3.19971 2.25777 3.19971 4.90449C3.19971 7.55121 5.35299 9.70449 7.99971 9.70449C10.6464 9.70449 12.7997 7.55121 12.7997 4.90449C12.7997 2.25777 10.6464 0.104492 7.99971 0.104492Z" fill="#ADA3EF"/>
-                        <path d="M13.9721 12.8403C12.658 11.506 10.9159 10.7712 9.06667 10.7712H6.93333C5.08416 10.7712 3.34201 11.506 2.02788 12.8403C0.720178 14.1681 0 15.9208 0 17.7756C0 18.0702 0.238791 18.309 0.533333 18.309H15.4667C15.7612 18.309 16 18.0702 16 17.7756C16 15.9208 15.2798 14.1681 13.9721 12.8403Z" fill="#ADA3EF"/>
+                        <path d="M7.99971 0.104492C5.35299 0.104492 3.19971 2.25777 3.19971 4.90449C3.19971 7.55121 5.35299 9.70449 7.99971 9.70449C10.6464 9.70449 12.7997 7.55121 12.7997 4.90449C12.7997 2.25777 10.6464 0.104492 7.99971 0.104492Z" fill="#8b92a0"/>
+                        <path d="M13.9721 12.8403C12.658 11.506 10.9159 10.7712 9.06667 10.7712H6.93333C5.08416 10.7712 3.34201 11.506 2.02788 12.8403C0.720178 14.1681 0 15.9208 0 17.7756C0 18.0702 0.238791 18.309 0.533333 18.309H15.4667C15.7612 18.309 16 18.0702 16 17.7756C16 15.9208 15.2798 14.1681 13.9721 12.8403Z" fill="#8b92a0"/>
                     </svg>
 
                     <p>
@@ -44,10 +44,10 @@ function Admin(props) {
                     <div class='pages-container'>
                         {URL_TO_PAGE[location?.pathname] === 'CASHIER' && (
                             <div className='pages bevel-light' onClick={(e) => e.currentTarget.classList.toggle('active')}>
-                                <p>{params?.type || 'ROBUX'}</p>
+                                <p>{params?.type || 'COINS'}</p>
 
                                 <div className='pages-dropdown' onClick={(e) => e.stopPropagation()}>
-                                    <p onClick={() => setParams({ type: null })}>ROBUX</p>
+                                    <p onClick={() => setParams({ type: null })}>COINS</p>
                                     <p onClick={() => setParams({ type: 'crypto' })}>CRYPTO</p>
                                 </div>
                             </div>
@@ -90,7 +90,7 @@ function Admin(props) {
                 width: 100%;
                 height: 1px;
                 min-height: 1px;
-                background: #5A5499;
+                background: #3a4250;
               }
               
               .user-info {
@@ -129,7 +129,7 @@ function Admin(props) {
                 z-index: 1;
 
                 border-radius: 3px;
-                background: #4A4581;
+                background: #2c3340;
                 
                 flex-direction: column;
                 
@@ -192,7 +192,7 @@ function Admin(props) {
                 height: 1px;
 
                 border-radius: 2525px;
-                background: linear-gradient(90deg, #5A5499 0%, rgba(90, 84, 153, 0.00) 100%);
+                background: linear-gradient(90deg, #3a4250 0%, rgba(90, 84, 153, 0.00) 100%);
               }
 
               @media only screen and (max-width: 1000px) {

@@ -22,7 +22,7 @@ function SpinnerDecoration(props) {
 
           <linearGradient id="green" x1="11" y1="0" x2="11" y2="375" gradientUnits="userSpaceOnUse">
             <stop stop-color="#7B5532" stop-opacity="0"/>
-            <stop offset="0.494577" stop-color="#59E878"/>
+            <stop offset="0.494577" stop-color="#1fd65f"/>
             <stop offset="1" stop-color="#CE9D18" stop-opacity="0"/>
           </linearGradient>
 

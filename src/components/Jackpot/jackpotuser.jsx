@@ -67,7 +67,7 @@ function JackpotUser(props) {
                 position: relative;
 
                 border-radius: 7px;
-                background: radial-gradient(93.13% 93.13% at 50.00% 93.13%, rgba(252, 163, 30, 0.15) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(0, 0, 0, 0.15);
+                background: radial-gradient(93.13% 93.13% at 50.00% 93.13%, rgba(31, 214, 95, 0.15) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(0, 0, 0, 0.15);
                 
                 overflow: hidden;
                 border: 1px solid transparent;
@@ -80,10 +80,10 @@ function JackpotUser(props) {
               }
               
               .won {
-                background: radial-gradient(93.13% 93.13% at 50.00% 6.87%, rgba(252, 163, 30, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(0deg, rgba(255, 190, 24, 0.25) 0%, rgba(255, 190, 24, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+                background: radial-gradient(93.13% 93.13% at 50.00% 6.87%, rgba(31, 214, 95, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
                 box-shadow: 0px 2px 15px 0px rgba(0, 0, 0, 0.25);
-                border: 1px solid rgba(252, 163, 30, 1);
-                filter: drop-shadow(0px 0px 25px rgba(252, 163, 30, 0.54));
+                border: 1px solid rgba(31, 214, 95, 1);
+                filter: drop-shadow(0px 0px 25px rgba(31, 214, 95, 0.54));
               }
               
               .big {
@@ -92,11 +92,11 @@ function JackpotUser(props) {
               }
               
               .won .bar {
-                background: #FCA31E !important;
+                background: #1fd65f !important;
               }
               
               .won .percent {
-                background: linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), linear-gradient(0deg, rgba(255, 190, 24, 0.25) 0%, rgba(255, 190, 24, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+                background: linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
                 color: white;
               }
               
@@ -113,7 +113,7 @@ function JackpotUser(props) {
                 
                 line-height: 20px;
                 text-align: center;
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 11px;
                 font-weight: 700;

@@ -83,7 +83,7 @@ function AdminDashboard(props) {
             <div class='bar' style={{margin: '30px 0 10px 0'}}/>
 
             <div className='banner'>
-                <img src='/assets/icons/logoswords.png' width='25' height='19' alt=''/>
+                <img src='/assets/icons/logoswords.svg' width='25' height='19' alt=''/>
                 <p>GROWTH</p>
                 <div className='line'/>
             </div>
@@ -95,7 +95,7 @@ function AdminDashboard(props) {
             </div>
 
             <div className='banner'>
-                <img src='/assets/icons/logoswords.png' width='25' height='19' alt=''/>
+                <img src='/assets/icons/logoswords.svg' width='25' height='19' alt=''/>
                 <p>DEMOGRAPHIC</p>
                 <div className='line'/>
             </div>
@@ -122,7 +122,7 @@ function AdminDashboard(props) {
                 height: 90px;
 
                 border-radius: 5px;
-                background: rgba(90, 84, 153, 0.27);
+                background: rgba(42, 50, 63, 0.27);
 
                 color: #FFF;
                 font-family: Geogrotesque Wide, sans-serif;
@@ -133,11 +133,11 @@ function AdminDashboard(props) {
               }
 
               .stat.green {
-                background: rgba(89, 232, 120, 0.15);
+                background: rgba(31, 214, 95, 0.15);
               }
 
               .stat p:last-child {
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 13px;
                 font-weight: 600;
               }
@@ -149,14 +149,14 @@ function AdminDashboard(props) {
               }
 
               .green {
-                color: #59E878 !important;
+                color: #1fd65f !important;
               }
 
               .bar {
                 width: 100%;
                 height: 1px;
                 min-height: 1px;
-                background: #5A5499;
+                background: #2c3340;
               }
 
               .banner {
@@ -167,7 +167,7 @@ function AdminDashboard(props) {
                 height: 45px;
 
                 border-radius: 5px;
-                background: linear-gradient(90deg, rgb(104, 100, 164) -49.01%, rgba(90, 84, 149, 0.655) -5.08%, rgba(66, 53, 121, 0) 98.28%);
+                background: linear-gradient(90deg, rgb(44, 51, 64) -49.01%, rgba(42, 50, 63, 0.655) -5.08%, rgba(30, 36, 46, 0) 98.28%);
 
                 padding: 0 15px;
                 display: flex;
@@ -186,7 +186,7 @@ function AdminDashboard(props) {
                 height: 1px;
 
                 border-radius: 2525px;
-                background: linear-gradient(90deg, #5A5499 0%, rgba(90, 84, 153, 0.00) 100%);
+                background: linear-gradient(90deg, #2c3340 0%, rgba(42, 50, 63, 0.00) 100%);
               }
 
               .banner {
@@ -216,7 +216,7 @@ function AdminDashboard(props) {
                 height: 1px;
 
                 border-radius: 2525px;
-                background: linear-gradient(90deg, #5A5499 0%, rgba(90, 84, 153, 0.00) 100%);
+                background: linear-gradient(90deg, #2c3340 0%, rgba(42, 50, 63, 0.00) 100%);
               }
               
               .graph {
@@ -224,7 +224,7 @@ function AdminDashboard(props) {
                 height: 235px;
 
                 border-radius: 15px;
-                background: #2D2755;
+                background: #1a1f29;
               }
             `}</style>
         </>

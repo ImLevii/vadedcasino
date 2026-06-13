@@ -2,6 +2,16 @@ import {createSignal, For} from "solid-js";
 import {addDropdown, createNotification} from "../../util/api";
 import {A} from "@solidjs/router";
 
+const GAMEMODES = [
+    {name: 'CASE BATTLES', href: '/battles', img: '/assets/gamemodes/battles.png'},
+    {name: 'SLOTS', href: '/slots', img: '/assets/gamemodes/slots.png'},
+    {name: 'MINES', href: '/mines', img: '/assets/gamemodes/mines.png'},
+    {name: 'COINFLIP', href: '/coinflip', img: '/assets/gamemodes/coinflip.png'},
+    {name: 'ROULETTE', href: '/roulette', img: '/assets/gamemodes/roulette.png'},
+    {name: 'JACKPOT', href: '/jackpot', img: '/assets/gamemodes/jackpot.png'},
+    {name: 'CASES', href: '/cases', img: '/assets/gamemodes/cases.png'},
+]
+
 function Games() {
 
     const [active, setActive] = createSignal(false)
@@ -10,8 +20,8 @@ function Games() {
     return (
         <>
             <div class='games-container' onClick={(e) => e.stopPropagation()}>
-                <div class={'bevel games ' + (active() ? 'active' : '')} onClick={() => setActive(!active())}>
-                    <svg class='cube' width="19" height="22" viewBox="0 0 19 22" fill="#B09BEC"
+                <div class={'games ' + (active() ? 'active' : '')} onClick={() => setActive(!active())}>
+                    <svg class='cube' width="16" height="19" viewBox="0 0 19 22" fill="#8b92a0"
                          xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M0 6.7481V10.7158L3.62116 12.8067V8.6235L0.013838 6.5412C0.00470492 6.60928 0 6.67839 0 6.7481Z"/>
@@ -49,53 +59,23 @@ function Games() {
                 <div class={'dropdown ' + (active() ? 'active' : '')}>
                     <div class='decoration-arrow'/>
                     <div class='dropdown-container'>
-                        <div className='gamemode'
-                             style={{'background-image': 'url("/assets/gamemodes/battles.png")'}}>
-                            <A href='/battles' class='gamemode-link' onClick={() => setActive(false)}>
-                                <p className='name'>CASE BATTLES</p>
-                            </A>
+                        <div class='dropdown-header'>
+                            <span class='dot'/>
+                            GAME MODES
                         </div>
 
-                        <div className='gamemode'
-                             style={{'background-image': 'url("/assets/gamemodes/slots.png")'}}>
-                            <A href='/slots' class='gamemode-link' onClick={() => setActive(false)}>
-                                <p className='name'>SLOTS</p>
-                            </A>
-                        </div>
-
-                        <div className='gamemode'
-                             style={{'background-image': 'url("/assets/gamemodes/mines.png")'}}>
-                            <A href='/mines' class='gamemode-link' onClick={() => setActive(false)}>
-                                <p className='name'>MINES</p>
-                            </A>
-                        </div>
-
-                        <div className='gamemode'
-                             style={{'background-image': 'url("/assets/gamemodes/coinflip.png")'}}>
-                            <A href='/coinflip' class='gamemode-link' onClick={() => setActive(false)}>
-                                <p className='name'>COINFLIP</p>
-                            </A>
-                        </div>
-
-                        <div className='gamemode'
-                             style={{'background-image': 'url("/assets/gamemodes/roulette.png")'}}>
-                            <A href='/roulette' class='gamemode-link' onClick={() => setActive(false)}>
-                                <p className='name'>ROULETTE</p>
-                            </A>
-                        </div>
-
-                        <div class='gamemode'
-                             style={{'background-image': 'url("/assets/gamemodes/jackpot.png")'}}>
-                            <A href='/jackpot' class='gamemode-link' onClick={() => setActive(false)}>
-                                <p class='name'>JACKPOT</p>
-                            </A>
-                        </div>
-
-                        <div class='gamemode'
-                             style={{'background-image': 'url("/assets/gamemodes/cases.png")'}}>
-                            <A href='/cases' class='gamemode-link' onClick={() => setActive(false)}>
-                                <p class='name'>CASES</p>
-                            </A>
+                        <div class='gamemode-list'>
+                            <For each={GAMEMODES}>{(mode) => (
+                                <A href={mode.href} class='gamemode' onClick={() => setActive(false)}>
+                                    <div class='thumb' style={{'background-image': `url("${mode.img}")`}}/>
+                                    <p class='name'>{mode.name}</p>
+                                    <svg class='chevron' width="6" height="10" viewBox="0 0 6 10" fill="none"
+                                         xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.6"
+                                              stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </A>
+                            )}</For>
                         </div>
                     </div>
                 </div>
@@ -105,31 +85,30 @@ function Games() {
               .games-container {
                 position: relative;
                 z-index: 2;
-                flex: 1;
               }
 
               .games {
                 display: flex;
                 align-items: center;
-                justify-content: space-around;
-                width: 143px;
-                padding: 0 15px;
+                gap: 8px;
+                padding: 0 12px;
                 box-sizing: border-box;
-                gap: 10px;
 
-                height: 43px;
+                height: 36px;
+                border-radius: 8px;
 
                 font-weight: 700;
                 font-size: 14px;
-                color: #ADA3EF;
+                color: #8b92a0;
 
                 cursor: pointer;
                 user-select: none;
-                transition: color .3s;
+                transition: color .2s, background .2s;
               }
 
-              .games.active {
+              .games:hover, .games.active {
                 color: white;
+                background: rgba(255, 255, 255, 0.04);
               }
 
               .cube {
@@ -137,7 +116,7 @@ function Games() {
               }
 
               .games.active .cube {
-                fill: #FCA31E;
+                fill: #1fd65f;
               }
 
               .games.active .arrow {
@@ -146,15 +125,14 @@ function Games() {
 
               .dropdown {
                 position: absolute;
-                width: 236px;
+                width: 268px;
 
-                top: 75px;
-                left: 50%;
-                transform: translateX(-50%);
+                top: 46px;
+                left: 0;
 
                 max-height: 0;
                 z-index: 1;
-                transition: max-height .3s;
+                transition: max-height .3s ease;
                 overflow: hidden;
               }
 
@@ -163,75 +141,120 @@ function Games() {
               }
 
               .decoration-arrow {
-                width: 13px;
+                width: 14px;
                 height: 9px;
 
-                background: #26214A;
+                background: #161a22;
                 position: absolute;
-                left: 50%;
-                transform: translateX(-50%);
+                left: 24px;
+                z-index: 2;
 
                 clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
               }
 
               .dropdown-container {
                 margin-top: 8px;
-                padding: 9px;
+                padding: 10px;
 
-                border: 1px solid #3A336D;
-                background: #26214A;
-                border-radius: 10px;
-
-                font-family: 'Geogrotesque Wide';
-                font-weight: 600;
-                font-size: 13px;
-                color: #ADA3EF;
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                background: linear-gradient(180deg, #161a22 0%, #11141b 100%);
+                border-radius: 12px;
+                box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
 
                 display: flex;
                 flex-direction: column;
+                gap: 8px;
+              }
+
+              .dropdown-header {
+                display: flex;
                 align-items: center;
+                gap: 8px;
+
+                padding: 4px 6px 2px;
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-weight: 700;
+                font-size: 11px;
+                letter-spacing: 1.4px;
+                color: #6b7280;
+                text-transform: uppercase;
+              }
+
+              .dropdown-header .dot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: #1fd65f;
+                box-shadow: 0 0 8px rgba(31, 214, 95, 0.8);
+              }
+
+              .gamemode-list {
+                display: flex;
+                flex-direction: column;
                 gap: 5px;
               }
 
               .gamemode {
-                width: 100%;
-                aspect-ratio: 218 / 98;
-                border-radius: 6px;
-                height: fit-content;
-
                 display: flex;
                 align-items: center;
+                gap: 11px;
 
-                position: relative;
-                background-size: 100% 100%;
-                background-position: center;
-                transition: background .3s;
+                padding: 7px 10px 7px 7px;
+                border-radius: 9px;
+                border: 1px solid transparent;
+                background: rgba(255, 255, 255, 0.02);
+
+                text-decoration: none;
+                cursor: pointer;
+                transition: background .2s ease, border-color .2s ease, transform .2s ease;
               }
 
               .gamemode:hover {
-                background-size: 110% 110%;
+                background: rgba(31, 214, 95, 0.08);
+                border-color: rgba(31, 214, 95, 0.45);
+                transform: translateX(2px);
               }
 
-              .gamemode img {
-                width: 100%;
+              .thumb {
+                width: 46px;
+                height: 34px;
+                flex-shrink: 0;
+                border-radius: 6px;
+
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+
+                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+                transition: box-shadow .2s ease;
+              }
+
+              .gamemode:hover .thumb {
+                box-shadow: inset 0 0 0 1px rgba(31, 214, 95, 0.4), 0 0 12px rgba(31, 214, 95, 0.25);
               }
 
               .name {
-                width: 100%;
-                height: 25px;
-                border-radius: 0 0 6px 6px;
+                flex: 1;
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-weight: 700;
+                font-size: 13px;
+                letter-spacing: .3px;
+                color: #c3cad6;
+                transition: color .2s ease;
+              }
 
-                background: rgba(0, 0, 0, 0.32);
-                
+              .gamemode:hover .name {
+                color: #fff;
+              }
 
-                display: flex;
-                align-items: center;
-                justify-content: center;
+              .chevron {
+                color: #3a4150;
+                transition: color .2s ease, transform .2s ease;
+              }
 
-                left: 0;
-                bottom: 0;
-                position: absolute;
-                color: white;
+              .gamemode:hover .chevron {
+                color: #1fd65f;
+                transform: translateX(2px);
               }
             `}</style>
         </>

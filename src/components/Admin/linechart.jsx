@@ -23,7 +23,7 @@ function LineChart(props) {
         const maxPlayers = calculateMaxPlayers();
 
         // Fill for area under the graph
-        ctx.fillStyle = "rgba(60, 50, 126, 0.35)";
+        ctx.fillStyle = "rgba(42, 50, 63, 0.35)";
         ctx.beginPath();
 
         // Loop through the data and draw lines and fill
@@ -54,7 +54,7 @@ function LineChart(props) {
         ctx.fill();
 
         // Draw lines between data points
-        ctx.strokeStyle = "#6155A1";
+        ctx.strokeStyle = "#3a4250";
 
         ctx.beginPath();
         for (let i = 0; i < props?.data.length; i++) {
@@ -71,7 +71,7 @@ function LineChart(props) {
         ctx.stroke();
 
         // Add gridlines along the X and Y axes
-        ctx.strokeStyle = "rgba(67, 61, 107, 0.75)"; // Color for gridlines
+        ctx.strokeStyle = "rgba(42, 50, 63, 0.75)"; // Color for gridlines
         ctx.lineWidth = 1;
 
         // Draw vertical gridlines along the X-axis
@@ -93,7 +93,7 @@ function LineChart(props) {
             ctx.stroke();
         }
 
-        // Draw circles at data points filled with #6155A1
+        // Draw circles at data points filled with #3a4250
         ctx.fillStyle = "white";
 
         for (let i = 0; i < props?.data.length; i++) {
@@ -198,7 +198,7 @@ function LineChart(props) {
                   max-width: 240px;
                   height: 90px;
 
-                  color: #ADA3EF;
+                  color: #8b92a0;
                   font-family: Geogrotesque Wide, sans-serif;
                   font-size: 16px;
                   font-weight: 500;

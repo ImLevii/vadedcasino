@@ -19,7 +19,7 @@ function CreateCoinflip(props) {
   function createTrail() {
     let max = user() ? Math.min(MAX_BET, user()?.balance) : MIN_BET
     let value = (slider.value - MIN_BET) / (max - MIN_BET) * 100
-    slider.style.background = 'linear-gradient(to right, #FCA31E 0%, #FCA31E ' + value + '%, rgba(252, 163, 30, 0.26) ' + value + '%, rgba(252, 163, 30, 0.26) 100%)'
+    slider.style.background = 'linear-gradient(to right, #1fd65f 0%, #1fd65f ' + value + '%, rgba(31, 214, 95, 0.26) ' + value + '%, rgba(31, 214, 95, 0.26) 100%)'
     resizeInput()
   }
 
@@ -38,21 +38,21 @@ function CreateCoinflip(props) {
               <svg xmlns="http://www.w3.org/2000/svg" width="10" height="8" viewBox="0 0 10 8" fill="none">
                 <path
                   d="M3.9497 0.447999L5.21006 1.936L6.45216 0.447999C6.68353 0.149333 6.95752 0 7.27413 0H9.6122C9.79486 0 9.90445 0.0533333 9.94099 0.16C9.9897 0.256 9.95925 0.362666 9.84966 0.48L6.79921 3.968L9.88619 7.52C9.99578 7.63733 10.0262 7.74933 9.97752 7.856C9.94099 7.952 9.83139 8 9.64873 8H6.96361C6.68353 8 6.40954 7.85067 6.14163 7.552L4.863 6.048L3.58438 7.552C3.31647 7.85067 3.04857 8 2.78067 8H0.351272C0.180788 8 0.071191 7.952 0.0224814 7.856C-0.0262283 7.74933 0.00421525 7.63733 0.113812 7.52L3.27385 3.936L0.296473 0.48C0.186876 0.362666 0.150344 0.256 0.186876 0.16C0.235586 0.0533333 0.351272 0 0.533933 0H3.10946C3.42607 0 3.70615 0.149333 3.9497 0.447999Z"
-                  fill="#ADA3EF"/>
+                  fill="#8b92a0"/>
               </svg>
             </button>
 
             <p class='title'><img src='/assets/icons/coin2.svg' height='20' alt=''/>COINFLIP CREATION</p>
 
             <button class={'color red ' + (coin() === 'fire' ? 'active' : '')} onClick={() => setCoin('fire')}>
-              <img class='coin' src='/assets/icons/firecoin.svg' height='44' width='44'/>
+              <img class='coin' src='/assets/icons/coin.svg' height='44' width='44'/>
               <div class='coinname'>
                 <p>FIRE</p>
               </div>
             </button>
 
             <button class={'color blue ' + (coin() === 'ice' ? 'active' : '')} onClick={() => setCoin('ice')}>
-              <img class='coin' src='/assets/icons/icecoin.svg' height='44' width='44'/>
+              <img class='coin' src='/assets/icons/coin2.svg' height='44' width='44'/>
               <div class='coinname'>
                 <p>ICE</p>
               </div>
@@ -159,7 +159,7 @@ function CreateCoinflip(props) {
           height: fit-content;
           min-height: 340px;
           max-height: 650px;
-          background: #2C2952;
+          background: #1a1f29;
 
           display: flex;
           flex-direction: column;
@@ -177,11 +177,11 @@ function CreateCoinflip(props) {
 
           padding: 0 20px;
 
-          background: #322F5F;
+          background: #232a36;
         }
 
         .header {
-          background: linear-gradient(109deg, rgba(252, 163, 30, 0.11) 0%, rgba(156, 101, 19, 0.07) 19.78%, rgba(0, 0, 0, 0.00) 100%), #322F5F;
+          background: linear-gradient(109deg, rgba(31, 214, 95, 0.11) 0%, rgba(156, 101, 19, 0.07) 19.78%, rgba(0, 0, 0, 0.00) 100%), #232a36;
         }
 
         .footer {
@@ -197,7 +197,7 @@ function CreateCoinflip(props) {
           background: rgba(90, 84, 153, 0.35);
           line-height: 30px;
 
-          color: #ADA3EF;
+          color: #8b92a0;
           font-size: 11px;
           font-weight: 600;
         }
@@ -281,7 +281,7 @@ function CreateCoinflip(props) {
           align-items: center;
           font-weight: 700;
           font-size: 10px;
-          color: #ADA3EF;
+          color: #8b92a0;
 
           border-radius: 3px;
           background: rgba(90, 84, 153, 0.35);
@@ -345,7 +345,7 @@ function CreateCoinflip(props) {
         }
 
         .blue.active .coinname:before {
-          background: linear-gradient(rgba(30, 77, 209, 0.15), rgba(30, 77, 209, 0.15)), #322F5F;
+          background: linear-gradient(rgba(30, 77, 209, 0.15), rgba(30, 77, 209, 0.15)), #232a36;
         }
 
         .red.active .coinname {
@@ -354,7 +354,7 @@ function CreateCoinflip(props) {
         }
 
         .red.active .coinname:before {
-          background: linear-gradient(rgba(236, 75, 69, 0.15), rgba(236, 75, 69, 0.15)), #322F5F;
+          background: linear-gradient(rgba(236, 75, 69, 0.15), rgba(236, 75, 69, 0.15)), #232a36;
         }
 
         .coin {
@@ -364,7 +364,7 @@ function CreateCoinflip(props) {
         .robux-slider-container {
           margin-top: auto;
           border-radius: 3px;
-          background: linear-gradient(0deg, rgba(255, 190, 24, 0.25) 0%, rgba(255, 190, 24, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+          background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
           width: 100%;
           height: 25px;
           padding: 0 6px;
@@ -404,7 +404,7 @@ function CreateCoinflip(props) {
           outline: unset;
 
           border-radius: 25px;
-          background: rgba(252, 163, 30, 0.26);
+          background: rgba(31, 214, 95, 0.26);
           max-width: 190px;
           height: 5px;
 

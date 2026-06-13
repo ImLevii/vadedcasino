@@ -174,7 +174,7 @@ function Crash(props) {
 
   return (
     <>
-      <Title>BloxClash | Crash</Title>
+      <Title>Cosmic Luck | Crash</Title>
 
       <div class='crash-container fadein'>
         <div class='crash-header'>
@@ -426,7 +426,7 @@ function Crash(props) {
 
           display: flex;
 
-          background: linear-gradient(238deg, #242043 0%, #251F4E 100%);
+          background: linear-gradient(238deg, #161a22 0%, #1b202a 100%);
         }
 
         .dragon {
@@ -477,7 +477,7 @@ function Crash(props) {
           justify-content: space-between;
           padding: 0 10px;
 
-          background: linear-gradient(238deg, #48428B 0%, #251F4E 100%);
+          background: linear-gradient(238deg, #48428B 0%, #1b202a 100%);
         }
 
         .bets {
@@ -521,10 +521,10 @@ function Crash(props) {
           text-align: center;
 
           background: #413976;
-          box-shadow: 0px 1px 0px 0px #1B1734, 0px -1px 0px 0px #5B509E;
+          box-shadow: 0px 1px 0px 0px #0e1116, 0px -1px 0px 0px #3a4250;
 
           font-family: "Geogrotesque Wide", sans-serif;
-          color: #ADA3EF;
+          color: #8b92a0;
           font-size: 13px;
           font-weight: 700;
           cursor: pointer;
@@ -532,7 +532,7 @@ function Crash(props) {
 
         .betting-option.active {
           color: white;
-          background: #1E1A3A;
+          background: #12151c;
           box-shadow: unset;
         }
 
@@ -572,7 +572,7 @@ function Crash(props) {
           height: 40px;
           border-radius: 0px 0px 3px 3px;
           border: 1px solid #3E3771;
-          background: #1F1A3C;
+          background: #14171f;
 
           display: flex;
           align-items: center;
@@ -604,10 +604,10 @@ function Crash(props) {
           box-shadow: unset;
 
           border-radius: 3px;
-          border: 1px solid #FCA31E;
-          background: rgba(252, 163, 30, 0.25);
+          border: 1px solid #1fd65f;
+          background: rgba(31, 214, 95, 0.25);
 
-          color: #FCA31E;
+          color: #1fd65f;
         }
 
         .round-info {
@@ -621,7 +621,7 @@ function Crash(props) {
         }
 
         .countdown {
-          color: #FCA31E;
+          color: #1fd65f;
           font-size: 44px;
           font-weight: 700;
           text-transform: uppercase;

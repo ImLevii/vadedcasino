@@ -125,7 +125,7 @@ function Rakeback(props) {
           height: 100%;
           width: 100%;
 
-          background: #2C2952;
+          background: #1a1f29;
           box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
           border-radius: 15px;
 
@@ -168,7 +168,7 @@ function Rakeback(props) {
           justify-content: center;
 
           font-weight: 700;
-          color: #ADA3EF;
+          color: #8b92a0;
           cursor: pointer;
         }
 

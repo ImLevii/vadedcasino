@@ -70,12 +70,12 @@ function Affiliates(props) {
     }
 
     function copyAffLink() {
-        navigator.clipboard.writeText(`https://bloxclash.com/?a=${code()}`);
+        navigator.clipboard.writeText(`https://cosmicluck.gg/?a=${code()}`);
     }
 
     return (
         <>
-            <Title>BloxClash | Affiliates</Title>
+            <Title>Cosmic Luck | Affiliates</Title>
 
             <div class='affiliate-container fadein'>
                 <div class='affiliate-banner'>
@@ -83,13 +83,13 @@ function Affiliates(props) {
                     <img class='art right' src='/assets/art/greenswiggle.png' width='380' height='86'/>
 
                     <img class='coin' src='/assets/icons/coin.svg' width='100' height='88'/>
-                    <img class='coin two' src='/assets/icons/coinreverse.png' width='53' height='57'/>
+                    <img class='coin two' src='/assets/icons/coin2.svg' width='53' height='57'/>
                     <img class='coin three' src='/assets/icons/coin.svg' width='96' height='86'/>
-                    <img class='coin four' src='/assets/icons/coinreverse.png' width='63' height='68'/>
+                    <img class='coin four' src='/assets/icons/coin2.svg' width='63' height='68'/>
 
                     <h1 class='title'>AFFILIATES</h1>
                     <p class='desc'>
-                        INVITE PEOPLE TO BLOXCLASH TO <span class='greengradient'>EARN 10%</span> ON ALL REFERRAL WAGERS!
+                        INVITE PEOPLE TO COSMIC LUCK TO <span class='greengradient'>EARN 10%</span> ON ALL REFERRAL WAGERS!
                         THE MORE THE USER YOU REFER WAGERS, THE MORE <span class='greengradient'>YOU EARN!</span>
                     </p>
                 </div>
@@ -134,7 +134,7 @@ function Affiliates(props) {
 
                                 <button class='claim' onClick={async () => {
                                     if (affiliates()?.unclaimedEarnings < affiliates()?.minClaim) {
-                                        return createNotification('error', `You need a minimum of ${affiliates()?.minClaim} Robux to claim your affiliates.`)
+                                        return createNotification('error', `You need a minimum of ${affiliates()?.minClaim} Coins to claim your affiliates.`)
                                     }
 
                                     let res = await authedAPI('/user/affiliate/claim', 'POST', null, true)
@@ -156,7 +156,7 @@ function Affiliates(props) {
                         <div class='settings'>
                             <div class='setting'>
                                 <p class='tag'>YOUR REFERRAL LINK</p>
-                                <p ref={linkRef}>{code() ? `https://bloxclash.com/?a=${code()}` : `You haven't set a referral code yet!`}</p>
+                                <p ref={linkRef}>{code() ? `https://cosmicluck.gg/?a=${code()}` : `You haven't set a referral code yet!`}</p>
 
                                 <button class='copy' onClick={() => copyAffLink()}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="16" viewBox="0 0 14 16">
@@ -342,7 +342,7 @@ function Affiliates(props) {
                 width: 100%;
                 min-height: 1px;
                 margin: 25px 0;
-                background: #5A5499;
+                background: #3a4250;
               }
               
               .stats {
@@ -378,17 +378,17 @@ function Affiliates(props) {
               }
               
               .stat.green {
-                background: rgba(89, 232, 120, 0.15);
+                background: rgba(31, 214, 95, 0.15);
               }
 
               .stat p:last-child {
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 13px;
                 font-weight: 600;
               }
               
               .green {
-                color: #59E878 !important;
+                color: #1fd65f !important;
               }
               
               .claim {
@@ -455,7 +455,7 @@ function Affiliates(props) {
                 border-radius: 2px;
                 background: rgba(90, 84, 153, 0.35);
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
                 line-height: 25px;
@@ -494,7 +494,7 @@ function Affiliates(props) {
               }
               
               .copy:active svg {
-                fill: #ADA3EF;
+                fill: #8b92a0;
               }
               
               .change {
@@ -516,7 +516,7 @@ function Affiliates(props) {
                 display: flex;
                 align-items: center;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 14px;
                 font-weight: 700;
               }
@@ -539,7 +539,7 @@ function Affiliates(props) {
                 padding: 0 15px;
                 border-radius: 2px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
               }
@@ -549,8 +549,8 @@ function Affiliates(props) {
                 height: 17px;
                 text-align: center;
                 line-height: 17px;
-                background: rgba(89, 232, 120, 0.15);
-                color: #59E878;
+                background: rgba(31, 214, 95, 0.15);
+                color: #1fd65f;
                 font-weight: 600;
                 border-radius: 2px;
               }

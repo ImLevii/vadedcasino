@@ -61,7 +61,7 @@ function CryptoTX(props) {
 
           background: rgba(90, 84, 153, 0.27);
 
-          color: #ADA3EF;
+          color: #8b92a0;
           font-size: 14px;
           font-weight: 600;
           
@@ -100,7 +100,7 @@ function CryptoTX(props) {
 
         .status {
           text-transform: uppercase;
-          color: #FCA31E;
+          color: #1fd65f;
         }
 
         .completed {

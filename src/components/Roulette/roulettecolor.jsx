@@ -3,9 +3,9 @@ import {authedAPI, createNotification} from "../../util/api";
 import {createEffect, createSignal, For} from "solid-js";
 
 const iconName = {
-    'red': 'redtiki.png',
-    'green': 'greentiki.png',
-    'gold': 'goldsword.png'
+    'red': 'roulette-red.svg',
+    'green': 'roulette-green.svg',
+    'gold': 'roulette-gold.svg'
 }
 
 const COLORS = {
@@ -62,9 +62,9 @@ function RouletteColor(props) {
                         createNotification('success', `Successfully placed a bet on ${props?.color} for ${props?.amount} robux.`)
                     }
                 }}>
-                    <img src={`assets/icons/${iconName[props.color]}`} alt='' height='50'/>
-                    <p>PLACE BET</p>
-                    <p class={'win ' + props.color}>WIN {props?.color === 'gold' ? '14' : '2'}X</p>
+                    <span class='multi'>x{props?.color === 'gold' ? '14' : '2'}</span>
+                    <span class='cname'>{props.color.toUpperCase()}</span>
+                    <img src={`assets/icons/${iconName[props.color]}`} alt='' height='34'/>
                 </button>
 
                 <div class='bets-header'>
@@ -108,7 +108,7 @@ function RouletteColor(props) {
               }
 
               .gray {
-                opacity: 0.5;
+                opacity: 0.45;
                 mix-blend-mode: luminosity;
               }
 
@@ -121,62 +121,84 @@ function RouletteColor(props) {
                 outline: unset;
                 width: unset;
                 border: unset;
-                background: unset;
 
-                min-height: 70px;
-                max-height: 70px;
+                min-height: 64px;
+                max-height: 64px;
                 padding: 0 20px;
 
                 display: flex;
                 align-items: center;
-                gap: 20px;
+                gap: 12px;
                 flex: 1;
 
+                border-radius: 10px;
                 cursor: pointer;
+                transition: filter .15s ease, transform .15s ease;
+              }
+
+              .color:hover {
+                filter: brightness(1.12);
+                transform: translateY(-1px);
+              }
+
+              .color .multi {
+                font-size: 20px;
+                font-weight: 800;
+              }
+
+              .color .cname {
+                font-size: 15px;
+                font-weight: 700;
+                letter-spacing: .5px;
+                opacity: .9;
+              }
+
+              .color img {
+                margin-left: auto;
               }
 
               .color.green {
-                border-radius: 7px;
-                border: 1px solid #41D163;
-                background: rgba(65, 209, 99, 0.25);
-                box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.15);
+                border: 1px solid rgba(31, 214, 95, 0.55);
+                background: linear-gradient(180deg, rgba(31, 214, 95, 0.28) 0%, rgba(31, 214, 95, 0.12) 100%);
               }
 
               .color.gold {
-                border-radius: 7px;
-                border: 1px solid #FF9900;
-                background: linear-gradient(37deg, rgba(255, 153, 0, 0.25) 30.03%, rgba(249, 172, 57, 0.25) 42.84%);
-                box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.15);
+                border: 1px solid rgba(245, 166, 35, 0.55);
+                background: linear-gradient(180deg, rgba(245, 166, 35, 0.28) 0%, rgba(245, 166, 35, 0.12) 100%);
               }
 
               .color.red {
-                border-radius: 7px;
-                border: 1px solid #F04B69;
-                background: rgba(197, 56, 82, 0.25);
-                box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.15);
+                border: 1px solid rgba(232, 69, 95, 0.55);
+                background: linear-gradient(180deg, rgba(232, 69, 95, 0.28) 0%, rgba(232, 69, 95, 0.12) 100%);
               }
 
               .color.red img {
-                filter: drop-shadow(0px 0px 15px #C53852);
+                filter: drop-shadow(0 0 12px rgba(232, 69, 95, 0.7));
               }
 
               .color.green img {
-                filter: drop-shadow(0px 0px 15px #41D163);
+                filter: drop-shadow(0 0 12px rgba(31, 214, 95, 0.7));
+              }
+
+              .color.gold img {
+                filter: drop-shadow(0 0 12px rgba(245, 166, 35, 0.7));
               }
 
               .bets-header {
-                margin-top: 35px;
-                min-height: 30px;
-                border-radius: 5px 5px 0 0;
-                background: linear-gradient(238deg, #6159B0 0%, #43378D 100%);
+                margin-top: 14px;
+                min-height: 34px;
+                border-radius: 8px 8px 0 0;
+                background: #16181f;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                border-bottom: none;
 
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                padding: 0 15px;
+                padding: 0 14px;
 
-                color: #9F9AC8;
-                font-size: 14px;
+                color: #6b7280;
+                font-size: 13px;
                 font-weight: 700;
               }
 
@@ -187,57 +209,64 @@ function RouletteColor(props) {
               }
 
               .bet {
-                background: #403B73;
+                background: #11141b;
+                border-left: 1px solid rgba(255, 255, 255, 0.05);
+                border-right: 1px solid rgba(255, 255, 255, 0.05);
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                padding: 0 15px;
+                padding: 0 14px;
 
-                min-height: 50px;
+                min-height: 48px;
 
-                color: #FFF;
+                color: #c3cad6;
                 font-size: 14px;
                 font-family: Geogrotesque Wide;
                 font-weight: 700;
               }
 
+              .bets > div:last-child {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                border-radius: 0 0 8px 8px;
+              }
+
               .green-top {
-                background: rgba(65, 209, 99, 0.10);
+                background: rgba(31, 214, 95, 0.08);
               }
 
               .gold-top {
-                background: linear-gradient(37deg, rgba(255, 153, 0, 0.10) 30.03%, rgba(249, 172, 57, 0.10) 42.84%);
+                background: rgba(245, 166, 35, 0.08);
               }
 
               .red-top {
-                background: rgba(240, 75, 105, 0.10);
+                background: rgba(232, 69, 95, 0.08);
               }
 
               .green-top .total {
-                color: #41D163;
+                color: #1fd65f;
               }
 
               .gold-top .total {
-                color: var(--gold);
+                color: #f5a623;
               }
 
               .red-top .total {
-                color: #F04B69;
+                color: #e8455f;
               }
 
               .green-top .top-bet {
-                color: #41D163;
-                text-shadow: 0px 0px 15px #41D163;
+                color: #1fd65f;
+                text-shadow: 0px 0px 15px #1fd65f;
               }
 
               .gold-top .top-bet {
-                color: var(--gold);
-                text-shadow: 0px 0px 15px #FE9F12;
+                color: #f5a623;
+                text-shadow: 0px 0px 15px #f5a623;
               }
 
               .red-top .top-bet {
-                color: #F04B69;
-                text-shadow: 0px 0px 15px #F04B69;
+                color: #e8455f;
+                text-shadow: 0px 0px 15px #e8455f;
               }
 
               .top-bet {
@@ -256,7 +285,7 @@ function RouletteColor(props) {
               }
 
               .green {
-                color: #59E878;
+                color: #1fd65f;
               }
 
               .gold {

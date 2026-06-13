@@ -60,9 +60,9 @@ function Surveys(props) {
                 <SurveyIssues close={() => setIssues(false)}/>
             )}
 
-            <Title>BloxClash | Surveys</Title>
+            <Title>Cosmic Luck | Surveys</Title>
             <Meta name='title' content='Surveys'></Meta>
-            <Meta name='description' content='Don’t Have Robux? Don’t Worry, We Got you. Make Free Robux With Our Survey Providers.'></Meta>
+            <Meta name='description' content='Don’t Have Coins? Don’t Worry, We Got you. Earn Free Coins With Our Survey Providers.'></Meta>
 
             <div class='surveys-base-container'>
                 <LiveEarns/>
@@ -154,7 +154,7 @@ function Surveys(props) {
                 height: 1px;
 
                 border-radius: 2525px;
-                background: linear-gradient(90deg, #5A5499 0%, rgba(90, 84, 153, 0.00) 100%);
+                background: linear-gradient(90deg, #3a4250 0%, rgba(90, 84, 153, 0.00) 100%);
               }
 
               .arrow {
@@ -188,16 +188,16 @@ function Surveys(props) {
                 justify-content: center;
 
                 border-radius: 8px;
-                border: 1px solid rgba(134, 111, 234, 0.15);
-                background: linear-gradient(0deg, rgba(64, 57, 118, 0.65) 0%, rgba(64, 57, 118, 0.65) 100%), radial-gradient(60% 60% at 50% 50%, rgba(147, 126, 236, 0.15) 0%, rgba(102, 83, 184, 0.15) 100%);
+                border: 1px solid rgba(69, 229, 127, 0.15);
+                background: linear-gradient(0deg, rgba(42, 50, 63, 0.65) 0%, rgba(42, 50, 63, 0.65) 100%), radial-gradient(60% 60% at 50% 50%, rgba(37, 224, 107, 0.15) 0%, rgba(24, 184, 83, 0.15) 100%);
 
                 cursor: pointer;
                 transition: border .3s;
               }
 
               .provider.active {
-                border: 1px solid #866FEA;
-                background: #40397F;
+                border: 1px solid #45e57f;
+                background: #2a323f;
                 box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.10);
               }
 
@@ -213,7 +213,7 @@ function Surveys(props) {
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                color: #ADA3EF;
+                color: #8b92a0;
                 
                 text-align: center;
               }

@@ -38,7 +38,7 @@ router.get('/transactions', isAuthed, async (req, res) => {
     const pages = Math.ceil(total / resultsPerPage);
 
     if (page > pages) return res.status(404).json({ error: 'PAGE_NOT_FOUND' });
-    const [data] = await sql.query('SELECT txId, currency, cryptoAmount, fiatAmount, robuxAmount, status, createdAt, modifiedAt FROM cryptoDeposits WHERE userId = ? ORDER BY id DESC LIMIT ? OFFSET ?', [req.userId, resultsPerPage, offset]);
+    const [data] = await sql.query('SELECT txId, currency, cryptoAmount, fiatAmount, coinAmount, status, createdAt, modifiedAt FROM cryptoDeposits WHERE userId = ? ORDER BY id DESC LIMIT ? OFFSET ?', [req.userId, resultsPerPage, offset]);
     
     res.json({
         page,
@@ -153,7 +153,7 @@ router.post('/ipn', async (req, res) => {
 
                 userId = wallet.userId;
 
-                const [result] = await connection.query('INSERT INTO cryptoDeposits (userId, currency, cryptoAmount, fiatAmount, robuxAmount, txId, status) VALUES (?, ?, ?, ?, ?, ?, ?)', [userId, currency.id, event.amount, usd, robux, event.txn_id, status]);
+                const [result] = await connection.query('INSERT INTO cryptoDeposits (userId, currency, cryptoAmount, fiatAmount, coinAmount, txId, status) VALUES (?, ?, ?, ?, ?, ?, ?)', [userId, currency.id, event.amount, usd, robux, event.txn_id, status]);
                 depositId = result.insertId;
 
                 if (status != 'completed') {
@@ -162,7 +162,7 @@ router.post('/ipn', async (req, res) => {
                 }
 
             } else {
-                await connection.query('UPDATE cryptoDeposits SET status = ?, robuxAmount = ?, fiatAmount = ? WHERE id = ?', [status, robux, usd, depositId]);
+                await connection.query('UPDATE cryptoDeposits SET status = ?, coinAmount = ?, fiatAmount = ? WHERE id = ?', [status, robux, usd, depositId]);
             }
 
             if (status != 'completed') {

@@ -3,7 +3,7 @@ const { sql } = require('../../database');
 
 const data = new SlashCommandBuilder()
 	.setName('user')
-	.setDescription('Staff only. Get a BloxClash user Discord linkage.')
+	.setDescription('Staff only. Get a Cosmic Luck user Discord linkage.')
     .addStringOption(option =>
 		option.setName('id')
 			.setDescription('Roblox username or ID, Discord mention or ID.')

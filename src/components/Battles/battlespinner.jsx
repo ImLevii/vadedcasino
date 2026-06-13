@@ -87,7 +87,7 @@ function BattleSpinner(props) {
 
     let color = 'linear-gradient(90deg, rgba(249, 81, 81, 0.00) 0%, #F95151 100%)'
     if (props?.roundWinners?.includes(props?.team))
-      color = 'linear-gradient(90deg, rgba(89, 232, 120, 0.00) 0%, #59E878 100%)'
+      color = 'linear-gradient(90deg, rgba(31, 214, 95, 0.00) 0%, #1fd65f 100%)'
 
     bar.animate(
       {
@@ -194,7 +194,7 @@ function BattleSpinner(props) {
           </div>
         ) : props?.player ? (
           <div class='ready'>
-            <img src='/assets/icons/logoswords.png'/>
+            <img src='/assets/icons/logoswords.svg'/>
             <p>READY</p>
           </div>
         ) : (
@@ -235,7 +235,7 @@ function BattleSpinner(props) {
           justify-content: center;
           border-radius: 10px;
 
-          background: linear-gradient(230deg, rgba(26, 14, 51, 0.10) 0%, rgba(66, 60, 122, 0.10) 100%), #403B73;
+          background: linear-gradient(230deg, rgba(18, 20, 28, 0.10) 0%, rgba(31, 36, 46, 0.10) 100%), #2a323f;
         }
 
         .spinner.gold:before {
@@ -251,17 +251,17 @@ function BattleSpinner(props) {
         }
 
         .spinner.green {
-          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(89, 232, 120, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(26, 14, 51, 0.10) 0%, rgba(66, 60, 122, 0.10) 100%), #403B73;
-          border-bottom: 2px solid #59E878;
+          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(31, 214, 95, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(18, 20, 28, 0.10) 0%, rgba(31, 36, 46, 0.10) 100%), #2a323f;
+          border-bottom: 2px solid #1fd65f;
         }
 
         .spinner.red {
-          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(249, 81, 81, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(26, 14, 51, 0.10) 0%, rgba(66, 60, 122, 0.10) 100%), #403B73;
+          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(249, 81, 81, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(18, 20, 28, 0.10) 0%, rgba(31, 36, 46, 0.10) 100%), #2a323f;
           border-bottom: 2px solid #F95151;
         }
 
         .gold {
-          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(252, 163, 30, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(26, 14, 51, 0.10) 0%, rgba(66, 60, 122, 0.10) 100%), #403B73;
+          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(31, 214, 95, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(18, 20, 28, 0.10) 0%, rgba(31, 36, 46, 0.10) 100%), #2a323f;
         }
 
         .ready {
@@ -311,11 +311,11 @@ function BattleSpinner(props) {
           top: 20px;
           left: 20px;
 
-          color: #59E878;
+          color: #1fd65f;
           font-size: 16px;
           font-weight: 700;
 
-          background: conic-gradient(from 180deg at 50% 50%, #59E878 -0.3deg, #459D7B 72.1deg, #407B64 139.9deg, #407C64 180.52deg, #37545C 215.31deg, #3B5964 288.37deg, #59E878 359.62deg, #59E878 359.7deg, #459D7B 432.1deg);
+          background: conic-gradient(from 180deg at 50% 50%, #1fd65f -0.3deg, #459D7B 72.1deg, #407B64 139.9deg, #407C64 180.52deg, #37545C 215.31deg, #3B5964 288.37deg, #1fd65f 359.62deg, #1fd65f 359.7deg, #459D7B 432.1deg);
           z-index: 0;
 
           width: 90px;
@@ -337,7 +337,7 @@ function BattleSpinner(props) {
           content: '';
           position: absolute;
 
-          background: linear-gradient(0deg, rgba(89, 232, 120, 0.25), rgba(89, 232, 120, 0.25)), linear-gradient(252.77deg, #1A0E33 -27.53%, #423C7A 175.86%);
+          background: linear-gradient(0deg, rgba(31, 214, 95, 0.25), rgba(31, 214, 95, 0.25)), linear-gradient(252.77deg, #12151c -27.53%, #1f242e 175.86%);
           z-index: -1;
         }
 
@@ -380,7 +380,7 @@ function BattleSpinner(props) {
           content: '';
           left: 1px;
           top: 1px;
-          background: linear-gradient(0deg, rgba(249, 81, 81, 0.25) 0%, rgba(249, 81, 81, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+          background: linear-gradient(0deg, rgba(249, 81, 81, 0.25) 0%, rgba(249, 81, 81, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
           z-index: -1;
         }
 

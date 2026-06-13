@@ -96,7 +96,7 @@ function CreditCardDeposit(props) {
                      fill="none">
                   <path
                     d="M0.247619 0H4.75238C4.91746 0 5 0.0987654 5 0.296296V1.07407C5 1.27161 4.91746 1.37037 4.75238 1.37037H0.247619C0.0825397 1.37037 0 1.27161 0 1.07407V0.296296C0 0.0987654 0.0825397 0 0.247619 0ZM0.247619 2.62963H4.75238C4.91746 2.62963 5 2.7284 5 2.92593V3.7037C5 3.90123 4.91746 4 4.75238 4H0.247619C0.0825397 4 0 3.90123 0 3.7037V2.92593C0 2.7284 0.0825397 2.62963 0.247619 2.62963Z"
-                    fill="#ADA3EF"/>
+                    fill="#8b92a0"/>
                 </svg>
 
                 <div className='input'>
@@ -104,7 +104,7 @@ function CreditCardDeposit(props) {
                        fill="none">
                     <path
                       d="M5.21667 3.86618V3.65588C5.21667 3.3 4.82778 3.12206 4.05 3.12206C3.28333 3.12206 2.9 3.3 2.9 3.65588V3.80147C2.9 4.01716 3.03333 4.15735 3.3 4.22206L5.95 4.85294C7.31667 5.17647 8 5.78039 8 6.66471V7.425C8 7.92108 7.79444 8.36863 7.38333 8.76765C6.98333 9.15588 6.36111 9.42549 5.51667 9.57647V10.5147C5.51667 10.8382 5.36111 11 5.05 11H3.16667C2.84444 11 2.68333 10.8382 2.68333 10.5147V9.625C1.77222 9.4848 1.09444 9.2152 0.65 8.81618C0.216667 8.41716 0 7.95882 0 7.44118V7.11765C0 6.83726 0.15 6.69706 0.45 6.69706H2.21667C2.51667 6.69706 2.66667 6.83726 2.66667 7.11765V7.31176C2.66667 7.67843 3.10556 7.86176 3.98333 7.86176C4.88333 7.86176 5.33333 7.68922 5.33333 7.34412V7.18235C5.33333 6.96667 5.11111 6.8049 4.66667 6.69706L2.1 6.03382C1.6 5.90441 1.16667 5.67255 0.8 5.33824C0.444444 4.99314 0.266667 4.6049 0.266667 4.17353V3.65588C0.266667 3.13824 0.455556 2.67451 0.833333 2.26471C1.22222 1.84412 1.83889 1.55833 2.68333 1.40735V0.485294C2.68333 0.161765 2.84444 0 3.16667 0H5.05C5.36111 0 5.51667 0.161765 5.51667 0.485294V1.42353C6.35 1.57451 6.95 1.8549 7.31667 2.26471C7.69444 2.66373 7.88333 3.12745 7.88333 3.65588V3.86618C7.88333 4.02794 7.84444 4.14118 7.76667 4.20588C7.7 4.27059 7.58333 4.30294 7.41667 4.30294H5.65C5.36111 4.30294 5.21667 4.15735 5.21667 3.86618Z"
-                      fill="#59E878"/>
+                      fill="#1fd65f"/>
                   </svg>
                   <input type='number' value={dollars()}
                          onInput={(e) => convertAmounts(0, e.target.valueAsNumber, 0)}/>
@@ -154,7 +154,7 @@ function CreditCardDeposit(props) {
           display: flex;
           width: 100%;
 
-          color: #ADA3EF;
+          color: #8b92a0;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 13px;
           font-weight: 600;
@@ -192,7 +192,7 @@ function CreditCardDeposit(props) {
           border: 1px solid #423B78;
           background: #2F2A54;
 
-          color: #ADA3EF;
+          color: #8b92a0;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 12px;
           font-weight: 700;
@@ -216,7 +216,7 @@ function CreditCardDeposit(props) {
           border: 1px dashed rgba(177, 120, 24);
           background: #2F2A54;
 
-          color: #ADA3EF;
+          color: #8b92a0;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 12px;
           font-weight: 700;
@@ -312,7 +312,7 @@ function CreditCardDeposit(props) {
           z-index: 0;
 
           opacity: 0.1;
-          background-image: url("/assets/art/rainswords.png");
+          background-image: url("/assets/art/rainchips.svg");
           background-position: center;
           background-size: cover;
           border-radius: 8px;
@@ -332,7 +332,7 @@ function CreditCardDeposit(props) {
         .disclaimer-text {
           max-width: 50%;
 
-          color: #ADA3EF;
+          color: #8b92a0;
           font-size: 12px;
           font-weight: 700;
         }

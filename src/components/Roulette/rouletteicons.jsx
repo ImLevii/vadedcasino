@@ -36,7 +36,7 @@ function RouletteIcon(props) {
 
             <style jsx>{`
               .spinner-icon {
-                border-radius: 5px;
+                border-radius: 8px;
                 
                 display: flex;
                 align-items: center;
@@ -49,7 +49,8 @@ function RouletteIcon(props) {
                 min-width: 35px;
                 width: 35px;
                 height: 40px;
-                background-size: 14px 28px !important;
+                border-radius: 6px;
+                background-size: 16px 30px !important;
               }
               
               .large {
@@ -59,27 +60,30 @@ function RouletteIcon(props) {
               }
               
               .gold {
-                background: rgba(217, 171, 25, 0.04);
-                background-image: url("/assets/icons/goldsword.png");
+                background-color: rgba(245, 166, 35, 0.12);
+                background-image: url("/assets/icons/roulette-gold.svg");
                 background-position: center;
                 background-repeat: no-repeat;
-                border: 1px solid #D9AB19;
+                border: 1px solid rgba(245, 166, 35, 0.55);
+                box-shadow: inset 0 0 18px rgba(245, 166, 35, 0.22);
               }
               
               .red {
-                border: 1px solid #C53852;
-                background: rgba(197, 56, 82, 0.04);
-                background-image: url("/assets/icons/redtiki.png");
+                background-color: rgba(232, 69, 95, 0.12);
+                background-image: url("/assets/icons/roulette-red.svg");
                 background-position: center;
                 background-repeat: no-repeat;
+                border: 1px solid rgba(232, 69, 95, 0.5);
+                box-shadow: inset 0 0 18px rgba(232, 69, 95, 0.18);
               }
               
               .green {
-                border: 1px solid #41D163;
-                background: rgba(65, 209, 99, 0.04);
-                background-image: url("/assets/icons/greentiki.png");
+                background-color: rgba(31, 214, 95, 0.12);
+                background-image: url("/assets/icons/roulette-green.svg");
                 background-position: center;
                 background-repeat: no-repeat;
+                border: 1px solid rgba(31, 214, 95, 0.5);
+                box-shadow: inset 0 0 18px rgba(31, 214, 95, 0.18);
               }
               
               .index {

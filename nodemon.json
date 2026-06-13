@@ -1,0 +1,22 @@
+{
+  "watch": [
+    "app.js",
+    "routes",
+    "socketio",
+    "discord",
+    "database",
+    "utils",
+    "fairness"
+  ],
+  "ignore": [
+    "logs/*",
+    "utils/roblox/items.json",
+    "utils/proxies/*.txt",
+    "node_modules",
+    "src",
+    "public",
+    "dist"
+  ],
+  "ext": "js,json",
+  "delay": 500
+}

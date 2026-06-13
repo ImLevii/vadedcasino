@@ -103,7 +103,7 @@ function RobuxWithdraw(props) {
                 display: flex;
                 width: 100%;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 13px;
                 font-weight: 600;
@@ -141,7 +141,7 @@ function RobuxWithdraw(props) {
                 border: 1px dashed rgba(177, 120, 24);
                 background: #2F2A54;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 12px;
                 font-weight: 700;

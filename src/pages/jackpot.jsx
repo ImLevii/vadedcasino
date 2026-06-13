@@ -35,7 +35,7 @@ function Jackpot(props) {
 
     let hasConnected = false
     let colors = [
-        '#FCA31E',
+        '#1fd65f',
         '#C2FC1E',
         '#FC6E1E',
         '#1EFC92',
@@ -295,9 +295,9 @@ function Jackpot(props) {
 
     return (
         <>
-            <Title>BloxClash | Jackpot</Title>
+            <Title>Cosmic Luck | Jackpot</Title>
             <Meta name='title' content='Jackpot'></Meta>
-            <Meta name='description' content='Win Robux & Limiteds On BloxClash In Big Jackpots In Roblox Gaming!'></Meta>
+            <Meta name='description' content='Win Coins On Cosmic Luck In Big Jackpots!'></Meta>
 
             {join() && (
                 <JackpotJoin close={() => setJoin(false)}/>
@@ -408,7 +408,7 @@ function Jackpot(props) {
               .bar {
                 margin: 25px 0;
                 border-radius: 555px;
-                background: #5A5499;
+                background: #3a4250;
                 height: 1px;
                 flex: 1;
               }
@@ -460,12 +460,12 @@ function Jackpot(props) {
                 height: calc(100% - 2px);
                 width: calc(100% - 2px);
                 border-radius: 5px;
-                background: linear-gradient(0deg, rgba(255, 190, 24, 0.25) 0%, rgba(255, 190, 24, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+                background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
                 z-index: -1;
               }
 
               .stat p:last-child {
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 13px;
                 font-weight: 600;
               }
@@ -512,7 +512,7 @@ function Jackpot(props) {
                 content: '';
                 top: 10px;
                 left: 10px;
-                background: #1A0E33;
+                background: #12151c;
               }
 
               .timer-container p {
@@ -558,7 +558,7 @@ function Jackpot(props) {
                 display: flex;
                 gap: 5px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 13px;
                 font-weight: 600;
               }
@@ -566,7 +566,7 @@ function Jackpot(props) {
               .ticket {
                 margin-top: 10px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 11px;
                 font-weight: 600;
               }

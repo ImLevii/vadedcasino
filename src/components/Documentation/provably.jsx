@@ -412,7 +412,7 @@ function Provably(props) {
                 padding: 30px 0;
                 margin: 0 auto;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 13px;
                 font-weight: 400;
@@ -432,7 +432,7 @@ function Provably(props) {
                 outline: unset;
                 cursor: pointer;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 12px;
                 font-weight: 700;
@@ -453,7 +453,7 @@ function Provably(props) {
 
               .active button {
                 border-radius: 2px;
-                border: 1px solid #5A5499;
+                border: 1px solid #3a4250;
                 background: rgba(90, 84, 153, 0.05);
               }
 

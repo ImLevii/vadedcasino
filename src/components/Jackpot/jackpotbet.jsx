@@ -76,7 +76,7 @@ function JackpotBet(props) {
                 gap: 12px;
                 justify-content: flex-end;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 14px;
                 font-weight: 700;
               }
@@ -113,7 +113,7 @@ function JackpotBet(props) {
 
               .gold {
                 background: linear-gradient(to right, rgba(255, 153, 1, 0.05), rgba(255, 153, 1, 0.05) 100%), rgba(0, 0, 0, 0.20);
-                border: 1px dashed #FCA31E;
+                border: 1px dashed #1fd65f;
               }
               
               .cents {

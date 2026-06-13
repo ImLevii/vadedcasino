@@ -8,90 +8,68 @@ function RouletteBetControls(props) {
     return (
         <>
             <div class='bet-container'>
-                <p>BET AMOUNT</p>
-
                 <div class='bet-amount-wrapper'>
-                    <img src='/assets/icons/coin.svg' height='16' alt=''/>
-                    <input class='bet-amount' type='number' placeholder='0' value={props.bet}
+                    <img src='/assets/icons/coin.svg' height='18' alt=''/>
+                    <input class='bet-amount' type='number' placeholder='0.00' value={props.bet}
                            onChange={(e) => props.setBet(Math.abs(e.target.valueAsNumber))}/>
                 </div>
 
-                <button class='control' onClick={() => props.setBet(0)}>
-                    <p class='lightgray'>CLEAR</p>
-                </button>
+                <div class='controls'>
+                    <button class='control' onClick={() => props.setBet(0)}>
+                        Clear
+                    </button>
 
-                <button class='control' onClick={() => changeBetAmount(10)}>
-                    <img src='/assets/icons/coin.svg' height='15' alt=''/>
-                    <p>+10<span class='gray'>.00</span></p>
-                </button>
+                    <button class='control' onClick={() => changeBetAmount(props.bet / -2)}>
+                        1/2
+                    </button>
 
-                <button class='control' onClick={() => changeBetAmount(500)}>
-                    <img src='/assets/icons/coin.svg' height='15' alt=''/>
-                    <p>+500<span class='gray'>.00</span></p>
-                </button>
+                    <button class='control' onClick={() => changeBetAmount(props.bet)}>
+                        x2
+                    </button>
 
-                <button class='control' onClick={() => changeBetAmount(1000)}>
-                    <img src='/assets/icons/coin.svg' height='15' alt=''/>
-                    <p>+1,000<span class='gray'>.00</span></p>
-                </button>
+                    <button class='control' onClick={() => props.setBet(1)}>
+                        Min
+                    </button>
 
-                <button class='control' onClick={() => changeBetAmount(10000)}>
-                    <img src='/assets/icons/coin.svg' height='15' alt=''/>
-                    <p>+10,000<span class='gray'>.00</span></p>
-                </button>
-
-                <button class='control' onClick={() => changeBetAmount(25000)}>
-                    <img src='/assets/icons/coin.svg' height='15' alt=''/>
-                    <p>+25,000<span class='gray'>.00</span></p>
-                </button>
-
-                <button class='control' onClick={() => changeBetAmount(props.bet / -2)}>
-                    <p class='gray'>1/2</p>
-                </button>
-
-                <button class='control' onClick={() => changeBetAmount(props.bet)}>
-                    <p class='gray'>2X</p>
-                </button>
-
-                <button class='control' onClick={() => props.setBet(props?.user?.balance || 0)}>
-                    <p class='gold'>MAX</p>
-                </button>
+                    <button class='control max' onClick={() => props.setBet(props?.user?.balance || 0)}>
+                        Max
+                    </button>
+                </div>
             </div>
 
             <style jsx>{`
               .bet-container {
-                min-height: 75px;
-                border-radius: 7px;
-                border: 1px solid #4C4981;
-                background: rgba(11, 9, 26, 0.15);
+                min-height: 64px;
+                border-radius: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                background: #11141b;
 
-                margin: 35px 0;
+                margin: 22px 0;
 
                 display: flex;
                 align-items: center;
-                flex-wrap: wrap;
-                gap: 10px;
+                gap: 12px;
 
-                color: #9F9AC8;
+                color: #c3cad6;
                 font-size: 14px;
                 font-weight: 700;
 
-                padding: 10px 20px;
+                padding: 11px 12px;
               }
 
               .bet-amount-wrapper {
-                border-radius: 3px;
-                border: 1px solid #3E3771;
-                background: #2D2953;
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.07);
+                background: #0c0e13;
 
                 display: flex;
                 align-items: center;
 
-                width: 200px;
-                height: 45px;
+                flex: 1;
+                height: 42px;
 
-                gap: 8px;
-                padding: 0 12px;
+                gap: 10px;
+                padding: 0 14px;
               }
 
               .bet-amount {
@@ -100,44 +78,73 @@ function RouletteBetControls(props) {
                 border: unset;
                 outline: unset;
                 background: unset;
-                color: white;
 
                 color: #FFF;
-                font-size: 14px;
+                font-size: 15px;
                 font-family: Geogrotesque Wide;
                 font-weight: 700;
               }
 
-              .control {
-                height: 45px;
-                width: fit-content;
-                flex-grow: 1;
+              .controls {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              }
 
-                border: unset;
+              .control {
+                height: 42px;
+                min-width: 56px;
+                padding: 0 16px;
+
+                border: 1px solid rgba(255, 255, 255, 0.06);
                 outline: unset;
                 cursor: pointer;
 
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 5px;
 
-                color: #FFF;
+                color: #c3cad6;
                 font-size: 14px;
                 font-family: Geogrotesque Wide;
                 font-weight: 700;
 
-                border-radius: 3px;
-                background: #413976;
-                box-shadow: 0px 1px 0px 0px #242044, 0px -1px 0px 0px #5B509E;
+                border-radius: 8px;
+                background: #1a1f29;
+                transition: background .15s ease, color .15s ease, border-color .15s ease;
               }
 
-              .control:active {
-                box-shadow: 0px 1px 0px #282445;
+              .control:hover {
+                background: #222834;
+                color: #fff;
               }
 
-              .lightgray {
-                color: #9F9AC8;
+              .control.max {
+                color: #0c0e13;
+                background: #1fd65f;
+                border-color: #1fd65f;
+              }
+
+              .control.max:hover {
+                background: #2be76d;
+                color: #0c0e13;
+              }
+
+              @media only screen and (max-width: 700px) {
+                .bet-container {
+                  flex-wrap: wrap;
+                }
+
+                .controls {
+                  width: 100%;
+                  justify-content: space-between;
+                }
+
+                .control {
+                  flex: 1;
+                  min-width: 0;
+                  padding: 0 8px;
+                }
               }
             `}</style>
         </>

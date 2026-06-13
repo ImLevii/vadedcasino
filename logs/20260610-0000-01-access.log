@@ -1,0 +1,7 @@
+[10/Jun/2026:04:59:22 +0000] - GET / 200 1.886 ms - Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.19041.7291
+[10/Jun/2026:04:59:35 +0000] - GET /cases 200 0.632 ms - Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.19041.7291
+[10/Jun/2026:04:59:35 +0000] - GET /roulette 404 1.194 ms - Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.19041.7291
+[10/Jun/2026:04:59:35 +0000] - GET /crash 404 0.437 ms - Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.19041.7291
+[10/Jun/2026:04:59:45 +0000] - GET /roulette/info 404 0.264 ms - Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.19041.7291
+[10/Jun/2026:04:59:45 +0000] - GET /crash/info 404 0.565 ms - Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.19041.7291
+[10/Jun/2026:04:59:45 +0000] - POST /mines 401 200.486 ms - Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.19041.7291

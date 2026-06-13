@@ -19,8 +19,8 @@
 <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_2283_51766" result="shape"/>
 </filter>
 <linearGradient id="paint0_linear_2283_51766" x1="120.336" y1="35.3748" x2="28.9103" y2="63.7304" gradientUnits="userSpaceOnUse">
-<stop stop-color="#1A0E33"/>
-<stop offset="1" stop-color="#423C7A"/>
+<stop stop-color="#12151c"/>
+<stop offset="1" stop-color="#1f242e"/>
 </linearGradient>
 <radialGradient id="paint1_angular_2283_51766" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(89.4002 58.8054) rotate(90) scale(18.8054)">
 <stop offset="0.200283" stop-color="#B17818"/>

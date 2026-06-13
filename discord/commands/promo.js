@@ -4,7 +4,7 @@ const { sendLog } = require('../../utils');
 
 const data = new SlashCommandBuilder()
 	.setName('promo')
-	.setDescription('Staff only. Create a promo code for BloxClash.')
+	.setDescription('Staff only. Create a promo code for Cosmic Luck.')
     .addStringOption(option =>
 		option.setName('promocode')
 			.setDescription('The promocode to create.')
@@ -19,7 +19,7 @@ const data = new SlashCommandBuilder()
     )
     .addNumberOption(option =>
         option.setName("reward")
-            .setDescription("Amount of robux to give")
+            .setDescription("Amount of coins to give")
             .setMinValue(1)
             .setMaxValue(10000)
             .setRequired(true)
@@ -71,7 +71,7 @@ module.exports = {
                 );
                 
                 await commit();
-                sendLog('promo', `New promo code created by *${user.username}* (\`${user.id}\`) - *${promocode}* (${uses} uses, ${reward} robux, ${level} min level)`);
+                sendLog('promo', `New promo code created by *${user.username}* (\`${user.id}\`) - *${promocode}* (${uses} uses, ${reward} coins, ${level} min level)`);
                 return interaction.reply({ content: `\`${promocode}\` has been created.`, ephemeral: true });
 
             });

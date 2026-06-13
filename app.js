@@ -1,4 +1,14 @@
 require('dotenv').config();
+
+// Prevent unhandled rejections/exceptions from crashing the process
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('[unhandledRejection]', reason);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('[uncaughtException]', err);
+});
+
 const express = require('express');
 const nocache = require("nocache");
 const morgan = require('morgan');
@@ -57,6 +67,8 @@ morgan.token('user-agent', function(req, res) {
 });
 
 const logDirectory = path.join(__dirname, 'logs');
+const fs = require('fs');
+if (!fs.existsSync(logDirectory)) fs.mkdirSync(logDirectory, { recursive: true });
 
 const accessLogStream = rfs.createStream('access.log', {
     interval: '1d',
@@ -126,9 +138,18 @@ app.use('/admin', adminRoute);
 app.use('/surveys', surveysRoute);
 app.use('/fairness', fairnessRoute);
 
-app.get('/', (req, res) => {
-    res.send('Hey, hi :)');
-});
+// Serve built frontend static files (production)
+if (process.env.NODE_ENV !== 'development') {
+    app.use(express.static(path.join(__dirname, 'dist')));
+    app.get('*', (req, res, next) => {
+        if (req.path.startsWith('/public')) return next();
+        res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+    });
+} else {
+    app.get('/', (req, res) => {
+        res.send('Backend running. Start the Vite dev server on port 3001 for the frontend.');
+    });
+}
 
 const { cacheBets } = require('./socketio/bets');
 const { cacheRains } = require('./socketio/rain');
@@ -141,8 +162,8 @@ const { cacheJackpot } = require('./routes/games/jackpot/functions');
 const { cacheRoulette } = require('./routes/games/roulette/functions');
 const { cacheCoinflips } = require('./routes/games/coinflip/functions');
 const { cacheChannels } = require('./socketio/chat/functions');
-const { cacheItems } = require('./utils/roblox/items');
-const { cacheListings } = require('./routes/trading/limiteds/functions');
+// const { cacheItems } = require('./utils/roblox/items');  // Removed: Roblox-specific
+// const { cacheListings } = require('./routes/trading/limiteds/functions');  // Removed: Roblox-specific
 const { cacheAdmin } = require('./routes/admin/config');
 const { cacheSlots } = require('./routes/games/slots/functions');
 const { cacheSurveys } = require('./routes/surveys/functions');
@@ -150,9 +171,12 @@ const { cacheLeaderboards } = require('./routes/leaderboard/functions');
 
 async function start() {
 
-    await Promise.all([
-        cacheItems()
-    ])
+    // Removed: Roblox-specific item caching
+    // try {
+    //     await cacheItems();
+    // } catch (err) {
+    //     console.warn('[startup] cacheItems failed (Rolimons unreachable?), continuing:', err.message);
+    // }
 
     const promises = [
         cacheBets,
@@ -167,7 +191,7 @@ async function start() {
         cacheRoulette,
         cacheCoinflips,
         cacheChannels,
-        cacheListings,
+        // cacheListings,  // Removed: Roblox-specific
         cacheAdmin,
         cacheSlots,
         cacheSurveys,
@@ -194,6 +218,9 @@ function timedPromise(promise, name) {
         const endTime = Date.now();
         console.log(`${name} completed in ${endTime - startTime}ms`);
         return { name, result, timeTaken: endTime - startTime };
+    }).catch(err => {
+        console.error(`[startup] ${name} failed:`, err.message);
+        return { name, error: err.message };
     });
 }
 

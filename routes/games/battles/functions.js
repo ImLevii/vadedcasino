@@ -32,7 +32,7 @@ async function getBattle(battleId, privKey) {
     `, [battle.id]);
 
     const [items] = await sql.query(`
-        SELECT id, robloxId, name, img, price, rangeFrom, rangeTo, caseVersionId FROM caseItems WHERE caseVersionId IN (?)
+        SELECT id, itemId, name, img, price, rangeFrom, rangeTo, caseVersionId FROM caseItems WHERE caseVersionId IN (?)
     `, [rounds.map(e => e.revId)]);
 
     const cases = [...new Map(rounds.map(v => [v.id, v])).values()].map(e => {
@@ -152,7 +152,7 @@ async function cacheBattles() {
     `, [battlesIds]);
 
     const [items] = await sql.query(`
-        SELECT id, robloxId, name, img, price, rangeFrom, rangeTo, caseVersionId FROM caseItems WHERE caseVersionId IN (?)
+        SELECT id, itemId, name, img, price, rangeFrom, rangeTo, caseVersionId FROM caseItems WHERE caseVersionId IN (?)
     `, [rounds.map(e => e.revId)]);
 
     const [players] = await sql.query(`

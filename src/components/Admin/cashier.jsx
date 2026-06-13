@@ -1,6 +1,6 @@
 import {createSignal} from "solid-js";
 import {authedAPI, createNotification} from "../../util/api";
-import AdminRobuxCashier from "../Cashier/robuxtxs";
+// import AdminRobuxCashier from "../Cashier/robuxtxs";  // Removed: Robux-specific
 import AdminCryptoCashier from "../Cashier/cryptotxs";
 import {useSearchParams} from "@solidjs/router";
 
@@ -27,7 +27,9 @@ function AdminCashier(props) {
                 {params.type === 'crypto' ? (
                     <AdminCryptoCashier/>
                 ) : (
-                    <AdminRobuxCashier/>
+                    <div style="padding: 40px; text-align: center; color: #8b92a0;">
+                        <p>Coin transaction management coming soon</p>
+                    </div>
                 )}
 
                 <div class='filters'>
@@ -39,7 +41,7 @@ function AdminCashier(props) {
                                  fill="none">
                                 <path
                                     d="M16.2987 17.8313L16.2988 17.8314C16.5039 18.0371 16.7798 18.15 17.0732 18.15C17.3511 18.15 17.6162 18.0476 17.818 17.8601C18.2484 17.4602 18.2624 16.7948 17.8478 16.3785L17.7415 16.4843L17.8478 16.3785L13.7547 12.2684C14.7979 11.0227 15.3686 9.47437 15.3686 7.86374C15.3686 3.99137 12.1072 0.85 8.10932 0.85C4.11147 0.85 0.85 3.99137 0.85 7.86374C0.85 11.7361 4.11147 14.8775 8.10932 14.8775C9.56844 14.8775 10.9619 14.4644 12.163 13.6786L16.2987 17.8313ZM8.10932 2.94054C10.929 2.94054 13.214 5.15409 13.214 7.86374C13.214 10.5734 10.929 12.7869 8.10932 12.7869C5.28964 12.7869 3.00461 10.5734 3.00461 7.86374C3.00461 5.15409 5.28964 2.94054 8.10932 2.94054Z"
-                                    fill="#837EC1" stroke="#837EC1" stroke-width="0.3"/>
+                                    fill="#8b92a0" stroke="#8b92a0" stroke-width="0.3"/>
                             </svg>
                         </button>
                     </div>
@@ -111,7 +113,7 @@ function AdminCashier(props) {
                 display: flex;
                 align-items: center;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 14px;
                 font-weight: 700;
               }
@@ -138,7 +140,7 @@ function AdminCashier(props) {
                 padding: 0 15px;
                 border-radius: 2px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
               }
@@ -152,7 +154,7 @@ function AdminCashier(props) {
                 align-items: center;
                 gap: 6px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 14px;
                 font-weight: 700;
@@ -227,8 +229,8 @@ function AdminCashier(props) {
                   border: unset;
 
                   border-radius: 3px;
-                  background: #59E878;
-                  box-shadow: 0px 1px 0px 0px #3CAC54, 0px -1px 0px 0px #96FFAD;
+                  background: #1fd65f;
+                  box-shadow: 0px 1px 0px 0px #16a049, 0px -1px 0px 0px #45e57f;
 
                   color: #FFF;
                   font-family: Geogrotesque Wide, sans-serif;
@@ -276,7 +278,7 @@ function AdminCashier(props) {
                 font-family: Geogrotesque Wide, sans-serif;
                 font-weight: 600;
                 font-size: 15px;
-                color: #ADA3EF;
+                color: #8b92a0;
 
                 display: flex;
                 align-items: center;

@@ -25,13 +25,13 @@ module.exports = {
                 if (!user || !user.elegible) {
                     return interaction.reply({ content: 'You are not elegible.', ephemeral: true });
                 } else if (!user.id) {
-                    return interaction.reply({ content: 'You have not linked your discord account to BloxClash.com yet. You can do so in https://bloxclash.com/profile/settings', ephemeral: true });
+                    return interaction.reply({ content: 'You have not linked your discord account to cosmicluck.gg yet. You can do so in https://cosmicluck.gg/profile/settings', ephemeral: true });
                 }
 
                 const min = 10;
 
                 if (user.unclaimed < min) {
-                    return interaction.reply({ content: `You need at least <:robux:1056759250367565844> R$${min} to claim.`, ephemeral: true });
+                    return interaction.reply({ content: `You need at least 🪙 ${min} Coins to claim.`, ephemeral: true });
                 }
 
                 const amount = roundDecimal(user.unclaimed);
@@ -43,7 +43,7 @@ module.exports = {
                 await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [user.id, amount, 'in', 'earn', result.insertId]);
                 await commit();
 
-                interaction.reply({ content: `You have succesfully claimed <:robux:1056759250367565844> R$${amount} robux.`, ephemeral: true });
+                interaction.reply({ content: `You have succesfully claimed 🪙 ${amount} Coins.`, ephemeral: true });
                 io.to(user.id).emit('balance', 'add', amount);
 
             });

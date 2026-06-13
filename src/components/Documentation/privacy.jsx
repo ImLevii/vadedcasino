@@ -5,9 +5,9 @@ function Privacy(props) {
 
                 <div class='sections'>
                     <p>
-                        At BloxClash.com, we take the privacy of our users seriously. Our Privacy Policy explains how
+                        At Cosmic Luck, we take the privacy of our users seriously. Our Privacy Policy explains how
                         we collect, use, and protect your personal information when you use our website. By using
-                        BloxClash.com, you agree to the terms of this Privacy Policy.
+                        Cosmic Luck, you agree to the terms of this Privacy Policy.
                     </p>
 
                     <div class='section'>
@@ -98,7 +98,7 @@ function Privacy(props) {
                         <h2 class='point'>Contact Us</h2>
                         <p>
                             If you have any questions or concerns about this Privacy Policy,
-                            please contact us at support@bloxclash.com
+                            please contact us at support@cosmicluck.gg
                         </p>
                     </div>
                 </div>
@@ -114,7 +114,7 @@ function Privacy(props) {
                 padding: 30px 0;
                 margin: 0 auto;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 13px;
                 font-weight: 400;

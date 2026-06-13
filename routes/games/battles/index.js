@@ -125,7 +125,7 @@ router.post('/create', isAuthed, apiLimiter, async (req, res) => {
             res.json({ success: true, battleId, privKey });
     
             const [items] = await connection.query(`
-                SELECT id, robloxId, name, img, price, rangeFrom, rangeTo, caseVersionId FROM caseItems WHERE caseVersionId IN (?)
+                SELECT id, itemId, name, img, price, rangeFrom, rangeTo, caseVersionId FROM caseItems WHERE caseVersionId IN (?)
             `, [uniqueCases.map(e => e.revId)]);
         
             cachedBattles[battleId] = {

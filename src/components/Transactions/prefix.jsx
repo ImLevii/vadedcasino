@@ -14,8 +14,8 @@ function NumberPrefix(props) {
                 height: 17px;
                 text-align: center;
                 line-height: 17px;
-                background: rgba(89, 232, 120, 0.15);
-                color: #59E878;
+                background: rgba(31, 214, 95, 0.15);
+                color: #1fd65f;
                 font-weight: 600;
                 border-radius: 2px;
               }

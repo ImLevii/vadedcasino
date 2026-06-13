@@ -57,11 +57,11 @@ async function startGiveaway(type) {
         "content": `<@&${discordIds.giveawayRole}>`,
         "embeds": [
           {
-            "title": `New giveaway - <:robux:1056759250367565844> R$${giveawayType.amount}`,
-            "description": `React with ${reactionEmoji} to participate in the giveaway!\nEnds on <t:${Math.round((createdAt.valueOf() + endsIn) / 1000)}>.\n\nRequirements:\n- Have your Discord account linked to **[BloxClash](${process.env.FRONTEND_URL})**.\n- Level ${giveawayType.minLvl} on-site.`,
+            "title": `New giveaway - 🪙 ${giveawayType.amount} Coins`,
+            "description": `React with ${reactionEmoji} to participate in the giveaway!\nEnds on <t:${Math.round((createdAt.valueOf() + endsIn) / 1000)}>.\n\nRequirements:\n- Have your Discord account linked to **[Cosmic Luck](${process.env.FRONTEND_URL})**.\n- Level ${giveawayType.minLvl} on-site.`,
             "color": 4663446,
             "footer": {
-              "text": "BloxClash Giveaways",
+              "text": "Cosmic Luck Giveaways",
               "icon_url": "https://i.imgur.com/zkfQG1M.gif"
             },
             "timestamp": createdAt.toISOString(),

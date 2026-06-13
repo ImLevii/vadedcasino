@@ -149,13 +149,13 @@ function RewardsBanner(props) {
         
         .rewards img {
           margin-top: -20px;
-          filter: drop-shadow(0 15px 1rem rgba(252, 163, 30, 0.3));
+          filter: drop-shadow(0 15px 1rem rgba(31, 214, 95, 0.3));
         }
         
         .claim {
           border-radius: 3px;
           border: 1px solid #B17818;
-          background: linear-gradient(0deg, rgba(255, 190, 24, 0.25) 0%, rgba(255, 190, 24, 0.25) 100%), linear-gradient(253deg, #1A0E33 -27.53%, #423C7A 175.86%);
+          background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
 
           width: 100px;
           height: 30px;

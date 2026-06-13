@@ -48,7 +48,7 @@ router.post('/unlink', isAuthed, async (req, res) => {
     if (!discordAuth) return res.json({ status: 'UNLINKED' }); // res.json({ status: 'NOT_LINKED' });
 
     await sql.query('DELETE FROM discordAuths WHERE userId = ?', [req.userId]);
-    sendLog('rain', `<@${discordAuth.discordId}> unlinked of BloxClash accountId \`${req.userId}\``);
+    sendLog('rain', `<@${discordAuth.discordId}> unlinked of Cosmic Luck accountId \`${req.userId}\``);
 
     res.json({ status: 'UNLINKED' });
 
@@ -75,7 +75,7 @@ router.get('/callback', async (req, res) => {
     const discordUser = await getDiscordUser(access_token);
 
     const [[existing]] = await sql.query('SELECT userId FROM discordAuths WHERE discordId = ?', [discordUser.id]);
-    if (existing) return res.send('This Discord account is already linked to another BloxClash account.') // io.emit(already linked)
+    if (existing) return res.send('This Discord account is already linked to another Cosmic Luck account.') // io.emit(already linked)
 
     const expiresAt = new Date(Date.now() + (data.expires_in * 1000));
     await sql.query('INSERT INTO discordAuths (userId, discordId, token, tokenExpiresAt, refreshToken) VALUES (?, ?, ?, ?, ?)', [userId, discordUser.id, access_token, expiresAt, data.refresh_token]);
@@ -86,7 +86,7 @@ router.get('/callback', async (req, res) => {
     //     await discordClient.bloxClashGuild?.members.add(discordUser.id, { accessToken: access_token });
     // }
 
-    sendLog('rain', `<@${discordUser.id}> (\`${discordUser.username}#${discordUser.discriminator}\`) linked to BloxClash accountId \`${userId}\``);
+    sendLog('rain', `<@${discordUser.id}> (\`${discordUser.username}#${discordUser.discriminator}\`) linked to Cosmic Luck accountId \`${userId}\``);
     // io.to(userId).emit('discord:link', discordUser);
 
 });

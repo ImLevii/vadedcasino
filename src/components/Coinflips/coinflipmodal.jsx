@@ -193,7 +193,7 @@ function CoinflipModal(props) {
           height: 100%;
           min-height: 340px;
           max-height: 540px;
-          background: #2C2952;
+          background: #1a1f29;
 
           display: flex;
           flex-direction: column;
@@ -203,7 +203,7 @@ function CoinflipModal(props) {
 
         .header {
           border-radius: 15px 15px 0 0;
-          background: #322F5F;
+          background: #232a36;
           width: 100%;
           height: 70px;
           min-height: 70px;
@@ -237,7 +237,7 @@ function CoinflipModal(props) {
           align-items: center;
           justify-content: center;
 
-          background: linear-gradient(to right, rgba(252, 163, 30, 0.06), rgba(156, 101, 19, 0.03), rgba(0, 0, 0, 0)), #322F5F;
+          background: linear-gradient(to right, rgba(31, 214, 95, 0.06), rgba(156, 101, 19, 0.03), rgba(0, 0, 0, 0)), #232a36;
           filter: drop-shadow(0px 2px 15px rgba(0, 0, 0, 0.08));
 
           color: #FFF;
@@ -250,7 +250,7 @@ function CoinflipModal(props) {
 
         .center.red {
           background: linear-gradient(109deg, rgba(188, 40, 32, 0.37) 0%, rgba(192, 28, 29, 0.37) 19.78%, rgba(0, 0, 0, 0.00) 100%), #232048;
-          border: solid #322F5F 10px;
+          border: solid #232a36 10px;
         }
 
         .avatar-container {
@@ -264,7 +264,7 @@ function CoinflipModal(props) {
 
           position: relative;
 
-          background: #322F5F;
+          background: #232a36;
         }
 
         .coin {
@@ -298,7 +298,7 @@ function CoinflipModal(props) {
           border-radius: 3px;
           background: rgba(90, 84, 153, 0.35);
 
-          color: #ADA3EF;
+          color: #8b92a0;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 12px;
           font-weight: 700;
@@ -362,7 +362,7 @@ function CoinflipModal(props) {
           border: 1px solid rgba(82, 76, 147, 0.35);
           background: linear-gradient(228deg, rgba(67, 64, 120, 0.25) 0%, rgba(55, 47, 104, 0.25) 100%);
 
-          color: #ADA3EF;
+          color: #8b92a0;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 15px;
           font-weight: 700;
@@ -392,7 +392,7 @@ function CoinflipModal(props) {
           align-items: center;
           gap: 15px;
 
-          color: #FCA31E;
+          color: #1fd65f;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 12px;
           font-weight: 700;

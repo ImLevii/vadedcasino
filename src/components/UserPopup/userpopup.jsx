@@ -148,7 +148,7 @@ function UserModal(props) {
           width: 100%;
           max-height: 80%;
 
-          background: #2C2952;
+          background: #1a1f29;
           box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
           border-radius: 15px;
 
@@ -169,7 +169,7 @@ function UserModal(props) {
         .user-header {
           width: 100%;
           min-height: 60px;
-          background: #322F5F;
+          background: #232a36;
 
           display: flex;
           align-items: center;
@@ -197,7 +197,7 @@ function UserModal(props) {
           justify-content: center;
 
           font-weight: 700;
-          color: #ADA3EF;
+          color: #8b92a0;
           cursor: pointer;
         }
 
@@ -261,11 +261,11 @@ function UserModal(props) {
         }
 
         .stat.green {
-          background: rgba(89, 232, 120, 0.15);
+          background: rgba(31, 214, 95, 0.15);
         }
 
         .stat p:last-child {
-          color: #ADA3EF;
+          color: #8b92a0;
           font-size: 13px;
           font-weight: 600;
         }
@@ -277,7 +277,7 @@ function UserModal(props) {
         }
 
         .green {
-          color: #59E878 !important;
+          color: #1fd65f !important;
         }
 
         .tip-wrapper {
@@ -308,7 +308,7 @@ function UserModal(props) {
           padding: 0 10px;
           height: 26px;
 
-          color: #ADA3EF;
+          color: #8b92a0;
           font-size: 12px;
           font-weight: 600;
           line-height: 26px;

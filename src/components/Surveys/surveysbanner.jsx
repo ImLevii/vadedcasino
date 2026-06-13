@@ -6,8 +6,8 @@ function SurveysBanner(props) {
             <div class='surveys-banner'>
                 <img src='/assets/art/robloxguy.png' width='125' height='207' alt='' class='roblox'/>
                 <img src='/assets/icons/coin.svg' height='62' width='67' class='coin one'/>
-                <img src='/assets/icons/coinreverse.png' height='57' width='63' class='coin two'/>
-                <img src='/assets/icons/coin3.png' height='66' width='61' class='coin three'/>
+                <img src='/assets/icons/coin2.svg' height='57' width='63' class='coin two'/>
+                <img src='/assets/icons/coin.svg' height='66' width='61' class='coin three'/>
                 <img src='/assets/art/mascot.png' width='186' height='186' class='mascot' alt=''/>
 
                 <div class='providers'>

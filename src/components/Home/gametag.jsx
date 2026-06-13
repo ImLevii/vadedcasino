@@ -29,8 +29,8 @@ function GameTag(props) {
                 }
                 
                 .new {
-                  color: #59E878;
-                  background: rgba(89, 232, 120, 0.43);
+                  color: #1fd65f;
+                  background: rgba(31, 214, 95, 0.43);
                 }
                 
                 p { 

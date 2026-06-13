@@ -61,9 +61,9 @@ router.get('/:id', async (req, res) => {
     const userId = req.params.id;
     
     const [[user]] = await sql.query(
-        `SELECT id, username, xp, role, balance, banned, tipBan, leaderboardBan, rainBan, accountLock, sponsorLock, maxPerTip, maxTipPerUser, tipAllowance, rainTipAllowance, cryptoAllowance, mutedUntil, discordId FROM users
+        `SELECT users.id, username, xp, role, balance, banned, tipBan, leaderboardBan, rainBan, accountLock, sponsorLock, maxPerTip, maxTipPerUser, tipAllowance, rainTipAllowance, cryptoAllowance, mutedUntil, discordId FROM users
         LEFT JOIN discordAuths ON discordAuths.userId = users.id
-        WHERE id = ?`,
+        WHERE users.id = ?`,
         [userId]
     );
 

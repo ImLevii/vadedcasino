@@ -203,7 +203,7 @@ function UserAffiliateModal(props) {
           width: 100vw;
           height: 100vh;
 
-          background: rgba(24, 23, 47, 0.55);
+          background: rgba(18, 20, 28, 0.55);
 
           display: flex;
           align-items: center;
@@ -219,7 +219,7 @@ function UserAffiliateModal(props) {
           width: 100%;
           max-height: 80%;
 
-          background: #2C2952;
+          background: #232a36;
           box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
           border-radius: 15px;
 
@@ -240,7 +240,7 @@ function UserAffiliateModal(props) {
         .user-header {
           width: 100%;
           min-height: 60px;
-          background: #322F5F;
+          background: #2a323f;
 
           display: flex;
           align-items: center;
@@ -259,8 +259,8 @@ function UserAffiliateModal(props) {
           width: 26px;
           height: 26px;
 
-          background: #4E4A8D;
-          box-shadow: 0px -1px 0px #5F5AA7, 0px 1px 0px #272548;
+          background: #2c3340;
+          box-shadow: 0px -1px 0px #3a4250, 0px 1px 0px #1b202a;
           border-radius: 3px;
 
           display: flex;
@@ -268,12 +268,12 @@ function UserAffiliateModal(props) {
           justify-content: center;
 
           font-weight: 700;
-          color: #ADA3EF;
+          color: #8b92a0;
           cursor: pointer;
         }
 
         .id {
-          color: #9F9AC8;
+          color: #8b92a0;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 14px;
           font-weight: 500;
@@ -311,7 +311,7 @@ function UserAffiliateModal(props) {
           height: 90px;
 
           border-radius: 5px;
-          background: rgba(90, 84, 153, 0.27);
+          background: rgba(42, 50, 63, 0.27);
 
           color: #FFF;
           font-family: Geogrotesque Wide, sans-serif;
@@ -322,11 +322,11 @@ function UserAffiliateModal(props) {
         }
 
         .stat.green {
-          background: rgba(89, 232, 120, 0.15);
+          background: rgba(31, 214, 95, 0.15);
         }
 
         .stat p:last-child {
-          color: #ADA3EF;
+          color: #8b92a0;
           font-size: 13px;
           font-weight: 600;
         }
@@ -338,14 +338,14 @@ function UserAffiliateModal(props) {
         }
 
         .green {
-          color: #59E878 !important;
+          color: #1fd65f !important;
         }
 
         .bar {
           width: 100%;
           height: 1px;
           min-height: 1px;
-          background: #5A5499;
+          background: #2c3340;
         }
 
         .settings {
@@ -362,19 +362,19 @@ function UserAffiliateModal(props) {
 
         .table-data {
           height: 55px;
-          background: rgba(90, 84, 153, 0.35);
+          background: rgba(42, 50, 63, 0.35);
           padding: 0 20px;
 
           display: flex;
           align-items: center;
 
-          color: #ADA3EF;
+          color: #8b92a0;
           font-size: 14px;
           font-weight: 600;
         }
 
         .table-data:nth-of-type(2n) {
-          background: rgba(90, 84, 153, 0.15);
+          background: rgba(42, 50, 63, 0.15);
         }
 
         .table-column {
@@ -406,7 +406,7 @@ function UserAffiliateModal(props) {
         .input-label {
           padding: 3px 6px;
           font-family: Geogrotesque Wide, sans-serif;
-          color: #ADA3EF;
+          color: #8b92a0;
           font-weight: 700;
 
           border-radius: 5px;
@@ -426,7 +426,7 @@ function UserAffiliateModal(props) {
         }
 
         option {
-          background: rgba(90, 84, 153, 1);
+          background: rgba(42, 50, 63, 1);
         }
 
         .update, .set, .unlink {
@@ -441,8 +441,8 @@ function UserAffiliateModal(props) {
         }
 
         .set {
-          background: #59E878;
-          box-shadow: 0px 1px 0px 0px #339548, 0px -1px 0px 0px #88FFA2;
+          background: #1fd65f;
+          box-shadow: 0px 1px 0px 0px #16a049, 0px -1px 0px 0px #45e57f;
           color: white;
         }
 

@@ -146,15 +146,15 @@ function Tile(props) {
               
               .mine.gem {
                 border-radius: 5px;
-                border: 1px solid #59E878;
-                background: radial-gradient(139.03% 139.03% at 50% 50%, rgba(0, 255, 26, 0.45) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(0deg, rgba(11, 12, 11, 0.25) 0%, rgba(11, 12, 11, 0.25) 100%), linear-gradient(253deg, #1A0E33 -27.53%, #423C7A 175.86%);
+                border: 1px solid #1fd65f;
+                background: radial-gradient(139.03% 139.03% at 50% 50%, rgba(0, 255, 26, 0.45) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(0deg, rgba(11, 12, 11, 0.25) 0%, rgba(11, 12, 11, 0.25) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
                 box-shadow: 0px 2px 7px 0px rgba(0, 0, 0, 0.15) inset, 0px 0px 31px 0px rgba(10, 182, 47, 0.56) inset;
               }
 
               .mine.bomb {
                 border-radius: 5px;
                 border: 1px solid rgba(126, 42, 137, 0.25);
-                background: linear-gradient(180deg, rgba(173, 4, 221, 0.15) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(0deg, rgba(18, 16, 36, 0.67) 0%, rgba(18, 16, 36, 0.67) 100%), linear-gradient(253deg, #1A0E33 -27.53%, #423C7A 175.86%);
+                background: linear-gradient(180deg, rgba(173, 4, 221, 0.15) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(0deg, rgba(18, 16, 36, 0.67) 0%, rgba(18, 16, 36, 0.67) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
                 box-shadow: 0px 2px 7px 0px rgba(0, 0, 0, 0.15) inset, 0px 0px 31px 0px rgba(66, 36, 207, 0.25) inset;
               }
               

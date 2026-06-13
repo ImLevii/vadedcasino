@@ -120,9 +120,9 @@ function Battles(props) {
 
     return (
         <>
-            <Title>BloxClash | Battles</Title>
+            <Title>Cosmic Luck | Battles</Title>
             <Meta name='title' content='Battles'></Meta>
-            <Meta name='description' content='Wager Robux On BloxClash Battles And Win Big Versus Other Roblox Players, Win Limiteds!'></Meta>
+            <Meta name='description' content='Wager Coins On Cosmic Luck Battles And Win Big Versus Other Players!'></Meta>
 
             <div class='battles-container fadein'>
                 <div class='battles-header'>
@@ -240,7 +240,7 @@ function Battles(props) {
                 align-items: center;
                 gap: 6px;
                 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
               }
@@ -255,7 +255,7 @@ function Battles(props) {
                 
                 padding: 0 15px;
                 border-radius: 3px;
-                background: rgba(89, 232, 120, 0.24);
+                background: rgba(31, 214, 95, 0.24);
               }
               
               .create {
@@ -272,7 +272,7 @@ function Battles(props) {
                 align-items: center;
                 gap: 8px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
               }
@@ -288,7 +288,7 @@ function Battles(props) {
               .bar {
                 flex: 1;
                 height: 1px;
-                background: #5A5499;
+                background: #3a4250;
                 margin: 25px 0;
               }
               

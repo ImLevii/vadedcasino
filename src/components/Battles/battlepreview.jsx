@@ -141,7 +141,7 @@ function BattlePreview(props) {
                 <A href={`/battle/${props.battle.id}${props?.battle?.privKey ? `?pk=${props?.battle?.privKey}` : ''}`}
                    class='gamemode-link'></A>
                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="8" viewBox="0 0 13 8"
-                     fill='#ADA3EF'>
+                     fill='#8b92a0'>
                   <path
                     d="M6.5 0C4.01621 0 1.76378 1.3589 0.101718 3.56612C-0.0339061 3.74696 -0.0339061 3.99959 0.101718 4.18042C1.76378 6.3903 4.01621 7.74921 6.5 7.74921C8.98379 7.74921 11.2362 6.3903 12.8983 4.18308C13.0339 4.00225 13.0339 3.74962 12.8983 3.56878C11.2362 1.3589 8.98379 0 6.5 0ZM6.67817 6.60305C5.02941 6.70676 3.66784 5.34786 3.77156 3.69643C3.85665 2.33487 4.96026 1.23126 6.32183 1.14616C7.97059 1.04245 9.33216 2.40135 9.22844 4.05278C9.14069 5.41168 8.03708 6.51529 6.67817 6.60305ZM6.59573 5.34254C5.70753 5.39838 4.97356 4.66708 5.03206 3.77887C5.07727 3.0449 5.67296 2.45188 6.40692 2.40401C7.29513 2.34816 8.0291 3.07947 7.97059 3.96768C7.92273 4.70431 7.32704 5.29733 6.59573 5.34254Z"/>
                 </svg>
@@ -206,7 +206,7 @@ function BattlePreview(props) {
           gap: 5px;
 
           overflow-x: auto;
-          scrollbar-color: rgba(173, 163, 239, 0.29) rgba(0, 0, 0, 0.21);
+          scrollbar-color: rgba(139, 146, 160, 0.29) rgba(0, 0, 0, 0.21);
         }
 
         .cases::-webkit-scrollbar {
@@ -277,7 +277,7 @@ function BattlePreview(props) {
 
         .mode.group {
           color: #FFF;
-          background: url("/assets/art/stripes.png"), linear-gradient(0deg, rgba(89, 232, 120, 0.25) 0%, rgba(89, 232, 120, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+          background: url("/assets/art/stripes.png"), linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
         }
 
         .mode p, .crazy p {
@@ -315,7 +315,7 @@ function BattlePreview(props) {
           width: 100%;
           height: 100%;
 
-          background: linear-gradient(240deg, rgba(0, 255, 194, 0.44) 20.27%, rgba(0, 231, 170, 0.22) 37.12%, rgba(0, 218, 157, 0.10) 56.46%, rgba(0, 195, 134, 0.26) 88.22%, rgba(0, 170, 109, 0.44) 107.96%), linear-gradient(90deg, rgba(156, 255, 172, 0.25) -12.6%, rgba(0, 181, 156, 0.25) 95.75%), linear-gradient(251deg, #1A0E33 -26.07%, #423C7A 190.03%);
+          background: linear-gradient(240deg, rgba(0, 255, 194, 0.44) 20.27%, rgba(0, 231, 170, 0.22) 37.12%, rgba(0, 218, 157, 0.10) 56.46%, rgba(0, 195, 134, 0.26) 88.22%, rgba(0, 170, 109, 0.44) 107.96%), linear-gradient(90deg, rgba(156, 255, 172, 0.25) -12.6%, rgba(0, 181, 156, 0.25) 95.75%), linear-gradient(251deg, #12151c -26.07%, #1f242e 190.03%);
           border-radius: 3px;
           border: 1px solid #5EE1A6;
 

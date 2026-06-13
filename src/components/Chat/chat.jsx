@@ -317,7 +317,7 @@ function Chat(props) {
                 height: 26px;
 
                 border-radius: 3px;
-                border: 1px solid #363266;
+                border: 1px solid #232a36;
                 background: rgba(54, 50, 102, 0.50);
 
                 display: flex;
@@ -335,7 +335,7 @@ function Chat(props) {
                 bottom: 80px; /* 20px padding, 50px message box, 10px from message box */
 
                 border-radius: 3px;
-                border: 1px solid #363266;
+                border: 1px solid #232a36;
                 background: #2E2958;
 
                 padding: 12px 6px 12px 12px;

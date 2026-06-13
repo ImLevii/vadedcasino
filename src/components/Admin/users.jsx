@@ -131,7 +131,7 @@ function AdminUsers(props) {
                                                  viewBox="0 0 17 11" fill="none">
                                                 <path
                                                     d="M8.5 0.705902C5.25197 0.705902 2.30648 2.45951 0.133016 5.30782C-0.0443388 5.54118 -0.0443388 5.86719 0.133016 6.10055C2.30648 8.9523 5.25197 10.7059 8.5 10.7059C11.748 10.7059 14.6935 8.9523 16.867 6.10398C17.0443 5.87062 17.0443 5.54461 16.867 5.31126C14.6935 2.45951 11.748 0.705902 8.5 0.705902ZM8.733 9.22684C6.57691 9.36067 4.79641 7.60707 4.93203 5.47598C5.04332 3.71894 6.4865 2.29478 8.267 2.18497C10.4231 2.05113 12.2036 3.80474 12.068 5.93583C11.9532 7.68943 10.51 9.11359 8.733 9.22684ZM8.62519 7.60021C7.46369 7.67227 6.50389 6.72855 6.58039 5.58236C6.63951 4.63521 7.41848 3.86994 8.37829 3.80817C9.53979 3.7361 10.4996 4.67982 10.4231 5.82601C10.3605 6.7766 9.58152 7.54187 8.62519 7.60021Z"
-                                                    fill="#ADA3EF"/>
+                                                    fill="#8b92a0"/>
                                             </svg>
                                             VIEW
                                         </button>
@@ -180,7 +180,7 @@ function AdminUsers(props) {
                 display: flex;
                 align-items: center;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 14px;
                 font-weight: 700;
               }
@@ -207,7 +207,7 @@ function AdminUsers(props) {
                 padding: 0 15px;
                 border-radius: 2px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
               }
@@ -221,7 +221,7 @@ function AdminUsers(props) {
                 align-items: center;
                 gap: 6px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 14px;
                 font-weight: 700;

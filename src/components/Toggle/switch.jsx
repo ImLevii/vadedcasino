@@ -36,11 +36,11 @@ function Switch(props) {
                 }
                 
                 .dark.active, .ultra.active {
-                  background: rgba(89, 232, 120, 0.25);
+                  background: rgba(31, 214, 95, 0.25);
                 }
                 
                 .dark.active .dot, .ultra.active .dot {
-                  background: #59E878;
+                  background: #1fd65f;
                 }
                 
                 .dot {
@@ -48,7 +48,7 @@ function Switch(props) {
                   height: 17px;
                   
                   border-radius: 3px;
-                  background: #5A5499;
+                  background: #3a4250;
                   
                   position: absolute;
                   transition: left .3s;

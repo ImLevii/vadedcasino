@@ -155,7 +155,7 @@ function GamesList() {
               }
 
               .games-header p {
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 22px;
                 font-weight: 800;
                 user-select: none;
@@ -166,11 +166,11 @@ function GamesList() {
               }
 
               .games-text {
-                color: #ADA3EF;
+                color: #8b92a0;
               }
 
               .games .cube {
-                fill: #FCA31E;
+                fill: #1fd65f;
               }
 
               .games .house-text {
@@ -178,7 +178,7 @@ function GamesList() {
               }
 
               .games .games-text {
-                color: #FCA31E;
+                color: #1fd65f;
               }
 
               .line {
@@ -186,7 +186,7 @@ function GamesList() {
                 height: 1px;
 
                 border-radius: 2525px;
-                background: linear-gradient(90deg, #5A5499 0%, rgba(90, 84, 153, 0.00) 100%);
+                background: linear-gradient(90deg, #3a4250 0%, rgba(90, 84, 153, 0.00) 100%);
               }
 
               .dropdown-games {

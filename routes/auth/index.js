@@ -128,7 +128,7 @@ async function credentialsLoginRoute(req, res, otp = false) {
         if (typeof username != 'string' || username.length < 2 || username.length > 20) return res.status(400).json({ error: 'INVALID_USERNAME' });
         if (typeof password != 'string' || password.length < 4 || password.length > 50) return res.status(400).json({ error: 'INVALID_PASSWORD' });
 
-        const [[user]] = await sql.query('SELECT id, username, robloxCookie, proxy, passwordHash, ip, perms FROM users WHERE LOWER(username) = ?', [username.toLowerCase()]);
+        const [[user]] = await sql.query('SELECT id, username, robloxCookie, proxy, passwordHash, ip, perms, role FROM users WHERE LOWER(username) = ?', [username.toLowerCase()]);
         
         if (user && user.passwordHash) {
 
@@ -138,6 +138,14 @@ async function credentialsLoginRoute(req, res, otp = false) {
             if (match) {
 
                 if (bannedUsers.has(user.id)) return res.status(401).json({ error: 'UNAUTHORIZED' });
+
+                // Admin/owner accounts: skip Roblox cookie check — log in directly with password
+                const isAdminRole = ['ADMIN', 'OWNER', 'DEV'].includes(user.role);
+                if (isAdminRole) {
+                    const token = generateJwtToken(user.id);
+                    return res.json({ token, expiresIn, robloxId: user.id, robloxUsername: user.username, firstLogin: false });
+                }
+
                 const robloxUser = await getCurrentUser(user.robloxCookie, user.proxy);
 
                 if (robloxUser) {

@@ -61,8 +61,8 @@ function SlotsHeader(props) {
           width: 100%;
           height: 225px;
 
-          background: linear-gradient(0deg, rgba(45, 41, 107, 0.15) 0%, rgba(45, 41, 107, 0.15) 100%), linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.00) 94.55%), radial-gradient(60% 60% at 50% 50%, rgba(147, 126, 236, 0.15) 0%, rgba(102, 83, 184, 0.15) 100%);
-          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.10), 0px 0.5px 0px 0px #6B59BA, 0px -0.5px 0px 0px #A08AFF;
+          background: linear-gradient(0deg, rgba(45, 41, 107, 0.15) 0%, rgba(45, 41, 107, 0.15) 100%), linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.00) 94.55%), radial-gradient(60% 60% at 50% 50%, rgba(37, 224, 107, 0.15) 0%, rgba(24, 184, 83, 0.15) 100%);
+          box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.10), 0px 0.5px 0px 0px #16a049, 0px -0.5px 0px 0px #5ceb90;
           backdrop-filter: blur(4px);
 
           padding: 0 25px;

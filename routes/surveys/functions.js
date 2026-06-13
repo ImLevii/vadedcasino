@@ -9,8 +9,8 @@ const limit = 15;
 async function cacheSurveys(top = false) {
 
     const [results] = await sql.query(`
-        SELECT userId, username, xp, provider, robux FROM surveys JOIN users ON surveys.userId = users.id
-        ${top ? `WHERE robux > ${topReward}` : ''} ORDER BY surveys.id DESC LIMIT ${limit}
+        SELECT userId, username, xp, provider, coins FROM surveys JOIN users ON surveys.userId = users.id
+        ${top ? `WHERE coins > ${topReward}` : ''} ORDER BY surveys.id DESC LIMIT ${limit}
     `);
 
     rewards[top ? 'top' : 'all'] = results.map(e => {
@@ -21,9 +21,9 @@ async function cacheSurveys(top = false) {
                 username: e.username,
                 xp: e.xp
             },
-            robux: e.robux,
+            coins: e.coins,
             provider: e.provider,
-            top: e.robux >= topReward
+            top: e.coins >= topReward
         }
         
     });
@@ -32,7 +32,7 @@ async function cacheSurveys(top = false) {
 
 }
 
-function newReward(user, provider, robux) {
+function newReward(user, provider, coins) {
 
     const data = {
         user: {
@@ -40,9 +40,9 @@ function newReward(user, provider, robux) {
             username: user.username,
             xp: user.xp
         },
-        robux: robux,
+        coins: coins,
         provider: provider,
-        top: robux >= topReward
+        top: coins >= topReward
     }
 
     rewards.all.unshift(data);

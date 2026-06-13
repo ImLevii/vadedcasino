@@ -88,9 +88,9 @@ function Mines(props) {
 
     return (
         <>
-            <Title>BloxClash | Mines</Title>
+            <Title>Cosmic Luck | Mines</Title>
             <Meta name='title' content='Mines'></Meta>
-            <Meta name='description' content='Play Mines On BloxClash And Multiply Your Robux By 100x On The Best Roblox Gaming Platform'></Meta>
+            <Meta name='description' content='Play Mines On Cosmic Luck And Multiply Your Coins By 100x On The Best Casino Platform'></Meta>
 
             <div class='mines-container fadein'>
                 <div className='betting-container'>
@@ -246,7 +246,7 @@ function Mines(props) {
                 align-items: center;
                 position: relative;
 
-                background: linear-gradient(238deg, #242043 0%, #251F4E 100%);
+                background: linear-gradient(238deg, #161a22 0%, #1b202a 100%);
               }
               
               .summary {
@@ -271,13 +271,13 @@ function Mines(props) {
 
                 border-radius: 12px;
                 border: 1px solid #FF5141;
-                background: radial-gradient(139.03% 139.03% at 50% 50%, rgba(255, 81, 65, 0.45) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(0deg, rgba(11, 12, 11, 0.25) 0%, rgba(11, 12, 11, 0.25) 100%), linear-gradient(253deg, #1A0E33 -27.53%, #423C7A 175.86%);
+                background: radial-gradient(139.03% 139.03% at 50% 50%, rgba(255, 81, 65, 0.45) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(0deg, rgba(11, 12, 11, 0.25) 0%, rgba(11, 12, 11, 0.25) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
                 box-shadow: 0px 2px 7px 0px rgba(0, 0, 0, 0.15) inset, 0px 0px 31px 0px rgba(255, 81, 65, 0.56) inset;
               }
               
               .summary.win {
-                border: 1px solid #59E878;
-                background: radial-gradient(139.03% 139.03% at 50% 50%, rgba(0, 255, 26, 0.45) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(0deg, rgba(11, 12, 11, 0.25) 0%, rgba(11, 12, 11, 0.25) 100%), linear-gradient(253deg, #1A0E33 -27.53%, #423C7A 175.86%);
+                border: 1px solid #1fd65f;
+                background: radial-gradient(139.03% 139.03% at 50% 50%, rgba(0, 255, 26, 0.45) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(0deg, rgba(11, 12, 11, 0.25) 0%, rgba(11, 12, 11, 0.25) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
                 box-shadow: 0px 2px 7px 0px rgba(0, 0, 0, 0.15) inset, 0px 0px 31px 0px rgba(10, 182, 47, 0.56) inset;
               }
               
@@ -297,7 +297,7 @@ function Mines(props) {
               }
               
               .win .bar {
-                background: linear-gradient(90deg, rgba(217, 217, 217, 0.00) 0%, #59E878 47.26%, rgba(217, 217, 217, 0.00) 95.02%);
+                background: linear-gradient(90deg, rgba(217, 217, 217, 0.00) 0%, #1fd65f 47.26%, rgba(217, 217, 217, 0.00) 95.02%);
               }
               
               .multi {
@@ -305,7 +305,7 @@ function Mines(props) {
               }
               
               .win .multi {
-                background: linear-gradient(213deg, #59E878 31.52%, #88FFA2 51.19%, #29D64E 64.47%);
+                background: linear-gradient(213deg, #1fd65f 31.52%, #88FFA2 51.19%, #29D64E 64.47%);
                 background-clip: text;
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
@@ -336,7 +336,7 @@ function Mines(props) {
               
               .win .try {
                 color: #16412D;
-                background: #59E878;
+                background: #1fd65f;
                 box-shadow: 0px 1px 0px 0px #2A883E, 0px -1px 0px 0px #78FF95;
               }
               
@@ -365,7 +365,7 @@ function Mines(props) {
                 gap: 15px;
 
                 border-radius: 16px;
-                background: linear-gradient(277deg, #242043 -69.8%, #251F4E 144.89%);
+                background: linear-gradient(277deg, #161a22 -69.8%, #1b202a 144.89%);
                 overflow: hidden;
               }
               
@@ -373,13 +373,13 @@ function Mines(props) {
                 width: 100%;
                 height: 40px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 13px;
                 font-weight: 700;
                 line-height: 40px;
                 text-align: center;
                 
-                background: #1E1A3A;
+                background: #12151c;
               }
 
               .betting-options {
@@ -397,10 +397,10 @@ function Mines(props) {
                 text-align: center;
 
                 background: #413976;
-                box-shadow: 0px 1px 0px 0px #1B1734, 0px -1px 0px 0px #5B509E;
+                box-shadow: 0px 1px 0px 0px #0e1116, 0px -1px 0px 0px #3a4250;
 
                 font-family: "Geogrotesque Wide", sans-serif;
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 13px;
                 font-weight: 700;
                 cursor: pointer;
@@ -408,7 +408,7 @@ function Mines(props) {
 
               .betting-option.active {
                 color: white;
-                background: #1E1A3A;
+                background: #12151c;
                 box-shadow: unset;
               }
 
@@ -443,7 +443,7 @@ function Mines(props) {
                 height: 40px;
                 border-radius: 0px 0px 3px 3px;
                 border: 1px solid #3E3771;
-                background: #1F1A3C;
+                background: #14171f;
 
                 display: flex;
                 align-items: center;
@@ -482,7 +482,7 @@ function Mines(props) {
                 font-weight: 700;
 
                 background: #413976;
-                box-shadow: 0px 2px 0px 0px #1B1734, 0px -2px 0px 0px #5B509E;
+                box-shadow: 0px 2px 0px 0px #0e1116, 0px -2px 0px 0px #3a4250;
               }
               
               .random:active {
@@ -494,10 +494,10 @@ function Mines(props) {
                 box-shadow: unset;
 
                 border-radius: 3px;
-                border: 1px solid #FCA31E;
-                background: rgba(252, 163, 30, 0.25);
+                border: 1px solid #1fd65f;
+                background: rgba(31, 214, 95, 0.25);
 
-                color: #FCA31E;
+                color: #1fd65f;
               }
               
               .current-stats {
@@ -523,7 +523,7 @@ function Mines(props) {
               .coin-prefix {
                 border-radius: 6px;
                 border: 1px solid #B17818;
-                background: linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), linear-gradient(0deg, rgba(255, 190, 24, 0.25) 0%, rgba(255, 190, 24, 0.25) 100%), linear-gradient(253deg, #1A0E33 -27.53%, #423C7A 175.86%);
+                background: linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
               
                 height: 30px;
                 width: 30px;
@@ -561,7 +561,7 @@ function Mines(props) {
                 width: calc(100% - 2px);
                 height: calc(100% - 2px);
 
-                background: linear-gradient(0deg, rgba(255, 190, 24, 0.25) 0%, rgba(255, 190, 24, 0.25) 100%), linear-gradient(253deg, #1A0E33 -27.53%, #423C7A 175.86%);
+                background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
               }
               
               .current-multi p {

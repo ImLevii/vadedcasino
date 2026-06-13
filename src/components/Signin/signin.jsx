@@ -227,7 +227,7 @@ function SignIn(props) {
                   height: 100%;
                   width: 100%;
 
-                  background: #2C2952;
+                  background: #1a1f29;
                   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
                   border-radius: 15px;
                   
@@ -244,7 +244,7 @@ function SignIn(props) {
 
                   width: 100%;
 
-                  background: #2C2952;
+                  background: #1a1f29;
                   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
                   border-radius: 15px;
 
@@ -278,7 +278,7 @@ function SignIn(props) {
                   justify-content: center;
 
                   font-weight: 700;
-                  color: #ADA3EF;
+                  color: #8b92a0;
                   cursor: pointer;
                 }
                 
@@ -311,7 +311,7 @@ function SignIn(props) {
                   font-family: 'Geogrotesque Wide';
                   font-weight: 700;
                   font-size: 22px;
-                  color: #ADA3EF;
+                  color: #8b92a0;
                 }
                 
                 .bar {
@@ -343,7 +343,7 @@ function SignIn(props) {
                   align-items: center;
                   justify-content: center;
                   
-                  color: #ADA3EF;
+                  color: #8b92a0;
                   cursor: pointer;
 
                   outline: unset;
@@ -356,7 +356,7 @@ function SignIn(props) {
                   
                   position: relative;
 
-                  color: #FCA31E;
+                  color: #1fd65f;
                   overflow: hidden;
                   z-index: 0;
                 }
@@ -371,7 +371,7 @@ function SignIn(props) {
                   top: 1px;
                   left: 1px;
                   
-                  background: linear-gradient(0deg, rgba(255, 190, 24, 0.25), rgba(255, 190, 24, 0.25)), linear-gradient(252.77deg, #1A0E33 -27.53%, #423C7A 175.86%);
+                  background: linear-gradient(0deg, rgba(31, 214, 95, 0.25), rgba(31, 214, 95, 0.25)), linear-gradient(252.77deg, #12151c -27.53%, #1f242e 175.86%);
                   z-index: -1;
                 }
                 
@@ -380,7 +380,7 @@ function SignIn(props) {
                   font-weight: 700;
                   font-size: 14px;
                   text-align: center;
-                  color: #ADA3EF;
+                  color: #8b92a0;
                   
                   margin: 20px 0 10px 0;
                 }
@@ -412,7 +412,7 @@ function SignIn(props) {
                   font-family: 'Geogrotesque Wide';
                   font-weight: 400;
                   font-size: 13px;
-                  color: #ADA3EF;
+                  color: #8b92a0;
                 }
                 
                 .signin {
@@ -502,7 +502,7 @@ function SignIn(props) {
                   font-family: 'Geogrotesque Wide';
                   font-weight: 400;
                   font-size: 14px;
-                  color: #ADA3EF;
+                  color: #8b92a0;
                   
                   text-align: center;
                   background: linear-gradient(277.6deg, rgba(97, 89, 176, 0.15) 6.63%, rgba(67, 55, 141, 0.15) 87.07%);

@@ -1,8 +1,9 @@
 const { sql, doTransaction } = require('../../../database');
 const { newBets } = require('../../../socketio/bets');
 const { sleep, roundDecimal } = require('../../../utils');
-const { sha256 } = require('../../../fairness') 
+const { sha256, generateServerSeed } = require('../../../fairness') 
 const io = require('../../../socketio/server');
+const crypto = require('crypto');
 
 const crash = {
     round: {},
@@ -21,10 +22,31 @@ const growthFunc = ms => Math.floor(100 * Math.pow(Math.E, 0.00006 * ms)) / 100;
 const lastResults = 10;
 const tickRate = crash.config.tick;
 
+// Provably fair crash point from server seed (4% house edge)
+function computeCrashPoint(serverSeed) {
+    const hash = crypto.createHash('sha256').update(serverSeed).digest('hex');
+    const h = parseInt(hash.slice(0, 8), 16);
+    if (h % 25 === 0) return 1.00; // 4% house wins instantly
+    const result = Math.floor((2 ** 32 / (h + 1)) * 0.96 * 100) / 100;
+    return Math.max(1.00, result);
+}
+
+async function createCrashRound() {
+    const serverSeed = generateServerSeed();
+    const crashPoint = computeCrashPoint(serverSeed);
+    const [ins] = await sql.query(
+        'INSERT INTO crash (serverSeed, crashPoint, createdAt) VALUES (?, ?, NOW())',
+        [serverSeed, crashPoint]
+    );
+    const [[newRound]] = await sql.query('SELECT * FROM crash WHERE id = ?', [ins.insertId]);
+    newRound.new = true;
+    return newRound;
+}
+
 async function getCrashRound() {
 
     const [[round]] = await sql.query('SELECT * FROM crash WHERE endedAt IS NULL ORDER BY id ASC LIMIT 1');
-    if (!round) return;
+    if (!round) return createCrashRound();
 
     const now = new Date();
 
@@ -149,6 +171,13 @@ function processCashoutsBelow(multiplier) {
 }
 
 async function crashInterval() {
+
+    // Guard: if no active round (shouldn't happen after fix, but just in case)
+    if (!crash.round || !crash.round.id) {
+        await sleep(2000);
+        await updateCrash();
+        return crashInterval();
+    }
 
     if (!crash.round.startedAt) {
 

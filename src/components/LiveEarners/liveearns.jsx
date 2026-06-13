@@ -105,7 +105,7 @@ function LiveEarns(props) {
                     flex: 1;
                     height: 1px;
 
-                    background: #5A5499;
+                    background: #3a4250;
                 }
 
                 .arrow {

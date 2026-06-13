@@ -86,6 +86,12 @@ const defaultCurrencyPrice = 1;
 
 async function cacheWithdrawalCoins() {
     
+    if (!process.env.MEXC_API_KEY || !process.env.MEXC_API_SECRET) {
+        console.warn('[cacheWithdrawalCoins] MEXC_API_KEY / MEXC_API_SECRET not set, skipping crypto withdrawal config.');
+        return;
+    }
+
+    try {
     const [
         { data },
         { data: prices }
@@ -140,6 +146,11 @@ async function cacheWithdrawalCoins() {
     }
 
     setTimeout(cacheWithdrawalCoins, 1000 * 60 * 5); // 5 minutes
+
+    } catch (e) {
+        console.error('[cacheWithdrawalCoins] Error fetching MEXC data:', e.message);
+        setTimeout(cacheWithdrawalCoins, 1000 * 60 * 5);
+    }
 
 }
 
@@ -197,7 +208,7 @@ async function updateSentWithdrawals() {
 
 }
 
-updateSentWithdrawals();
+updateSentWithdrawals().catch(e => console.error('[withdraw] updateSentWithdrawals startup error:', e.message));
 
 module.exports = {
     mexc,

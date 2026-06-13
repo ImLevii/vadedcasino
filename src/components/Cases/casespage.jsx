@@ -162,7 +162,7 @@ function Cases(props) {
                 border: unset;
 
                 font-family: "Geogrotesque Wide";
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 14px;
                 font-weight: 700;
 
@@ -210,14 +210,14 @@ function Cases(props) {
                 border: unset;
                 outline: unset;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-family: Geogrotesque Wide;
                 font-weight: 600;
               }
 
               .number::placeholder {
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-family: Geogrotesque Wide;
                 font-weight: 600;
@@ -249,7 +249,7 @@ function Cases(props) {
                 width: 160px;
 
                 font-family: Geogrotesque Wide;
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 600;
 

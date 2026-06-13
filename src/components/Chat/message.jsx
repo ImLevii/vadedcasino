@@ -228,12 +228,12 @@ function Message(props) {
               
               .OWNER .message, .ADMIN .message {
                 background: linear-gradient(37deg, rgba(255, 153, 0, 0.15) 30.03%, rgba(249, 172, 57, 0.15) 42.84%);
-                color: #FCA31E;
+                color: #1fd65f;
               }
               
               .MOD .message {
-                background: rgba(89, 232, 120, 0.05);
-                color: #59E878;
+                background: rgba(31, 214, 95, 0.05);
+                color: #1fd65f;
               }
               
               .DEV .message {
@@ -257,8 +257,8 @@ function Message(props) {
               }
               
               .MOD .role, .MOD .role {
-                color: #59E878;
-                fill: #59E878;
+                color: #1fd65f;
+                fill: #1fd65f;
               }
             `}</style>
         </>

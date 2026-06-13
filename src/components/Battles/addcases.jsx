@@ -32,7 +32,7 @@ function AddCases(props) {
               <svg xmlns="http://www.w3.org/2000/svg" width="10" height="8" viewBox="0 0 10 8" fill="none">
                 <path
                   d="M3.9497 0.447999L5.21006 1.936L6.45216 0.447999C6.68353 0.149333 6.95752 0 7.27413 0H9.6122C9.79486 0 9.90445 0.0533333 9.94099 0.16C9.9897 0.256 9.95925 0.362666 9.84966 0.48L6.79921 3.968L9.88619 7.52C9.99578 7.63733 10.0262 7.74933 9.97752 7.856C9.94099 7.952 9.83139 8 9.64873 8H6.96361C6.68353 8 6.40954 7.85067 6.14163 7.552L4.863 6.048L3.58438 7.552C3.31647 7.85067 3.04857 8 2.78067 8H0.351272C0.180788 8 0.071191 7.952 0.0224814 7.856C-0.0262283 7.74933 0.00421525 7.63733 0.113812 7.52L3.27385 3.936L0.296473 0.48C0.186876 0.362666 0.150344 0.256 0.186876 0.16C0.235586 0.0533333 0.351272 0 0.533933 0H3.10946C3.42607 0 3.70615 0.149333 3.9497 0.447999Z"
-                  fill="#ADA3EF"/>
+                  fill="#8b92a0"/>
               </svg>
             </button>
 
@@ -106,7 +106,7 @@ function AddCases(props) {
           width: 100vw;
           height: 100vh;
 
-          background: rgba(24, 23, 47, 0.55);
+          background: rgba(18, 20, 28, 0.55);
           cubic-bezier(0, 1, 0, 1);
 
           display: flex;
@@ -121,7 +121,7 @@ function AddCases(props) {
           width: 100%;
           height: 100%;
           max-height: 650px;
-          background: #2C2952;
+          background: #232a36;
 
           display: flex;
           flex-direction: column;
@@ -139,7 +139,7 @@ function AddCases(props) {
 
           padding: 0 20px;
 
-          background: #322F5F;
+          background: #2a323f;
         }
 
         .footer {
@@ -151,10 +151,10 @@ function AddCases(props) {
           padding: 0 10px;
 
           border-radius: 2px;
-          background: rgba(90, 84, 153, 0.35);
+          background: rgba(42, 50, 63, 0.35);
           line-height: 30px;
 
-          color: #ADA3EF;
+          color: #8b92a0;
           font-size: 11px;
           font-weight: 600;
         }
@@ -176,14 +176,14 @@ function AddCases(props) {
         .bar {
           height: 13px;
           width: 1px;
-          background: #534F96;
+          background: #2c3340;
           margin: 0 10px;
         }
 
         .exit {
           width: 25px;
           height: 25px;
-          background: rgba(85, 76, 125, 1);
+          background: rgba(42, 50, 63, 1);
 
           display: flex;
           align-items: center;
@@ -240,14 +240,14 @@ function AddCases(props) {
           border: unset;
           outline: unset;
 
-          color: #ADA3EF;
+          color: #8b92a0;
           font-size: 12px;
           font-family: Geogrotesque Wide, sans-serif;
           font-weight: 600;
         }
 
         .search::placeholder {
-          color: #ADA3EF;
+          color: #8b92a0;
           font-size: 12px;
           font-family: Geogrotesque Wide, sans-serif;
           font-weight: 600;
@@ -267,7 +267,7 @@ function AddCases(props) {
           width: 160px;
 
           font-family: Geogrotesque Wide;
-          color: #ADA3EF;
+          color: #8b92a0;
           font-size: 12px;
           font-weight: 600;
 
@@ -279,8 +279,8 @@ function AddCases(props) {
           justify-content: center;
 
           border-radius: 3px;
-          background: #423E76;
-          box-shadow: 0px 1px 0px 0px #2E2855, 0px -1px 0px 0px #4B4783;
+          background: #2a323f;
+          box-shadow: 0px 1px 0px 0px #1b202a, 0px -1px 0px 0px #2c3340;
           cursor: pointer;
 
           gap: 8px;

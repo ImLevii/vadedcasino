@@ -173,7 +173,7 @@ function AdminRobuxCashier(props) {
                 display: flex;
                 align-items: center;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 14px;
                 font-weight: 700;
               }
@@ -200,7 +200,7 @@ function AdminRobuxCashier(props) {
                 padding: 0 15px;
                 border-radius: 2px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
               }
@@ -214,7 +214,7 @@ function AdminRobuxCashier(props) {
                 align-items: center;
                 gap: 6px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 14px;
                 font-weight: 700;
@@ -231,7 +231,7 @@ function AdminRobuxCashier(props) {
                 border: unset;
 
                 border-radius: 3px;
-                background: #59E878;
+                background: #1fd65f;
                 box-shadow: 0px 1px 0px 0px #3CAC54, 0px -1px 0px 0px #96FFAD;
 
                 color: #FFF;

@@ -514,7 +514,7 @@ function AdminUserModal(props) {
           width: 100%;
           max-height: 80%;
 
-          background: #2C2952;
+          background: #1a1f29;
           box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
           border-radius: 15px;
 
@@ -535,7 +535,7 @@ function AdminUserModal(props) {
         .user-header {
           width: 100%;
           min-height: 60px;
-          background: #322F5F;
+          background: #232a36;
 
           display: flex;
           align-items: center;
@@ -563,7 +563,7 @@ function AdminUserModal(props) {
           justify-content: center;
 
           font-weight: 700;
-          color: #ADA3EF;
+          color: #8b92a0;
           cursor: pointer;
         }
 
@@ -617,11 +617,11 @@ function AdminUserModal(props) {
         }
 
         .stat.green {
-          background: rgba(89, 232, 120, 0.15);
+          background: rgba(31, 214, 95, 0.15);
         }
 
         .stat p:last-child {
-          color: #ADA3EF;
+          color: #8b92a0;
           font-size: 13px;
           font-weight: 600;
         }
@@ -633,14 +633,14 @@ function AdminUserModal(props) {
         }
 
         .green {
-          color: #59E878 !important;
+          color: #1fd65f !important;
         }
 
         .bar {
           width: 100%;
           height: 1px;
           min-height: 1px;
-          background: #5A5499;
+          background: #3a4250;
         }
 
         .settings {
@@ -663,7 +663,7 @@ function AdminUserModal(props) {
           display: flex;
           align-items: center;
 
-          color: #ADA3EF;
+          color: #8b92a0;
           font-size: 14px;
           font-weight: 600;
         }
@@ -701,7 +701,7 @@ function AdminUserModal(props) {
         .input-label {
           padding: 3px 6px;
           font-family: Geogrotesque Wide, sans-serif;
-          color: #ADA3EF;
+          color: #8b92a0;
           font-weight: 700;
 
           border-radius: 5px;
@@ -736,8 +736,8 @@ function AdminUserModal(props) {
         }
 
         .set {
-          background: #59E878;
-          box-shadow: 0px 1px 0px 0px #339548, 0px -1px 0px 0px #88FFA2;
+          background: #1fd65f;
+          box-shadow: 0px 1px 0px 0px #16a049, 0px -1px 0px 0px #45e57f;
           color: white;
         }
 

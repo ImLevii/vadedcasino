@@ -82,8 +82,8 @@ function DepositItem(props) {
               }
 
               .active {
-                border: 1px solid #FCA31E;
-                background: linear-gradient(0deg, rgba(255, 190, 24, 0.25) 0%, rgba(255, 190, 24, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+                border: 1px solid #1fd65f;
+                background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
                 box-shadow: 0px 2px 15px 0px rgba(0, 0, 0, 0.10);
               }
 
@@ -162,7 +162,7 @@ function DepositItem(props) {
               }
 
               .name {
-                color: #ADA3EF;
+                color: #8b92a0;
                 text-align: center;
                 font-size: 12px;
                 font-weight: 700;

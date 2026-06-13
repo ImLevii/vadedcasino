@@ -136,8 +136,8 @@ router.post('/', [isAuthed, apiLimiter], async (req, res) => {
     /*
         <meta name="user-data"
           data-userid="4155907350"
-          data-name="BloxClashTest"
-          data-displayName="BloxClashTest"
+          data-name="CosmicLuckTest"
+          data-displayName="CosmicLuckTest"
           data-isunder13="false" 
           data-created="12/20/2022 11:30:23 PM" 
           data-ispremiumuser="true"

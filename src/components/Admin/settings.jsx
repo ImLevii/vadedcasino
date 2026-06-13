@@ -113,16 +113,9 @@ function AdminSettings(props) {
                         <p className='title'>DEPOSITS</p>
                         <diu className='toggles'>
                             <div className='toggle'>
-                                <p>ROBUX</p>
-                                <Switch ultradark={true} active={settings()?.robuxDeposits} toggle={() => {
-                                    changeProperty('robuxDeposits', !settings()?.robuxDeposits)
-                                }}/>
-                            </div>
-
-                            <div className='toggle'>
-                                <p>LIMITEDS</p>
-                                <Switch ultradark={true} active={settings()?.limitedDeposits} toggle={() => {
-                                    changeProperty('limitedDeposits', !settings()?.limitedDeposits)
+                                <p>COIN DEPOSITS</p>
+                                <Switch ultradark={true} active={settings()?.coinDeposits} toggle={() => {
+                                    changeProperty('coinDeposits', !settings()?.coinDeposits)
                                 }}/>
                             </div>
 
@@ -152,20 +145,6 @@ function AdminSettings(props) {
                     <div className='section'>
                         <p className='title'>WITHDRAWS</p>
                         <diu className='toggles'>
-                            <div className='toggle'>
-                                <p>ROBUX</p>
-                                <Switch ultradark={true} active={settings()?.robuxWithdrawals} toggle={() => {
-                                    changeProperty('robuxWithdrawals', !settings()?.robuxWithdrawals)
-                                }}/>
-                            </div>
-
-                            <div className='toggle'>
-                                <p>LIMITEDS</p>
-                                <Switch ultradark={true} active={settings()?.limitedWithdrawals} toggle={() => {
-                                    changeProperty('limitedWithdrawals', !settings()?.limitedWithdrawals)
-                                }}/>
-                            </div>
-
                             <div className='toggle'>
                                 <p>CRYPTO</p>
                                 <Switch ultradark={true} active={settings()?.cryptoWithdrawals} toggle={() => {
@@ -252,7 +231,7 @@ function AdminSettings(props) {
               }
               
               .title {
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 18px;
                 font-weight: 700;
               }

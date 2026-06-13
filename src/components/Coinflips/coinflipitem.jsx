@@ -87,7 +87,7 @@ function CoinflipItem(props) {
               }
 
               .gold:before {
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(252, 163, 30, 0.14) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(0, 0, 0, 0.21);
+                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(31, 214, 95, 0.14) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(0, 0, 0, 0.21);
               }
               
               .item-image {

@@ -28,7 +28,7 @@ function AdminCryptoCashier(props) {
         try {
             setUsername(search)
             setPage(+params?.page || 1)
-            let txRes = await authedAPI(`/admin/cashier/crypto?sortBy=robuxAmount&sortOrder=DESC&page=${page()}${params?.search ? `&search=${params?.search}` : ''}`, 'GET', null)
+            let txRes = await authedAPI(`/admin/cashier/crypto?sortBy=coinAmount&sortOrder=DESC&page=${page()}${params?.search ? `&search=${params?.search}` : ''}`, 'GET', null)
             if (txRes.error && txRes.error === '2FA_REQUIRED') {
                 return mutateTransactions({mfa: true})
             }
@@ -48,7 +48,7 @@ function AdminCryptoCashier(props) {
         setIsLoading(true)
         setParams({page: page()})
 
-        let moreData = await authedAPI(`/admin/cashier/crypto?sortBy=robuxAmount&sortOrder=DESC&page${page()}${params?.search ? `&search=${params?.search}` : ''}`, 'GET', null)
+        let moreData = await authedAPI(`/admin/cashier/crypto?sortBy=coinAmount&sortOrder=DESC&page${page()}${params?.search ? `&search=${params?.search}` : ''}`, 'GET', null)
         if (!moreData) return setIsLoading(false)
 
         addPage(moreData.data, page(), setTransactions)
@@ -135,7 +135,7 @@ function AdminCryptoCashier(props) {
                                 <div className='table-column'>
                                     <img src='/assets/icons/coin.svg' height='15' width='16' alt=''/>
                                     <p className='white'>
-                                        {formatNumber(tx?.robuxAmount)}
+                                        {formatNumber(tx?.coinAmount)}
                                     </p>
                                     <p>(<span class='gold'>$</span> {formatNumber(tx?.fiatAmount)})</p>
                                 </div>
@@ -182,7 +182,7 @@ function AdminCryptoCashier(props) {
                 display: flex;
                 align-items: center;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 14px;
                 font-weight: 700;
               }
@@ -209,7 +209,7 @@ function AdminCryptoCashier(props) {
                 padding: 0 15px;
                 border-radius: 2px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
               }
@@ -223,7 +223,7 @@ function AdminCryptoCashier(props) {
                 align-items: center;
                 gap: 6px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 14px;
                 font-weight: 700;
@@ -240,7 +240,7 @@ function AdminCryptoCashier(props) {
                 border: unset;
 
                 border-radius: 3px;
-                background: #59E878;
+                background: #1fd65f;
                 box-shadow: 0px 1px 0px 0px #3CAC54, 0px -1px 0px 0px #96FFAD;
 
                 color: #FFF;

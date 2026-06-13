@@ -143,16 +143,17 @@ function Roulette(props) {
 
     return (
         <>
-            <Title>BloxClash | Roulette</Title>
+            <Title>Cosmic Luck | Roulette</Title>
             <Meta name='title' content='Roulette'></Meta>
-            <Meta name='description' content='Bet On Roulette And Win Free Robux on BloxClash! Play On Red, Green And Gold To Win 14x Multiplier'></Meta>
+            <Meta name='description' content='Bet On Roulette And Win Coins on Cosmic Luck! Play On Red, Green And Gold To Win 14x Multiplier'></Meta>
 
             <div class='roulette-container fadein'>
                 <div class='roulette-header'>
-                    <p class='desc'>PREVIOUS 10 ROLLS</p>
-
-                    <div class='lastten'>
-                        <For each={last10()}>{(round, index) => <RouletteIcon num={round} size='small'/>}</For>
+                    <div class='recent'>
+                        <p class='label'>RECENT ROLLS</p>
+                        <div class='lastten'>
+                            <For each={last10()}>{(round, index) => <RouletteIcon num={round} size='small'/>}</For>
+                        </div>
                     </div>
 
                     <div class='timer-container'>
@@ -166,22 +167,23 @@ function Roulette(props) {
                         </div>
                     </div>
 
-                    <p class='title'>LAST 100</p>
+                    <div class='last100'>
+                        <p class='label'>LAST 100</p>
+                        <div class='stats'>
+                            <div class='stat green'>
+                                <RouletteIcon num={1} size='small'/>
+                                <p>{stats().green}</p>
+                            </div>
 
-                    <div class='stats'>
-                        <div class='stat'>
-                            <p class='desc green'>{stats().green}</p>
-                            <RouletteIcon num={1} size='small'/>
-                        </div>
+                            <div class='stat gold'>
+                                <RouletteIcon num={0} size='small'/>
+                                <p>{stats().gold}</p>
+                            </div>
 
-                        <div class='stat'>
-                            <p class='desc gold'>{stats().gold}</p>
-                            <RouletteIcon num={0} size='small'/>
-                        </div>
-
-                        <div class='stat'>
-                            <p class='desc red'>{stats().red}</p>
-                            <RouletteIcon num={14} size='small'/>
+                            <div class='stat red'>
+                                <RouletteIcon num={14} size='small'/>
+                                <p>{stats().red}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -211,165 +213,100 @@ function Roulette(props) {
               .roulette-header {
                 width: 100%;
                 display: flex;
-                align-items: center;
+                align-items: flex-end;
+                justify-content: space-between;
                 position: relative;
-                margin: 30px 0;
+                gap: 20px;
+                margin-bottom: 22px;
+              }
+
+              .recent, .last100 {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+              }
+
+              .last100 {
+                align-items: flex-end;
+              }
+
+              .label {
+                color: #6b7280;
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
               }
 
               .lastten {
                 display: flex;
-                gap: 10px;
-              }
-
-              .desc {
-                color: #ADA3EF;
-                font-size: 14px;
-                font-weight: 700;
-
-                position: absolute;
-                top: -25px;
+                gap: 8px;
               }
 
               .rolling {
-                color: #ADA3EF;
+                color: #6b7280;
                 font-size: 13px;
                 font-weight: 700;
-                width: 95px;
+                text-align: center;
+              }
+
+              .white {
+                color: #fff;
               }
 
               .timer-container {
                 display: flex;
-                gap: 10px;
+                flex-direction: column;
+                gap: 8px;
                 align-items: center;
-                margin-left: auto;
+                flex: 1;
+                max-width: 220px;
               }
 
               .timer {
-                min-width: 132px;
-                max-width: 132px;
-                width: 132px;
-                height: 9px;
-                border-radius: 2px;
-                background: #242140;
+                width: 100%;
+                height: 8px;
+                border-radius: 99px;
+                background: #11141b;
+                overflow: hidden;
               }
 
               .bar {
                 height: 100%;
                 width: 100%;
 
-                border-radius: 2px;
-                background: #FCA31E;
+                border-radius: 99px;
+                background: #1fd65f;
+                box-shadow: 0 0 10px rgba(31, 214, 95, 0.6);
               }
 
               .stats {
                 display: flex;
-                gap: 15px;
+                gap: 8px;
               }
 
               .stat {
-                position: relative;
                 display: flex;
-                justify-content: center;
+                align-items: center;
+                gap: 7px;
 
-                color: #41D164;
-              }
+                padding: 5px 12px 5px 6px;
+                border-radius: 8px;
+                background: #11141b;
+                border: 1px solid rgba(255, 255, 255, 0.06);
 
-              .title {
-                color: #ADA3EF;
                 font-size: 14px;
-                font-weight: 700;
-                margin: 0 20px;
+                font-weight: 800;
               }
+
+              .stat.green { color: #1fd65f; }
+              .stat.gold { color: #f5a623; }
+              .stat.red { color: #e8455f; }
 
               .colors {
                 display: flex;
                 width: 100%;
-                gap: 20px;
-              }
-
-              .bet-column {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-              }
-
-              .color {
-                color: #FFF !important;
-                font-size: 15px;
-                font-family: Geogrotesque Wide;
-                font-weight: 700;
-
-                outline: unset;
-                width: unset;
-                border: unset;
-                background: unset;
-
-                min-height: 70px;
-                padding: 0 20px;
-
-                display: flex;
-                align-items: center;
-                gap: 20px;
-                flex: 1;
-
-                cursor: pointer;
-              }
-
-              .color.green {
-                border-radius: 7px;
-                border: 1px solid #41D163;
-                background: rgba(65, 209, 99, 0.25);
-                box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.15);
-              }
-
-              .color.gold {
-                border-radius: 7px;
-                border: 1px solid #FF9900;
-                background: linear-gradient(37deg, rgba(255, 153, 0, 0.25) 30.03%, rgba(249, 172, 57, 0.25) 42.84%);
-                box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.15);
-              }
-
-              .color.red {
-                border-radius: 7px;
-                border: 1px solid #F04B69;
-                background: rgba(197, 56, 82, 0.25);
-                box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.15);
-              }
-
-              .color.red img {
-                filter: drop-shadow(0px 0px 15px #C53852);
-              }
-
-              .color.green img {
-                filter: drop-shadow(0px 0px 15px #41D163);
-              }
-
-              .bets-header {
-                margin-top: 35px;
-                min-height: 30px;
-                border-radius: 5px 5px 0 0;
-                background: linear-gradient(238deg, #6159B0 0%, #43378D 100%);
-
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0 15px;
-              }
-
-              .win {
-                margin-left: auto;
-              }
-
-              .green {
-                color: #59E878;
-              }
-
-              .gold {
-                color: var(--gold);
-              }
-
-              .red {
-                color: #C53852;
+                gap: 14px;
               }
 
               @media only screen and (max-width: 1000px) {
@@ -379,9 +316,19 @@ function Roulette(props) {
               }
 
               @media only screen and (max-width: 875px) {
+                .roulette-header {
+                  flex-wrap: wrap;
+                }
+
+                .timer-container {
+                  order: 3;
+                  max-width: unset;
+                  width: 100%;
+                }
+
                 .colors {
                   flex-direction: column;
-                  gap: 36px;
+                  gap: 28px;
                 }
               }
             `}</style>

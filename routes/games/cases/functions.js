@@ -18,8 +18,13 @@ async function cacheCases() {
         INNER JOIN caseVersions cv ON c.id = cv.caseId AND cv.endedAt IS NULL
     `);
 
+    if (!cases.length) {
+        setTimeout(cacheCases, 1000 * 60 * 60 * 1);
+        return;
+    }
+
     const [items] = await sql.query(`
-        SELECT id, robloxId, name, img, price, rangeFrom, rangeTo, caseVersionId FROM caseItems WHERE caseVersionId IN(?) ORDER BY price DESC;
+        SELECT id, itemId, name, img, price, rangeFrom, rangeTo, caseVersionId FROM caseItems WHERE caseVersionId IN(?) ORDER BY price DESC;
     `, [cases.map(e => e.revId)]);
 
     for (const caseInfo of cases) {
@@ -46,7 +51,7 @@ async function cacheDrops(top = false) {
     const [results] = await sql.query(`
         SELECT cases.slug, cases.name as caseName, cases.img as caseImg,
         users.id as userId, users.username, users.xp,
-        caseItems.robloxId, caseItems.name, caseItems.img, caseItems.price, caseItems.rangeFrom, caseItems.rangeTo
+        caseItems.itemId, caseItems.name, caseItems.img, caseItems.price, caseItems.rangeFrom, caseItems.rangeTo
         FROM caseOpenings INNER JOIN caseVersions ON caseOpenings.caseVersionId = caseVersions.id
         INNER JOIN cases ON caseVersions.caseId = cases.id
         INNER JOIN users ON caseOpenings.userId = users.id INNER JOIN caseItems ON caseOpenings.caseItemId = caseItems.id
@@ -129,7 +134,7 @@ function mapItem(e) {
     return {
         id: e.id,
         name: e.name,
-        img: e.img ? e.img : `/items/${e.robloxId}/img`,
+        img: e.img ? e.img : `/items/${e.itemId}/img`,
         price: e.price,
         probability: +getItemProbability(e.rangeFrom, e.rangeTo).toFixed(3) // roundDecimal(getItemProbability(e.rangeFrom, e.rangeTo), 3)
     }

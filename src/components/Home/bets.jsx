@@ -74,10 +74,10 @@ function Bets(props) {
                         <tr>
                             <th>GAME</th>
                             <th>USER</th>
-                            <th class='large'>TIME</th>
-                            <th class='large'>WAGER AMOUNT</th>
-                            <th class='large'>MULTIPLIER</th>
+                            <th class='large'>PLAY AMOUNT</th>
+                            <th>MULTI</th>
                             <th>PAYOUT</th>
+                            <th class='large'>TIME</th>
                         </tr>
                     </thead>
 
@@ -98,8 +98,6 @@ function Bets(props) {
                                     </div>
                                 </td>
 
-                                <td class='large'>{new Date(bet?.createdAt).toLocaleTimeString()}</td>
-
                                 <td class='large'>
                                     <div class='image-data white'>
                                         <img src='/assets/icons/coin.svg' alt='' height='17'/>
@@ -107,7 +105,7 @@ function Bets(props) {
                                     </div>
                                 </td>
 
-                                <td class={'large ' + ((bet?.payout / bet?.amount) > 1 ? 'green' : '')}>
+                                <td class={((bet?.payout / bet?.amount) > 1 ? 'green' : '')}>
                                     {(bet?.payout / bet?.amount).toFixed(2)}x
                                 </td>
 
@@ -117,6 +115,8 @@ function Bets(props) {
                                         {(bet?.payout / bet?.amount > 1) ? '+' : ''} <p>{Math.floor(bet?.payout || 0)}<span class='cents'>.{getCents(bet?.payout || 0)}</span></p>
                                     </div>
                                 </td>
+
+                                <td class='large'>{new Date(bet?.createdAt).toLocaleTimeString()}</td>
                             </tr>
                         )}</For>
                     </tbody>
@@ -125,93 +125,84 @@ function Bets(props) {
 
             <style jsx>{`
                 .bets-container {
-                  
+                  border-radius: 12px;
+                  border: 1px solid rgba(255, 255, 255, 0.06);
+                  background: #0e1116;
+                  overflow: hidden;
                 }
               
                 .bets-options {
                   width: 100%;
                   display: flex;
-                  gap: 10px;
-                  justify-content: center;
+                  gap: 4px;
+                  padding: 10px 12px;
+                  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                  background: #11141b;
                 }
                 
                 .option {
-                  width: 147px;
-                  height: 37px;
-                  border-radius: 3px 3px 0 0;
-                  background: #403674;
+                  height: 32px;
+                  padding: 0 14px;
+                  border-radius: 6px;
+                  background: transparent;
 
-                  color: #9789CF;
-                  font-size: 14px;
+                  color: #8b92a0;
+                  font-size: 12px;
                   font-family: Geogrotesque Wide;
-                  font-weight: 600;
+                  font-weight: 700;
+                  letter-spacing: .3px;
                   
                   outline: unset;
-                  border: unset;
+                  border: 1px solid transparent;
                   position: relative;
                   cursor: pointer;
                   
-                  transition: all .3s;
+                  transition: background .2s, color .2s, border-color .2s;
                 }
-                
-                .option:before {
-                  width: calc(100% + 2px);
-                  height: calc(100% + 2px);
 
-                  border-radius: 3px 3px 0 0;
-                  position: absolute;
-                  content: '';
-                  z-index: -1;
-                  
-                  top: -1px;
-                  left: -1px;
-                  background: linear-gradient(to top, #4E3D76, #2A2352, #2A2352, #2A2352, #4E3D76, #E78EF5, #E78EF5);
-
-                  opacity: 0;
-                  
-                  transition: opacity .3s;
-                }
-                
-                .option.active:before {
-                  opacity: 1;
+                .option:hover {
+                  color: #c3cad6;
+                  background: rgba(255, 255, 255, 0.04);
+                  border-color: rgba(255,255,255,0.07);
                 }
                 
                 .option.active {
-                  color: #E78EF5;
-                  text-shadow: rgba(231, 142, 245, 0.5) 0px 0px 25px, rgba(0, 0, 0, 0.25) 0px 2px 0px;
+                  color: #1fd65f;
+                  background: rgba(31, 214, 95, 0.12);
+                  border-color: rgba(31, 214, 95, 0.3);
                 }
 
                 .bets-table {
                   width: 100%;
-                  border-radius: 3px;
-                  overflow: hidden;
+                  border-collapse: collapse;
                 }
                 
                 .bets-header {
                   width: 100%;
-                  height: 40px;
-                  background: #2A2352;
+                  height: 42px;
+                  background: transparent;
 
-                  color: #9789CF;
-                  font-size: 13px;
+                  color: #6b7280;
+                  font-size: 12px;
                   font-family: Geogrotesque Wide;
                   font-weight: 700;
+                  letter-spacing: .5px;
                   
                   text-align: left;
                 }
                 
                 .bet {
                   background: unset;
-                  height: 45px;
+                  height: 46px;
 
-                  color: #ADA3EF;
+                  color: #8b92a0;
                   font-size: 13px;
                   font-family: Geogrotesque Wide;
                   font-weight: 600;
                 }
                 
                 .bet:nth-child(2n - 1) {
-                  background: rgba(160, 115, 255, 0.10);
+                  background: rgba(255, 255, 255, 0.02);
                 }
                 
                 .image-data {
@@ -219,11 +210,23 @@ function Bets(props) {
                   align-items: center;
                   gap: 5px;
                 }
+
+                .green {
+                  color: #1fd65f;
+                  font-weight: 700;
+                }
+
+                .gold {
+                  color: #1fd65f;
+                }
+
+                .white {
+                  color: #c3cad6;
+                }
                 
                 .lum {
                   mix-blend-mode: luminosity;
-                  color: #9693C0;
-
+                  color: #6b7280;
                 }
                 
                 .caps {
@@ -235,15 +238,19 @@ function Bets(props) {
                 }
                 
                 td:first-child, th:first-child {
-                  padding: 0 0 0 30px;
+                  padding: 0 0 0 22px;
+                }
+
+                td:last-child, th:last-child {
+                  padding: 0 22px 0 0;
                 }
                 
                 .cents {
-                  color: #A7A7A7;
+                  color: #6b7280;
                 }
                 
                 .gold .cents {
-                  color: #9A6C26;
+                  color: #16a049;
                 }
 
                 @media only screen and (max-width: 850px) {

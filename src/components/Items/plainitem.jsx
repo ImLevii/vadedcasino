@@ -2,15 +2,15 @@ function PlainItem(props) {
 
     function backImage(price) {
         if (price >= 250000) {
-            return '/assets/icons/fancygoldsword.png' // Gold
+            return '/assets/icons/rarity-gold.svg' // Gold
         } else if (price >= 50000) {
-            return '/assets/icons/fancyredsword.png' // Red
+            return '/assets/icons/rarity-red.svg' // Red
         } else if (price >= 10000) {
-            return '/assets/icons/fancypurplesword.png' // Pink
+            return '/assets/icons/rarity-pink.svg' // Pink
         } else if (price >= 1000) {
-            return '/assets/icons/fancybluesword.png'
+            return '/assets/icons/rarity-blue.svg'
         }
-        return '/assets/icons/fancygraysword.png' // Gray
+        return '/assets/icons/rarity-gray.svg' // Gray
     }
 
     function getRarity(price) {
@@ -107,7 +107,7 @@ function PlainItem(props) {
               }
 
               .gold:before {
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(252, 163, 30, 0.14) 0%, rgba(0, 0, 0, 0.00) 100%), #2F2B49;
+                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(31, 214, 95, 0.14) 0%, rgba(0, 0, 0, 0.00) 100%), #2F2B49;
               }
               
               .item-content {

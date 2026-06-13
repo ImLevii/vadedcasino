@@ -4,7 +4,7 @@ function CircularProgress(props) {
     return (
         <>
             <div class='progress-container' style={{
-                background: `conic-gradient(from 0deg at 50% 50%, #53DCA5 0deg, #53DCA5 ${progressToDegrees()}deg, #5B509E ${progressToDegrees() + 0.28}deg, #5B509E 359.36deg, rgba(0, 0, 0, 0) 360deg);`
+                background: `conic-gradient(from 0deg at 50% 50%, #53DCA5 0deg, #53DCA5 ${progressToDegrees()}deg, #3a4250 ${progressToDegrees() + 0.28}deg, #3a4250 359.36deg, rgba(0, 0, 0, 0) 360deg);`
             }}>
                 {...props.children}
             </div>

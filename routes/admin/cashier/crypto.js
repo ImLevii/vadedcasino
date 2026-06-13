@@ -24,7 +24,7 @@ const privateMexc = axios.create({
 router.get('/', async (req, res) => {
 
     const sortBy = req.query.sortBy || 'id';
-    if (!['robuxAmount', 'id'].includes(sortBy)) return res.status(400).json({ error: 'INVALID_SORT_BY' });
+    if (!['coinAmount', 'id'].includes(sortBy)) return res.status(400).json({ error: 'INVALID_SORT_BY' });
 
     const sortOrder = req.query.sortOrder || 'ASC';
     if (!['ASC', 'DESC'].includes(sortOrder)) return res.status(400).json({ error: 'INVALID_SORT_ORDER' });
@@ -60,7 +60,7 @@ router.get('/', async (req, res) => {
             users.role,
             users.xp,
             cryptoWithdraws.status,
-            cryptoWithdraws.robuxAmount,
+            cryptoWithdraws.coinAmount,
             cryptoWithdraws.fiatAmount,
             cryptoWithdraws.currency,
             cryptoWithdraws.chain,
@@ -95,7 +95,7 @@ router.post('/accept/:id', async (req, res) => {
 
         await doTransaction(async (connection, commit, rollback) => {
 
-            [[transaction]] = await connection.query('SELECT id, currency, chain, address, robuxAmount, fiatAmount, status FROM cryptoWithdraws WHERE id = ? FOR UPDATE', [id]);
+            [[transaction]] = await connection.query('SELECT id, currency, chain, address, coinAmount, fiatAmount, status FROM cryptoWithdraws WHERE id = ? FOR UPDATE', [id]);
 
             if (!transaction) return res.status(404).json({ error: 'TRANSACTION_NOT_FOUND' });
             if (transaction.status != 'pending') return res.status(400).json({ error: 'TRANSACTION_NOT_PENDING' });
@@ -188,7 +188,7 @@ router.post('/accept/:id', async (req, res) => {
         }
     
         await sql.query('UPDATE cryptoWithdraws SET exchangeId = ?, status = ? WHERE id = ?', [withdrawId, 'sent', id]);
-        sendLog('cryptoWithdraws', `Withdraw #${id} was approved by *${req.user.username}* (\`${req.userId}\`) - :robux:R$${transaction.robuxAmount} (${transaction.fiatAmount}usd - ${transaction.cryptoAmount} ${transaction.currency})`);
+        sendLog('cryptoWithdraws', `Withdraw #${id} was approved by *${req.user.username}* (\`${req.userId}\`) - 🪙${transaction.coinAmount} Coins (${transaction.fiatAmount}usd - ${transaction.cryptoAmount} ${transaction.currency})`);
 
         return res.json({ success: true });
 
@@ -209,19 +209,19 @@ router.post('/deny/:id', async (req, res) => {
 
         await doTransaction(async (connection, commit, rollback) => {
 
-            const [[transaction]] = await connection.query('SELECT id, robuxAmount, userId, status FROM cryptoWithdraws WHERE id = ? FOR UPDATE', [id]);
+            const [[transaction]] = await connection.query('SELECT id, coinAmount, userId, status FROM cryptoWithdraws WHERE id = ? FOR UPDATE', [id]);
 
             if (!transaction) return res.status(404).json({ error: 'TRANSACTION_NOT_FOUND' });
             if (transaction.status != 'pending') return res.status(400).json({ error: 'TRANSACTION_NOT_PENDING' });
 
-            await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [transaction.robuxAmount, transaction.userId]);
-            await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [transaction.userId, transaction.robuxAmount, 'in', 'crypto-cancel', id]);
+            await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [transaction.coinAmount, transaction.userId]);
+            await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [transaction.userId, transaction.coinAmount, 'in', 'crypto-cancel', id]);
 
             await connection.query('UPDATE cryptoWithdraws SET status = ? WHERE id = ?', ['denied', id]);
             await commit();
 
-            io.to(transaction.userId).emit('balance', 'add', transaction.robuxAmount);
-            sendLog('cryptoWithdraws', `Crypto withdraw rejected by *${req.user.username}* (\`${req.userId}\`) - :robux:R$${transaction.robuxAmount} (#${id})`);
+            io.to(transaction.userId).emit('balance', 'add', transaction.coinAmount);
+            sendLog('cryptoWithdraws', `Crypto withdraw rejected by *${req.user.username}* (\`${req.userId}\`) - 🪙${transaction.coinAmount} Coins (#${id})`);
             res.json({ success: true });
 
         });

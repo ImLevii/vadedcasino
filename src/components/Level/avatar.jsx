@@ -66,7 +66,7 @@ function Avatar(props) {
               }
               
               .avatar.yellowteam:after {
-                background: linear-gradient(0deg, rgba(223, 255, 24, 0.25) 0%, rgba(223, 255, 24, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+                background: linear-gradient(0deg, rgba(223, 255, 24, 0.25) 0%, rgba(223, 255, 24, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
               }
 
               .avatar.blueteam:before {
@@ -74,7 +74,7 @@ function Avatar(props) {
               }
 
               .avatar.blueteam:after {
-                background: linear-gradient(0deg, rgba(62, 197, 255, 0.25) 0%, rgba(62, 197, 255, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+                background: linear-gradient(0deg, rgba(62, 197, 255, 0.25) 0%, rgba(62, 197, 255, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
               }
 
               .avatar:before {

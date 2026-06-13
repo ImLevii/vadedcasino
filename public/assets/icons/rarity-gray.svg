@@ -1,0 +1,20 @@
+<svg width="80" height="92" viewBox="0 0 80 92" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gemGray" x1="12" y1="6" x2="68" y2="88" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#dde2ea"/>
+      <stop offset="1" stop-color="#8a93a3"/>
+    </linearGradient>
+    <radialGradient id="glowGray" cx="0.5" cy="0.45" r="0.6">
+      <stop stop-color="#aab3c2" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#aab3c2" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="40" cy="44" r="40" fill="url(#glowGray)"/>
+  <path d="M24 8 H56 L68 32 L40 86 L12 32 Z" fill="url(#gemGray)"/>
+  <path d="M24 8 H56 L48 22 H32 Z" fill="#ffffff" opacity="0.5"/>
+  <path d="M12 32 H68 L40 86 Z" fill="#000000" opacity="0.14"/>
+  <path d="M32 22 H48 L40 86 Z" fill="#ffffff" opacity="0.18"/>
+  <path d="M24 8 L32 22 L12 32 Z" fill="#ffffff" opacity="0.14"/>
+  <path d="M56 8 L48 22 L68 32 Z" fill="#000000" opacity="0.10"/>
+  <path d="M24 8 H56 L68 32 L40 86 L12 32 Z" stroke="#eef1f5" stroke-width="1.5" opacity="0.5"/>
+</svg>

@@ -45,7 +45,7 @@ router.get('/transactions', isAuthed, async (req, res) => {
     const pages = Math.ceil(total / resultsPerPage);
 
     if (page > pages) return res.status(404).json({ error: 'PAGE_NOT_FOUND' });
-    const [data] = await sql.query('SELECT id, txId, chain, currency, cryptoAmount, fiatAmount, robuxAmount, status, createdAt, modifiedAt FROM cryptoWithdraws WHERE userId = ? ORDER BY id DESC LIMIT ? OFFSET ?', [req.userId, resultsPerPage, offset]);
+    const [data] = await sql.query('SELECT id, txId, chain, currency, cryptoAmount, fiatAmount, coinAmount, status, createdAt, modifiedAt FROM cryptoWithdraws WHERE userId = ? ORDER BY id DESC LIMIT ? OFFSET ?', [req.userId, resultsPerPage, offset]);
     
     res.json({
         page,
@@ -69,9 +69,9 @@ router.post('/', isAuthed, apiLimiter, async (req, res) => {
     if (!chain) return res.json({ error: 'INVALID_CHAIN' });
 
     if (typeof req.body.amount != 'number') return res.json({ error: 'INVALID_AMOUNT' });
-    const robuxAmount = roundDecimal(req.body.amount);
+    const coinAmount = roundDecimal(req.body.amount);
 
-    const fiatAmount = roundDecimal((robuxAmount / cryptoData.robuxRate.robux) * cryptoData.robuxRate.usd);
+    const fiatAmount = roundDecimal((coinAmount / cryptoData.robuxRate.robux) * cryptoData.robuxRate.usd);
     const cryptoAmount = fiatAmount / currency.price;
 
     if (cryptoAmount < chain.min) return res.json({ error: 'MIN_CRYPTO_WITHDRAWAL' });
@@ -94,13 +94,13 @@ router.post('/', isAuthed, apiLimiter, async (req, res) => {
         await doTransaction(async (connection, commit) => {
 
             const [[user]] = await connection.query('SELECT id, xp, username, balance, accountLock, sponsorLock, verified, perms, cryptoAllowance FROM users WHERE id = ? FOR UPDATE', [req.userId]);
-            if (user.balance < robuxAmount) return res.status(400).json({ error: 'INSUFFICIENT_BALANCE' });
+            if (user.balance < coinAmount) return res.status(400).json({ error: 'INSUFFICIENT_BALANCE' });
     
             user.accountLock = await checkAccountLock(user);
             if (user.accountLock) return res.status(400).json({ error: 'ACCOUNT_LOCKED' });
             if (user.sponsorLock && user.cryptoAllowance == null) return res.status(400).json({ error: 'SPONSOR_LOCK' });
     
-            if (user.cryptoAllowance != null && robuxAmount > user.cryptoAllowance) {
+            if (user.cryptoAllowance != null && coinAmount > user.cryptoAllowance) {
                 return res.status(400).json({ error: 'EXCEEDED_MAX_CRYPTO' });
             }
     
@@ -142,16 +142,16 @@ router.post('/', isAuthed, apiLimiter, async (req, res) => {
             }
     
             if (user.cryptoAllowance != null) {
-                await connection.query('UPDATE users SET balance = balance - ?, cryptoAllowance = cryptoAllowance - ? WHERE id = ?', [robuxAmount, robuxAmount, user.id]);
+                await connection.query('UPDATE users SET balance = balance - ?, cryptoAllowance = cryptoAllowance - ? WHERE id = ?', [coinAmount, coinAmount, user.id]);
             } else {
-                await connection.query('UPDATE users SET balance = balance - ? WHERE id = ?', [robuxAmount, user.id]);
+await connection.query('UPDATE users SET balance = balance - ? WHERE id = ?', [coinAmount, user.id]);
             }
-    
-            const [txResult] = await connection.query('INSERT INTO cryptoWithdraws (userId, robuxAmount, fiatAmount, cryptoAmount, address, currency, chain, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [user.id, robuxAmount, fiatAmount, cryptoAmount, address, currency.id, chain.id, 'pending']);
-            await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [user.id, robuxAmount, 'out', 'crypto', txResult.insertId]);
-    
-            io.to(user.id).emit('balance', 'set', roundDecimal(user.balance - robuxAmount));
-            sendLog('cryptoWithdraws', `*${user.username}* (\`${user.id}\`) withdrew :robux: R$${robuxAmount} ($${fiatAmount}usd) to ${address} (${currency.name}).`);
+
+            const [txResult] = await connection.query('INSERT INTO cryptoWithdraws (userId, coinAmount, fiatAmount, cryptoAmount, address, currency, chain, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [user.id, coinAmount, fiatAmount, cryptoAmount, address, currency.id, chain.id, 'pending']);
+            await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [user.id, coinAmount, 'out', 'crypto', txResult.insertId]);
+
+            io.to(user.id).emit('balance', 'set', roundDecimal(user.balance - coinAmount));
+            sendLog('cryptoWithdraws', `*${user.username}* (\`${user.id}\`) withdrew 🪙${coinAmount} Coins ($${fiatAmount}usd) to ${address} (${currency.name}).`);
     
             await commit();
             const now = new Date();
@@ -165,7 +165,7 @@ router.post('/', isAuthed, apiLimiter, async (req, res) => {
                     "currency": currency.id,
                     "cryptoAmount": cryptoAmount,
                     "fiatAmount": fiatAmount,
-                    "robuxAmount": robuxAmount,
+                    "coinAmount": coinAmount,
                     "status": "pending",
                     "createdAt": now,
                     "modifiedAt": now
@@ -190,7 +190,7 @@ router.post('/cancel/:id', isAuthed, apiLimiter, async (req, res) => {
 
         await doTransaction(async (connection, commit) => {
 
-            const [[transaction]] = await connection.query('SELECT cw.id, username, robuxAmount, userId, status FROM cryptoWithdraws cw JOIN users u ON u.id = cw.userId WHERE cw.id = ? AND userId = ? FOR UPDATE', [id, req.userId]);
+            const [[transaction]] = await connection.query('SELECT cw.id, username, coinAmount, userId, status FROM cryptoWithdraws cw JOIN users u ON u.id = cw.userId WHERE cw.id = ? AND userId = ? FOR UPDATE', [id, req.userId]);
 
             if (!transaction) return res.status(404).json({ error: 'TRANSACTION_NOT_FOUND' });
             if (transaction.status != 'pending') return res.status(400).json({ error: 'TRANSACTION_NOT_PENDING' });

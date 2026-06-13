@@ -187,13 +187,13 @@ function Transactions(props) {
                 width: 100%;
                 height: 1px;
                 min-height: 1px;
-                background: #5A5499;
+                background: #3a4250;
               }
 
               .pagination {
                 width: 100%;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: "Noto Sans", sans-serif;
                 font-size: 14px;
                 font-weight: 900;
@@ -220,7 +220,7 @@ function Transactions(props) {
                 justify-content: center;
                 gap: 8px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 15px;
                 font-weight: 700;
@@ -245,7 +245,7 @@ function Transactions(props) {
               }
 
               .tab.active {
-                border: 1px solid #4A457D;
+                border: 1px solid #2c3340;
                 background: #363262;
                 color: white;
                 box-shadow: unset;
@@ -268,7 +268,7 @@ function Transactions(props) {
                 display: flex;
                 align-items: center;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 14px;
                 font-weight: 600;
               }
@@ -296,7 +296,7 @@ function Transactions(props) {
                 padding: 0 15px;
                 border-radius: 2px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
                 text-transform: uppercase;

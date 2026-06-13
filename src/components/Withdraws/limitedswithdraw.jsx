@@ -108,7 +108,7 @@ function LimitedsWithdraw(props) {
               .deposit-header {
                 width: 100%;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 13px;
                 font-weight: 600;
@@ -134,7 +134,7 @@ function LimitedsWithdraw(props) {
               }
               
               .type {
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 11px;
                 font-weight: 700;

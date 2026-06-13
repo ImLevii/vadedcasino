@@ -129,8 +129,8 @@ async function cronLeaderboard(type) {
     leaderboard.endsAt = new Date(new Date(leaderboard.createdAt).valueOf() + leaderboards[type].interval);
     leaderboard.endsIn = leaderboard.endsAt - Date.now();
 
-    if (leaderboard.endsIn > 0) return setTimeout(() => cronLeaderboard(type), leaderboard.endsIn);
-    if (!enabledFeatures.leaderboard) return setTimeout(() => cronLeaderboard(type), 1000 * 60 * 5); // 5m
+    if (leaderboard.endsIn > 0) return setTimeout(() => cronLeaderboard(type).catch(e => console.error('[cronLeaderboard]', e)), leaderboard.endsIn);
+    if (!enabledFeatures.leaderboard) return setTimeout(() => cronLeaderboard(type).catch(e => console.error('[cronLeaderboard]', e)), 1000 * 60 * 5); // 5m
 
     try {
 
@@ -170,7 +170,7 @@ async function cronLeaderboard(type) {
         console.error(e);
     }
 
-    cronLeaderboard(type);
+    cronLeaderboard(type).catch(e => console.error('[cronLeaderboard]', e));
 
 }
 

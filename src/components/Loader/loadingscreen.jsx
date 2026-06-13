@@ -2,8 +2,7 @@ function LoadingScreen(props) {
     return (
         <>
             <div class='loader-container'>
-                <img src='/assets/logo/blox-clash-logo.gif' height='180'/>
-                <img src='/assets/logo/blox-clash-words.png' height='47'/>
+                <img src='/assets/logo/cosmic-luck-logo.png' height='90' alt='Cosmic Luck'/>
 
                 <div class='progress-container'>
                     <div class='progress-bar'/>

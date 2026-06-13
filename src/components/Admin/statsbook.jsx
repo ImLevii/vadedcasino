@@ -85,11 +85,7 @@ function AdminStatsbook(props) {
                     </div>
 
                     <div className='table-column'>
-                        <p>LIMITEDS</p>
-                    </div>
-
-                    <div className='table-column'>
-                        <p>ROBUX</p>
+                        <p>COINS</p>
                     </div>
 
                     <div className='table-column'>
@@ -126,18 +122,9 @@ function AdminStatsbook(props) {
                                 </div>
 
                                 <div className='table-column'>
-                                    <NumberPrefix amount={stat?.limitedsDeposits}/>
+                                    <NumberPrefix amount={stat?.coinDeposits}/>
                                     <img src='/assets/icons/coin.svg' height='15' width='16' alt=''/>
-                                    <p className='white'>{(stat?.limitedsDeposits || 0)?.toLocaleString(undefined, {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    })}</p>
-                                </div>
-
-                                <div className='table-column'>
-                                    <NumberPrefix amount={stat?.robuxDeposits}/>
-                                    <img src='/assets/icons/coin.svg' height='15' width='16' alt=''/>
-                                    <p className='white'>{(stat?.robuxDeposits || 0)?.toLocaleString(undefined, {
+                                    <p className='white'>{(stat?.coinDeposits || 0)?.toLocaleString(undefined, {
                                         minimumFractionDigits: 2,
                                         maximumFractionDigits: 2
                                     })}</p>
@@ -217,7 +204,7 @@ function AdminStatsbook(props) {
                 display: flex;
                 align-items: center;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 14px;
                 font-weight: 700;
               }
@@ -244,7 +231,7 @@ function AdminStatsbook(props) {
                 padding: 0 15px;
                 border-radius: 2px;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
               }

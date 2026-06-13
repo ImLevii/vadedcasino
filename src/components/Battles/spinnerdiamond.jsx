@@ -22,16 +22,16 @@ function SpinnerDiamond(props) {
             <g id="Group">
               <path id="Vector"
                     d="M11.7426 0.567534L11.5974 0.422358C10.9663 -0.208707 9.96801 -0.109389 9.41016 0.565592L10.5769 1.73315L11.7426 0.567534Z"
-                    fill="#59E878"/>
+                    fill="#1fd65f"/>
               <path id="Vector_2"
                     d="M20.9701 13.8812L19.622 12.5334C18.701 13.4547 16.7123 15.4438 15.1491 17.0062C14.4051 17.7504 13.5439 18.3442 12.5869 18.7743L14.333 20.52C14.575 20.762 14.9674 20.762 15.2094 20.5199L20.9701 14.7576C21.2122 14.5155 21.2121 14.1232 20.9701 13.8812Z"
-                    fill="#59E878"/>
+                    fill="#1fd65f"/>
               <path id="Vector_3"
                     d="M19.2571 11.1464C20.5584 9.74368 18.6191 7.80141 17.2168 9.10399L17.726 8.59302C19.0273 7.18902 17.0883 5.24811 15.6822 6.55064L16.195 6.03968C17.4973 4.63448 15.5546 2.69468 14.1511 3.99693L14.6639 3.48633C15.967 2.08039 14.0215 0.141792 12.62 1.44362L11.4536 2.60995L12.4748 3.63184C13.9713 5.08909 13.1934 7.73527 11.1523 8.15134C10.9589 9.12774 10.1012 9.99673 9.11236 10.1931C8.91889 11.1714 8.05965 12.041 7.06837 12.2365C6.64362 14.2767 4.02125 15.0568 2.54974 13.5545C2.54974 13.5546 1.52929 12.5334 1.52929 12.5334L0.181521 13.8811C-0.0605347 14.1231 -0.0604934 14.5155 0.181563 14.7575L5.94555 20.52C6.1876 20.7619 6.58 20.7619 6.82198 20.5198L9.04514 18.2957C11.0059 18.2957 12.8873 17.5165 14.2739 16.1295C16.3791 14.0254 19.2571 11.1464 19.2571 11.1464Z"
-                    fill="#59E878"/>
+                    fill="#1fd65f"/>
               <path id="Vector_4"
                     d="M3.42728 12.6786C4.83202 13.9813 6.77302 12.0399 5.4711 10.6359C6.87593 11.9385 8.81684 9.9972 7.51493 8.59315C8.91859 9.89627 10.8559 7.95193 9.55515 6.55078C10.9581 7.85286 12.9016 5.91343 11.5989 4.50803L8.53682 1.44376C7.96991 0.880075 7.0563 0.880075 6.49303 1.44376C5.92968 2.00744 5.92968 2.92283 6.49303 3.48651L7.00214 3.9971C5.6005 2.69358 3.6543 4.64122 4.96195 6.03985L5.47106 6.55078C4.06694 5.24762 2.1252 7.18928 3.42728 8.59315L3.90871 9.07433C2.49066 7.83017 0.609569 9.76299 1.89616 11.1465C1.8962 11.1465 3.42728 12.6786 3.42728 12.6786Z"
-                    fill="#59E878"/>
+                    fill="#1fd65f"/>
             </g>
           </svg>
         </div>
@@ -47,8 +47,8 @@ function SpinnerDiamond(props) {
             <defs>
               <linearGradient id="goldswords" x1="7.54034" y1="20.9415" x2="34.2235"
                               y2="0.928388" gradientUnits="userSpaceOnUse">
-                <stop offset="0.300349" stop-color="#FF9900"/>
-                <stop offset="0.428424" stop-color="#F9AC39"/>
+                <stop offset="0.300349" stop-color="#1fd65f"/>
+                <stop offset="0.428424" stop-color="#7bffae"/>
               </linearGradient>
             </defs>
           </svg>
@@ -67,7 +67,7 @@ function SpinnerDiamond(props) {
           justify-content: center;
           border-radius: 10px;
 
-          background: linear-gradient(230deg, rgba(26, 14, 51, 0.10) 0%, rgba(66, 60, 122, 0.10) 100%), #403B73;
+          background: linear-gradient(230deg, rgba(18, 20, 28, 0.10) 0%, rgba(31, 36, 46, 0.10) 100%), #2a323f;
         }
 
         .spinner.gold:before {
@@ -83,15 +83,15 @@ function SpinnerDiamond(props) {
         }
 
         .green {
-          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(89, 232, 120, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(26, 14, 51, 0.10) 0%, rgba(66, 60, 122, 0.10) 100%), #403B73;
+          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(31, 214, 95, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(18, 20, 28, 0.10) 0%, rgba(31, 36, 46, 0.10) 100%), #2a323f;
         }
 
         .red {
-          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(249, 81, 81, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(26, 14, 51, 0.10) 0%, rgba(66, 60, 122, 0.10) 100%), #403B73;
+          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(249, 81, 81, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(18, 20, 28, 0.10) 0%, rgba(31, 36, 46, 0.10) 100%), #2a323f;
         }
 
         .spinner.green {
-          border-bottom: 2px solid #59E878;
+          border-bottom: 2px solid #1fd65f;
         }
 
         .spinner.red {
@@ -99,7 +99,7 @@ function SpinnerDiamond(props) {
         }
 
         .gold {
-          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(252, 163, 30, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(26, 14, 51, 0.10) 0%, rgba(66, 60, 122, 0.10) 100%), #403B73;
+          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(31, 214, 95, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(18, 20, 28, 0.10) 0%, rgba(31, 36, 46, 0.10) 100%), #2a323f;
         }
 
         .diamond {
@@ -127,13 +127,13 @@ function SpinnerDiamond(props) {
         }
 
         .blue {
-          background: linear-gradient(0deg, rgba(62, 197, 255, 0.25) 0%, rgba(62, 197, 255, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+          background: linear-gradient(0deg, rgba(62, 197, 255, 0.25) 0%, rgba(62, 197, 255, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
           border: 1px solid #3EC5FF;
         }
 
         .yellow {
           border: 1px solid #DFFF18;
-          background: linear-gradient(0deg, rgba(223, 255, 24, 0.25) 0%, rgba(223, 255, 24, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+          background: linear-gradient(0deg, rgba(223, 255, 24, 0.25) 0%, rgba(223, 255, 24, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
         }
 
         .yellow svg {
@@ -145,11 +145,11 @@ function SpinnerDiamond(props) {
         }
 
         .hands {
-          background: linear-gradient(215deg, rgba(69, 157, 123, 1), rgba(64, 123, 100, 1), rgba(64, 124, 100, 1), rgba(55, 84, 92, 0.24), rgba(59, 89, 100, 0.25), rgba(89, 232, 120, 1), rgba(89, 232, 120, 1));
+          background: linear-gradient(215deg, rgba(69, 157, 123, 1), rgba(64, 123, 100, 1), rgba(64, 124, 100, 1), rgba(55, 84, 92, 0.24), rgba(59, 89, 100, 0.25), rgba(31, 214, 95, 1), rgba(31, 214, 95, 1));
         }
 
         .hands:before {
-          background: linear-gradient(0deg, rgba(89, 232, 120, 0.25) 0%, rgba(89, 232, 120, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+          background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
         }
 
         .swords {
@@ -157,19 +157,19 @@ function SpinnerDiamond(props) {
         }
 
         .diamond.green {
-          background: linear-gradient(215deg, rgba(69, 157, 123, 1), rgba(64, 123, 100, 1), rgba(64, 124, 100, 1), rgba(55, 84, 92, 0.24), rgba(59, 89, 100, 0.25), rgba(89, 232, 120, 1), rgba(89, 232, 120, 1));
+          background: linear-gradient(215deg, rgba(69, 157, 123, 1), rgba(64, 123, 100, 1), rgba(64, 124, 100, 1), rgba(55, 84, 92, 0.24), rgba(59, 89, 100, 0.25), rgba(31, 214, 95, 1), rgba(31, 214, 95, 1));
         }
 
         .diamond.green:before {
-          background: linear-gradient(0deg, rgba(89, 232, 120, 0.25) 0%, rgba(89, 232, 120, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+          background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
         }
 
         .green .sword {
-          fill: #59E878;
+          fill: #1fd65f;
         }
 
         .swords:before {
-          background: linear-gradient(0deg, rgba(255, 190, 24, 0.25) 0%, rgba(255, 190, 24, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+          background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
         }
 
         .diamond svg {

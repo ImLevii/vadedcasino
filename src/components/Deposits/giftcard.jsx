@@ -74,7 +74,7 @@ function GiftcardDeposit(props) {
                 justify-content: space-between;
                 width: 100%;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 13px;
                 font-weight: 600;
@@ -137,7 +137,7 @@ function GiftcardDeposit(props) {
               }
               
               .code-container input::placeholder {
-                color: #ADA3EF;
+                color: #8b92a0;
               }
               
               .redeem {

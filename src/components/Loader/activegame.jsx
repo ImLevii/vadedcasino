@@ -17,16 +17,16 @@ function ActiveGame(props) {
           flex-shrink: 0;
 
           border-radius: 3px;
-          border: 1px dashed rgba(89, 232, 120, 0.25);
-          background: linear-gradient(0deg, rgba(89, 232, 120, 0.25) 0%, rgba(89, 232, 120, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+          border: 1px dashed rgba(31, 214, 95, 0.25);
+          background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
         }
 
         .loader {
           height: 12px;
           width: 12px;
-          border-top: 2px solid #59E878;
-          border-left: 2px solid #59E878;
-          border-right: 2px solid #59E878;
+          border-top: 2px solid #1fd65f;
+          border-left: 2px solid #1fd65f;
+          border-right: 2px solid #1fd65f;
           border-radius: 50%;
           animation: infinite linear spin 1s;
         }

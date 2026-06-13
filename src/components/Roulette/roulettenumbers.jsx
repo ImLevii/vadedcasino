@@ -73,27 +73,27 @@ function RouletteNumbers(props) {
               }
               
               .gold {
-                border-radius: 2px;
-                background: linear-gradient(37deg, rgba(255, 153, 0, 0.25) 30.03%, rgba(249, 172, 57, 0.25) 42.84%);
-                border: 1px solid #D9AB19;
+                border-radius: 4px;
+                background: rgba(245, 166, 35, 0.12);
+                border: 1px solid rgba(245, 166, 35, 0.45);
                 
-                color: #D9AB19;
+                color: #f5a623;
               }
               
               .red {
-                border-radius: 2px;
-                border: 1px dashed #C53852;
-                background: rgba(77, 39, 63, 0.55);
+                border-radius: 4px;
+                border: 1px solid rgba(232, 69, 95, 0.4);
+                background: rgba(232, 69, 95, 0.1);
 
-                color: #C53852;
+                color: #e8455f;
               }
               
               .green {
-                border-radius: 2px;
-                border: 1px dashed #41D163;
-                background: rgba(44, 77, 68, 0.55);
+                border-radius: 4px;
+                border: 1px solid rgba(31, 214, 95, 0.4);
+                background: rgba(31, 214, 95, 0.1);
 
-                color: #41D163;
+                color: #1fd65f;
               }
             `}</style>
         </>

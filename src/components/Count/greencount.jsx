@@ -28,13 +28,13 @@ function GreenCount(props) {
                 z-index: 0;
 
                 border: 1px dashed #9296D6;
-                background: linear-gradient(0deg, rgba(146, 150, 214, 0.25) 0%, rgba(146, 150, 214, 0.25) 100%), linear-gradient(230deg, #1A0E33 0%, #423C7A 100%);
+                background: linear-gradient(0deg, rgba(146, 150, 214, 0.25) 0%, rgba(146, 150, 214, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
                 
                 overflow: hidden;
               }
               
               .count.active {
-                color: #59E878;
+                color: #1fd65f;
                 border: unset;
                 background: unset;
               }
@@ -50,7 +50,7 @@ function GreenCount(props) {
                 content: '';
                 position: absolute;
 
-                background: linear-gradient(0deg, rgba(89, 232, 120, 0.25), rgba(89, 232, 120, 0.25)), linear-gradient(252.77deg, #1A0E33 -27.53%, #423C7A 175.86%);
+                background: linear-gradient(0deg, rgba(31, 214, 95, 0.25), rgba(31, 214, 95, 0.25)), linear-gradient(252.77deg, #12151c -27.53%, #1f242e 175.86%);
                 z-index: -1;
               }
 
@@ -63,7 +63,7 @@ function GreenCount(props) {
                 content: '';
                 position: absolute;
 
-                background: conic-gradient(from 180deg at 50% 50%, #59E878 -0.3deg, #459D7B 72.1deg, #407B64 139.9deg, #407C64 180.52deg, #37545C 215.31deg, #3B5964 288.37deg, #59E878 359.62deg, #59E878 359.7deg, #459D7B 432.1deg);
+                background: conic-gradient(from 180deg at 50% 50%, #1fd65f -0.3deg, #459D7B 72.1deg, #407B64 139.9deg, #407C64 180.52deg, #37545C 215.31deg, #3B5964 288.37deg, #1fd65f 359.62deg, #1fd65f 359.7deg, #459D7B 432.1deg);
                 z-index: -2;
 
                 animation: rotate linear 3s infinite;
@@ -104,12 +104,12 @@ function GreenCount(props) {
               }
               
               .active .dot {
-                background: rgba(89, 232, 120, 0.25);
+                background: rgba(31, 214, 95, 0.25);
               }
               
               .active .dot:before {
-                background: #59E878;
-                box-shadow: 0px 0px 4px #59E878;
+                background: #1fd65f;
+                box-shadow: 0px 0px 4px #1fd65f;
               }
             `}</style>
         </>

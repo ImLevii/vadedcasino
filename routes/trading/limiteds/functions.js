@@ -66,6 +66,8 @@ async function cacheListings() {
 
 async function updateAduriteListings() {
 
+    if (!process.env.ADURITE_API_KEY) return; // API key not set, skip
+
     const [
         { data: listingsData },
         { data: balanceData }
@@ -120,7 +122,9 @@ async function updateAduriteListings() {
 
 }
 
-updateAduriteListings();
+if (process.env.ADURITE_API_KEY) {
+    updateAduriteListings();
+}
 
 async function checkTradeSettings(instance) {
     const { data: userSettings } = await instance('https://apis.roblox.com/user-settings-api/v1/user-settings', {

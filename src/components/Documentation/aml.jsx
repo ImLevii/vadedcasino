@@ -5,7 +5,7 @@ function AML(props) {
 
                 <div class='sections'>
                     <p>
-                        BloxClash is committed to maintaining the highest standards of integrity and compliance with all applicable laws and regulations.
+                        Cosmic Luck is committed to maintaining the highest standards of integrity and compliance with all applicable laws and regulations.
                         We recognize the importance of preventing money laundering and the financing of terrorism activities on our platform.
                         This Anti-Money Laundering (AML) Policy outlines our commitment to detecting and preventing money laundering activities and serves as a framework
                         for our efforts to ensure compliance with AML laws and regulations.
@@ -16,7 +16,7 @@ function AML(props) {
                         <p>The purpose of this AML Policy is to establish clear guidelines and procedures to:</p>
 
                         <ol type='a'>
-                            <li>Detect and prevent money laundering and terrorist financing activities on the BloxClash platform.</li>
+                            <li>Detect and prevent money laundering and terrorist financing activities on the Cosmic Luck platform.</li>
                             <li>Identify and verify the identity of our users, ensuring they comply with applicable AML laws and regulations.</li>
                             <li>Report suspicious transactions and activities to relevant authorities.</li>
                             <li>Maintain a risk-based approach to AML, continuously assessing and mitigating risks associated with our business.</li>
@@ -28,7 +28,7 @@ function AML(props) {
 
                         <p>3.1 User Identification</p>
                         <ul>
-                            <li>BloxClash will perform adequate user identification procedures to verify the identity of its users. We will collect and maintain user information in accordance with applicable laws and regulations.</li>
+                            <li>Cosmic Luck will perform adequate user identification procedures to verify the identity of its users. We will collect and maintain user information in accordance with applicable laws and regulations.</li>
                         </ul>
 
                         <p>3.2 Risk-Based Approach</p>
@@ -45,7 +45,7 @@ function AML(props) {
                     <div class='section'>
                         <h2 class='point'>Reporting Suspicious Activities</h2>
                         <p>
-                            BloxClash is committed to reporting suspicious transactions or activities to relevant authorities,
+                            Cosmic Luck is committed to reporting suspicious transactions or activities to relevant authorities,
                             including but not limited to the Financial Intelligence Unit (FIU), as required by law.
                             We will maintain records of such reports as necessary.
                         </p>
@@ -63,7 +63,7 @@ function AML(props) {
                     <div class='section'>
                         <h2 class='point'>Record-Keeping</h2>
                         <p>
-                            BloxClash will maintain records of user identification and transaction
+                            Cosmic Luck will maintain records of user identification and transaction
                             information for the period required by applicable AML laws and regulations.
                         </p>
                     </div>
@@ -96,19 +96,19 @@ function AML(props) {
                     <div className='section'>
                         <h2 className='point'>Conclusion</h2>
                         <p>
-                            BloxClash is dedicated to maintaining a secure and compliant platform for its users.
+                            Cosmic Luck is dedicated to maintaining a secure and compliant platform for its users.
                             This AML Policy is a cornerstone of our commitment to preventing money laundering and
                             terrorist financing activities while upholding the highest standards of integrity and compliance.
                         </p>
 
                         <p>
-                            By using BloxClash, users agree to comply with this AML Policy and cooperate with our efforts
+                            By using Cosmic Luck, users agree to comply with this AML Policy and cooperate with our efforts
                             to prevent illicit activities on our platform. Failure to do so may result in account suspension or legal action,
                             as deemed appropriate.
                         </p>
 
                         <p>
-                            For any AML-related inquiries or concerns, please contact our designated compliance officer at support@bloxclash.com.
+                            For any AML-related inquiries or concerns, please contact our designated compliance officer at support@cosmicluck.gg.
                         </p>
                     </div>
 
@@ -126,7 +126,7 @@ function AML(props) {
                 padding: 30px 0;
                 margin: 0 auto;
 
-                color: #ADA3EF;
+                color: #8b92a0;
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 13px;
                 font-weight: 400;

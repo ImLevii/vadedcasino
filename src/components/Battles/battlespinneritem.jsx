@@ -88,15 +88,15 @@ function BattleSpinnerItem(props) {
 
     function backImage(price) {
         if (price >= 250000) {
-            return '/assets/icons/fancygoldsword.png' // Gold
+            return '/assets/icons/rarity-gold.svg' // Gold
         } else if (price >= 50000) {
-            return '/assets/icons/fancyredsword.png' // Red
+            return '/assets/icons/rarity-red.svg' // Red
         } else if (price >= 10000) {
-            return '/assets/icons/fancypurplesword.png' // Pink
+            return '/assets/icons/rarity-pink.svg' // Pink
         } else if (price >= 1000) {
-            return '/assets/icons/fancybluesword.png'
+            return '/assets/icons/rarity-blue.svg'
         }
-        return '/assets/icons/fancygraysword.png' // Gray
+        return '/assets/icons/rarity-gray.svg' // Gray
     }
 
     function getRarity(price) {

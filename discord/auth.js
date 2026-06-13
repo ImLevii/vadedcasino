@@ -103,7 +103,7 @@ async function getExistingAuth(userId, checkToken = false) {
 
 async function unlinkDiscord(discordAuth, userId) {
     await sql.query('DELETE FROM discordAuths WHERE userId = ?', [userId]);
-    sendLog('rain', `<@${discordAuth.discordId}> unlinked of BloxClash accountId \`${userId}\` (Reason: Invalid token)`);
+    sendLog('rain', `<@${discordAuth.discordId}> unlinked of Cosmic Luck accountId \`${userId}\` (Reason: Invalid token)`);
     return null;
 }
 

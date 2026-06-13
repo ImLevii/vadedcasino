@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const HttpsProxyAgent = require('https-proxy-agent');
+const { HttpsProxyAgent } = require('https-proxy-agent');
 
 const proxies = getProxies('proxies.txt');
 shuffleArray(proxies);
@@ -20,7 +20,9 @@ function shuffleArray(array) {
 
 function getProxies(file) {
 
-    const data = fs.readFileSync(path.join(__dirname, file), 'utf8');
+    const filePath = path.join(__dirname, file);
+    if (!fs.existsSync(filePath)) return [];
+    const data = fs.readFileSync(filePath, 'utf8');
     return data.split('\n').map(e => {
 
         const raw = e.replace('\r', '');
@@ -54,6 +56,8 @@ function getAgent(proxy) {
 function getProxy(residential = false, purpose = 'login') {
 
     const list = residential ? residentialProxies : proxies;
+    if (!list.length) return null;
+
     let proxy = list.find(e => !e.lastUsedAt[purpose]);
 
     if (!proxy) {
@@ -68,6 +72,8 @@ function getProxy(residential = false, purpose = 'login') {
 function getSlotsProxy(purpose = 'hacksaw') {
 
     const list = slotsProxies;
+    if (!list.length) return null;
+
     let proxy = list.find(e => !e.lastUsedAt[purpose]);
 
     if (!proxy) {

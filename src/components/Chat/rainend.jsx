@@ -11,7 +11,7 @@ function RainEnd(props) {
 
                 <div class='amount-backing'>
                     <div class='amount-container'>
-                        <img class='coin' src='/assets/icons/fancycoin.png' alt='' height='40'/>
+                        <img class='coin' src='/assets/icons/coin.svg' alt='' height='40'/>
                         <p>{Math.floor(props?.content?.total || 0)}<span class='cents'>.{getCents(props?.content?.total || 0)}</span></p>
                     </div>
                 </div>
@@ -49,7 +49,7 @@ function RainEnd(props) {
                 z-index: 1;
                 content: '';
 
-                background: linear-gradient(0deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05)), radial-gradient(196.93% 1543.75% at 129.21% -19.16%, rgba(252, 163, 30, 0.15) 0%, rgba(0, 0, 0, 0) 100%), linear-gradient(277.39deg, rgba(19, 17, 41, 0.8) -69.8%, rgba(37, 31, 78, 0.8) 144.89%);
+                background: linear-gradient(0deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05)), radial-gradient(196.93% 1543.75% at 129.21% -19.16%, rgba(31, 214, 95, 0.15) 0%, rgba(0, 0, 0, 0) 100%), linear-gradient(277.39deg, rgba(19, 17, 41, 0.8) -69.8%, rgba(37, 31, 78, 0.8) 144.89%);
                 border-radius: 8px;
               }
 
@@ -77,7 +77,7 @@ function RainEnd(props) {
                 z-index: 0;
 
                 opacity: 0.1;
-                background-image: url("/assets/art/rainswords.png");
+                background-image: url("/assets/art/rainchips.svg");
                 background-position: center;
                 background-size: cover;
                 border-radius: 8px;
