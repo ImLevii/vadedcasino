@@ -147,7 +147,7 @@ router.post('/tip', [isAuthed, apiLimiter], async (req, res) => {
             await connection.query('INSERT INTO rainTips (rainId, userId, amount) VALUES (?, ?, ?)', [rain.id, user.id, amount]);
             await connection.query('UPDATE rains SET amount = amount + ? WHERE id = ?', [amount, rain.id]);
 
-            const [result] = await connection.query('INSERT INTO chatMessages(type, senderId, content) VALUES (?, ?, ?)', ['rain-tip', user.id, amount]);
+            const [result] = await connection.query('INSERT INTO chatMessages(type, senderId, content, channelId) VALUES (?, ?, ?, ?)', ['rain-tip', user.id, amount, 'EN']);
             await commit();
 
             newMessage({
@@ -162,7 +162,7 @@ router.post('/tip', [isAuthed, apiLimiter], async (req, res) => {
                     role: user.role,
                     xp: user.xp
                 }
-            });
+            }, 'EN');
 
             rain.amount += amount;
             io.emit('rain:pot', rain.amount);

@@ -42,11 +42,11 @@ function Jackpot(props) {
         '#EC1507',
         '#1EB9FC',
         '#0073FA',
-        '#9E52FF',
+        '#3B9EFF',
         '#69EFAF',
-        '#D96DFF',
-        '#6B54F9',
-        '#A072BC',
+        '#FF6DCF',
+        '#54B9F9',
+        '#72ABBC',
         '#EC519B',
         '#F8BA5F',
         '#C6DA8D',
@@ -54,7 +54,7 @@ function Jackpot(props) {
         '#1CBD70',
         '#54DA25',
         '#1399D2',
-        '#5272E2',
+        '#E27252',
     ]
 
     const timerText = {
@@ -484,8 +484,8 @@ function Jackpot(props) {
                 height: 35px;
 
                 border-radius: 5px;
-                border: 1px dashed #534E8F;
-                background: linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), linear-gradient(230deg, rgba(26, 14, 51, 0.35) 0%, rgba(66, 60, 122, 0.35) 100%);
+                border: 1px dashed rgba(255, 255, 255, 0.1);
+                background: linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
 
                 margin: 25px 0;
                 position: relative;

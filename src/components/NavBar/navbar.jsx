@@ -31,10 +31,6 @@ function NavBar(props) {
             <div class='navbar-container'>
                 <div class='navbar'>
                     <div class='left'>
-                        <A href='/' class='logo'>
-                            <img src='/assets/logo/cosmic-luck-logo.png' alt='Cosmic Luck' height='30'/>
-                        </A>
-
                         <div class='nav-links'>
                             <Games/>
                             <Cases/>

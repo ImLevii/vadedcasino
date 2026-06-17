@@ -336,7 +336,7 @@ function Chat(props) {
 
                 border-radius: 3px;
                 border: 1px solid #232a36;
-                background: #2E2958;
+                background: var(--secondary-bg);
 
                 padding: 12px 6px 12px 12px;
                 overflow-y: scroll;
@@ -354,11 +354,11 @@ function Chat(props) {
               }
 
               .emojis-wrapper::-webkit-scrollbar-track {
-                background: #221F3D;
+                background: var(--fourth-bg);
               }
 
               .emojis-wrapper::-webkit-scrollbar-thumb {
-                background: #635C9C;
+                background: rgba(99, 92, 156, 0.8);
               }
 
               .emojis {

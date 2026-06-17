@@ -43,6 +43,15 @@ function SideBar(props) {
     }
 
     if (ws()) {
+      // Remove existing listeners before adding new ones to prevent duplicates
+      ws().off('chat:pushMessage')
+      ws().off('toast')
+      ws().off('chat:emojis')
+      ws().off('chat:clear')
+      ws().off('misc:onlineUsers')
+      ws().off('chat:join')
+      ws().off('chat:deleteMessage')
+
       ws().on('chat:pushMessage', (m) => {
         let newMessages = [...messages(), ...m].slice(-50)
         setMessages(newMessages)
@@ -89,7 +98,11 @@ function SideBar(props) {
         <div class='top-container'>
           {!rain()?.active && !userRain() ? (
             <div class='chat-header'>
-              <div class='room-title' style="display: flex; align-items: center;"><img src='/assets/logo/cosmic-luck-logo.png' alt='Cosmic Luck' height='22'/></div>
+              <div class='room-title' style="display: flex; align-items: center;">
+                <A href='/' style="display: flex; align-items: center;">
+                  <img src='/assets/logo/cosmic-luck-logo.png' alt='Cosmic Luck' height='26'/>
+                </A>
+              </div>
               <button class='menu-dot' aria-label='Chat options'>
                 <svg width='4' height='16' viewBox='0 0 4 16' fill='none' xmlns='http://www.w3.org/2000/svg'>
                   <circle cx='2' cy='2' r='2' fill='currentColor'/>
@@ -162,7 +175,7 @@ function SideBar(props) {
 
         .chat-header {
           width: 100%;
-          height: 52px;
+          height: 60px;
 
           display: flex;
           align-items: center;
@@ -172,7 +185,7 @@ function SideBar(props) {
           box-sizing: border-box;
 
           background: #12151c;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .room-title {

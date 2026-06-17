@@ -84,7 +84,7 @@ function KYCModal(props) {
           align-items: center;
           gap: 8px;
 
-          color: #9489DB;
+          color: #8b92a0;
           text-align: center;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 14px;

@@ -52,7 +52,7 @@ function Games() {
                          xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M3.50001 0.994671C3.62547 0.994671 3.7509 1.04269 3.84655 1.13852L6.8564 4.15579C7.04787 4.34773 7.04787 4.65892 6.8564 4.85078C6.66501 5.04263 6.5 4.99467 6.16316 4.99467L3.50001 4.99467L1 4.99467C0.5 4.99467 0.335042 5.04254 0.14367 4.85068C-0.0478893 4.65883 -0.0478893 4.34764 0.14367 4.1557L3.15347 1.13843C3.24916 1.04258 3.3746 0.994671 3.50001 0.994671Z"
-                            fill="#9489DB"/>
+                            fill="#8b92a0"/>
                     </svg>
                 </div>
 
@@ -66,7 +66,8 @@ function Games() {
 
                         <div class='gamemode-list'>
                             <For each={GAMEMODES}>{(mode) => (
-                                <A href={mode.href} class='gamemode' onClick={() => setActive(false)}>
+                                <A href={mode.href} class='gamemode' onClick={() => setActive(false)}
+                                   style={{'display':'flex','align-items':'center','gap':'12px'}}>
                                     <div class='thumb' style={{'background-image': `url("${mode.img}")`}}/>
                                     <p class='name'>{mode.name}</p>
                                     <svg class='chevron' width="6" height="10" viewBox="0 0 6 10" fill="none"
@@ -125,7 +126,7 @@ function Games() {
 
               .dropdown {
                 position: absolute;
-                width: 268px;
+                width: 290px;
 
                 top: 46px;
                 left: 0;
@@ -197,9 +198,9 @@ function Games() {
               .gamemode {
                 display: flex;
                 align-items: center;
-                gap: 11px;
+                gap: 12px;
 
-                padding: 7px 10px 7px 7px;
+                padding: 6px 10px 6px 6px;
                 border-radius: 9px;
                 border: 1px solid transparent;
                 background: rgba(255, 255, 255, 0.02);
@@ -216,21 +217,33 @@ function Games() {
               }
 
               .thumb {
-                width: 46px;
-                height: 34px;
+                width: 58px;
+                height: 42px;
                 flex-shrink: 0;
-                border-radius: 6px;
+                border-radius: 7px;
 
                 background-size: cover;
-                background-position: center;
+                background-position: center top;
                 background-repeat: no-repeat;
 
-                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-                transition: box-shadow .2s ease;
+                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+                transition: box-shadow .2s ease, transform .2s ease;
+                overflow: hidden;
+                position: relative;
+              }
+
+              .thumb::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(135deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.05) 100%);
+                border-radius: 7px;
+                pointer-events: none;
               }
 
               .gamemode:hover .thumb {
-                box-shadow: inset 0 0 0 1px rgba(31, 214, 95, 0.4), 0 0 12px rgba(31, 214, 95, 0.25);
+                box-shadow: inset 0 0 0 1px rgba(31, 214, 95, 0.5), 0 0 14px rgba(31, 214, 95, 0.3);
+                transform: scale(1.04);
               }
 
               .name {

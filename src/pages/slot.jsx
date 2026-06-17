@@ -85,7 +85,7 @@ function Slot(props) {
               <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21" fill="none">
                 <path
                   d="M20.5102 0V6.83674H18.2313V3.88554L14.4825 7.64575L12.8645 6.02772L16.6247 2.27891H13.6735V0H20.5102ZM0 0V6.83674H2.27891V3.88554L6.02772 7.64575L7.64575 6.02772L3.88554 2.27891H6.83674V0H0ZM20.5102 20.5102V13.6735H18.2313V16.6247L14.4825 12.8759L12.8759 14.4825L16.6247 18.2313H13.6735V20.5102H20.5102ZM6.83674 20.5102V18.2313H3.88554L7.63435 14.4825L6.02772 12.8645L2.27891 16.6247V13.6735H0V20.5102H6.83674Z"
-                  fill="#9189D3"/>
+                  fill="#8b92a0"/>
               </svg>
 
               Fullscreen
@@ -160,8 +160,8 @@ function Slot(props) {
           height: 65px;
 
           border-radius: 8px;
-          border: 1px solid rgba(134, 111, 234, 0.15);
-          background: linear-gradient(0deg, rgba(64, 57, 118, 0.65) 0%, rgba(64, 57, 118, 0.65) 100%), radial-gradient(60% 60% at 50% 50%, rgba(147, 126, 236, 0.15) 0%, rgba(102, 83, 184, 0.15) 100%);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: #12151c;
 
           margin: 20px 0;
 
@@ -173,7 +173,7 @@ function Slot(props) {
         }
 
         .title-container {
-          color: #9189D3;
+          color: #8b92a0;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 16px;
           font-weight: 600;
@@ -195,7 +195,7 @@ function Slot(props) {
         }
 
         .fullscreen {
-          color: #9189D3;
+          color: #8b92a0;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 12px;
           font-weight: 700;

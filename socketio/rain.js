@@ -141,7 +141,7 @@ async function rainInterval(rain) {
                 total: rain.amount
             };
         
-            const [messageResult] = await connection.query('INSERT INTO chatMessages(type, content, senderId) VALUES (?, ?, ?)', ['rain-end', JSON.stringify(messageContent), rain.host?.id || null]);
+            const [messageResult] = await connection.query('INSERT INTO chatMessages(type, content, senderId, channelId) VALUES (?, ?, ?, ?)', ['rain-end', JSON.stringify(messageContent), rain.host?.id || null, 'EN']);
             await commit();
 
             newMessage({
@@ -151,7 +151,7 @@ async function rainInterval(rain) {
                 createdAt: Date.now(),
                 replyTo: null,
                 user: rain.host
-            });
+            }, 'EN');
         
             users.forEach(user => {
                 sendSystemMessage(io.to(user.id), `You received R$${user.amount} from the rain.`);

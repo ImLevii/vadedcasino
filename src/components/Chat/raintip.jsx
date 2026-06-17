@@ -30,31 +30,31 @@ function RainTip(props) {
                 min-height: 100px;
 
                 background: conic-gradient(from 180deg at 50% 50%, #FFDC18 -0.3deg, #B17818 72.1deg, rgba(156, 99, 15, 0.611382) 139.9deg, rgba(126, 80, 12, 0.492874) 180.52deg, rgba(102, 65, 10, 0.61) 215.31deg, #B17818 288.37deg, #FFDC18 359.62deg, #FFDC18 359.7deg, #B17818 432.1deg),
-                linear-gradient(0deg, #2A2453, #2A2453);
+                linear-gradient(0deg, #12151c, #12151c);
                 border-radius: 8px;
-                
+
                 position: relative;
                 z-index: 0;
-                
+
                 padding: 15px 20px;
               }
-              
+
               .raintip-container > * {
                 position: relative;
                 z-index: 2;
               }
-              
+
               .raintip-container:before {
                 width: calc(100% - 2px);
                 height: calc(100% - 2px);
-                
+
                 top: 1px;
                 left: 1px;
                 position: absolute;
                 z-index: 1;
                 content: '';
 
-                background: linear-gradient(0deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05)), radial-gradient(196.93% 1543.75% at 129.21% -19.16%, rgba(31, 214, 95, 0.15) 0%, rgba(0, 0, 0, 0) 100%), linear-gradient(277.39deg, rgba(19, 17, 41, 0.8) -69.8%, rgba(37, 31, 78, 0.8) 144.89%);
+                background: linear-gradient(0deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05)), radial-gradient(196.93% 1543.75% at 129.21% -19.16%, rgba(31, 214, 95, 0.15) 0%, rgba(0, 0, 0, 0) 100%), linear-gradient(277.39deg, rgba(14, 17, 22, 0.8) -69.8%, rgba(26, 31, 41, 0.8) 144.89%);
                 border-radius: 8px;
               }
 
@@ -68,7 +68,7 @@ function RainTip(props) {
                 z-index: 0;
                 content: '';
 
-                background-color: #2A2453;
+                background-color: var(--fourth-bg);
                 border-radius: 8px;
               }
               
@@ -183,7 +183,7 @@ function RainTip(props) {
                 z-index: 1;
                 content: '';
 
-                background: #534141;
+                background: var(--secondary-bg);
                 border-radius: 5px;
               }
               
