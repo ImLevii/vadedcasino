@@ -56,7 +56,7 @@ function CaseButton(props) {
                 height: 230px;
 
                 border-radius: 10px;
-                background: linear-gradient(0deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.20) 100%), linear-gradient(222deg, rgba(69, 65, 122, 0.65) 0%, rgba(43, 40, 80, 0.00) 100%);
+                background: linear-gradient(0deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.10) 100%), linear-gradient(222deg, rgba(26, 31, 41, 0.9) 0%, rgba(18, 21, 28, 0.00) 100%);
                 
                 display: flex;
                 align-items: center;
@@ -133,7 +133,7 @@ function CaseButton(props) {
                 width: 108px;
                 height: 31px;
 
-                color: #AEA4E4;
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 13px;
                 font-weight: 700;

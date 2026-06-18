@@ -36,7 +36,7 @@ function SpinnerItem(props) {
 
         if (props?.index < startIndex || props?.index > lastIndex) return
 
-        const width = 130
+        const width = 134 // 130px item + 4px gap
         const firstItem = startIndex * width
         const lastItem = (lastIndex - startIndex + 1) * width // 46 because we start at 5, 51 - 5 is 46
 
@@ -101,11 +101,20 @@ function SpinnerItem(props) {
         return '/assets/icons/rarity-gray.svg' // Gray
     }
 
+    function rarityColor(price) {
+        if (price >= 250000) return '#FFD700'
+        if (price >= 50000)  return '#FF5141'
+        if (price >= 10000)  return '#DC5FDE'
+        if (price >= 1000)   return '#4176FF'
+        return '#A9B5D2'
+    }
+
     return (
         <>
-            <div class='case-item-container' ref={item}>
+            <div class='case-item-container' ref={item} style={{ '--rarity': rarityColor(props?.price) }}>
+                <div class='card-bg'/>
                 <img ref={image} class='item-image' src={`${import.meta.env.VITE_SERVER_URL}${props.img}`} height='90' alt='' draggable={false}/>
-                <img className='back-img' src={backImage(props?.price)} height='70' alt='' ref={swords}/>
+                <img className='back-img' src={backImage(props?.price)} height='60' alt='' ref={swords}/>
             </div>
 
             <style jsx>{`
@@ -121,19 +130,31 @@ function SpinnerItem(props) {
                 align-items: center;
                 justify-content: center;
                 
-                opacity: 0.3;
+                opacity: 0.35;
+              }
+
+              .card-bg {
+                position: absolute;
+                inset: 6px 4px;
+                border-radius: 8px;
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.06);
+                border-bottom: 2px solid var(--rarity, #A9B5D2);
+                box-shadow: 0 0 16px -4px var(--rarity, #A9B5D2);
+                opacity: 0.6;
               }
               
               .item-image {
                 position: relative;
                 user-select: none;
-                z-index: 1 !important;
+                z-index: 1;
+                filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
               }
 
               .back-img {
                 position: absolute;
-                z-index: -1;
-                opacity: 0.3;
+                z-index: 0;
+                opacity: 0.15;
               }
             `}</style>
         </>

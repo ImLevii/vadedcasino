@@ -101,7 +101,7 @@ function Cases(props) {
                                  xmlns="http://www.w3.org/2000/svg">
                                 <path
                                     d="M3.50001 0.994671C3.62547 0.994671 3.7509 1.04269 3.84655 1.13852L6.8564 4.15579C7.04787 4.34773 7.04787 4.65892 6.8564 4.85078C6.66501 5.04263 6.5 4.99467 6.16316 4.99467L3.50001 4.99467L1 4.99467C0.5 4.99467 0.335042 5.04254 0.14367 4.85068C-0.0478893 4.65883 -0.0478893 4.34764 0.14367 4.1557L3.15347 1.13843C3.24916 1.04258 3.3746 0.994671 3.50001 0.994671Z"
-                                    fill="#9489DB"/>
+                                    fill="#8b92a0"/>
                             </svg>
                         </button>
                     </div>
@@ -133,7 +133,7 @@ function Cases(props) {
                 margin: 0 0 30px 0;
 
                 border-radius: 8px;
-                background: linear-gradient(90deg, rgba(90, 84, 149, 0.65) 0%, rgba(90, 84, 149, 0.45) 29.82%, rgba(66, 53, 121, 0) 100%);
+                background: linear-gradient(90deg, rgba(26, 31, 41, 0.8) 0%, rgba(26, 31, 41, 0.5) 30%, rgba(26, 31, 41, 0) 100%);
               }
 
               .title {
@@ -261,8 +261,8 @@ function Cases(props) {
                 justify-content: center;
 
                 border-radius: 3px;
-                background: #423E76;
-                box-shadow: 0px 1px 0px 0px #2E2855, 0px -1px 0px 0px #4B4783;
+                background: #2c3340;
+                box-shadow: 0px 1px 0px 0px #1a1f29, 0px -1px 0px 0px #3a4250;
                 cursor: pointer;
 
                 gap: 8px;

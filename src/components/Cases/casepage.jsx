@@ -120,37 +120,22 @@ function CasePage(props) {
                 d="M0.4976 4.00267C0.4976 3.87722 0.545618 3.75178 0.641454 3.65613L3.65872 0.646285C3.85066 0.454819 4.16185 0.454819 4.35371 0.646285C4.54556 0.837673 4.4976 1.00269 4.4976 1.33952L4.4976 4.00267L4.4976 6.50269C4.4976 7.00269 4.54547 7.16764 4.35361 7.35902C4.16175 7.55057 3.85056 7.55057 3.65863 7.35902L0.641361 4.34921C0.545509 4.25352 0.4976 4.12808 0.4976 4.00267Z"
                 fill="#8b92a0"/>
             </svg>
-            Go back
+            Return to Case Opening
           </A>
 
-          <Show when={!caseObj.loading}>
-            <div class='header-case-info'>
-              <div class='header-case-img'>
-                <img src={`${import.meta.env.VITE_SERVER_URL}${caseObj()?.img}`} alt=''/>
-              </div>
-              <div>
-                <p class='header-case-name'>{caseObj()?.name}</p>
-                <div class='header-case-price'>
-                  <img src='/assets/icons/coin.svg' height='14'/>
-                  <span>{(caseObj()?.price * amount())?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                </div>
-              </div>
-            </div>
-          </Show>
-
           <div class='header-actions'>
-            <A href='/docs/provably' class='action-btn provably-btn'>
-              <svg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                <path d='M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z' fill='#1fd65f'/>
-              </svg>
-              THIS GAME IS PROVABLY FAIR
-            </A>
             <button class='action-btn share-btn'>
               <svg width='13' height='13' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
                 <path d='M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
               </svg>
-              SHARE CASE
+              Share Case
             </button>
+            <A href='/docs/provably' class='action-btn provably-btn'>
+              <svg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                <path d='M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z' fill='#1fd65f'/>
+              </svg>
+              Provably Fair
+            </A>
           </div>
         </div>
 
@@ -158,7 +143,7 @@ function CasePage(props) {
         <div class='spinner-section'>
           <div class='spinner-indicator'>
             <svg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'>
-              <path d='M6 8L0.803847 0.5H11.1962L6 8Z' fill='#5b5ba8'/>
+              <path d='M6 8L0.803847 0.5H11.1962L6 8Z' fill='#1fd65f'/>
             </svg>
           </div>
 
@@ -182,6 +167,13 @@ function CasePage(props) {
 
         {/* ── Controls bar ── */}
         <div class='controls-bar'>
+          <Show when={!caseObj.loading}>
+            <div class='case-info-mini'>
+              <img src={caseObj()?.img ? `${import.meta.env.VITE_SERVER_URL}${caseObj()?.img}` : `${import.meta.env.VITE_SERVER_URL}/public/cases/radiation-case.png`} class='case-img-mini' alt=''/>
+              <p class='case-name-mini'>{caseObj()?.name}</p>
+            </div>
+          </Show>
+
           <div class='controls-left'>
             {/* Amount selectors */}
             <div class='amount-group'>
@@ -193,15 +185,7 @@ function CasePage(props) {
               ))}
             </div>
 
-            {/* Price display */}
-            <Show when={!caseObj.loading}>
-              <div class='price-display'>
-                <img src='/assets/icons/coin.svg' height='15'/>
-                <span>{(caseObj()?.price * amount())?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-              </div>
-            </Show>
-
-            {/* Open Case button */}
+            {/* Open Case button with price inline */}
             <button
               class={'open-btn ' + (spinning() !== '' ? 'loading' : '')}
               onClick={async () => {
@@ -219,13 +203,17 @@ function CasePage(props) {
                 </div>
               ) : (
                 <>
-                  Open Case
-                  <svg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                    <path d='M13 2L3 14h9l-1 8 10-12h-9l1-8z' fill='currentColor'/>
-                  </svg>
+                  Open for
+                  <img src='/assets/icons/coin.svg' height='14'/>
+                  <Show when={!caseObj.loading}>
+                    <span>{(caseObj()?.price * amount())?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </Show>
                 </>
               )}
             </button>
+
+            {/* Demo spin */}
+            <button class='demo-btn' onClick={() => demoSpin()}>Demo</button>
           </div>
 
           <div class='controls-right'>
@@ -236,18 +224,18 @@ function CasePage(props) {
               setSpinTime(spinTime() === 3000 ? 7000 : 3000)
             }}>
               <Toggle active={spinTime() === 3000} toggle={() => null}/>
-              <span>FAST OPEN</span>
+              <span>QUICK UNBOX</span>
             </div>
-
-            {/* Demo spin */}
-            <button class='demo-btn' onClick={() => demoSpin()}>Demo Spin</button>
           </div>
         </div>
 
         {/* ── Case contains grid ── */}
         <Show when={!caseObj.loading}>
           <div class='items-section'>
-            <p class='items-label'>Case contains</p>
+            <p class='items-label'>
+              <img src='/assets/icons/coin.svg' height='16'/>
+              Potential Drops
+            </p>
             <div class='items-grid'>
               <For each={caseObj()?.items}>{(item) => <CaseItem {...item} grid={true}/>}</For>
             </div>
@@ -270,8 +258,8 @@ function CasePage(props) {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 16px;
-          padding: 10px 0 14px 0;
+          gap: 12px;
+          padding: 14px 0 12px;
           flex-wrap: wrap;
         }
 
@@ -289,52 +277,6 @@ function CasePage(props) {
 
         .back-btn:hover {
           color: #c3cad6;
-        }
-
-        .header-case-info {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          flex: 1;
-        }
-
-        .header-case-img {
-          width: 54px;
-          height: 54px;
-          border-radius: 8px;
-          background: rgba(255,255,255,0.05);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          flex-shrink: 0;
-        }
-
-        .header-case-img img {
-          width: 46px;
-          object-fit: contain;
-        }
-
-        .header-case-name {
-          font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 15px;
-          font-weight: 700;
-          color: #fff;
-          margin-bottom: 4px;
-        }
-
-        .header-case-price {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 13px;
-          font-weight: 700;
-          color: #f0c040;
-        }
-
-        .header-case-price span {
-          color: #fff;
         }
 
         .header-actions {
@@ -386,17 +328,20 @@ function CasePage(props) {
         /* ── Spinner ── */
         .spinner-section {
           width: 100%;
-          border-radius: 10px;
-          background: #0f111a;
+          border-radius: 12px;
+          background: #06080e;
           border: 1px solid rgba(255,255,255,0.06);
           overflow: hidden;
           position: relative;
+          box-shadow: 0 8px 40px rgba(0,0,0,0.5);
         }
 
         .spinner-indicator {
           display: flex;
           justify-content: center;
-          padding-top: 6px;
+          padding-top: 4px;
+          position: relative;
+          z-index: 4;
         }
 
         .spinner-track {
@@ -434,10 +379,29 @@ function CasePage(props) {
         .controls-bar {
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          padding: 14px 0;
+          gap: 16px;
+          padding: 16px 0 14px;
           flex-wrap: wrap;
+        }
+
+        .case-info-mini {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-shrink: 0;
+        }
+
+        .case-img-mini {
+          width: 64px;
+          height: 64px;
+          object-fit: contain;
+        }
+
+        .case-name-mini {
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 18px;
+          font-weight: 700;
+          color: #fff;
         }
 
         .controls-left {
@@ -451,6 +415,7 @@ function CasePage(props) {
           display: flex;
           align-items: center;
           gap: 12px;
+          margin-left: auto;
         }
 
         .amount-group {
@@ -482,23 +447,6 @@ function CasePage(props) {
         .amt-btn.active {
           border-color: #1fd65f;
           background: rgba(31, 214, 95, 0.18);
-          color: #fff;
-        }
-
-        .price-display {
-          display: flex;
-          align-items: center;
-          gap: 7px;
-
-          height: 36px;
-          padding: 0 14px;
-          border-radius: 6px;
-          border: 1px solid rgba(31, 214, 95, 0.3);
-          background: rgba(31, 214, 95, 0.08);
-
-          font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 13px;
-          font-weight: 700;
           color: #fff;
         }
 
@@ -597,11 +545,59 @@ function CasePage(props) {
         }
 
         .items-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
           font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 14px;
+          font-size: 15px;
           font-weight: 700;
-          color: #f0c040;
-          margin-bottom: 12px;
+          color: #1fd65f;
+          margin-bottom: 14px;
+        }
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          padding: 10px 0 14px 0;
+          flex-wrap: wrap;
+        }
+
+        .back-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 13px;
+          font-weight: 700;
+          color: #8b92a0;
+          text-decoration: none;
+          transition: color .2s;
+        }
+
+        .back-btn:hover {
+          color: #c3cad6;
+        }
+
+        .header-case-info {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          flex: 1;
+        }
+
+        /* ── Items grid ── */
+        .items-section {
+          margin-top: 8px;
+        }
+
+        .items-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 15px;
+          font-weight: 700;
+          color: #1fd65f;
+          margin-bottom: 14px;
         }
 
         .items-grid {

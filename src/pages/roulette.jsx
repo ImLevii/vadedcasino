@@ -213,17 +213,21 @@ function Roulette(props) {
               .roulette-header {
                 width: 100%;
                 display: flex;
-                align-items: flex-end;
+                align-items: center;
                 justify-content: space-between;
                 position: relative;
                 gap: 20px;
-                margin-bottom: 22px;
+                margin-bottom: 18px;
+                padding: 14px 18px;
+                background: #0c0e14;
+                border: 1px solid rgba(255,255,255,0.05);
+                border-radius: 12px;
               }
 
               .recent, .last100 {
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
+                gap: 8px;
               }
 
               .last100 {
@@ -231,16 +235,16 @@ function Roulette(props) {
               }
 
               .label {
-                color: #6b7280;
-                font-size: 12px;
+                color: #4b5563;
+                font-size: 10px;
                 font-weight: 700;
-                letter-spacing: 1px;
+                letter-spacing: 1.5px;
                 text-transform: uppercase;
               }
 
               .lastten {
                 display: flex;
-                gap: 8px;
+                gap: 5px;
               }
 
               .rolling {
@@ -252,50 +256,52 @@ function Roulette(props) {
 
               .white {
                 color: #fff;
+                font-size: 18px;
+                font-weight: 800;
               }
 
               .timer-container {
                 display: flex;
                 flex-direction: column;
-                gap: 8px;
+                gap: 10px;
                 align-items: center;
                 flex: 1;
-                max-width: 220px;
+                max-width: 200px;
               }
 
               .timer {
                 width: 100%;
-                height: 8px;
+                height: 4px;
                 border-radius: 99px;
-                background: #11141b;
+                background: rgba(255,255,255,0.06);
                 overflow: hidden;
               }
 
               .bar {
                 height: 100%;
                 width: 100%;
-
                 border-radius: 99px;
-                background: #1fd65f;
-                box-shadow: 0 0 10px rgba(31, 214, 95, 0.6);
+                background: linear-gradient(90deg, #18c255, #1fd65f, #45e57f);
+                box-shadow: 0 0 8px rgba(31, 214, 95, 0.7);
+                transition: background .3s;
               }
 
               .stats {
                 display: flex;
-                gap: 8px;
+                gap: 6px;
               }
 
               .stat {
                 display: flex;
                 align-items: center;
-                gap: 7px;
+                gap: 6px;
 
-                padding: 5px 12px 5px 6px;
-                border-radius: 8px;
-                background: #11141b;
+                padding: 4px 10px 4px 5px;
+                border-radius: 6px;
+                background: rgba(255,255,255,0.04);
                 border: 1px solid rgba(255, 255, 255, 0.06);
 
-                font-size: 14px;
+                font-size: 13px;
                 font-weight: 800;
               }
 
@@ -306,7 +312,7 @@ function Roulette(props) {
               .colors {
                 display: flex;
                 width: 100%;
-                gap: 14px;
+                gap: 12px;
               }
 
               @media only screen and (max-width: 1000px) {

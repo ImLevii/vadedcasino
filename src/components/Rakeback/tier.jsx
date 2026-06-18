@@ -70,13 +70,13 @@ function RakebackTier(props) {
           align-items: center;
           gap: 25px;
 
-          color: rgba(173, 163, 239, 1);
+          color: #98a4b6;
           font-size: 12px;
           font-weight: 700;
         }
         
         .active.period-wrapper {
-          color: var(--gold);
+          color: #ffb13e;
         }
         
         .period {
@@ -89,16 +89,24 @@ function RakebackTier(props) {
           
           border-radius: 50%;
           
-          background: linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), linear-gradient(253deg, rgba(26, 14, 51, 0.55) -27.53%, rgba(66, 60, 122, 0.55) 175.86%);
+          background: linear-gradient(180deg, rgba(10, 14, 20, 0.95) 0%, rgba(18, 24, 32, 0.95) 100%);
+          border: 1px solid rgba(31, 214, 95, 0.18);
+          box-shadow: inset 0 0 12px rgba(31, 214, 95, 0.08);
           position: relative;
 
-          color: rgba(173, 163, 239, 1);
+          color: #c5cfdd;
           font-size: 14px;
           font-weight: 700;
+        }
+
+        .active .period {
+          border-color: rgba(255, 177, 62, 0.45);
+          box-shadow: inset 0 0 12px rgba(255, 177, 62, 0.18), 0 0 20px rgba(255, 177, 62, 0.1);
         }
         
         .arrows {
           position: absolute;
+          opacity: 0.55;
         }
         
         .amount {
@@ -112,9 +120,10 @@ function RakebackTier(props) {
           align-items: center;
 
           border-radius: 5px;
-          background: rgba(90, 84, 153, 0.27);
+          background: rgba(25, 33, 45, 0.9);
+          border: 1px solid rgba(255, 255, 255, 0.08);
           
-          color: rgba(173, 163, 239, 0.5);
+          color: #9ea8b8;
           font-weight: 700;
           font-size: 12px;
           text-transform: uppercase;
@@ -123,16 +132,16 @@ function RakebackTier(props) {
         }
         
         .active .amount {
-          background: linear-gradient(53deg, rgba(255, 153, 0, 0.25) 54.58%, rgba(249, 172, 57, 0.25) 69.11%);
-          border: 1px dashed #FFA755;
-          color: var(--gold);
+          background: linear-gradient(53deg, rgba(255, 177, 62, 0.16) 0%, rgba(31, 214, 95, 0.15) 100%);
+          border: 1px dashed rgba(255, 177, 62, 0.65);
+          color: #ffb13e;
         }
         
         .claimable {
-          color: white;
+          color: #ffffff;
           display: flex;
           align-items: center;
-          opacity: 0.5;
+          opacity: 0.7;
         }
         
         .active .amount .claimable {
@@ -148,8 +157,8 @@ function RakebackTier(props) {
         }
         
         .diamond {
-          border: 1px solid rgba(173, 163, 239, 0.55);
-          background: rgba(173, 163, 239, 0.25);
+          border: 1px solid rgba(160, 174, 194, 0.5);
+          background: rgba(160, 174, 194, 0.28);
           
           height: 8.5px;
           width: 8.5px;
@@ -158,7 +167,7 @@ function RakebackTier(props) {
         }
         
         .active .diamond {
-          background: linear-gradient(53deg, #F90 54.58%, #F9AC39 69.11%);
+          background: linear-gradient(53deg, #ff9f2f 54.58%, #ffc35d 69.11%);
           border: unset;
         }
         
@@ -167,13 +176,14 @@ function RakebackTier(props) {
           height: 6px;
           
           border-radius: 2525px;
-          background: rgb(26, 14, 51);
+          background: #121a25;
+          border: 1px solid rgba(255, 255, 255, 0.05);
           
           margin: 8px 0;
         }
         
         .active .timer {
-          background: linear-gradient(53deg, #F90 54.58%, #F9AC39 69.11%), #5C5586;
+          background: linear-gradient(53deg, #ff9f2f 54.58%, #ffc35d 69.11%), #121a25;
         }
         
         .claim-button {
@@ -184,12 +194,31 @@ function RakebackTier(props) {
           font-family: "Geogrotesque Wide", sans-serif;
           font-size: 12px;
           font-weight: 700;
-          color: #7F78BC;
+          color: #8d98a9;
+          text-align: center;
         }
         
         .active .claim-button {
           cursor: pointer;
-          color: var(--gold);
+          color: #1fd65f;
+          text-shadow: 0 0 14px rgba(31, 214, 95, 0.25);
+        }
+
+        @media only screen and (max-width: 700px) {
+          .period-wrapper {
+            gap: 14px;
+          }
+
+          .period {
+            width: 68px;
+            height: 68px;
+            font-size: 13px;
+          }
+
+          .arrows {
+            width: 74px;
+            height: 74px;
+          }
         }
       `}</style>
     </>

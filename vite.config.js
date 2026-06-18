@@ -24,9 +24,28 @@ export default defineConfig({
       '/items': 'http://127.0.0.1:3000',
       '/trading': 'http://127.0.0.1:3000',
       '/leaderboard': 'http://127.0.0.1:3000',
-      '/cases': 'http://127.0.0.1:3000',
-      '/battles': 'http://127.0.0.1:3000',
-      '/roulette': 'http://127.0.0.1:3000',
+      '/cases': {
+        target: 'http://127.0.0.1:3000',
+        bypass: (req) => {
+          // Let browser navigations fall through to Vite's SPA fallback
+          const accept = req.headers['accept'] || ''
+          if (accept.includes('text/html')) return req.url
+        }
+      },
+      '/battles': {
+        target: 'http://127.0.0.1:3000',
+        bypass: (req) => {
+          const accept = req.headers['accept'] || ''
+          if (accept.includes('text/html')) return req.url
+        }
+      },
+      '/roulette': {
+        target: 'http://127.0.0.1:3000',
+        bypass: (req) => {
+          const accept = req.headers['accept'] || ''
+          if (accept.includes('text/html')) return req.url
+        }
+      },
       '/crash': 'http://127.0.0.1:3000',
       '/coinflip': 'http://127.0.0.1:3000',
       '/jackpot': 'http://127.0.0.1:3000',

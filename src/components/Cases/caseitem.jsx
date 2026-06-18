@@ -114,7 +114,7 @@ function CaseItem(props) {
                 display: flex;
                 align-items: center;
                 gap: 5px;
-                color: #f0c040;
+                color: #1fd65f;
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-size: 12px;
                 font-weight: 700;

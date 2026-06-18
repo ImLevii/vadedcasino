@@ -69,12 +69,15 @@ function Rakeback(props) {
             <div className='banner'>
               <p className='title'><span
                 className='gold-gradient'>Welcome to our VIP Program,</span> {props?.user?.username}</p>
-              <p>Welcome to Clash’s Rewards Program! Here you'll find Clash’s way of showing our appreciation towards
+              <p>Welcome to CosmicLuck Rewards! Here you will find our way of showing appreciation to
                 our most loyal & active users.</p>
               <p>Below, you can claim your instant, daily, weekly & monthly rakeback. Enjoy!</p>
 
               <img src='/assets/art/goldswiggle.png' alt='' className='swiggle'/>
-              <img src='/assets/art/mascot.png' height='210' width='210' alt='' class='mascot'/>
+              <div class='brand-lockup'>
+                <img src='/assets/logo/cosmic-luck-logo.png' height='152' width='152' alt='CosmicLuck logo' class='logo-mark'/>
+                <img src='/assets/logo/cosmic-luck-words.svg' alt='CosmicLuck' class='logo-words'/>
+              </div>
             </div>
 
             <Show when={!rewards.loading} fallback={<Loader/>}>
@@ -109,7 +112,8 @@ function Rakeback(props) {
           width: 100vw;
           height: 100vh;
 
-          background: rgba(24, 23, 47, 0.55);
+          background: rgba(5, 9, 14, 0.72);
+          backdrop-filter: blur(3px);
 
           display: flex;
           align-items: center;
@@ -125,9 +129,10 @@ function Rakeback(props) {
           height: 100%;
           width: 100%;
 
-          background: #1a1f29;
-          box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+          background: linear-gradient(180deg, #151b24 0%, #11161d 100%);
+          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
           border-radius: 15px;
+          border: 1px solid rgba(31, 214, 95, 0.16);
 
           display: flex;
           flex-direction: column;
@@ -146,9 +151,9 @@ function Rakeback(props) {
           width: 100%;
 
           border-radius: 15px 15px 0px 0px;
-          border: 1px solid rgba(173, 163, 239, 0.1);
-          background: linear-gradient(270deg, rgba(56, 41, 155, 0.20) -10.22%, rgba(48, 43, 81, 0.20) 107.88%), #2F2D5A;
-          box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.05);
+          border-bottom: 1px solid rgba(255, 177, 62, 0.2);
+          background: linear-gradient(90deg, rgba(24, 62, 42, 0.52) 0%, rgba(34, 30, 22, 0.62) 100%), #1a222d;
+          box-shadow: inset 0 -1px 0 rgba(255, 177, 62, 0.12);
 
           padding: 0 12px 0 0;
         }
@@ -159,17 +164,24 @@ function Rakeback(props) {
           width: 30px;
           height: 30px;
 
-          background: #4E4A8D;
-          box-shadow: 0px -1px 0px #5F5AA7, 0px 1px 0px #272548;
-          border-radius: 3px;
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 8px;
 
           display: flex;
           align-items: center;
           justify-content: center;
 
           font-weight: 700;
-          color: #8b92a0;
+          color: #a6b0bf;
           cursor: pointer;
+          transition: all .2s;
+        }
+
+        .close:hover {
+          color: #ffffff;
+          border-color: rgba(31, 214, 95, 0.45);
+          background: rgba(31, 214, 95, 0.16);
         }
 
         .pages {
@@ -194,8 +206,9 @@ function Rakeback(props) {
 
         .page.active {
           border-radius: 15px 0px 0px 0px;
-          border: 1px solid #FFA755;
-          background: linear-gradient(53deg, rgba(255, 153, 0, 0.25) 54.58%, rgba(249, 172, 57, 0.25) 69.11%), #353265;
+          border-right: 1px solid rgba(255, 177, 62, 0.35);
+          border-top: 1px solid rgba(255, 177, 62, 0.2);
+          background: linear-gradient(53deg, rgba(255, 177, 62, 0.16) 10%, rgba(31, 214, 95, 0.12) 90%);
         }
 
         .content {
@@ -213,9 +226,9 @@ function Rakeback(props) {
 
           padding: 20px;
 
-          border-radius: 10px;
-          border: 1px dashed #FFA755;
-          background: radial-gradient(145% 100% at 100% 130%, rgba(252, 164, 33, 0.30) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(201deg, #302E5B -33.09%, #372F68 102.17%);
+          border-radius: 12px;
+          border: 1px dashed rgba(255, 177, 62, 0.65);
+          background: radial-gradient(120% 100% at 100% 120%, rgba(255, 177, 62, 0.18) 0%, rgba(0, 0, 0, 0) 100%), linear-gradient(135deg, #172437 0%, #2a273d 50%, #1c2a22 100%);
 
           display: flex;
           justify-content: center;
@@ -227,10 +240,13 @@ function Rakeback(props) {
           font-weight: 500;
 
           position: relative;
+          overflow: hidden;
         }
 
         .banner > p {
           max-width: 400px;
+          color: #d8deea;
+          line-height: 1.35;
 
           text-overflow: ellipsis;
           overflow: hidden;
@@ -253,18 +269,48 @@ function Rakeback(props) {
         .swiggle {
           position: absolute;
           transform: scaleX(-1);
-          right: 0;
+          right: -16px;
           margin: auto 0;
           top: 0;
           bottom: 0;
+          opacity: 0.4;
+          pointer-events: none;
         }
 
-        .mascot {
+        .brand-lockup {
           position: absolute;
-          right: 0;
-          bottom: 0;
-          transform: scaleX(-1);
-          filter: drop-shadow(0px 4px 15px rgba(255, 122, 0, 0.44));
+          right: 22px;
+          bottom: 10px;
+          width: 190px;
+          height: 150px;
+
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+
+          border-radius: 14px;
+          background: linear-gradient(180deg, rgba(15, 21, 30, 0.15) 0%, rgba(15, 21, 30, 0.52) 100%);
+          border: 1px solid rgba(31, 214, 95, 0.2);
+          box-shadow: inset 0 0 35px rgba(31, 214, 95, 0.08), 0 14px 30px rgba(0, 0, 0, 0.35);
+          backdrop-filter: blur(1.6px);
+          pointer-events: none;
+        }
+
+        .logo-mark {
+          position: absolute;
+          right: 18px;
+          bottom: -10px;
+          opacity: 0.92;
+          filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 22px rgba(31, 214, 95, 0.2));
+        }
+
+        .logo-words {
+          position: absolute;
+          left: 12px;
+          top: 12px;
+          width: 112px;
+          opacity: 0.95;
+          filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
         }
 
         .tiers {
@@ -273,13 +319,45 @@ function Rakeback(props) {
           gap: 25px;
         }
 
+        @media only screen and (max-width: 980px) {
+          .rakeback-container {
+            max-width: 94vw;
+            max-height: 92vh;
+          }
+
+          .content {
+            padding: 20px;
+            gap: 20px;
+          }
+
+          .tiers {
+            gap: 14px;
+          }
+        }
+
         @media only screen and (max-width: 700px) {
-          .mascot, .swiggle {
+          .brand-lockup, .swiggle {
             display: none;
           }
 
           .banner {
             align-items: center;
+          }
+
+          .tiers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+          }
+        }
+
+        @media only screen and (max-width: 520px) {
+          .tiers {
+            grid-template-columns: 1fr;
+          }
+
+          .banner .title {
+            font-size: 18px;
           }
         }
       `}</style>

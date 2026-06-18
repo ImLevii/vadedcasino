@@ -13,9 +13,9 @@ function CaseSpinner(props) {
 
     function animate() {
 
-        const itemsWidth = 130 // 130px + 50px gap
+        const itemsWidth = 130
         const center = (itemsWidth / 2)
-        const itemsGap = 50
+        const itemsGap = 4
         const firstItem = 5 * (itemsWidth + itemsGap) + center
         const lastItem = 50 * (itemsWidth + itemsGap) + center
 
@@ -35,13 +35,19 @@ function CaseSpinner(props) {
     return (
         <>
             <div class='case-spinner-container'>
+                {/* Side fade masks */}
+                <div class='fade-left'/>
+                <div class='fade-right'/>
+                {/* Center indicator */}
+                <div class='center-indicator'/>
+                <div class='center-line-top'/>
+                <div class='center-line-bottom'/>
                 <div class='spinner-items' ref={spinner}>
                     <For each={props?.items || []}>{(item, index) => <SpinnerItem spinTime={props?.spinTime} offset={props.offset} img={item.img}
                                                                                   spinning={props?.spinning}
                                                                                   price={item?.price}
                                                                                   index={index()} position={props?.position}/>}</For>
                 </div>
-                {/*<div class='bar'/>*/}
             </div>
 
             <style jsx>{`
@@ -50,13 +56,63 @@ function CaseSpinner(props) {
                 min-width: 500px;
 
                 min-height: 130px;
-                height: 180px;
+                height: 190px;
 
                 border-radius: 10px;
-                background: rgba(144, 138, 255, 0.06);
+                background: #080a10;
                 overflow: hidden;
                 position: relative;
+                border: 1px solid rgba(255,255,255,0.05);
               }
+
+              /* Side gradient fades */
+              .fade-left, .fade-right {
+                position: absolute;
+                top: 0;
+                width: 22%;
+                height: 100%;
+                z-index: 2;
+                pointer-events: none;
+              }
+
+              .fade-left {
+                left: 0;
+                background: linear-gradient(to right, #080a10 0%, rgba(8,10,16,0.85) 40%, transparent 100%);
+              }
+
+              .fade-right {
+                right: 0;
+                background: linear-gradient(to left, #080a10 0%, rgba(8,10,16,0.85) 40%, transparent 100%);
+              }
+
+              /* Center column highlight */
+              .center-indicator {
+                position: absolute;
+                left: 50%;
+                top: 0;
+                transform: translateX(-65px);
+                width: 130px;
+                height: 100%;
+                background: rgba(31, 214, 95, 0.04);
+                z-index: 1;
+                pointer-events: none;
+              }
+
+              /* Top and bottom tick lines */
+              .center-line-top, .center-line-bottom {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-65px);
+                width: 130px;
+                height: 2px;
+                background: linear-gradient(to right, transparent, #1fd65f 30%, #1fd65f 70%, transparent);
+                z-index: 3;
+                pointer-events: none;
+                box-shadow: 0 0 10px rgba(31, 214, 95, 0.6);
+              }
+
+              .center-line-top { top: 0; }
+              .center-line-bottom { bottom: 0; }
 
               .spinner-items {
                 width: fit-content;
@@ -64,19 +120,11 @@ function CaseSpinner(props) {
 
                 display: flex;
 
-                gap: 50px;
+                gap: 4px;
 
                 position: absolute;
                 left: 50%;
-                transform: translateX(-785px); /* 65px is to center on first item, then 180px per item center after that due to 50px gap and 130px width */
-              }
-
-              .bar {
-                width: 1px;
-                height: 100%;
-                background: red;
-                position: absolute;
-                left: 50%;
+                transform: translateX(-870px); /* 5 items * 134px each, centered on item 5 */
               }
 
               @media only screen and (max-width: 560px) {
