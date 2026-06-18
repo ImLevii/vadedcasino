@@ -162,8 +162,8 @@ function BattleHeader(props) {
               .mode, .crazy {
                 width: 80px;
                 height: 30px;
-                background: url("/assets/art/stripes.png"), #1F1D39;
-                background-size: cover;
+                background: #1a1f29;
+                border: 1px solid rgba(255,255,255,0.07);
 
                 display: flex;
                 align-items: center;
@@ -171,14 +171,15 @@ function BattleHeader(props) {
                 gap: 6px;
                 border-radius: 5px;
 
-                color: #8E8ABD;
+                color: #8b92a0;
                 font-size: 13px;
                 font-weight: 700;
               }
 
               .mode.group {
-                color: #FFF;
-                background: url("/assets/art/stripes.png"), linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
+                color: #1fd65f;
+                background: rgba(31,214,95,0.08);
+                border-color: rgba(31,214,95,0.25);
               }
 
               .mode p, .crazy p {
@@ -187,8 +188,9 @@ function BattleHeader(props) {
 
               .crazy {
                 left: 80px;
-                color: #FFF;
-                background: url("/assets/art/stripes.png"), #69452B;
+                color: #e8a14a;
+                background: rgba(232,161,74,0.08);
+                border-color: rgba(232,161,74,0.25);
               }
 
               @media only screen and (max-width: 540px) {

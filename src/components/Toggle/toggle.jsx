@@ -13,8 +13,8 @@ function Toggle(props) {
                   width: 19px;
                   height: 19px;
 
-                  background: #302E5A;
-                  border: 1px solid #383666;
+                  background: #12151c;
+                  border: 1px solid rgba(255, 255, 255, 0.1);
                   border-radius: 3px;
                   
                   display: flex;
@@ -26,13 +26,13 @@ function Toggle(props) {
                 }
                 
                 .toggle svg {
-                  fill: #302E5A;
+                  fill: transparent;
                   transition: fill .3s;
                 }
                 
                 .toggle.active {
-                  background: rgba(31, 214, 95, 0.25);
-                  border: 1px solid rgba(31, 214, 95, 1);
+                  background: rgba(31, 214, 95, 0.2);
+                  border: 1px solid rgba(31, 214, 95, 0.8);
                 }
                 
                 .toggle.active svg {

@@ -138,6 +138,17 @@ app.use('/admin', adminRoute);
 app.use('/surveys', surveysRoute);
 app.use('/fairness', fairnessRoute);
 
+// Public announcements endpoint (no auth required)
+app.get('/announcements/active', async (req, res) => {
+    try {
+        const { getActiveAnnouncements } = require('./routes/admin/announcements');
+        const list = await getActiveAnnouncements();
+        res.json({ success: true, data: list });
+    } catch (e) {
+        res.json({ success: true, data: [] });
+    }
+});
+
 // Serve built frontend static files (production)
 if (process.env.NODE_ENV !== 'development') {
     app.use(express.static(path.join(__dirname, 'dist')));

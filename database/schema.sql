@@ -4,6 +4,26 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ============================================================
+-- Announcements
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `announcements` (
+    `id`          INT UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `message`     VARCHAR(500)    NOT NULL,
+    `type`        ENUM('info','success','warning','error') NOT NULL DEFAULT 'info',
+    `link`        VARCHAR(500)    DEFAULT NULL,
+    `linkText`    VARCHAR(100)    DEFAULT NULL,
+    `active`      TINYINT(1)      NOT NULL DEFAULT 1,
+    `dismissible` TINYINT(1)      NOT NULL DEFAULT 0,
+    `priority`    TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    `startsAt`    DATETIME        DEFAULT NULL,
+    `expiresAt`   DATETIME        DEFAULT NULL,
+    `createdBy`   BIGINT UNSIGNED DEFAULT NULL,
+    `createdAt`   DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updatedAt`   DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
 -- Core: Users
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `users` (
@@ -40,9 +60,13 @@ CREATE TABLE IF NOT EXISTS `users` (
     `tipAllowance`          DECIMAL(20,2)   DEFAULT NULL,
     `rainTipAllowance`      DECIMAL(20,2)   DEFAULT NULL,
     `cryptoAllowance`       DECIMAL(20,2)   DEFAULT NULL,
+    `steamId`               VARCHAR(32)     DEFAULT NULL,
+    `googleId`              VARCHAR(64)     DEFAULT NULL,
     `createdAt`             DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uq_affiliateCode` (`affiliateCode`)
+    UNIQUE KEY `uq_affiliateCode` (`affiliateCode`),
+    UNIQUE KEY `uq_steamId` (`steamId`),
+    UNIQUE KEY `uq_googleId` (`googleId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================

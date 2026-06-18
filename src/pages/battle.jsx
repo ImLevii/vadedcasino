@@ -232,9 +232,9 @@ function Battle(props) {
                 width: 100%;
                 height: 65px;
 
-                border-radius: 5px;
-                border: 1px dashed rgba(173, 163, 239, 0.35);
-                background: rgba(90, 84, 153, 0.35);
+                border-radius: 8px;
+                border: 1px solid rgba(255,255,255,0.07);
+                background: #12151c;
 
                 display: flex;
                 align-items: center;

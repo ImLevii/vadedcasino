@@ -188,8 +188,8 @@ function UserModal(props) {
           width: 26px;
           height: 26px;
 
-          background: #4E4A8D;
-          box-shadow: 0px -1px 0px #5F5AA7, 0px 1px 0px #272548;
+          background: #2c3340;
+          box-shadow: 0px 1px 0px 0px #1a1f29, 0px -1px 0px 0px #3a4250;
           border-radius: 3px;
 
           display: flex;
@@ -202,7 +202,7 @@ function UserModal(props) {
         }
 
         .id {
-          color: #9F9AC8;
+          color: #8b92a0;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 14px;
           font-weight: 500;
@@ -223,7 +223,7 @@ function UserModal(props) {
           gap: 25px;
           text-align: center;
 
-          color: #7A72B0;
+          color: #8b92a0;
           font-size: 14px;
           font-weight: 400;
           
@@ -250,7 +250,7 @@ function UserModal(props) {
           height: 90px;
 
           border-radius: 5px;
-          background: rgba(90, 84, 153, 0.27);
+          background: #12151c;
 
           color: #FFF;
           font-family: Geogrotesque Wide, sans-serif;
@@ -290,8 +290,8 @@ function UserModal(props) {
           gap: 12px;
 
           border-radius: 5px;
-          border: 1px dashed #464075;
-          background: rgba(0, 0, 0, 0.12);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: #12151c;
           
           padding: 12px;
         }
@@ -314,7 +314,7 @@ function UserModal(props) {
           line-height: 26px;
           
           border-radius: 2px;
-          background: rgba(90, 84, 153, 0.35);
+          background: #2c3340;
         }
         
         .tip-wrapper input {

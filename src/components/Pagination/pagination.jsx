@@ -59,14 +59,13 @@ function Pagination(props) {
 
               .pagination button {
                 outline: unset;
-                border: unset;
+                border: 1px solid rgba(255,255,255,0.07);
 
                 width: 78px;
-                height: 40px;
+                height: 36px;
 
-                border-radius: 3px;
-                background: #423E76;
-                box-shadow: 0px 1px 0px 0px #2E2855, 0px -1px 0px 0px #4B4783;
+                border-radius: 6px;
+                background: #12151c;
                 cursor: pointer;
 
                 display: flex;
@@ -74,10 +73,21 @@ function Pagination(props) {
                 justify-content: center;
                 gap: 8px;
 
-                color: #8b92a0;
+                color: #6b7280;
                 font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 15px;
+                font-size: 13px;
                 font-weight: 700;
+                transition: background .15s, color .15s;
+              }
+
+              .pagination button:not(:disabled):hover {
+                background: #1a1f29;
+                color: #c3cad6;
+              }
+
+              .pagination button:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
               }
             `}</style>
         </>

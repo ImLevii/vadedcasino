@@ -47,7 +47,7 @@ async function joinChat(socket, channel) {
     socket.channel = channel;
     socket.join(socket.channel);
     socket.emit('chat:join', { success: true, channel });
-    socket.emit('chat:pushMessage', channels[channel].messages);
+    socket.emit('chat:pushMessage', channels[channel].messages.filter(m => m.type !== 'rain-end'));
     
 }
 

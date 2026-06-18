@@ -154,24 +154,26 @@ function BattlePreview(props) {
       <style jsx>{`
         .battle-preview-container {
           width: 100%;
-          height: 90px;
+          height: 80px;
 
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 30px;
-          padding: 0 15px;
+          gap: 20px;
+          padding: 0 14px;
 
           position: relative;
 
-          background: rgba(90, 84, 153, 0.27);
+          background: #12151c;
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 8px;
         }
 
         .left {
           display: flex;
           align-items: center;
-          gap: 20px;
-          min-width: 355px;
+          gap: 16px;
+          min-width: 300px;
         }
 
         .teams {
@@ -183,7 +185,7 @@ function BattlePreview(props) {
         .team {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
 
           transition: all .3s;
         }
@@ -197,16 +199,15 @@ function BattlePreview(props) {
         .cases {
           flex: 1;
           height: 100%;
-          background: rgba(0, 0, 0, 0.3);
-          max-width: 440px;
+          max-width: 480px;
 
           display: flex;
           align-items: center;
-          padding: 0 5px;
-          gap: 5px;
+          padding: 0 6px;
+          gap: 6px;
 
           overflow-x: auto;
-          scrollbar-color: rgba(139, 146, 160, 0.29) rgba(0, 0, 0, 0.21);
+          scrollbar-color: rgba(255,255,255,0.1) transparent;
         }
 
         .cases::-webkit-scrollbar {
@@ -214,70 +215,86 @@ function BattlePreview(props) {
         }
 
         .cases::-webkit-scrollbar-track {
-          border-radius: 10px;
-          background: rgba(0, 0, 0, 0.21);
+          background: transparent;
         }
 
         .cases::-webkit-scrollbar-thumb {
           border-radius: 10px;
-          background: rgba(173, 163, 239, 0.29);
+          background: rgba(255,255,255,0.12);
         }
 
         .right {
           display: flex;
+          align-items: center;
           margin-left: auto;
-          gap: 30px;
+          gap: 20px;
+          flex-shrink: 0;
         }
 
         .cost {
-          height: 30px;
+          height: 32px;
           padding: 0 10px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          background: #1a1f29;
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 6px;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-weight: 700;
+          font-size: 13px;
+          color: #c3cad6;
         }
 
         .controls {
           display: flex;
           justify-content: flex-end;
-          min-width: 115px;
-          gap: 8px;
+          min-width: 100px;
+          gap: 6px;
         }
 
         .join {
-          height: 30px;
-          width: 75px;
+          height: 32px;
+          width: 70px;
+          font-size: 12px;
         }
 
         .view {
           display: flex;
           align-items: center;
           justify-content: center;
-          height: 30px;
-          width: 30px;
+          height: 32px;
+          width: 32px;
           position: relative;
+          border-radius: 6px;
+          background: #1a1f29;
+          border: 1px solid rgba(255,255,255,0.07);
         }
 
         .mode, .crazy, .funding {
-          width: 70px;
-          height: 30px;
+          width: 64px;
+          height: 26px;
           position: absolute;
-          top: -15px;
+          top: -13px;
           left: 0;
-          background: url("/assets/art/stripes.png"), #262247;
-          background-size: cover;
+          background: #1a1f29;
+          border: 1px solid rgba(255,255,255,0.08);
 
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 6px;
+          gap: 5px;
           border-radius: 5px;
 
-          color: #8E8ABD;
-          font-size: 13px;
+          color: #8b92a0;
+          font-size: 11px;
           font-weight: 700;
         }
 
         .mode.group {
-          color: #FFF;
-          background: url("/assets/art/stripes.png"), linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
+          color: #1fd65f;
+          background: rgba(31,214,95,0.08);
+          border-color: rgba(31,214,95,0.25);
         }
 
         .mode p, .crazy p {
@@ -285,9 +302,10 @@ function BattlePreview(props) {
         }
 
         .crazy {
-          left: 80px;
-          color: #FFF;
-          background: url("/assets/art/stripes.png"), #69452B;
+          left: 74px;
+          color: #e8a14a;
+          background: rgba(232,161,74,0.08);
+          border-color: rgba(232,161,74,0.25);
         }
 
         .funding {
@@ -296,37 +314,26 @@ function BattlePreview(props) {
           right: 0;
           z-index: 0;
           background: unset;
-
           height: 20px;
           width: auto;
           padding: 0 8px;
-
           font-size: 10px;
         }
 
         .funding:before {
           position: absolute;
           content: '';
-          top: 0;
-          left: 0;
-
+          top: 0; left: 0;
           z-index: -1;
-
-          width: 100%;
-          height: 100%;
-
-          background: linear-gradient(240deg, rgba(0, 255, 194, 0.44) 20.27%, rgba(0, 231, 170, 0.22) 37.12%, rgba(0, 218, 157, 0.10) 56.46%, rgba(0, 195, 134, 0.26) 88.22%, rgba(0, 170, 109, 0.44) 107.96%), linear-gradient(90deg, rgba(156, 255, 172, 0.25) -12.6%, rgba(0, 181, 156, 0.25) 95.75%), linear-gradient(251deg, #12151c -26.07%, #1f242e 190.03%);
+          width: 100%; height: 100%;
+          background: rgba(31,214,95,0.08);
           border-radius: 3px;
-          border: 1px solid #5EE1A6;
-
+          border: 1px solid rgba(31,214,95,0.3);
           transform: skew(-10deg);
         }
 
         .funding p {
-          background: linear-gradient(90deg, #64FF7D 0%, #01FFDC 100%);
-          background-clip: text;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+          color: #1fd65f;
         }
       `}</style>
     </>

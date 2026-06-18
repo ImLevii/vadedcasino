@@ -71,7 +71,8 @@ async function cacheRains() {
 
 async function rainInterval(rain) {
 
-    let endsIn = rain.createdAt.valueOf() + (rain.host ? rains.joinTime : rains.systemRainDuration) - Date.now();
+    const duration = rain._forceDuration || (rain.host ? rains.joinTime : rains.systemRainDuration);
+    let endsIn = rain.createdAt.valueOf() + duration - Date.now();
     // console.log(rain.id, rain.host?.id, 'endsIn', endsIn)
 
     if (endsIn > 0) {
@@ -112,6 +113,13 @@ async function rainInterval(rain) {
             
             await connection.query('SELECT id FROM rains WHERE id = ? FOR UPDATE', [rain.id]);
 
+            // Guard: if already ended (e.g. by force-stop), skip distribution
+            const [[check]] = await connection.query('SELECT endedAt FROM rains WHERE id = ?', [rain.id]);
+            if (check?.endedAt) {
+                await commit();
+                return;
+            }
+
             await connection.query('UPDATE rains SET endedAt = ? WHERE id = ?', [new Date(), rain.id]);
             const [users] = await connection.query('SELECT users.id, users.xp, users.balance FROM rainUsers JOIN users ON rainUsers.userId = users.id WHERE rainId = ?', [rain.id]);
             const totalXp = users.reduce((acc, user) => acc + user.xp, 0);
@@ -141,11 +149,10 @@ async function rainInterval(rain) {
                 total: rain.amount
             };
         
-            const [messageResult] = await connection.query('INSERT INTO chatMessages(type, content, senderId, channelId) VALUES (?, ?, ?, ?)', ['rain-end', JSON.stringify(messageContent), rain.host?.id || null, 'EN']);
             await commit();
 
             newMessage({
-                id: messageResult.insertId,
+                id: Date.now(),
                 content: messageContent,
                 type: 'rain-end',
                 createdAt: Date.now(),
@@ -168,6 +175,8 @@ async function rainInterval(rain) {
     }
 
     if (!rain.host) {
+        // Don't spawn a new loop if this rain was force-stopped (the forceStart already spawned one)
+        if (rain.forceStopped) return;
         rains.system = await getSystemRain();
         rainInterval(rains.system);
     }
@@ -177,5 +186,82 @@ async function rainInterval(rain) {
 module.exports = {
     rains,
     cacheRains,
-    rainInterval
+    rainInterval,
+    forceStartSystemRain,
+    forceEndSystemRain,
+    cancelScheduledRain,
+    scheduleRain
+}
+
+let scheduledRainTimer = null;
+
+async function forceStartSystemRain(amount, durationMs) {
+    // End existing system rain
+    if (rains.system && !rains.system.ended) {
+        rains.system.ended = true;
+        rains.system.forceStopped = true;
+        await sql.query('UPDATE rains SET endedAt = NOW() WHERE id = ? AND endedAt IS NULL', [rains.system.id]);
+        io.emit('rain:end');
+    }
+
+    const duration = durationMs || rains.systemRainDuration;
+
+    // Adjust createdAt so the rain is immediately joinable (skips the pre-announcement wait)
+    // rainInterval computes: endsIn = createdAt + duration - now
+    // To make endsIn = joinTime (immediately joinable), set createdAt = now - (duration - joinTime)
+    const joinableIn = duration - rains.joinTime;
+    const adjustedCreatedAt = new Date(Date.now() - Math.max(0, joinableIn));
+
+    const [result] = await sql.query('INSERT INTO rains (amount, createdAt) VALUES (?, ?)', [amount, adjustedCreatedAt]);
+
+    const newRain = {
+        id: result.insertId,
+        host: null,
+        users: [],
+        amount,
+        createdAt: adjustedCreatedAt,
+        endedAt: null,
+        _forceDuration: duration
+    };
+    rains.system = newRain;
+
+    rainInterval(rains.system);
+
+    sendLog('rain', `System rain #${result.insertId} force-started by admin. Amount: R$${amount}, Duration: ${Math.round(duration / 60000)}m`);
+    return rains.system;
+}
+
+async function forceEndSystemRain() {
+    const rain = rains.system;
+    if (!rain || rain.ended) return false;
+
+    rain.ended = true;
+    rain.forceStopped = true;
+
+    await sql.query('UPDATE rains SET endedAt = NOW() WHERE id = ? AND endedAt IS NULL', [rain.id]);
+    io.emit('rain:end');
+    sendLog('rain', `System rain #${rain.id} force-stopped by admin.`);
+
+    // Start fresh rain immediately
+    rains.system = await getSystemRain();
+    rainInterval(rains.system);
+    return true;
+}
+
+function cancelScheduledRain() {
+    if (scheduledRainTimer) {
+        clearTimeout(scheduledRainTimer);
+        scheduledRainTimer = null;
+        return true;
+    }
+    return false;
+}
+
+function scheduleRain(amount, durationMs, delayMs) {
+    cancelScheduledRain();
+    scheduledRainTimer = setTimeout(async () => {
+        scheduledRainTimer = null;
+        await forceStartSystemRain(amount, durationMs);
+    }, delayMs);
+    return { scheduledAt: new Date(Date.now() + delayMs) };
 }

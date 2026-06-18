@@ -83,7 +83,7 @@ function AdminDashboard(props) {
             <div class='bar' style={{margin: '30px 0 10px 0'}}/>
 
             <div className='banner'>
-                <img src='/assets/icons/logoswords.svg' width='25' height='19' alt=''/>
+                <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#1fd65f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'><polyline points='22 12 18 12 15 21 9 3 6 12 2 12'/></svg>
                 <p>GROWTH</p>
                 <div className='line'/>
             </div>
@@ -95,7 +95,7 @@ function AdminDashboard(props) {
             </div>
 
             <div className='banner'>
-                <img src='/assets/icons/logoswords.svg' width='25' height='19' alt=''/>
+                <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#1fd65f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'><circle cx='12' cy='12' r='10'/><line x1='2' y1='12' x2='22' y2='12'/><path d='M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/></svg>
                 <p>DEMOGRAPHIC</p>
                 <div className='line'/>
             </div>
@@ -116,30 +116,46 @@ function AdminDashboard(props) {
                 align-items: center;
                 justify-content: center;
                 flex-direction: column;
-                gap: 10px;
+                gap: 6px;
 
                 flex: 1 1 0;
-                height: 90px;
+                height: 88px;
 
-                border-radius: 5px;
-                background: rgba(42, 50, 63, 0.27);
+                border-radius: 8px;
+                background: #12151c;
+                border: 1px solid rgba(255,255,255,0.06);
 
-                color: #FFF;
-                font-family: Geogrotesque Wide, sans-serif;
+                color: #ffffff;
+                font-family: 'Geogrotesque Wide', sans-serif;
                 font-size: 20px;
-                font-weight: 600;
+                font-weight: 700;
 
                 padding: 10px 20px;
+                transition: border-color .2s;
+              }
+
+              .stat:hover {
+                border-color: rgba(255,255,255,0.12);
               }
 
               .stat.green {
-                background: rgba(31, 214, 95, 0.15);
+                background: rgba(31, 214, 95, 0.08);
+                border-color: rgba(31, 214, 95, 0.25);
+              }
+
+              .stat.green:hover {
+                border-color: rgba(31, 214, 95, 0.4);
               }
 
               .stat p:last-child {
-                color: #8b92a0;
-                font-size: 13px;
-                font-weight: 600;
+                color: #4b5260;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+              }
+
+              .stat.green p:last-child {
+                color: rgba(31,214,95,0.6);
               }
 
               .align {
@@ -156,75 +172,46 @@ function AdminDashboard(props) {
                 width: 100%;
                 height: 1px;
                 min-height: 1px;
-                background: #2c3340;
+                background: rgba(255,255,255,0.06);
               }
 
               .banner {
                 outline: unset;
                 border: unset;
+                border-left: 3px solid rgba(31,214,95,0.5);
 
                 width: 100%;
-                height: 45px;
+                height: 44px;
 
-                border-radius: 5px;
-                background: linear-gradient(90deg, rgb(44, 51, 64) -49.01%, rgba(42, 50, 63, 0.655) -5.08%, rgba(30, 36, 46, 0) 98.28%);
+                border-radius: 0 6px 6px 0;
+                background: linear-gradient(90deg, rgba(31,214,95,0.08) 0%, rgba(18,21,28,0) 60%);
 
-                padding: 0 15px;
+                padding: 0 16px;
                 display: flex;
                 align-items: center;
-                gap: 12px;
+                gap: 10px;
 
-                color: white;
-                font-size: 22px;
-                font-weight: 600;
+                color: #c3cad6;
+                font-size: 15px;
+                font-weight: 700;
+                letter-spacing: 0.05em;
 
-                margin-bottom: 30px;
+                margin-bottom: 20px;
               }
 
               .line {
                 flex: 1;
                 height: 1px;
-
-                border-radius: 2525px;
-                background: linear-gradient(90deg, #2c3340 0%, rgba(42, 50, 63, 0.00) 100%);
-              }
-
-              .banner {
-                outline: unset;
-                border: unset;
-
-                width: 100%;
-                height: 45px;
-
-                border-radius: 5px;
-                background: linear-gradient(90deg, rgb(104, 100, 164) -49.01%, rgba(90, 84, 149, 0.655) -5.08%, rgba(66, 53, 121, 0) 98.28%);
-
-                padding: 0 15px;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-
-                color: white;
-                font-size: 22px;
-                font-weight: 600;
-
-                margin: 35px 0;
-              }
-
-              .line {
-                flex: 1;
-                height: 1px;
-
-                border-radius: 2525px;
-                background: linear-gradient(90deg, #2c3340 0%, rgba(42, 50, 63, 0.00) 100%);
+                background: linear-gradient(90deg, rgba(31,214,95,0.2) 0%, transparent 100%);
               }
               
               .graph {
                 width: 100%;
                 height: 235px;
 
-                border-radius: 15px;
-                background: #1a1f29;
+                border-radius: 10px;
+                background: #12151c;
+                border: 1px solid rgba(255,255,255,0.06);
               }
             `}</style>
         </>

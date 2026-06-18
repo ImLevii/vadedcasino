@@ -20,6 +20,166 @@ router.get('/iframe', (req, res) => {
     res.render('captcha');
 });
 
+// ── Google OAuth2 Auth ───────────────────────────────────────
+router.get('/google', (req, res) => {
+    const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    if (!clientId) return res.status(500).send('Google OAuth not configured. Set GOOGLE_CLIENT_ID in .env');
+
+    const redirectUri = `${baseUrl}/auth/google/callback`;
+    const params = new URLSearchParams({
+        client_id:     clientId,
+        redirect_uri:  redirectUri,
+        response_type: 'code',
+        scope:         'openid email profile',
+        access_type:   'online',
+        prompt:        'select_account',
+    });
+    res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
+});
+
+router.get('/google/callback', async (req, res) => {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4000';
+    const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+    const { code } = req.query;
+    if (!code) return res.redirect(`${frontendUrl}/?modal=login&error=google_denied`);
+
+    try {
+        // Exchange code for tokens
+        const tokenRes = await axios.post('https://oauth2.googleapis.com/token', new URLSearchParams({
+            code,
+            client_id:     process.env.GOOGLE_CLIENT_ID,
+            client_secret: process.env.GOOGLE_CLIENT_SECRET,
+            redirect_uri:  `${baseUrl}/auth/google/callback`,
+            grant_type:    'authorization_code',
+        }).toString(), { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, timeout: 8000 });
+
+        const { access_token } = tokenRes.data;
+        if (!access_token) return res.redirect(`${frontendUrl}/?modal=login&error=google_token`);
+
+        // Get user profile
+        const profileRes = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
+            headers: { Authorization: `Bearer ${access_token}` },
+            timeout: 5000
+        });
+
+        const { id: googleId, name, email } = profileRes.data;
+        if (!googleId) return res.redirect(`${frontendUrl}/?modal=login&error=google_invalid`);
+
+        const displayName = (name || email?.split('@')[0] || `User${googleId.slice(-6)}`)
+            .replace(/[^a-zA-Z0-9_\- ]/g, '').slice(0, 20) || `User${googleId.slice(-6)}`;
+
+        // Ensure column exists
+        try { await sql.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS googleId VARCHAR(64) DEFAULT NULL'); } catch (_) {}
+
+        const [[existing]] = await sql.query('SELECT id FROM users WHERE googleId = ?', [googleId]);
+        let userId;
+
+        if (existing) {
+            userId = existing.id;
+        } else {
+            const { createHash } = require('crypto');
+            const hash = createHash('sha256').update(`google:${googleId}`).digest('hex');
+            userId = BigInt(`0x${hash.slice(0, 15)}`).toString();
+            await sql.query(
+                'INSERT INTO users (id, username, googleId) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE googleId = VALUES(googleId)',
+                [userId, displayName, googleId]
+            );
+        }
+
+        const token = generateJwtToken(userId);
+        const expires = new Date(Date.now() + expiresIn * 1000);
+        res.cookie('jwt', token, { expires, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
+        res.redirect(frontendUrl + '/');
+
+    } catch (err) {
+        console.error('Google auth error:', err.message);
+        res.redirect(`${frontendUrl}/?modal=login&error=google_error`);
+    }
+});
+// ────────────────────────────────────────────────────────────
+router.get('/steam', (req, res) => {
+    const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+    const returnTo = `${baseUrl}/auth/steam/callback`;
+    const params = new URLSearchParams({
+        'openid.ns':         'http://specs.openid.net/auth/2.0',
+        'openid.mode':       'checkid_setup',
+        'openid.return_to':  returnTo,
+        'openid.realm':      baseUrl,
+        'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select',
+        'openid.identity':   'http://specs.openid.net/auth/2.0/identifier_select',
+    });
+    res.redirect(`https://steamcommunity.com/openid/login?${params.toString()}`);
+});
+
+router.get('/steam/callback', async (req, res) => {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4000';
+    try {
+        // Verify with Steam
+        const verifyParams = new URLSearchParams({ ...req.query, 'openid.mode': 'check_authentication' });
+        const verifyRes = await axios.post('https://steamcommunity.com/openid/login', verifyParams.toString(), {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            timeout: 8000
+        });
+
+        if (!verifyRes.data.includes('is_valid:true')) {
+            return res.redirect(`${frontendUrl}/?modal=login&error=steam_invalid`);
+        }
+
+        const claimedId = req.query['openid.claimed_id'] || '';
+        const steamId = claimedId.split('/').pop();
+        if (!steamId || !/^\d+$/.test(steamId)) {
+            return res.redirect(`${frontendUrl}/?modal=login&error=steam_invalid`);
+        }
+
+        // Fetch Steam display name if API key is configured
+        let displayName = `Player${steamId.slice(-6)}`;
+        if (process.env.STEAM_API_KEY) {
+            try {
+                const profileRes = await axios.get(
+                    `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${process.env.STEAM_API_KEY}&steamids=${steamId}`,
+                    { timeout: 5000 }
+                );
+                displayName = profileRes.data?.response?.players?.[0]?.personaname || displayName;
+            } catch (_) { /* non-fatal — use fallback name */ }
+        }
+
+        // Ensure steamId column exists; graceful fallback if not yet migrated
+        try {
+            await sql.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS steamId VARCHAR(32) DEFAULT NULL');
+        } catch (_) {}
+
+        // Find or create user by steamId
+        const [[existing]] = await sql.query('SELECT id FROM users WHERE steamId = ?', [steamId]);
+        let userId;
+
+        if (existing) {
+            userId = existing.id;
+        } else {
+            // Use a hash-derived numeric ID to avoid collision with Roblox IDs
+            const { createHash } = require('crypto');
+            const hash = createHash('sha256').update(`steam:${steamId}`).digest('hex');
+            // Take first 15 hex digits → max ~1.15e18, safely within BIGINT UNSIGNED
+            userId = BigInt(`0x${hash.slice(0, 15)}`).toString();
+            const sanitizedName = displayName.replace(/[^a-zA-Z0-9_\- ]/g, '').slice(0, 20) || `Player${steamId.slice(-6)}`;
+            await sql.query(
+                'INSERT INTO users (id, username, steamId) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE steamId = VALUES(steamId)',
+                [userId, sanitizedName, steamId]
+            );
+        }
+
+        const token = generateJwtToken(userId);
+        const expires = new Date(Date.now() + expiresIn * 1000);
+        res.cookie('jwt', token, { expires, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
+        res.redirect(frontendUrl + '/');
+
+    } catch (err) {
+        console.error('Steam auth error:', err.message);
+        res.redirect(`${frontendUrl}/?modal=login&error=steam_error`);
+    }
+});
+// ────────────────────────────────────────────────────────────
+
 router.use('/arkose-proxy', async (req, res) => {
 
     try {

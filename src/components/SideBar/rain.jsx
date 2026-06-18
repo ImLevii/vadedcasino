@@ -60,167 +60,208 @@ function SidebarRain(props) {
         const totalSeconds = Math.floor(ms / 1000)
         const minutes = Math.floor((totalSeconds % 3600) / 60)
         const seconds = totalSeconds % 60
-
-        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+        if (minutes > 0) return `${minutes}m ${seconds.toString().padStart(2, '0')}s`
+        return `${seconds}s`
     }
+
+    const hostName = () => userRain()?.host?.username || rain()?.host?.username || 'COSMIC LUCK'
+    const isJoined = () => userRain()?.joined || rain()?.joined
 
     return (
         <>
             <Captcha active={showCaptcha()} close={() => setShowCaptcha(false)}/>
 
-            <div className='rain-container fadein'>
-                {userRain() ? (
-                    <Avatar id={userRain()?.host?.id} xp={userRain()?.host?.xp} height='30'/>
-                ) : (
-                    <img src='/assets/icons/logoswords.svg' height='41' alt=''/>
-                )}
-                <p>{userRain()?.host?.username || 'BLOXCLASH'} <span className='gold'>HOSTED A RAIN</span></p>
-                <div className='amount-backing'>
-                    <img className='coin' src='/assets/icons/coin.svg' alt='' height='60'/>
+            <div class='rain-container fadein'>
+                <div class='rain-glow'/>
 
-                    <div class='timer'>
-                        <img src='/assets/icons/timer.svg' height='20'/>
-                        <p>{formatTimeLeft(userRain() ? userTimer() : time())}</p>
+                <div class='rain-top'>
+                    <div class='rain-icon'>
+                        {userRain()?.host ? (
+                            <Avatar id={userRain().host.id} xp={userRain().host.xp} height='32'/>
+                        ) : (
+                            <svg width='22' height='22' viewBox='0 0 64 64' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                                <path d='M48 26.5C48 26.33 47.99 26.17 47.98 26C47.33 19.27 41.77 14 35 14C30.09 14 25.82 16.7 23.55 20.73C22.76 20.27 21.91 20 21 20C18.24 20 16 22.24 16 25C16 25.18 16.01 25.35 16.03 25.52C13.72 26.58 12 28.9 12 31.5C12 35.09 14.91 38 18.5 38H47.5C51.64 38 55 34.64 55 30.5C55 28.28 54.01 26.27 52.44 24.92C50.93 25.01 49.41 25.61 48.16 26.71C48.05 26.64 48 26.57 48 26.5Z' fill='#1fd65f' opacity='0.9'/>
+                                <line x1='22' y1='44' x2='20' y2='52' stroke='#1fd65f' stroke-width='3' stroke-linecap='round' opacity='0.7'/>
+                                <line x1='30' y1='44' x2='28' y2='52' stroke='#1fd65f' stroke-width='3' stroke-linecap='round' opacity='0.7'/>
+                                <line x1='38' y1='44' x2='36' y2='52' stroke='#1fd65f' stroke-width='3' stroke-linecap='round' opacity='0.7'/>
+                                <line x1='46' y1='44' x2='44' y2='52' stroke='#1fd65f' stroke-width='3' stroke-linecap='round' opacity='0.7'/>
+                            </svg>
+                        )}
                     </div>
 
-                    <div className='amount-container'>
-                        <img src='/assets/icons/coin.svg' alt='' height='20'/>
-                        <p><Countup end={userRain()?.amount || rain()?.amount || 0} gray={true}/></p>
+                    <div class='rain-title'>
+                        <span class='host-name'>{hostName()}</span>
+                        <span class='hosted-text'>HOSTED A RAIN</span>
                     </div>
                 </div>
-                <button className='bevel-gold claim' onClick={() => handleRainJoin()} disabled={userRain()?.joined || rain()?.joined}>
-                    {(userRain()?.joined || rain()?.joined) ? 'YOU ARE IN THE RAIN' : 'CLAIM RAIN'}
-                </button>
+
+                <div class='rain-bottom'>
+                    <div class='rain-stats'>
+                        <div class='stat-pill'>
+                            <img src='/assets/icons/coin.svg' height='12' alt=''/>
+                            <Countup end={userRain()?.amount || rain()?.amount || 0} gray={true}/>
+                        </div>
+                        <div class='stat-pill'>
+                            <svg width='11' height='11' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                                <circle cx='12' cy='12' r='10' stroke='#1fd65f' stroke-width='2'/>
+                                <path d='M12 7V12L15 15' stroke='#1fd65f' stroke-width='2' stroke-linecap='round'/>
+                            </svg>
+                            <span>{formatTimeLeft(userRain() ? userTimer() : time())}</span>
+                        </div>
+                    </div>
+
+                    <button class={'claim' + (isJoined() ? ' joined' : '')} onClick={() => handleRainJoin()} disabled={isJoined()}>
+                        {isJoined() ? '✓ IN' : 'CLAIM'}
+                    </button>
+                </div>
             </div>
 
             <style jsx>{`
               .rain-container {
                 width: 100%;
-                min-height: 100%;
-                
-                top: 0;
-                left: 0;
 
-                position: absolute;
                 display: flex;
                 flex-direction: column;
-                z-index: 1;
-                
-                align-items: center;
-                justify-content: center;
-                gap: 10px;
-                
-                padding: 12px 20px;
-
-                background: linear-gradient(277.39deg,rgba(19,17,41,1) -69.8%,rgba(37,31,78,1) 144.89%);
-
-                color: #FFF;
-                font-family: Geogrotesque Wide, sans-serif;
-                font-size: 12px;
-                font-weight: 700;
-              }
-              
-              .amount-backing {
-                width: 100%;
-                height: 45px;
-
-                background: linear-gradient(270deg, rgba(90, 84, 153, 0) 0%, rgba(249, 172, 57, 0.31) 98.73%, rgba(90, 84, 153, 0) 100%);
-                border-radius: 0 0 8px 8px;
-
-                display: flex;
-                align-items: center;
-                justify-content: flex-end;
-                gap: 16px;
-
-                padding: 0 5px;
-              }
-
-              .amount-container {
-                width: 100%;
-                max-width: 130px;
-                height: 30px;
-
-                background: conic-gradient(from 180deg at 50% 50%, #FFDC18 -0.3deg, #B17818 72.1deg, rgba(156, 99, 15, 0.611382) 139.9deg, rgba(126, 80, 12, 0.492874) 180.52deg, rgba(102, 65, 10, 0.61) 215.31deg, #B17818 288.37deg, #FFDC18 359.62deg, #FFDC18 359.7deg, #B17818 432.1deg);
-                border-radius: 5px;
-
-                position: relative;
-
-                display: flex;
-                align-items: center;
-                justify-content: center;
                 gap: 8px;
+                z-index: 1;
 
-                font-family: 'Geogrotesque Wide';
-                font-weight: 700;
-                color: white;
-                font-size: 13px;
-              }
-
-              .amount-container > * {
+                padding: 10px 14px;
+                background: #090c11;
+                border-top: 1px solid rgba(31, 214, 95, 0.15);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                overflow: hidden;
                 position: relative;
-                z-index: 1;
               }
 
-              .amount-container:before {
-                width: calc(100% - 2px);
-                height: calc(100% - 2px);
-
-                top: 1px;
-                left: 1px;
+              .rain-glow {
                 position: absolute;
-                z-index: 1;
-                content: '';
-
-                background: #534141;
-                border-radius: 5px;
+                top: 0; left: 0;
+                width: 100%; height: 100%;
+                background: radial-gradient(ellipse at 10% 50%, rgba(31, 214, 95, 0.07) 0%, transparent 60%);
+                pointer-events: none;
               }
 
-              .coin {
-                position: absolute !important;
-                left: -15px;
-                z-index: 1;
-              }
-              
               .rain-container > * {
                 position: relative;
                 z-index: 1;
               }
-              
-              .timer {
+
+              .rain-top {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+              }
+
+              .rain-icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                width: 36px;
+                height: 36px;
+                background: rgba(31, 214, 95, 0.08);
+                border: 1px solid rgba(31, 214, 95, 0.2);
+                border-radius: 8px;
+              }
+
+              .rain-title {
+                display: flex;
+                flex-direction: column;
+                gap: 1px;
+                min-width: 0;
+              }
+
+              .host-name {
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-weight: 800;
+                font-size: 12px;
+                color: #ffffff;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+
+              .hosted-text {
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-weight: 600;
+                font-size: 10px;
+                color: #1fd65f;
+                letter-spacing: 0.08em;
+              }
+
+              .rain-bottom {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+              }
+
+              .rain-stats {
+                display: flex;
+                gap: 5px;
+                align-items: center;
+                flex: 1;
+              }
+
+              .stat-pill {
                 display: flex;
                 align-items: center;
                 gap: 4px;
-                
+
+                height: 26px;
+                padding: 0 8px;
+
+                background: #12151c;
+                border: 1px solid rgba(255, 255, 255, 0.07);
+                border-radius: 6px;
+
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-weight: 700;
+                font-size: 11px;
+                color: #c3cad6;
                 font-variant-numeric: tabular-nums;
               }
-              
-              .claim {
-                width: 100%;
-                height: 25px;
 
-                font-family: Geogrotesque Wide, sans-serif;
+              .claim {
+                flex-shrink: 0;
+                height: 26px;
+                padding: 0 12px;
+
+                outline: unset;
+                border: unset;
+                border-radius: 6px;
+
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-weight: 800;
                 font-size: 11px;
-                font-weight: 700;
+                letter-spacing: 0.04em;
+                color: #021a09;
+                cursor: pointer;
+                white-space: nowrap;
+
+                background: linear-gradient(180deg, #22e86a 0%, #1fd65f 60%, #18c255 100%);
+                box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset, 0 -1px 0 rgba(0,0,0,0.3) inset;
+                transition: filter .2s;
               }
-              
-              .claim:disabled {
-                box-shadow: unset;
-                background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
-                border: 1px solid #1fd65f;
+
+              .claim:hover:not(:disabled) {
+                filter: brightness(1.08);
+              }
+
+              .claim.joined {
+                background: rgba(31, 214, 95, 0.1);
+                border: 1px solid rgba(31, 214, 95, 0.3);
                 color: #1fd65f;
+                box-shadow: none;
+                cursor: default;
               }
-              
+
               .fadein {
-                animation: fadein 1s forwards ease;
+                animation: fadein .4s forwards ease;
               }
-              
+
               @keyframes fadein {
-                from {
-                  opacity: 0%;
-                }
-                to {
-                  opacity: 100%;
-                }
+                from { opacity: 0; }
+                to   { opacity: 1; }
               }
             `}</style>
         </>

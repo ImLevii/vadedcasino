@@ -16,7 +16,7 @@ function BottomNavBar(props) {
                     e.stopPropagation()
                     setMenuDropdown(!menuDropdown())
                 }}>
-                    <svg width="17" height="14" viewBox="0 0 17 14" fill="#6B639D" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="17" height="14" viewBox="0 0 17 14" fill="#8b92a0" xmlns="http://www.w3.org/2000/svg">
                         <g id="Group 1359">
                             <rect id="Rectangle 129" width="17" height="2" rx="1"/>
                             <rect id="Rectangle 130" y="6" width="17" height="2" rx="1"/>
@@ -33,7 +33,7 @@ function BottomNavBar(props) {
                     e.stopPropagation()
                     setActive(!active())
                 }}>
-                    <svg width="17" height="18" viewBox="0 0 17 18" fill="#6B639D" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="17" height="18" viewBox="0 0 17 18" fill="#8b92a0" xmlns="http://www.w3.org/2000/svg">
                         <g id="Group">
                             <path id="Vector" d="M0 5.21919V8.74722L3.21992 10.6065V6.88679L0.0123047 5.03522C0.0041836 5.09576 0 5.15721 0 5.21919V5.21919Z" />
                             <path id="Vector_2" d="M4.27441 11.2155L7.49757 13.0766V9.35621L4.27441 7.49564V11.2155Z" />
@@ -108,7 +108,7 @@ function BottomNavBar(props) {
                 </button>
 
                 <button class='button' onClick={() => props.setChat(!props.chat)}>
-                    <svg width="17" height="17" viewBox="0 0 17 17" fill="#6B639D" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="17" height="17" viewBox="0 0 17 17" fill="#8b92a0" xmlns="http://www.w3.org/2000/svg">
                         <g id="Group">
                             <g id="Group_2">
                                 <path id="Vector" d="M15.1785 0H1.82142C0.815477 0 0 0.815478 0 1.82142V11.5357C0 12.5416 0.815477 13.3571 1.82142 13.3571H3.97678L3.64651 16.326C3.60969 16.6593 3.85003 16.9593 4.18333 16.9961C4.35544 17.0151 4.52748 16.9597 4.65619 16.8439L8.53094 13.3571H15.1785C16.1845 13.3571 16.9999 12.5416 16.9999 11.5357V1.82142C16.9999 0.815478 16.1845 0 15.1785 0Z" />
@@ -190,7 +190,7 @@ function BottomNavBar(props) {
                 width: 13px;
                 height: 9px;
 
-                background: #26214A;
+                background: #1a1f29;
                 position: absolute;
                 left: 50%;
                 bottom: 0;
@@ -204,8 +204,8 @@ function BottomNavBar(props) {
                 margin-bottom: 8px;
                 padding: 9px;
 
-                border: 1px solid #3A336D;
-                background: #26214A;
+                border: 1px solid rgba(255,255,255,0.08);
+                background: #1a1f29;
                 border-radius: 10px;
 
                 font-family: 'Geogrotesque Wide';

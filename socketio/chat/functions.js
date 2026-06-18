@@ -16,7 +16,7 @@ async function cacheChannels() {
         const [messages] = await sql.query(`
             SELECT users.username, content, users.role, users.xp, chatMessages.id, chatMessages.content, chatMessages.senderId, chatMessages.type, chatMessages.replyTo, chatMessages.createdAt FROM chatMessages
             LEFT JOIN users ON users.id = chatMessages.senderId
-            WHERE (chatMessages.channelId = ? OR chatMessages.channelId IS NULL) AND deletedAt IS NULL
+            WHERE (chatMessages.channelId = ? OR chatMessages.channelId IS NULL) AND deletedAt IS NULL AND chatMessages.type != 'rain-end'
             ORDER BY chatMessages.id DESC LIMIT ?;
         `, [channel, limit]);
 
@@ -56,6 +56,7 @@ async function cacheChannels() {
 
 function newMessage(message, channelId = null) {
     const handleNewMessage = (channel) => {
+        if (message.type === 'rain-end') return; // broadcast only, never cache
         channel.messages.push(message);
         if (channel.messages.length > limit) channel.messages.shift();
     };
@@ -96,6 +97,8 @@ async function sendOnlineUsers(socket, cache) {
         total += channelCount;
         channelsUsers[channel] = channelCount;
     });
+
+    total = Math.floor(io.sockets.sockets.size * multiplier);
 
     if (cache) {
         if (JSON.stringify(channelsUsers) == JSON.stringify(lastOnlineUsers)) return;

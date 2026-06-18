@@ -98,13 +98,13 @@ function UserDropdown(props) {
                 height: 9px;
 
                 top: 1px;
-                background: #26214A;
+                background: #1a1f29;
                 position: absolute;
                 right: 0;
 
-                border-left: 1px solid #3A336D;
-                border-right: 1px solid #3A336D;
-                border-top: 1px solid #3A336D;
+                border-left: 1px solid rgba(255,255,255,0.08);
+                border-right: 1px solid rgba(255,255,255,0.08);
+                border-top: 1px solid rgba(255,255,255,0.08);
 
                 clip-path: polygon(0% 100%, 100% 0%, 100% 100%);
               }
@@ -116,11 +116,12 @@ function UserDropdown(props) {
               .links {
                 display: flex;
                 flex-direction: column;
-                gap: 6px;
-                padding: 10px;
+                gap: 4px;
+                padding: 8px;
 
-                border: 1px solid #3A336D;
-                background: #26214A;
+                border: 1px solid rgba(255,255,255,0.08);
+                background: #1a1f29;
+                border-radius: 0 0 8px 8px;
 
                 margin-top: 9px;
               }

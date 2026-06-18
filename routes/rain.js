@@ -22,7 +22,6 @@ router.use((req, res, next) => {
 router.post('/join', [isAuthed, apiLimiter], async (req, res) => {
 
     const linkedDiscord = await getExistingAuth(req.userId, true);
-    if (!linkedDiscord) return res.status(400).json({ error: 'NOT_LINKED' });
 
     // if (!discordClient.bloxClashGuild?.members.cache.has(linkedDiscord.user.id)) {
     //     discordClient.bloxClashGuild?.members.add(linkedDiscord.discordId, { accessToken: linkedDiscord.token });

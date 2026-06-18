@@ -173,20 +173,22 @@ function AdminUsers(props) {
               }
 
               .table-data {
-                height: 55px;
-                background: rgba(90, 84, 153, 0.35);
-                padding: 0 20px;
+                height: 48px;
+                background: #12151c;
+                border-radius: 6px;
+                padding: 0 16px;
 
                 display: flex;
                 align-items: center;
 
                 color: #8b92a0;
-                font-size: 14px;
+                font-size: 13px;
                 font-weight: 700;
+                margin-bottom: 3px;
               }
 
               .table-data:nth-of-type(2n) {
-                background: rgba(90, 84, 153, 0.15);
+                background: rgba(255,255,255,0.02);
               }
 
               .table-column {
@@ -201,15 +203,16 @@ function AdminUsers(props) {
               }
 
               .table-header p {
-                background: rgba(90, 84, 153, 0.35);
-                height: 25px;
-                line-height: 25px;
-                padding: 0 15px;
-                border-radius: 2px;
+                background: rgba(255,255,255,0.05);
+                height: 24px;
+                line-height: 24px;
+                padding: 0 12px;
+                border-radius: 4px;
 
-                color: #8b92a0;
-                font-size: 12px;
+                color: #4b5260;
+                font-size: 10px;
                 font-weight: 700;
+                letter-spacing: 0.08em;
               }
 
               .view {
@@ -244,12 +247,14 @@ function AdminUsers(props) {
               
               .search-wrapper {
                 width: 100%;
-                height: 50px;
+                height: 40px;
                 
                 display: flex;
 
-                border-radius: 5px;
-                background: rgba(0, 0, 0, 0.15);
+                border-radius: 6px;
+                background: #12151c;
+                border: 1px solid rgba(255,255,255,0.07);
+                overflow: hidden;
               }
               
               .search {
@@ -260,30 +265,33 @@ function AdminUsers(props) {
                 border: unset;
                 outline: unset;
 
-                color: white;
-                font-family: Geogrotesque Wide, sans-serif;
-                font-size: 15px;
-                font-weight: 700;
+                color: #c3cad6;
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-size: 13px;
+                font-weight: 600;
                 
-                padding: 0 15px;
+                padding: 0 12px;
               }
               
               .search::placeholder {
-                color: #837EC1;
-                font-family: Geogrotesque Wide, sans-serif;
-                font-size: 15px;
-                font-weight: 700;
+                color: #4b5260;
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-size: 13px;
+                font-weight: 600;
               }
               
               .search-button {
                 height: 100%;
-                min-width: 50px;
+                min-width: 44px;
                 
                 outline: unset;
                 border: unset;
                 
-                background: rgba(0, 0, 0, 0.12);
+                background: rgba(255,255,255,0.04);
                 cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
               }
               
               .users-wrapper {

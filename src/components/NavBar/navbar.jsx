@@ -2,8 +2,7 @@ import Games from "./games";
 import Cases from "./cases";
 import {A, useSearchParams} from "@solidjs/router";
 import {createEffect, createSignal} from "solid-js";
-import Circularprogress from "../Level/circularprogress";
-import {progressToNextLevel} from "../../resources/levels";
+import {progressToNextLevel, getUserLevel} from "../../resources/levels";
 import BottomNavBar from "./mobilenav";
 import UserDropdown from "./userdropdown";
 import {addDropdown} from "../../util/api";
@@ -48,18 +47,14 @@ function NavBar(props) {
                     <div class='right'>
                         {props.user ? (
                             <>
+                                <button class='deposit'>
+                                    Deposit
+                                    <A href='/deposit' class='gamemode-link'/>
+                                </button>
+
                                 <button class='withdraw'>
                                     Withdraw
                                     <A href='/withdraw' class='gamemode-link'/>
-                                </button>
-
-                                <button class='deposit-plus'>
-                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
-                                         xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M7 1V13M1 7H13" stroke="white" stroke-width="2.2"
-                                              stroke-linecap="round"/>
-                                    </svg>
-                                    <A href='/deposit' class='gamemode-link'/>
                                 </button>
 
                                 <div class='balance'>
@@ -73,36 +68,30 @@ function NavBar(props) {
 
                                 <Notifications/>
 
-                                <div class='user-dropdown-minified'>
-                                    <Circularprogress progress={progressToNextLevel(props?.user?.xp || 0)}>
-                                        <div class='avatar'>
-                                            <img
-                                                src={`${import.meta.env.VITE_SERVER_URL}/user/${props.user?.id}/img`}
-                                                width='31' height='31'/>
-                                        </div>
-                                    </Circularprogress>
-                                </div>
-
                                 <div class={'user-dropdown-wrapper ' + (userDropdown() ? 'active' : '')}
                                      onClick={(e) => {
                                          setUserDropdown(!userDropdown())
                                          e.stopPropagation()
                                      }}>
-                                    <div class='avatar-wrapper'>
-                                        <Circularprogress progress={progressToNextLevel(props?.user?.xp || 0)}>
-                                            <div class='avatar'>
-                                                <img
-                                                    src={`${import.meta.env.VITE_SERVER_URL}/user/${props.user?.id}/img`}
-                                                    width='31' height='31'/>
-                                            </div>
-                                        </Circularprogress>
+                                    <img class='user-avatar'
+                                         src={`${import.meta.env.VITE_SERVER_URL}/user/${props.user?.id}/img`}
+                                         width='30' height='30'/>
+
+                                    <div class='user-info'>
+                                        <div class='user-name-row'>
+                                            <span class='user-level'>{getUserLevel(props?.user?.xp || 0)}</span>
+                                            <span class='user-name'>{props?.user?.username}</span>
+                                        </div>
+                                        <div class='xp-bar-track'>
+                                            <div class='xp-bar-fill' style={`width:${Math.max(2, 100 - (progressToNextLevel(props?.user?.xp || 0)))}%`}/>
+                                        </div>
                                     </div>
 
                                     <svg class='arrow' width="7" height="5" viewBox="0 0 7 5" fill="none"
                                          xmlns="http://www.w3.org/2000/svg">
                                         <path
                                             d="M3.50001 0.994671C3.62547 0.994671 3.7509 1.04269 3.84655 1.13852L6.8564 4.15579C7.04787 4.34773 7.04787 4.65892 6.8564 4.85078C6.66501 5.04263 6.5 4.99467 6.16316 4.99467L3.50001 4.99467L1 4.99467C0.5 4.99467 0.335042 5.04254 0.14367 4.85068C-0.0478893 4.65883 -0.0478893 4.34764 0.14367 4.1557L3.15347 1.13843C3.24916 1.04258 3.3746 0.994671 3.50001 0.994671Z"
-                                            fill="#8b92a0"/>
+                                            fill="#6b7280"/>
                                     </svg>
 
                                     <UserDropdown user={props?.user} active={userDropdown()}
@@ -215,27 +204,28 @@ function NavBar(props) {
                 color: #fff;
               }
 
-              .deposit-plus {
-                display: flex;
-                align-items: center;
-                justify-content: center;
+              .deposit {
                 position: relative;
 
                 height: 38px;
-                width: 38px;
-                min-width: 38px;
+                padding: 0 18px;
                 border-radius: 8px;
 
                 outline: unset;
                 border: unset;
-                background: radial-gradient(60% 60% at 50% 50%, #25e06b 0%, #18b853 100%);
-                box-shadow: 0px 2px 0px 0px #16a049, 0px -2px 0px 0px #5ceb90;
+                background: linear-gradient(180deg, #22e86a 0%, #1fd65f 60%, #18c255 100%);
+                box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset, 0 -2px 0 rgba(0,0,0,0.3) inset;
+
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-weight: 800;
+                font-size: 14px;
+                color: #021a09;
 
                 cursor: pointer;
                 transition: filter .2s;
               }
 
-              .deposit-plus:hover {
+              .deposit:hover {
                 filter: brightness(1.08);
               }
 
@@ -293,22 +283,19 @@ function NavBar(props) {
                 align-items: center;
                 gap: 8px;
                 height: 42px;
+                padding: 0 10px 0 6px;
                 position: relative;
 
-                cursor: pointer;
-              }
-
-              .avatar-wrapper {
                 background: #1a1f29;
-                border: 1px solid rgba(255, 255, 255, 0.08);
+                border: 1px solid rgba(255,255,255,0.08);
                 border-radius: 8px;
 
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                cursor: pointer;
+                transition: background .2s;
+              }
 
-                height: 42px;
-                aspect-ratio: 1;
+              .user-dropdown-wrapper:hover {
+                background: #222831;
               }
 
               .user-dropdown-wrapper.active .arrow {
@@ -317,25 +304,59 @@ function NavBar(props) {
 
               .arrow {
                 transition: transform .2s;
+                flex-shrink: 0;
               }
 
-              .avatar {
-                position: relative;
-                height: 35px;
-                width: 35px;
-                overflow: hidden;
+              .user-avatar {
+                border-radius: 6px;
+                object-fit: cover;
+                flex-shrink: 0;
+              }
 
+              .user-info {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                min-width: 60px;
+              }
+
+              .user-name-row {
                 display: flex;
                 align-items: center;
-                justify-content: center;
-
-                border-radius: 6px;
+                gap: 5px;
               }
 
-              .avatar img {
-                position: relative;
-                z-index: 1;
-                border-radius: 6px;
+              .user-level {
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-weight: 800;
+                font-size: 12px;
+                color: #1fd65f;
+              }
+
+              .user-name {
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-weight: 700;
+                font-size: 13px;
+                color: #ffffff;
+                max-width: 80px;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+              }
+
+              .xp-bar-track {
+                width: 100%;
+                height: 3px;
+                background: rgba(255,255,255,0.1);
+                border-radius: 2px;
+                overflow: hidden;
+              }
+
+              .xp-bar-fill {
+                height: 100%;
+                background: linear-gradient(90deg, #18c255, #1fd65f);
+                border-radius: 2px;
+                transition: width .5s ease;
               }
 
               .signin {
@@ -355,36 +376,13 @@ function NavBar(props) {
                 cursor: pointer;
               }
 
-              .user-dropdown-minified {
-                display: none;
-              }
-
               @media only screen and (max-width: 1000px) {
-                .nav-links, .withdraw, .user-dropdown-wrapper {
+                .nav-links, .withdraw, .deposit, .user-info, .arrow {
                   display: none;
-                }
-
-                .user-dropdown-minified {
-                  display: block;
                 }
 
                 .navbar {
                   padding: 0 14px;
-                }
-
-                .logo {
-                  margin-right: 0;
-                }
-              }
-
-              @media only screen and (max-width: 560px) {
-                .logo img {
-                  height: 22px;
-                }
-
-                .balance {
-                  padding: 0 12px;
-                  font-size: 12px;
                 }
               }
             `}</style>

@@ -1,10 +1,18 @@
 import {createEffect, createSignal, For} from "solid-js";
 import ChatMessage from "./message";
-import RainEnd from "./rainend";
 import SystemMessage from "./systemmessage";
 import RainTip from "./raintip";
 import {useUser} from "../../contexts/usercontextprovider";
 import {addDropdown} from "../../util/api";
+
+const UNICODE_EMOJIS = [
+    '😀','😂','🤣','😊','😍','🥰','😎','🤩','😏','🤔',
+    '😤','😭','😱','😲','🙄','😴','🥳','🤯','😈','💀',
+    '👍','👎','👏','🙏','💪','✌️','🤞','👋','🤝','🫡',
+    '❤️','🧡','💛','💚','💙','💜','🖤','🤍','💯','✨',
+    '🔥','⭐','🏆','💎','💰','🎰','🍀','🚀','🎉','💸',
+    '😹','🐸','👀','🫂','🫀','🥶','🥵','🤑','😋','🤭',
+]
 
 function Chat(props) {
 
@@ -106,9 +114,7 @@ function Chat(props) {
                 <div class='messages' ref={chatRef}>
                     <div class='pusher'/>
                     <For each={props.messages}>{(message, index) =>
-                        message?.type === 'rain-end' ? (
-                            <RainEnd {...message}/>
-                        ) : message?.type === 'system' ? (
+                        message?.type === 'rain-end' ? null : message?.type === 'system' ? (
                             <SystemMessage {...message}/>
                         ) : message?.type === 'rain-tip' ? (
                             <RainTip {...message}/>
@@ -123,12 +129,6 @@ function Chat(props) {
                     <div ref={messagesRef}/>
                 </div>
 
-                {!scroll() && (
-                    <div class='paused' onClick={() => resumeScrolling()}>
-                        <p>Chat paused due to scroll</p>
-                    </div>
-                )}
-
                 <div class='send-message'>
                     <div class='message-wrapper'>
                         {replying() && (
@@ -140,7 +140,7 @@ function Chat(props) {
                             </p>
                         )}
 
-                        <input type='text' class='send-message-input' placeholder='Send a message...'
+                        <input type='text' class='send-message-input' placeholder='Send message...'
                                value={text()}
                                ref={sendRef}
                                onChange={(e) => setText(e.target.value)}
@@ -154,23 +154,36 @@ function Chat(props) {
                         <img src='/assets/icons/emojis.png' height='20' alt=''/>
 
                         {emojisOpen() && (
-                            <div className='emojis-wrapper' onClick={(e) => e.stopPropagation()}>
-                                <div className='emojis'>
-                                    <For each={props?.emojis}>{(emoji) =>
-                                        <img src={emoji.url} className='emoji' alt={`:${emoji.name}:`} height='24'
-                                             width='24'
-                                             onClick={() => setText(text() + ` :${emoji.name}:`)}/>
-                                    }</For>
+                            <div class='emojis-wrapper' onClick={(e) => e.stopPropagation()}>
+                                {props?.emojis?.length > 0 && (
+                                    <div class='emojis-section'>
+                                        <p class='emojis-label'>CUSTOM</p>
+                                        <div class='emojis'>
+                                            <For each={props.emojis}>{(emoji) =>
+                                                <img src={emoji.url} class='emoji' alt={`:${emoji.name}:`}
+                                                     height='24' width='24' title={`:${emoji.name}:`}
+                                                     onClick={() => setText(text() + ` :${emoji.name}:`)}/>
+                                            }</For>
+                                        </div>
+                                    </div>
+                                )}
+                                <div class='emojis-section'>
+                                    {props?.emojis?.length > 0 && <p class='emojis-label'>UNICODE</p>}
+                                    <div class='emojis'>
+                                        <For each={UNICODE_EMOJIS}>{(emoji) =>
+                                            <span class='emoji emoji-unicode' title={emoji}
+                                                  onClick={() => setText(text() + emoji)}>{emoji}</span>
+                                        }</For>
+                                    </div>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    <div class='send bevel' onClick={() => sendMessage(text())}>
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="#7771C5"
+                    <div class='send' onClick={() => sendMessage(text())}>
+                        <svg width="11" height="11" viewBox="0 0 11 11" fill="none"
                              xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M6.35156 2.84522C2.83113 3.02855 0 5.95057 0 9.51562V12L0.888867 9.9307C1.94013 7.82855 4.02591 6.48443 6.35156 6.36084V9.20423L11.9918 4.59375L6.35156 0V2.84522Z"/>
+                            <path d="M0.5 0.5L10.5 5.5L0.5 10.5V6.5L7.5 5.5L0.5 4.5V0.5Z" fill="white"/>
                         </svg>
                     </div>
                 </div>
@@ -181,7 +194,7 @@ function Chat(props) {
                 width: 100%;
                 height: 100%;
 
-                padding: 0px 0px 20px 0px;
+                padding: 0px 0px 12px 0px;
 
                 display: flex;
                 flex-direction: column;
@@ -202,7 +215,7 @@ function Chat(props) {
                 flex-direction: column;
                 position: relative;
 
-                gap: 15px;
+                gap: 2px;
                 overflow-y: scroll;
 
                 mask-image: linear-gradient(to top, black 80%, rgba(0, 0, 0, 0.25) 99%);
@@ -217,37 +230,20 @@ function Chat(props) {
                 flex: 1 1 auto;
               }
 
-              .paused {
-                min-height: 50px;
-                width: 100%;
-
-                border-left: 2px solid var(--gold);
-                background: rgba(28, 25, 53, 0.93);
-
-                cursor: pointer;
-                line-height: 50px;
-                text-align: center;
-
-                color: #8A81B4;
-                font-family: Geogrotesque Wide, sans-serif;
-                font-size: 13px;
-                font-weight: 600;
-              }
-
               .send-message {
-                background: var(--fifth-bg);
+                background: #1a1f29;
 
-                border: 1px solid #3E3771;
-                border-radius: 3px;
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                border-radius: 6px;
 
-                min-height: 50px;
-                width: 270px;
+                min-height: 44px;
+                width: calc(100% - 28px);
                 padding: 0 10px;
-                margin: 0 auto;
+                margin: 0 14px;
 
                 display: flex;
                 align-items: center;
-                gap: 10px;
+                gap: 8px;
               }
               
               .message-wrapper {
@@ -269,34 +265,37 @@ function Chat(props) {
                 font-family: 'Rubik', sans-serif;
                 font-weight: 400;
                 font-size: 13px;
-                color: #7A72AF;
+                color: #c3cad6;
               }
 
               .send-message-input::placeholder {
                 font-family: 'Rubik', sans-serif;
                 font-weight: 400;
                 font-size: 13px;
-                color: #7A72AF;
+                color: #6b7280;
                 user-select: none;
               }
 
               .send {
-                min-height: 32px;
-                min-width: 32px;
+                min-height: 30px;
+                min-width: 30px;
 
                 display: flex;
                 align-items: center;
                 justify-content: center;
 
+                background: #2a313d;
+                border-radius: 5px;
                 cursor: pointer;
+                transition: background .2s;
+              }
+
+              .send:hover {
+                background: #323a48;
               }
 
               .send svg {
-                transition: fill .3s;
-              }
-
-              .send:hover svg {
-                fill: #6862B0;
+                transition: opacity .2s;
               }
               
               .replyto {
@@ -304,7 +303,7 @@ function Chat(props) {
                 align-items: center;
                 gap: 4px;
                 
-                color: #8F7FFF;
+                color: #1fd65f;
                 font-family: Rubik;
                 font-size: 13px;
                 font-style: normal;
@@ -313,39 +312,43 @@ function Chat(props) {
               }
 
               .emojis-button {
-                min-width: 26px;
-                height: 26px;
+                min-width: 30px;
+                height: 30px;
 
-                border-radius: 3px;
-                border: 1px solid #232a36;
-                background: rgba(54, 50, 102, 0.50);
+                border-radius: 5px;
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                background: rgba(255, 255, 255, 0.04);
 
                 display: flex;
                 align-items: center;
                 justify-content: center;
 
                 cursor: pointer;
+                position: relative;
+                transition: background .2s;
+              }
+
+              .emojis-button:hover {
+                background: rgba(255, 255, 255, 0.08);
               }
 
               .emojis-wrapper {
-                width: 270px;
-                height: 170px;
+                width: 240px;
+                max-height: 220px;
 
                 position: absolute;
-                bottom: 80px; /* 20px padding, 50px message box, 10px from message box */
+                bottom: calc(100% + 8px);
 
-                border-radius: 3px;
-                border: 1px solid #232a36;
-                background: var(--secondary-bg);
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                background: #1a1f29;
+                box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5);
 
-                padding: 12px 6px 12px 12px;
-                overflow-y: scroll;
+                padding: 10px;
+                overflow-y: auto;
 
-                display: flex;
-
-                left: 0;
                 right: 0;
-                margin: 0 auto;
+                z-index: 10;
                 cursor: initial;
               }
 
@@ -354,21 +357,60 @@ function Chat(props) {
               }
 
               .emojis-wrapper::-webkit-scrollbar-track {
-                background: var(--fourth-bg);
+                background: transparent;
               }
 
               .emojis-wrapper::-webkit-scrollbar-thumb {
-                background: rgba(99, 92, 156, 0.8);
+                background: rgba(255, 255, 255, 0.15);
+                border-radius: 3px;
+              }
+
+              .emojis-section {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                margin-bottom: 10px;
+              }
+
+              .emojis-section:last-child {
+                margin-bottom: 0;
+              }
+
+              .emojis-label {
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-size: 10px;
+                font-weight: 700;
+                color: #6b7280;
+                letter-spacing: 0.05em;
               }
 
               .emojis {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 12px;
+                gap: 4px;
               }
 
               .emoji {
                 cursor: pointer;
+                border-radius: 4px;
+                transition: background .15s;
+              }
+
+              .emoji:hover {
+                background: rgba(255, 255, 255, 0.08);
+              }
+
+              .emoji-unicode {
+                font-size: 20px;
+                width: 28px;
+                height: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background .15s;
+                user-select: none;
               }
             `}</style>
         </>

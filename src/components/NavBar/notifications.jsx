@@ -96,9 +96,9 @@ function Notifications(props) {
           height: 43px;
           width: 43px;
 
-          border-radius: 4px;
-          border: 1px solid #B17818;
-          background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
+          border-radius: 6px;
+          border: 1px solid rgba(31,214,95,0.3);
+          background: rgba(31,214,95,0.08);
 
           position: relative;
           display: flex;
@@ -106,6 +106,12 @@ function Notifications(props) {
           justify-content: center;
 
           cursor: pointer;
+          transition: border-color .2s, background .2s;
+        }
+
+        .notifications:hover {
+          border-color: rgba(31,214,95,0.5);
+          background: rgba(31,214,95,0.12);
         }
 
         .bell {
@@ -170,13 +176,13 @@ function Notifications(props) {
           height: 9px;
 
           top: 1px;
-          background: #26214A;
+          background: #1a1f29;
           position: absolute;
           right: 0;
 
-          border-left: 1px solid #3A336D;
-          border-right: 1px solid #3A336D;
-          border-top: 1px solid #3A336D;
+          border-left: 1px solid rgba(255,255,255,0.08);
+          border-right: 1px solid rgba(255,255,255,0.08);
+          border-top: 1px solid rgba(255,255,255,0.08);
 
           clip-path: polygon(0% 100%, 100% 0%, 100% 100%);
           z-index: 1;
@@ -187,10 +193,11 @@ function Notifications(props) {
         }
 
         .notis-wrapper {
-          padding: 10px;
+          padding: 8px;
 
-          border: 1px solid #3A336D;
-          background: #26214A;
+          border: 1px solid rgba(255,255,255,0.08);
+          background: #1a1f29;
+          border-radius: 0 0 8px 8px;
 
           margin-top: 8px;
           height: 100%;

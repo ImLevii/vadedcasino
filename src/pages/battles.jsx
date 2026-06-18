@@ -288,15 +288,15 @@ function Battles(props) {
               .bar {
                 flex: 1;
                 height: 1px;
-                background: #3a4250;
-                margin: 25px 0;
+                background: rgba(255,255,255,0.06);
+                margin: 20px 0;
               }
               
               .battles {
                 display: flex;
                 flex-direction: column;
                 width: 100%;
-                gap: 30px;
+                gap: 10px;
               }
 
               @media only screen and (max-width: 1420px) {

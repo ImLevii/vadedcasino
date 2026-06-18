@@ -10,7 +10,7 @@ function Message(props) {
 
     const tryToParseWord = (word) => {
         if (word[0] === '@' && word.length > 3) {
-            return <span style={{ color: '#8F7FFF' }}>{word}&nbsp;</span>
+            return <span style={{ color: '#1fd65f' }}>{word}&nbsp;</span>
         }
 
         if (word[0] === ':' || word[word.length - 1] === ':') {
@@ -42,9 +42,10 @@ function Message(props) {
                     </div>
                 )}
 
-                <div class='user' onClick={() => setParams({ user: props?.user?.id })}>
+                <div class='msg-card'>
+                    <div class='avatar-col' onClick={() => setParams({ user: props?.user?.id })}>
                     {props?.user?.role === 'USER' || props?.user?.role === 'MOD' ? (
-                        <Avatar id={props?.user?.id} xp={props?.user?.xp} height={30}/>
+                        <Avatar id={props?.user?.id} xp={props?.user?.xp} height={34}/>
                     ) : (
                         <svg class='sword' xmlns="http://www.w3.org/2000/svg" width="33" height="25" viewBox="0 0 33 25" fill="none">
                             <path d="M15.4556 24.7344C15.3392 24.5869 15.2221 24.4398 15.1066 24.2917C14.6693 23.7303 14.2325 23.1687 13.7962 22.6067C13.7259 22.5162 13.7333 22.5481 13.7831 22.451C13.9569 22.1121 14.1333 21.7742 14.306 21.4349C14.3131 21.4162 14.3263 21.4003 14.3434 21.3899C14.3606 21.3795 14.3807 21.3752 14.4006 21.3776C14.6418 21.3801 14.8832 21.3787 15.1244 21.3787C15.1438 21.3787 15.163 21.3787 15.1824 21.3781C15.186 21.3784 15.1896 21.3779 15.1931 21.3767C15.1965 21.3754 15.1996 21.3735 15.2021 21.3709C15.2047 21.3683 15.2066 21.3651 15.2078 21.3617C15.209 21.3583 15.2094 21.3546 15.209 21.351C15.209 21.3341 15.2097 21.3172 15.2097 21.2999V19.4259C15.2091 19.4163 15.2091 19.4066 15.2097 19.397C15.2147 19.3576 15.1949 19.3459 15.1591 19.349C15.1399 19.3508 15.1205 19.349 15.1012 19.349C14.2036 19.349 13.306 19.3495 12.4085 19.3506C12.3829 19.3533 12.3571 19.348 12.3348 19.3353C12.3124 19.3226 12.2946 19.3033 12.2838 19.2799C11.8213 18.4666 11.3578 17.654 10.8933 16.8421C10.8831 16.8237 10.8741 16.8041 10.8618 16.7801C10.89 16.7717 10.9197 16.7692 10.949 16.7726C11.7573 16.7726 12.5656 16.7726 13.3738 16.7726C13.4825 16.7726 13.4704 16.7867 13.4704 16.6769C13.4704 12.2018 13.4701 7.72666 13.4695 3.25158C13.4682 3.22336 13.4728 3.19516 13.4831 3.16887C13.4935 3.14257 13.5093 3.11877 13.5295 3.09904C14.1741 2.42685 14.8173 1.75354 15.4592 1.0791C15.7856 0.73694 16.1117 0.394507 16.4375 0.0518009C16.4458 0.0430083 16.4539 0.034113 16.4625 0.0257294C16.4969 -0.00821398 16.4977 -0.00882725 16.5304 0.0239915C16.5713 0.0648872 16.611 0.107114 16.6509 0.149032C17.1437 0.665817 17.6364 1.1826 18.1291 1.69938C18.5853 2.17786 19.0416 2.65621 19.4979 3.13441C19.5114 3.1477 19.522 3.16366 19.5289 3.18127C19.5358 3.19888 19.539 3.21775 19.5381 3.23665C19.5369 3.68296 19.5366 4.12941 19.5373 4.57599C19.5373 8.60721 19.5373 12.6384 19.5373 16.6697C19.5373 16.789 19.5215 16.773 19.6405 16.7731C20.4199 16.7736 21.1993 16.7736 21.9786 16.7731H22.0604C22.0659 16.8053 22.0451 16.8249 22.0329 16.8463C21.7967 17.2612 21.56 17.6758 21.3228 18.0902C21.0968 18.4858 20.8697 18.881 20.6458 19.2779C20.6358 19.3016 20.6185 19.3214 20.5964 19.3347C20.5744 19.3479 20.5487 19.3538 20.5231 19.3515C19.64 19.3492 18.757 19.3487 17.874 19.3501C17.7731 19.3501 17.7836 19.3386 17.7836 19.4372C17.7836 20.0548 17.7836 20.6725 17.7836 21.29C17.7836 21.3069 17.7845 21.3238 17.7836 21.3412C17.7821 21.3686 17.7938 21.3802 17.8217 21.3799C17.8772 21.379 17.9327 21.3799 17.9882 21.3799C18.1861 21.3799 18.3838 21.3811 18.5818 21.379C18.5994 21.3772 18.6171 21.3811 18.6323 21.3901C18.6475 21.3992 18.6595 21.4129 18.6663 21.4292C18.8555 21.7792 19.0463 22.1283 19.2389 22.4765C19.251 22.4938 19.2567 22.5148 19.2548 22.5358C19.2529 22.5568 19.2437 22.5764 19.2286 22.5912C18.692 23.2861 18.1562 23.9815 17.6212 24.6775C17.6044 24.6993 17.5772 24.7168 17.5831 24.7508H17.5541C17.5302 24.7258 17.4995 24.7367 17.4723 24.7367C16.7995 24.7352 16.1272 24.7344 15.4556 24.7344Z"/>
@@ -53,212 +54,234 @@ function Message(props) {
                             <path d="M15.4559 24.7343C16.1276 24.7343 16.7993 24.7347 17.471 24.7354C17.4987 24.7354 17.5293 24.7245 17.5528 24.7495H15.4539L15.4559 24.7343Z"/>
                         </svg>
                     )}
+                    </div>
 
-                    <p class='username'>
-                        {props?.user?.role !== 'USER' && (
-                            <span class='role'>{props?.user?.role}</span>
-                        )}
-                        &nbsp;
-                        {props?.user?.username}
-                    </p>
+                    <div class='msg-body'>
+                        <div class='msg-header' onClick={() => setParams({ user: props?.user?.id })}>
+                            <p class='username'>
+                                {props?.user?.role !== 'USER' && (
+                                    <span class='role'>{props?.user?.role}</span>
+                                )}
+                                &nbsp;{props?.user?.username}
+                            </p>
+                            {(props?.user?.role === 'USER' || props?.user?.role === 'MOD') && (
+                                <Level xp={props?.user?.xp}/>
+                            )}
+                            <p class='time'>{new Date(props?.createdAt)?.toLocaleTimeString()}</p>
+                        </div>
 
-                    {props?.user?.role === 'USER' && (
-                        <Level xp={props?.user?.xp}/>
-                    )}
+                        <p class='message'>
+                            <For each={props?.content?.split(' ')}>{(word) => tryToParseWord(word)}</For>
+                        </p>
+                    </div>
 
-                    <p class='time' onClick={(e) => e.stopPropagation()}>{new Date(props?.createdAt)?.toLocaleTimeString()}</p>
-                </div>
-
-                <p class='message'>
-                    <For each={props?.content?.split(' ')}>{(word) => tryToParseWord(word)}</For>
-
-                    <span class='floaters'>
-                        <img className='reply' src='/assets/icons/send.svg' height='16' width='16' onClick={() => {
+                    <div class='msg-actions'>
+                        <button class='action-btn' title='Reply' onClick={() => {
                             if (props.replying === props.id) return props.setReplying(null)
                             props.setReplying(props.id)
-                        }}/>
-
+                        }}>
+                            <img src='/assets/icons/send.svg' height='14' width='14' style={{ transform: 'scaleX(-1)' }}/>
+                        </button>
                         {STAFF_ROLES?.includes(props?.actualUser?.role) && (
-                            <img class='trash' src='/assets/icons/trash.svg' height='16' width='16' onClick={() => {
+                            <button class='action-btn action-btn-danger' title='Delete' onClick={() => {
                                 if (!props?.ws?.connected) return
                                 props?.ws?.emit('chat:sendMessage', `/delete ${props?.id}`)
-                            }}/>
+                            }}>
+                                <img src='/assets/icons/trash.svg' height='14' width='14'/>
+                            </button>
                         )}
-                    </span>
-                </p>
+                    </div>
+                </div>
             </div>
 
             <style jsx>{`
               .chatmessage-container {
                 width: 100%;
                 height: fit-content;
+                border-radius: 8px;
+                transition: background .15s;
               }
 
-              .user {
+              .chatmessage-container:hover {
+                background: rgba(255, 255, 255, 0.03);
+              }
+
+              .chatmessage-container:hover .msg-actions {
+                opacity: 1;
+                pointer-events: all;
+              }
+
+              .msg-card {
+                display: flex;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 8px 10px;
+                position: relative;
+              }
+
+              .avatar-col {
+                flex-shrink: 0;
+                cursor: pointer;
+                margin-top: 1px;
+              }
+
+              .sword {
+                width: 34px;
+                height: 34px;
+              }
+
+              .msg-body {
+                flex: 1;
+                min-width: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+              }
+
+              .msg-header {
                 display: flex;
                 align-items: center;
-                gap: 10px;
-                margin-bottom: 10px;
-                white-space: nowrap;
-                text-overflow: ellipsis;
+                gap: 7px;
                 cursor: pointer;
+                min-width: 0;
               }
 
               .username {
-                font-weight: 600;
-                font-size: 14px;
-                font-family: "Geogrotesque Wide", sans-serif;
-                font-style: normal;
-                color: white;
-                margin-top: -2px;
-
-                text-overflow: ellipsis;
-                max-width: 140px;
-                overflow: hidden;
-              }
-
-              .level {
-                font-family: 'Geogrotesque Wide', sans-serif;
                 font-weight: 700;
-                font-size: 10px;
+                font-size: 13px;
+                font-family: "Geogrotesque Wide", sans-serif;
                 color: white;
-
-                background: #8F8DA1;
-                padding: 3px 5px;
-                border-radius: 3px;
-
-                margin-top: -2px;
-
-                display: flex;
-                align-items: center;
-                gap: 5px;
-              }
-
-              .level p {
-                margin-top: -1px;
-              }
-
-              .message {
-                font-weight: 500;
-                font-size: 14px;
-                color: #6E679E;
-                background: var(--fourth-bg);
-                border-radius: 3px;
-                position: relative;
-
-                word-break: break-word;
-                white-space: pre-wrap;
-                -moz-white-space: pre-wrap;
-
-                padding: 12px;
-              }
-              
-              .mentioned .message {
-                background: rgba(143, 127, 255, 0.15) !important;
-              }
-              
-              .floaters {
-                position: absolute;
-                cursor: pointer;
-
-                display: flex;
-                gap: 8px;
-                
-                top: auto;
-                bottom: 12px;
-                right: 12px;
-              }
-              
-              .trash {
-                cursor: pointer;
-              }
-              
-              .reply {
-                transform: scaleX(-1);
-                cursor: pointer;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                flex: 1;
+                min-width: 0;
               }
 
               .time {
                 font-family: 'Geogrotesque Wide';
-                font-weight: 600;
+                font-weight: 500;
                 font-size: 11px;
-                margin-left: auto;
-
-                color: rgba(173, 163, 239, 0.65);
-                cursor: initial;
+                color: #8b92a0;
+                white-space: nowrap;
               }
-              
+
+              .message {
+                font-weight: 400;
+                font-size: 13px;
+                line-height: 1.5;
+                color: #c3cad6;
+                word-break: break-word;
+                white-space: pre-wrap;
+                -moz-white-space: pre-wrap;
+                margin: 0;
+              }
+
+              .mentioned .message {
+                color: #1fd65f;
+              }
+
+              .msg-actions {
+                position: absolute;
+                right: 10px;
+                top: 8px;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity .15s;
+              }
+
+              .action-btn {
+                width: 28px;
+                height: 28px;
+                border-radius: 6px;
+                border: none;
+                outline: none;
+                background: #2c3340;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: background .15s;
+              }
+
+              .action-btn:hover {
+                background: #3a4250;
+              }
+
+              .action-btn-danger:hover {
+                background: rgba(220, 38, 38, 0.3);
+              }
+
               .replied {
                 position: relative;
-                
                 width: 100%;
                 display: flex;
                 justify-content: flex-end;
                 align-items: center;
-                
-                margin-bottom: 10px;
+                padding: 6px 10px 0;
               }
-              
+
               .replied-message {
-                width: 220px;
-                height: 35px;
-                
+                width: calc(100% - 50px);
+                height: 32px;
                 display: flex;
                 align-items: center;
-
                 white-space: nowrap;
                 overflow: hidden;
-                
-                border-radius: 3px;
-                background: rgba(143, 127, 255, 0.15);
-
-                color: #FFF;
+                border-radius: 4px;
+                background: rgba(255, 255, 255, 0.05);
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 11px;
                 font-weight: 500;
-                
                 padding: 0 10px;
+                border-left: 2px solid #3a4250;
               }
-              
+
               .replybar {
                 position: absolute;
                 top: 10px;
-                left: 0;
+                left: 10px;
               }
-              
-              .OWNER .message, .ADMIN .message {
-                background: linear-gradient(37deg, rgba(255, 153, 0, 0.15) 30.03%, rgba(249, 172, 57, 0.15) 42.84%);
-                color: #1fd65f;
-              }
-              
-              .MOD .message {
-                background: rgba(31, 214, 95, 0.05);
-                color: #1fd65f;
-              }
-              
-              .DEV .message {
-                background: rgba(249, 115, 57, 0.15);
-                color: #F97339;
-              }
-              
+
               .role {
-                font-size: 14px;
+                font-size: 12px;
                 font-weight: 700;
               }
-              
-              .ADMIN .role, .OWNER .role, .OWNER .sword, .ADMIN .sword {
+
+              .OWNER .role, .ADMIN .role {
                 color: var(--gold);
+              }
+
+              .OWNER .sword, .ADMIN .sword {
                 fill: var(--gold);
               }
-              
-              .DEV .role, .DEV .sword {
+
+              .DEV .role {
                 color: #F97339;
+              }
+
+              .DEV .sword {
                 fill: #F97339;
               }
-              
-              .MOD .role, .MOD .role {
+
+              .MOD .role {
                 color: #1fd65f;
-                fill: #1fd65f;
+              }
+
+              .OWNER .message, .ADMIN .message {
+                color: #e8c97a;
+              }
+
+              .MOD .message {
+                color: #1fd65f;
+              }
+
+              .DEV .message {
+                color: #F97339;
               }
             `}</style>
         </>

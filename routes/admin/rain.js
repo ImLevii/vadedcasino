@@ -2,9 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 const { sql, doTransaction } = require('../../database');
-const { rains } = require('../../socketio/rain');
+const { rains, forceStartSystemRain, forceEndSystemRain, scheduleRain, cancelScheduledRain } = require('../../socketio/rain');
 const io = require('../../socketio/server');
-// const { roundDecimal } = require('../../utils');
 const { sendLog } = require('../../utils');
 
 const resultsPerPage = 10;
@@ -100,5 +99,109 @@ async function setRain(req, res, amount) {
     }
 
 }
+
+// ── Rain status ──────────────────────────────────────────────
+router.get('/status', (req, res) => {
+    const system = rains.system;
+    if (!system) return res.json({ active: false });
+
+    const endsAt = system.createdAt
+        ? new Date(system.createdAt.valueOf() + rains.systemRainDuration)
+        : null;
+
+    res.json({
+        active: !system.ended,
+        id: system.id,
+        amount: system.amount,
+        createdAt: system.createdAt,
+        endsAt,
+        timeLeftMs: endsAt ? Math.max(0, endsAt - Date.now()) : 0,
+        joinable: system.joinable || false,
+        usersJoined: system.users?.length || 0,
+        config: {
+            systemRainDuration: rains.systemRainDuration,
+            systemRainAmount: rains.systemRainAmount,
+            joinTime: rains.joinTime,
+        }
+    });
+});
+
+// ── Force start ───────────────────────────────────────────────
+router.post('/start', async (req, res) => {
+    const amount = parseFloat(req.body.amount);
+    if (!amount || isNaN(amount) || amount < 1 || amount > 1000000) return res.status(400).json({ error: 'INVALID_AMOUNT' });
+
+    const durationMinutes = parseFloat(req.body.durationMinutes);
+    const durationMs = (!isNaN(durationMinutes) && durationMinutes >= 1 && durationMinutes <= 120)
+        ? durationMinutes * 60000
+        : undefined;
+
+    try {
+        const rain = await forceStartSystemRain(amount, durationMs);
+        sendLog('admin', `[\`${req.userId}\`] *${req.user.username}* force-started a system rain. Amount: R$${amount}${durationMs ? `, Duration: ${durationMinutes}m` : ''}`);
+        res.json({ success: true, rain });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'SERVER_ERROR' });
+    }
+});
+
+// ── Force stop ────────────────────────────────────────────────
+router.post('/stop', async (req, res) => {
+    try {
+        const stopped = await forceEndSystemRain();
+        if (!stopped) return res.status(400).json({ error: 'NO_ACTIVE_RAIN' });
+        sendLog('admin', `[\`${req.userId}\`] *${req.user.username}* force-stopped the active system rain.`);
+        res.json({ success: true });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'SERVER_ERROR' });
+    }
+});
+
+// ── Schedule rain ─────────────────────────────────────────────
+router.post('/schedule', (req, res) => {
+    const amount = parseFloat(req.body.amount);
+    if (!amount || isNaN(amount) || amount < 1 || amount > 1000000) return res.status(400).json({ error: 'INVALID_AMOUNT' });
+
+    const delayMinutes = parseFloat(req.body.delayMinutes);
+    if (isNaN(delayMinutes) || delayMinutes < 0.5 || delayMinutes > 1440) return res.status(400).json({ error: 'INVALID_DELAY' });
+
+    const durationMinutes = parseFloat(req.body.durationMinutes);
+    const durationMs = (!isNaN(durationMinutes) && durationMinutes >= 1 && durationMinutes <= 120)
+        ? durationMinutes * 60000
+        : undefined;
+
+    const result = scheduleRain(amount, durationMs, delayMinutes * 60000);
+    sendLog('admin', `[\`${req.userId}\`] *${req.user.username}* scheduled a rain of R$${amount} in ${delayMinutes}m.`);
+    res.json({ success: true, scheduledAt: result.scheduledAt });
+});
+
+// ── Cancel schedule ───────────────────────────────────────────
+router.post('/schedule/cancel', (req, res) => {
+    const cancelled = cancelScheduledRain();
+    res.json({ success: true, wasPending: cancelled });
+});
+
+// ── Update config ─────────────────────────────────────────────
+router.post('/config', (req, res) => {
+    const { systemRainAmount, systemRainDurationMinutes, joinTimeMinutes } = req.body;
+
+    if (systemRainAmount !== undefined) {
+        const amt = parseFloat(systemRainAmount);
+        if (!isNaN(amt) && amt >= 1 && amt <= 1000000) rains.systemRainAmount = amt;
+    }
+    if (systemRainDurationMinutes !== undefined) {
+        const dur = parseFloat(systemRainDurationMinutes);
+        if (!isNaN(dur) && dur >= 1 && dur <= 120) rains.systemRainDuration = dur * 60000;
+    }
+    if (joinTimeMinutes !== undefined) {
+        const jt = parseFloat(joinTimeMinutes);
+        if (!isNaN(jt) && jt >= 0.5 && jt <= 10) rains.joinTime = jt * 60000;
+    }
+
+    sendLog('admin', `[\`${req.userId}\`] *${req.user.username}* updated rain config.`);
+    res.json({ success: true, config: { systemRainAmount: rains.systemRainAmount, systemRainDuration: rains.systemRainDuration, joinTime: rains.joinTime } });
+});
 
 module.exports = router;

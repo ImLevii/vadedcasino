@@ -63,7 +63,7 @@ function SystemMessage(props) {
                 font-size: 11px;
                 margin-left: auto;
 
-                color: rgba(173, 163, 239, 0.65);
+                color: #8b92a0;
               }
             `}</style>
         </>

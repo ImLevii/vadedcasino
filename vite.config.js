@@ -16,6 +16,26 @@ export default defineConfig({
   server: {
     host: '127.0.0.1',
     port: 3001,
+    proxy: {
+      '/auth': 'http://127.0.0.1:3000',
+      '/user': 'http://127.0.0.1:3000',
+      '/rain': 'http://127.0.0.1:3000',
+      '/announcements': 'http://127.0.0.1:3000',
+      '/items': 'http://127.0.0.1:3000',
+      '/trading': 'http://127.0.0.1:3000',
+      '/leaderboard': 'http://127.0.0.1:3000',
+      '/cases': 'http://127.0.0.1:3000',
+      '/battles': 'http://127.0.0.1:3000',
+      '/roulette': 'http://127.0.0.1:3000',
+      '/crash': 'http://127.0.0.1:3000',
+      '/coinflip': 'http://127.0.0.1:3000',
+      '/jackpot': 'http://127.0.0.1:3000',
+      '/slots': 'http://127.0.0.1:3000',
+      '/mines': 'http://127.0.0.1:3000',
+      '^/admin/': 'http://127.0.0.1:3000',
+      '/surveys': 'http://127.0.0.1:3000',
+      '/fairness': 'http://127.0.0.1:3000',
+    }
   },
   build: {
     target: 'esnext',

@@ -84,9 +84,9 @@ function Notification(props) {
           width: 100%;
           height: fit-content;
 
-          border-radius: 3px;
-          border: 1px solid #3A326F;
-          background: rgba(49, 42, 94, 0.50);
+          border-radius: 6px;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: #12151c;
 
           display: flex;
           flex-direction: column;
@@ -103,12 +103,12 @@ function Notification(props) {
           width: fit-content;
           padding: 0 12px;
 
-          border-radius: 3px 0px;
-          background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%), #1f242e;
+          border-radius: 6px 0px;
+          background: rgba(31, 214, 95, 0.12);
 
-          color: #FFF;
+          color: #1fd65f;
           font-family: Geogrotesque Wide, sans-serif;
-          font-size: 15px;
+          font-size: 13px;
           font-weight: 600;
 
           display: flex;
@@ -120,8 +120,8 @@ function Notification(props) {
           height: 25px;
           width: 36px;
           
-          background: #3E3570;
-          border-radius: 24px;
+          background: #2c3340;
+          border-radius: 6px;
           
           outline: unset;
           border: unset;
@@ -130,11 +130,16 @@ function Notification(props) {
           top: 4px;
           right: 8px;
           cursor: pointer;
+          transition: background .15s;
+        }
+
+        .trash:hover {
+          background: rgba(220, 38, 38, 0.3);
         }
 
         .content {
           padding: 12px;
-          color: rgba(154, 144, 209, 0.75);
+          color: #8b92a0;
         }
 
         .content > div, .content > p {
@@ -152,15 +157,13 @@ function Notification(props) {
 
         .fancyamt {
           border-radius: 4px;
-          border: 1px solid #45e57f;
-          background: radial-gradient(60% 60% at 50% 50%, rgba(147, 126, 236, 0.15) 0%, rgba(102, 83, 184, 0.15) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
-          box-shadow: 0px 0px 35px 0px rgba(180, 22, 255, 0.10), 0px 1px 5px 0px rgba(0, 0, 0, 0.25) inset;
+          border: 1px solid rgba(31, 214, 95, 0.4);
+          background: rgba(31, 214, 95, 0.08);
 
           height: 30px;
           padding: 0 8px;
 
           color: white;
-          text-shadow: 0px 2px 0px #513E82;
           font-weight: 700;
 
           display: flex;

@@ -9,6 +9,7 @@ const URL_TO_PAGE = {
     '/admin/filter': 'FILTER',
     '/admin/cashier': 'CASHIER',
     '/admin/rain': 'RAIN',
+    '/admin/announcements': 'ANNOUNCEMENTS',
     '/admin/statsbook': 'STATSBOOK',
     '/admin/settings': 'SETTINGS'
 }
@@ -24,9 +25,9 @@ function Admin(props) {
             <div class='admin-container fadein'>
 
                 <div class='banner'>
-                    <img src='/assets/icons/logoswords.svg' width='25' height='19' alt=''/>
+                    <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#1fd65f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'><circle cx='12' cy='12' r='3'/><path d='M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z'/></svg>
                     <p>ADMIN PANEL</p>
-                    <div className='line'/>
+                    <div class='line'/>
                 </div>
 
                 <div class='user-info'>
@@ -63,6 +64,7 @@ function Admin(props) {
                                 <A href='/admin/filter' class='admin-link'>FILTER</A>
                                 <A href='/admin/cashier' class='admin-link'>CASHIER</A>
                                 <A href='/admin/rain' class='admin-link'>RAIN</A>
+                                <A href='/admin/announcements' class='admin-link'>ANNOUNCEMENTS</A>
                                 <A href='/admin/statsbook' class='admin-link'>STATSBOOK</A>
                                 <A href='/admin/settings' class='admin-link'>SETTINGS</A>
                             </div>
@@ -90,7 +92,7 @@ function Admin(props) {
                 width: 100%;
                 height: 1px;
                 min-height: 1px;
-                background: #3a4250;
+                background: rgba(255,255,255,0.06);
               }
               
               .user-info {
@@ -98,8 +100,8 @@ function Admin(props) {
                 gap: 10px;
                 align-items: center;
 
-                color: #FFF;
-                font-size: 18px;
+                color: #c3cad6;
+                font-size: 14px;
                 font-weight: 700;
               }
               
@@ -111,32 +113,38 @@ function Admin(props) {
               
               .pages {
                 display: flex;
-                gap: 10px;
+                gap: 8px;
                 align-items: center;
                 justify-content: center;
-                font-size: 14px;
+                font-size: 12px;
+                font-weight: 700;
                 position: relative;
-                
                 user-select: none;
-
                 width: 130px;
-                height: 40px;
+                height: 36px;
+                border-radius: 6px;
+                background: #1a1f29;
+                border: 1px solid rgba(255,255,255,0.07);
+                color: #c3cad6;
               }
               
               .pages-dropdown {
                 display: none;
                 position: absolute;
-                z-index: 1;
+                z-index: 10;
 
-                border-radius: 3px;
-                background: #2c3340;
+                border-radius: 8px;
+                background: #1a1f29;
+                border: 1px solid rgba(255,255,255,0.07);
+                box-shadow: 0 8px 24px rgba(0,0,0,0.4);
                 
                 flex-direction: column;
                 
                 width: 100%;
-                top: 50px;
+                top: 42px;
                 
-                padding: 10px 15px;
+                padding: 6px;
+                gap: 2px;
               }
               
               .pages {
@@ -144,12 +152,18 @@ function Admin(props) {
               }
               
               .pages-dropdown a {
-                opacity: 0.5;
-                transition: opacity .3s;
+                color: #6b7280;
+                font-size: 11px;
+                font-weight: 700;
+                padding: 6px 10px;
+                border-radius: 4px;
+                transition: background .15s, color .15s;
+                text-decoration: none;
               }
               
               .pages-dropdown a:hover {
-                opacity: 1;
+                background: rgba(255,255,255,0.06);
+                color: #c3cad6;
               }
               
               .active .pages-dropdown {
@@ -161,38 +175,39 @@ function Admin(props) {
               }
               
               .id.gray {
-                color: #9F9AC8;
+                color: #6b7280;
                 font-weight: 500;
               }
               
               .banner {
                 outline: unset;
                 border: unset;
+                border-left: 3px solid rgba(31,214,95,0.5);
 
                 width: 100%;
-                height: 45px;
+                height: 44px;
 
-                border-radius: 5px;
-                background: linear-gradient(90deg, rgb(104, 100, 164) -49.01%, rgba(90, 84, 149, 0.655) -5.08%, rgba(66, 53, 121, 0) 98.28%);
+                border-radius: 0 6px 6px 0;
+                background: linear-gradient(90deg, rgba(31,214,95,0.08) 0%, rgba(18,21,28,0) 60%);
 
-                padding: 0 15px;
+                padding: 0 16px;
                 display: flex;
                 align-items: center;
-                gap: 12px;
+                gap: 10px;
 
-                color: white;
-                font-size: 22px;
-                font-weight: 600;
+                color: #c3cad6;
+                font-size: 15px;
+                font-weight: 700;
+                letter-spacing: 0.05em;
                 
-                margin-bottom: 30px;
+                margin-bottom: 24px;
               }
 
               .line {
                 flex: 1;
                 height: 1px;
 
-                border-radius: 2525px;
-                background: linear-gradient(90deg, #3a4250 0%, rgba(90, 84, 153, 0.00) 100%);
+                background: linear-gradient(90deg, rgba(31,214,95,0.2) 0%, transparent 100%);
               }
 
               @media only screen and (max-width: 1000px) {

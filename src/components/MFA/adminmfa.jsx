@@ -48,7 +48,8 @@ function AdminMFA(props) {
                   width: 100vw;
                   height: 100vh;
 
-                  background: rgba(24, 23, 47, 0.55);
+                  background: rgba(6, 8, 12, 0.8);
+                  backdrop-filter: blur(4px);
                   
                   display: flex;
                   align-items: center;
@@ -58,14 +59,15 @@ function AdminMFA(props) {
                 }
 
                 .mfa-container {
-                  max-width: 880px;
+                  max-width: 480px;
                   color: white;
 
                   width: 100%;
 
-                  background: #1a1f29;
-                  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-                  border-radius: 15px;
+                  background: #0e1116;
+                  border: 1px solid rgba(255,255,255,0.07);
+                  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+                  border-radius: 16px;
 
                   display: flex;
                   flex-direction: column;
@@ -80,20 +82,21 @@ function AdminMFA(props) {
                 
                 .mfa-header {
                   width: 100%;
-                  height: 60px;
-                  background: #232a36;
+                  height: 56px;
+                  background: #12151c;
+                  border-bottom: 1px solid rgba(255,255,255,0.06);
                   
                   display: flex;
                   align-items: center;
-                  padding: 0 20px;
-                  gap: 15px;
+                  padding: 0 16px;
+                  gap: 12px;
                 }
                 
                 .bar {
                   width: 100%;
                   min-height: 1px;
                   height: 100%;
-                  background: #373565;
+                  background: rgba(255,255,255,0.06);
                 }
                 
                 .mfa-content {
@@ -109,9 +112,9 @@ function AdminMFA(props) {
                 }
                 
                 .code-container {
-                  border-radius: 5px;
-                  border: 1px dashed #544F94;
-                  background: rgba(90, 84, 153, 0.27);
+                  border-radius: 8px;
+                  border: 1px dashed rgba(255,255,255,0.12);
+                  background: #1a1f29;
                   
                   display: flex;
                   flex-direction: column;
@@ -122,7 +125,7 @@ function AdminMFA(props) {
                   height: 90px;
 
                   color: #8b92a0;
-                  font-family: Geogrotesque Wide, sans-serif;
+                  font-family: 'Geogrotesque Wide', sans-serif;
                   font-size: 13px;
                   font-weight: 600;
                   
@@ -160,20 +163,27 @@ function AdminMFA(props) {
                 }
 
                 .close {
-                  width: 26px;
-                  height: 26px;
+                  width: 28px;
+                  height: 28px;
 
-                  background: #4E4A8D;
-                  box-shadow: 0px -1px 0px #5F5AA7, 0px 1px 0px #272548;
-                  border-radius: 3px;
+                  background: rgba(255,255,255,0.05);
+                  border: 1px solid rgba(255,255,255,0.08);
+                  border-radius: 6px;
 
                   display: flex;
                   align-items: center;
                   justify-content: center;
 
+                  font-size: 11px;
                   font-weight: 700;
-                  color: #8b92a0;
+                  color: #6b7280;
                   cursor: pointer;
+                  transition: background .2s, color .2s;
+                }
+
+                .close:hover {
+                  background: rgba(255,255,255,0.09);
+                  color: #c3cad6;
                 }
                 
                 .proceed {

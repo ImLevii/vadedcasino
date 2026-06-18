@@ -52,6 +52,14 @@ async function newSocket(socket) {
         }
     }) || []);
 
+    // Send active announcements to newly connected client
+    try {
+        const { getActiveAnnouncements } = require('../routes/admin/announcements');
+        getActiveAnnouncements().then(list => {
+            if (list.length > 0) socket.emit('announcements', list);
+        }).catch(() => {});
+    } catch (_) {}
+
 }
 
 function socketLogin(socket, token) {
