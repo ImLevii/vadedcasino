@@ -24,8 +24,6 @@ function BottomNavBar(props) {
                         </g>
                     </svg>
 
-                    <p>MENU</p>
-
                     <UserDropdown user={props?.user} active={menuDropdown()} setActive={setMenuDropdown} mobile={true}/>
                 </button>
 
@@ -49,8 +47,6 @@ function BottomNavBar(props) {
                             <path id="Vector_12" d="M12.8301 15.5452C13.8128 14.9777 14.7288 14.4485 15.3558 14.0862C15.7842 13.8393 16.05 13.3788 16.05 12.884V9.965L12.8301 11.8242V15.5452H12.8301Z" />
                         </g>
                     </svg>
-
-                    <p>GAMES</p>
 
                     <div class={'dropdown ' + (active() ? 'active' : '')} onClick={(e) => e.stopPropagation()}>
                         <div class='dropdown-container'>
@@ -115,8 +111,6 @@ function BottomNavBar(props) {
                             </g>
                         </g>
                     </svg>
-
-                    <p>CHAT</p>
                 </button>
             </div>
 

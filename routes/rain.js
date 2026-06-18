@@ -35,29 +35,6 @@ router.post('/join', [isAuthed, apiLimiter], async (req, res) => {
 
     // console.log(req.body);
 
-    const captchaResponse = req.body['captchaResponse'];
-    if (!captchaResponse) return res.status(400).json({ error: 'CAPTCHA_REQUIRED' });
-
-    const captchaForm = new FormData();
-    captchaForm.append('secret', process.env.HCAPTCHA_SECRET);
-    captchaForm.append('response', captchaResponse);
-    captchaForm.append('remoteip', req.headers['cf-connecting-ip']);
-    captchaForm.append('sitekey', process.env.HCAPTCHA_SITE_KEY);
-
-    const { data: verifyCaptcha } = await axios({
-        method: 'POST',
-        url: 'https://api.hcaptcha.com/siteverify',
-        data: captchaForm,
-        headers: {
-            'Content-Type': 'multipart/form-data',
-            ...captchaForm.getHeaders(),
-            'Accept-Encoding': 'gzip, deflate, decompress'
-        }
-    });
-
-    // console.log(verifyCaptcha);
-    if (!verifyCaptcha.success) return res.status(400).json({ error: 'INVALID_CAPTCHA' });
-
     let rain;
 
     if (rains.system.joinable) {

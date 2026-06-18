@@ -222,8 +222,8 @@ function History(props) {
           height: 40px;
 
           border-radius: 3px;
-          background: #423E76;
-          box-shadow: 0px 1px 0px 0px #2E2855, 0px -1px 0px 0px #4B4783;
+          background: #2c3340;
+          box-shadow: 0px 1px 0px 0px #1a1f29, 0px -1px 0px 0px #3a4250;
           cursor: pointer;
 
           display: flex;
@@ -256,8 +256,8 @@ function History(props) {
         }
 
         .tab.active {
-          border: 1px solid #2c3340;
-          background: #363262;
+          border: 1px solid #3a4250;
+          background: #2c3340;
           color: white;
           box-shadow: unset;
         }
@@ -273,8 +273,10 @@ function History(props) {
 
         .table-data {
           height: 55px;
-          background: rgba(90, 84, 153, 0.35);
+          background: #12151c;
+          border-radius: 6px;
           padding: 0 20px;
+          margin-bottom: 3px;
 
           display: flex;
           align-items: center;
@@ -285,7 +287,7 @@ function History(props) {
         }
 
         .table-data:nth-of-type(2n) {
-          background: rgba(90, 84, 153, 0.15);
+          background: rgba(255, 255, 255, 0.02);
         }
 
         .table-column {
@@ -301,7 +303,7 @@ function History(props) {
         }
 
         .table-header p {
-          background: rgba(90, 84, 153, 0.35);
+          background: #2c3340;
           height: 25px;
           line-height: 25px;
           padding: 0 15px;
@@ -324,11 +326,11 @@ function History(props) {
           margin: unset;
 
           border-radius: 3px;
-          background: #24DD4C;
-          box-shadow: 0px 1px 0px 0px #308041, 0px -1px 0px 0px #88FFA2;
+          background: #1fd65f;
+          box-shadow: 0px 1px 0px 0px #16a049, 0px -1px 0px 0px #45e57f;
           position: relative;
 
-          color: #FFF;
+          color: #06210f;
           font-family: "Geogrotesque Wide", sans-serif;
           font-size: 12px;
           font-weight: 700;
@@ -341,7 +343,7 @@ function History(props) {
         }
 
         .green {
-          color: #24DD4C;
+          color: #1fd65f;
         }
 
         @media only screen and (max-width: 1000px) {

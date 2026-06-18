@@ -64,9 +64,7 @@ function Message(props) {
                                 )}
                                 &nbsp;{props?.user?.username}
                             </p>
-                            {(props?.user?.role === 'USER' || props?.user?.role === 'MOD') && (
-                                <Level xp={props?.user?.xp}/>
-                            )}
+                            <Level xp={props?.user?.xp}/>
                             <p class='time'>{new Date(props?.createdAt)?.toLocaleTimeString()}</p>
                         </div>
 
@@ -114,20 +112,20 @@ function Message(props) {
               .msg-card {
                 display: flex;
                 align-items: flex-start;
-                gap: 10px;
-                padding: 8px 10px;
+                gap: 8px;
+                padding: 5px 8px;
                 position: relative;
               }
 
               .avatar-col {
                 flex-shrink: 0;
                 cursor: pointer;
-                margin-top: 1px;
+                margin-top: 2px;
               }
 
               .sword {
-                width: 34px;
-                height: 34px;
+                width: 26px;
+                height: 26px;
               }
 
               .msg-body {
@@ -135,13 +133,13 @@ function Message(props) {
                 min-width: 0;
                 display: flex;
                 flex-direction: column;
-                gap: 4px;
+                gap: 2px;
               }
 
               .msg-header {
                 display: flex;
                 align-items: center;
-                gap: 7px;
+                gap: 5px;
                 cursor: pointer;
                 min-width: 0;
               }
@@ -154,7 +152,7 @@ function Message(props) {
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                flex: 1;
+                flex-shrink: 1;
                 min-width: 0;
               }
 
@@ -164,6 +162,7 @@ function Message(props) {
                 font-size: 11px;
                 color: #8b92a0;
                 white-space: nowrap;
+                margin-left: auto;
               }
 
               .message {
@@ -183,23 +182,26 @@ function Message(props) {
 
               .msg-actions {
                 position: absolute;
-                right: 10px;
-                top: 8px;
+                right: 8px;
+                top: 7px;
                 display: flex;
                 align-items: center;
                 gap: 4px;
                 opacity: 0;
                 pointer-events: none;
                 transition: opacity .15s;
+                background: #1a1f2e;
+                border-radius: 6px;
+                padding: 2px;
               }
 
               .action-btn {
-                width: 28px;
-                height: 28px;
-                border-radius: 6px;
+                width: 26px;
+                height: 26px;
+                border-radius: 5px;
                 border: none;
                 outline: none;
-                background: #2c3340;
+                background: transparent;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -208,11 +210,21 @@ function Message(props) {
               }
 
               .action-btn:hover {
-                background: #3a4250;
+                background: #2c3340;
+              }
+
+              .action-btn img {
+                opacity: 0.45;
+                filter: saturate(0);
+              }
+
+              .action-btn-danger img {
+                opacity: 0.75;
+                filter: invert(30%) sepia(90%) saturate(2000%) hue-rotate(330deg) brightness(95%);
               }
 
               .action-btn-danger:hover {
-                background: rgba(220, 38, 38, 0.3);
+                background: rgba(220, 38, 38, 0.35);
               }
 
               .replied {
@@ -248,7 +260,7 @@ function Message(props) {
               }
 
               .role {
-                font-size: 12px;
+                font-size: 11px;
                 font-weight: 700;
               }
 

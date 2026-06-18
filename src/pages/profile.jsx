@@ -189,7 +189,7 @@ function Profile(props) {
               }
               
               .id.gray {
-                color: #9F9AC8;
+                color: #8b92a0;
                 font-weight: 500;
               }
 
@@ -210,7 +210,7 @@ function Profile(props) {
                 height: 90px;
 
                 border-radius: 5px;
-                background: rgba(90, 84, 153, 0.27);
+                background: #12151c;
 
                 color: #FFF;
                 font-family: Geogrotesque Wide, sans-serif;
@@ -261,8 +261,8 @@ function Profile(props) {
                 height: 40px;
 
                 border-radius: 3px;
-                background: #423E76;
-                box-shadow: 0px 1px 0px 0px #2E2855, 0px -1px 0px 0px #4B4783;
+                background: #2c3340;
+                box-shadow: 0px 1px 0px 0px #1a1f29, 0px -1px 0px 0px #3a4250;
                 cursor: pointer;
 
                 display: flex;
@@ -286,34 +286,38 @@ function Profile(props) {
 
               .level-container {
                 width: 100%;
-                height: 15px;
+                height: 18px;
                 border-radius: 2525px;
-                background: rgba(0, 0, 0, 0.24);
-                padding: 4px;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.07);
+                padding: 3px;
               }
 
               .xp-bar {
                 height: 100%;
-                background: #6963A6;
+                background: linear-gradient(90deg, #18c255 0%, #1fd65f 60%, #45e57f 100%);
                 border-radius: 2525px;
+                box-shadow: 0 0 10px rgba(31, 214, 95, 0.5);
               }
 
               .xp-progress {
                 padding: 0 12px;
-                height: 27px;
-                line-height: 27px;
+                height: 23px;
+                line-height: 23px;
                 text-align: center;
 
-                border-radius: 2px;
-                background: rgba(32, 30, 60, 0.6);
+                border-radius: 3px;
+                background: rgba(0, 0, 0, 0.55);
+                backdrop-filter: blur(4px);
 
                 position: absolute;
                 left: 50%;
                 transform: translateX(-50%);
 
-                color: #FFF;
-                font-size: 14px;
+                color: #1fd65f;
+                font-size: 12px;
                 font-weight: 700;
+                white-space: nowrap;
               }
 
               .required {
@@ -340,8 +344,8 @@ function Profile(props) {
               }
               
               .page.active {
-                border: 1px solid #2c3340;
-                background: #363262;
+                border: 1px solid #3a4250;
+                background: #2c3340;
                 color: white;
                 box-shadow: unset;
               }

@@ -43,9 +43,10 @@ function Level(props) {
                     font-family: 'Geogrotesque Wide', sans-serif;
                     font-weight: 700;
                     font-size: 10px;
-                    color: white;
+                    color: #8b92a0;
 
-                    background: #8F8DA1;
+                    background: #1a1f29;
+                    border: 1px solid rgba(255,255,255,0.08);
                     padding: 0 5px;
                     height: 18px;
                     border-radius: 3px;
@@ -60,7 +61,9 @@ function Level(props) {
                 }
 
                 .level.green {
-                    background: #56B66B;
+                    background: rgba(31, 214, 95, 0.1);
+                    border: 1px solid rgba(31, 214, 95, 0.3);
+                    color: #1fd65f;
                 }
 
                 .blue.level {

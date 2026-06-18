@@ -211,8 +211,8 @@ function Transactions(props) {
                 height: 40px;
 
                 border-radius: 3px;
-                background: #423E76;
-                box-shadow: 0px 1px 0px 0px #2E2855, 0px -1px 0px 0px #4B4783;
+                background: #2c3340;
+                box-shadow: 0px 1px 0px 0px #1a1f29, 0px -1px 0px 0px #3a4250;
                 cursor: pointer;
 
                 display: flex;
@@ -245,8 +245,8 @@ function Transactions(props) {
               }
 
               .tab.active {
-                border: 1px solid #2c3340;
-                background: #363262;
+                border: 1px solid #3a4250;
+                background: #2c3340;
                 color: white;
                 box-shadow: unset;
               }
@@ -262,8 +262,10 @@ function Transactions(props) {
 
               .table-data {
                 height: 55px;
-                background: rgba(90, 84, 153, 0.35);
+                background: #12151c;
+                border-radius: 6px;
                 padding: 0 20px;
+                margin-bottom: 3px;
 
                 display: flex;
                 align-items: center;
@@ -274,7 +276,7 @@ function Transactions(props) {
               }
 
               .table-data:nth-of-type(2n) {
-                background: rgba(90, 84, 153, 0.15);
+                background: rgba(255, 255, 255, 0.02);
               }
 
               .table-column {
@@ -290,7 +292,7 @@ function Transactions(props) {
               }
 
               .table-header p {
-                background: rgba(90, 84, 153, 0.35);
+                background: #2c3340;
                 height: 25px;
                 line-height: 25px;
                 padding: 0 15px;
@@ -303,7 +305,7 @@ function Transactions(props) {
               }
 
               .green {
-                color: #24DD4C;
+                color: #1fd65f;
               }
 
               @media only screen and (max-width: 1000px) {

@@ -41,7 +41,7 @@ function Settings(props) {
 
     function createTrail() {
         let value = (slider.value - 0) / 100 * 100
-        slider.style.background = 'linear-gradient(to right, #5F5CA6 0%, #5F5CA6 ' + value + '%, #2B284E ' + value + '%, #2B284E 100%)'
+        slider.style.background = 'linear-gradient(to right, #1fd65f 0%, #1fd65f ' + value + '%, #1a1f29 ' + value + '%, #1a1f29 100%)'
     }
 
     return (
@@ -164,8 +164,10 @@ function Settings(props) {
 
               .table-data {
                 height: 55px;
-                background: rgba(90, 84, 153, 0.35);
+                background: #12151c;
+                border-radius: 6px;
                 padding: 0 20px;
+                margin-bottom: 3px;
 
                 display: flex;
                 align-items: center;
@@ -176,7 +178,7 @@ function Settings(props) {
               }
               
               .table-data:nth-of-type(2n) {
-                background: rgba(90, 84, 153, 0.15);
+                background: rgba(255, 255, 255, 0.02);
               }
 
               .table-column {
@@ -192,7 +194,7 @@ function Settings(props) {
               }
 
               .table-header p {
-                background: rgba(90, 84, 153, 0.35);
+                background: #2c3340;
                 height: 25px;
                 line-height: 25px;
                 padding: 0 15px;
@@ -209,11 +211,9 @@ function Settings(props) {
                 appearance: none;
 
                 border-radius: 25px;
-                background: #2B284E;
+                background: #1a1f29;
                 max-width: 190px;
                 height: 9px;
-
-                //margin-right: auto;
               }
 
               .range::-webkit-slider-thumb {
