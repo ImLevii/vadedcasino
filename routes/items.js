@@ -1,12 +1,25 @@
 const express = require('express');
 const { getThumbnails } = require('../utils/roblox');
 const { items } = require('../utils/roblox/items');
+const { getItemById } = require('../utils/csgo/items');
 // const { cacheRes } = require('../utils');
 
 const cachedItemImgs = {};
 const router = express.Router();
 
 router.get('/:id/img', async (req, res) => {
+
+    const rawItemId = String(req.params.id || '');
+    const csItem = getItemById(rawItemId);
+
+    if (csItem?.img) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000');
+        res.setHeader('Surrogate-Control', 'public, max-age=31536000');
+        const date = new Date();
+        date.setFullYear(date.getFullYear() + 1);
+        res.setHeader('Expires', date.toUTCString());
+        return res.redirect(csItem.img);
+    }
 
     const itemId = parseInt(req.params.id);
     if (isNaN(itemId)) return res.status(400).json({ error: 'INVALID_ITEM_ID' });

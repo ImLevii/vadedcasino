@@ -83,6 +83,8 @@ const cashierRoute = require('./cashier');
 const statsbookRoute = require('./statsbook');
 const dashboardRoute = require('./dashboard');
 const announcementsRoute = require('./announcements');
+const casesRoute = require('./cases');
+const slidesRoute = require('./slides');
 
 router.use('/users', usersRoute);
 router.use('/phrases', phrasesRoute);
@@ -92,5 +94,7 @@ router.use('/cashier', cashierRoute);
 router.use('/statsbook', statsbookRoute);
 router.use('/dashboard', dashboardRoute);
 router.use('/announcements', announcementsRoute);
+router.use('/cases', casesRoute);
+router.use('/slides', slidesRoute);
 
 module.exports = router;

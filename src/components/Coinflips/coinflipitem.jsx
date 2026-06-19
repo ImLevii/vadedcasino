@@ -1,3 +1,5 @@
+import {resolveImageSrc} from "../../util/image";
+
 function CoinflipItem(props) {
 
     function getRarity(price) {
@@ -14,7 +16,7 @@ function CoinflipItem(props) {
     }
 
     function getImage() {
-        if (props?.img) return `${import.meta.env.VITE_SERVER_URL}${props.img}`
+      if (props?.img) return resolveImageSrc(props.img)
         return '/assets/icons/coin.svg'
     }
 

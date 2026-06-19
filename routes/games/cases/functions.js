@@ -1,17 +1,49 @@
 const io = require('../../../socketio/server');
 const { sql } = require('../../../database');
+const { getItemById } = require('../../../utils/csgo/items');
 
 const topDropPrice = 25000;
 const limit = 15;
+const CASE_CACHE_TTL_MS = Number(process.env.CASE_CACHE_TTL_MS || 10000);
+const CASE_CACHE_REFRESH_MS = Number(process.env.CASE_CACHE_REFRESH_MS || 1000 * 60 * 60);
 
 const cachedCases = {};
+let cacheCasesPromise = null;
+let cacheCasesTimer = null;
+let casesCachedAt = 0;
 
 const drops = {
     all: [],
     top: []
 }
 
+function scheduleCaseCacheRefresh() {
+    if (cacheCasesTimer) clearTimeout(cacheCasesTimer);
+
+    cacheCasesTimer = setTimeout(() => {
+        cacheCases().catch((err) => console.error('[cases] cache refresh failed:', err));
+    }, CASE_CACHE_REFRESH_MS);
+
+    if (typeof cacheCasesTimer.unref === 'function') cacheCasesTimer.unref();
+}
+
 async function cacheCases() {
+    if (cacheCasesPromise) return cacheCasesPromise;
+
+    cacheCasesPromise = refreshCasesCache();
+
+    try {
+        return await cacheCasesPromise;
+    } finally {
+        cacheCasesPromise = null;
+    }
+}
+
+async function refreshCasesCache() {
+
+    for (const slug of Object.keys(cachedCases)) {
+        delete cachedCases[slug];
+    }
 
     const [cases] = await sql.query(`
         SELECT c.id, c.name, c.slug, c.img, cv.price, cv.id as revId, cv.createdAt as modifiedAt FROM cases c
@@ -19,7 +51,8 @@ async function cacheCases() {
     `);
 
     if (!cases.length) {
-        setTimeout(cacheCases, 1000 * 60 * 60 * 1);
+        casesCachedAt = Date.now();
+        scheduleCaseCacheRefresh();
         return;
     }
 
@@ -40,7 +73,15 @@ async function cacheCases() {
 
     }
 
-    setTimeout(cacheCases, 1000 * 60 * 60 * 1)
+    casesCachedAt = Date.now();
+    scheduleCaseCacheRefresh();
+
+}
+
+async function ensureCasesCacheFresh(maxAgeMs = CASE_CACHE_TTL_MS) {
+    if (!Object.keys(cachedCases).length || Date.now() - casesCachedAt > maxAgeMs) {
+        await cacheCases();
+    }
 
 }
 
@@ -130,11 +171,12 @@ function getItemProbability(rangeFrom, rangeTo) {
 }
 
 function mapItem(e) {
+    const catalogItem = getItemById(e.itemId);
 
     return {
         id: e.id,
         name: e.name,
-        img: e.img ? e.img : `/items/${e.itemId}/img`,
+        img: e.img || catalogItem?.img || `/items/${encodeURIComponent(e.itemId)}/img`,
         price: e.price,
         probability: +getItemProbability(e.rangeFrom, e.rangeTo).toFixed(3) // roundDecimal(getItemProbability(e.rangeFrom, e.rangeTo), 3)
     }
@@ -144,6 +186,7 @@ function mapItem(e) {
 module.exports = {
     cachedCases,
     cacheCases,
+    ensureCasesCacheFresh,
     cacheDrops,
     newDrops,
     getItemProbability,

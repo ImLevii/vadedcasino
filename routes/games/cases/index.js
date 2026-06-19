@@ -6,7 +6,7 @@ const { sql, doTransaction } = require('../../../database');
 const { isAuthed, apiLimiter } = require('../../auth/functions');
 const { roundDecimal, xpChanged } = require('../../../utils');
 const { getUserSeeds, getResult, combine }  = require('../../../fairness');
-const { mapItem, newDrops, cachedCases } = require('./functions');
+const { mapItem, newDrops, cachedCases, ensureCasesCacheFresh } = require('./functions');
 
 const io = require('../../../socketio/server');
 const { newBets } = require('../../../socketio/bets');
@@ -14,6 +14,7 @@ const { newBets } = require('../../../socketio/bets');
 const { enabledFeatures, xpMultiplier } = require('../../admin/config');
 
 router.get('/', async (req, res) => {
+    await ensureCasesCacheFresh();
 
     let cases = Object.values(cachedCases).map(e => {
         return {
@@ -46,6 +47,7 @@ const frontendRoutes = [
 ]
 
 router.get('/sitemap.xml', async (req, res) => {
+    await ensureCasesCacheFresh();
 
     let str = '<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">';
     str += Object.values(cachedCases).map(e => `<url><loc>${process.env.FRONTEND_URL}/cases/${e.slug}</loc><lastmod>${e.modifiedAt.toISOString()}</lastmod></url>`).join('');
@@ -73,6 +75,7 @@ router.get('/robots.txt', async (req, res) => {
 router.get('/:slug', async (req, res) => {
 
     if (!req.params.slug) return res.status(400).json({ error: 'MISSING_SLUG' });
+    await ensureCasesCacheFresh();
 
     const caseInfo = cachedCases[req.params.slug];
     if (!caseInfo) return res.status(404).json({ error: 'NOT_FOUND' });

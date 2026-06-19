@@ -1,5 +1,6 @@
 import {A} from "@solidjs/router";
 import CaseTitle from "./casetitle";
+import {resolveImageSrc} from "../../util/image";
 
 function CaseButton(props) {
     return (
@@ -12,7 +13,7 @@ function CaseButton(props) {
                     <p>{props?.c?.price?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || 0}</p>
                 </div>
 
-                <img class='image' src={`${import.meta.env.VITE_SERVER_URL}${props?.c?.img || '/public/cases/radiation-case.png'}`} alt='' height={props?.creator ? '80' : '120'}/>
+                <img class='image' src={resolveImageSrc(props?.c?.img, '/public/cases/radiation-case.png')} alt='' height={props?.creator ? '80' : '120'}/>
 
                 {!props.creator && (
                     <A href={`/cases/${props?.c?.slug}`} class='gamemode-link' draggable={false}></A>

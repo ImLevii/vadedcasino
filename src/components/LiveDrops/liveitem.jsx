@@ -1,3 +1,5 @@
+import {resolveImageSrc} from "../../util/image";
+
 function LiveItem(props) {
 
     function getRarity(price) {
@@ -16,7 +18,7 @@ function LiveItem(props) {
     return (
         <>
             <div class={'live-item-container ' + (getRarity(props.price))}>
-                <img src={`${import.meta.env.VITE_SERVER_URL}${props.img}`} alt='' height='40'/>
+              <img src={resolveImageSrc(props.img)} alt='' height='40'/>
             </div>
 
             <style jsx>{`

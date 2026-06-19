@@ -1,5 +1,6 @@
 import {createEffect, onCleanup} from "solid-js";
 import {findTimeForOffset} from "../../util/cases";
+import {resolveImageSrc} from "../../util/image";
 
 function BattleSpinnerItem(props) {
 
@@ -115,7 +116,7 @@ function BattleSpinnerItem(props) {
     return (
         <>
             <div class='case-item-container'>
-                <img class='item-image' src={`${import.meta.env.VITE_SERVER_URL}${props.img}`} height='100' alt='' draggable={false} ref={item}/>
+                <img class='item-image' src={resolveImageSrc(props.img)} height='100' alt='' draggable={false} ref={item}/>
                 <img class='back-img' src={backImage(props?.price)} height='70' alt='' ref={swords}/>
             </div>
 

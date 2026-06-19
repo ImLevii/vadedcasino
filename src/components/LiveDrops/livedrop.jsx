@@ -2,6 +2,7 @@ import Avatar from "../Level/avatar";
 import LiveDot from "./livedot";
 import LiveItem from "./liveitem";
 import {A} from "@solidjs/router";
+import {resolveImageSrc} from "../../util/image";
 
 function LiveDrop(props) {
     return (
@@ -26,7 +27,7 @@ function LiveDrop(props) {
 
                 <div class='details'>
                     <div class='case'>
-                        <img src={`${import.meta.env.VITE_SERVER_URL}${props?.case?.img}`} height='40' alt=''/>
+                    <img src={resolveImageSrc(props?.case?.img)} height='40' alt=''/>
                     </div>
 
                     <LiveItem {...props?.item}/>

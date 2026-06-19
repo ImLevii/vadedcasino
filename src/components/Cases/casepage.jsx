@@ -9,6 +9,7 @@ import PlainItem from "../Items/plainitem";
 import {useUser} from "../../contexts/usercontextprovider";
 import {generateRandomItems} from "../../resources/cases";
 import Toggle from "../Toggle/toggle";
+import {resolveImageSrc} from "../../util/image";
 
 function CasePage(props) {
 
@@ -169,7 +170,7 @@ function CasePage(props) {
         <div class='controls-bar'>
           <Show when={!caseObj.loading}>
             <div class='case-info-mini'>
-              <img src={caseObj()?.img ? `${import.meta.env.VITE_SERVER_URL}${caseObj()?.img}` : `${import.meta.env.VITE_SERVER_URL}/public/cases/radiation-case.png`} class='case-img-mini' alt=''/>
+              <img src={resolveImageSrc(caseObj()?.img, '/public/cases/radiation-case.png')} class='case-img-mini' alt=''/>
               <p class='case-name-mini'>{caseObj()?.name}</p>
             </div>
           </Show>

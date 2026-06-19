@@ -1,6 +1,7 @@
 import BezierEasing from 'bezier-easing';
 import {createEffect} from "solid-js";
 import {findTimeForOffset} from "../../util/cases";
+import {resolveImageSrc} from "../../util/image";
 
 function SpinnerItem(props) {
 
@@ -113,7 +114,7 @@ function SpinnerItem(props) {
         <>
             <div class='case-item-container' ref={item} style={{ '--rarity': rarityColor(props?.price) }}>
                 <div class='card-bg'/>
-                <img ref={image} class='item-image' src={`${import.meta.env.VITE_SERVER_URL}${props.img}`} height='90' alt='' draggable={false}/>
+                <img ref={image} class='item-image' src={resolveImageSrc(props.img)} height='90' alt='' draggable={false}/>
                 <img className='back-img' src={backImage(props?.price)} height='60' alt='' ref={swords}/>
             </div>
 

@@ -8,6 +8,7 @@ import BattleColumn from "../components/Battles/battlecolumn";
 import {subscribeToGame, unsubscribeFromGames} from "../util/socket";
 import {calculateWinnings, convertItems, fillEmptySlots, getRoundWinner, getWonItems} from "../util/battleutil";
 import {Title} from "@solidjs/meta";
+import {resolveImageSrc} from "../util/image";
 
 function Battle(props) {
 
@@ -178,7 +179,7 @@ function Battle(props) {
                             <div class='cases-container'>
                                 <div class='cases' style={{'transform': `translateX(-${72 * (round() - 1) + 30}px)`}}>
                                     <For each={battle()?.rounds}>{(c, index) => <img class={'case ' + (round() - 1 === index() ? 'active' : '')}
-                                                                                     src={`${import.meta.env.VITE_SERVER_URL}${getCase(c?.caseId)?.img}`}
+                                                                                     src={resolveImageSrc(getCase(c?.caseId)?.img)}
                                                                                      width='60' height='60' alt=''/>}</For>
                                 </div>
                             </div>

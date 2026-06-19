@@ -24,6 +24,33 @@ CREATE TABLE IF NOT EXISTS `announcements` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
+-- Home Slider
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `homeSlides` (
+    `id`              INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `title`           VARCHAR(120) NOT NULL,
+    `subtitle`        VARCHAR(180) DEFAULT NULL,
+    `cta`             VARCHAR(60)  DEFAULT NULL,
+    `href`            VARCHAR(500) DEFAULT NULL,
+    `tag`             VARCHAR(80)  DEFAULT NULL,
+    `accentColor`     VARCHAR(24)  NOT NULL DEFAULT '#1fd65f',
+    `image`           VARCHAR(512) DEFAULT NULL,
+    `backgroundImage` VARCHAR(512) DEFAULT NULL,
+    `active`          TINYINT(1)   NOT NULL DEFAULT 1,
+    `sortOrder`       INT          NOT NULL DEFAULT 0,
+    `createdAt`       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updatedAt`       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_homeSlides_active_sort` (`active`, `sortOrder`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `homeSlideSeedState` (
+    `seedKey`  VARCHAR(64) NOT NULL,
+    `seededAt` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`seedKey`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
 -- Core: Users
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `users` (
@@ -129,7 +156,7 @@ CREATE TABLE IF NOT EXISTS `caseVersions` (
 CREATE TABLE IF NOT EXISTS `caseItems` (
     `id`             INT UNSIGNED  NOT NULL AUTO_INCREMENT,
     `caseVersionId`  INT UNSIGNED  NOT NULL,
-    `itemId`         BIGINT UNSIGNED DEFAULT NULL,
+    `itemId`         VARCHAR(255)  DEFAULT NULL,
     `name`           VARCHAR(255)  NOT NULL,
     `img`            VARCHAR(512)  DEFAULT NULL,
     `price`          DECIMAL(20,2) NOT NULL,

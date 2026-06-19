@@ -1,3 +1,5 @@
+import {resolveImageSrc} from "../../util/image";
+
 function CaseItem(props) {
 
     function getRarity(price) {
@@ -23,7 +25,7 @@ function CaseItem(props) {
                 style={`--rarity-color: ${getRarityColor(props?.price || 0)};`}
             >
                 <div class='item-img-box'>
-                    <img class='item-image' src={`${import.meta.env.VITE_SERVER_URL}${props.img}`} height='58' alt='' draggable={false}/>
+                  <img class='item-image' src={resolveImageSrc(props.img)} height='58' alt='' draggable={false}/>
                 </div>
 
                 <div class='item-info'>

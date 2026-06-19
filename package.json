@@ -8,7 +8,9 @@
     "build": "vite build",
     "serve": "vite preview",
     "server": "node app.js",
-    "server:dev": "nodemon app.js"
+    "server:dev": "nodemon app.js",
+    "csgo:import": "node scripts/import-csgo-market-items.js",
+    "csgo:replace-cases": "node scripts/replace-cases-with-cs.js"
   },
   "license": "MIT",
   "devDependencies": {

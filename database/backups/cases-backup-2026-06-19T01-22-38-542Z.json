@@ -1,0 +1,3186 @@
+{
+    "cases": [
+        {
+            "id": 1,
+            "name": "Radiation Case",
+            "slug": "radiation-case",
+            "img": null
+        },
+        {
+            "id": 2,
+            "name": "Easter Case",
+            "slug": "easter-case",
+            "img": null
+        },
+        {
+            "id": 3,
+            "name": "Force Case",
+            "slug": "force-case",
+            "img": null
+        },
+        {
+            "id": 4,
+            "name": "Waterfall Case",
+            "slug": "waterfall-case",
+            "img": null
+        },
+        {
+            "id": 5,
+            "name": "Aztec Case",
+            "slug": "aztec-case",
+            "img": null
+        },
+        {
+            "id": 6,
+            "name": "Boom Case",
+            "slug": "boom-case",
+            "img": null
+        },
+        {
+            "id": 7,
+            "name": "ZZZ Case",
+            "slug": "zzz-case",
+            "img": null
+        },
+        {
+            "id": 8,
+            "name": "Money Case",
+            "slug": "money-case",
+            "img": null
+        },
+        {
+            "id": 9,
+            "name": "Cloud Case",
+            "slug": "cloud-case",
+            "img": null
+        },
+        {
+            "id": 10,
+            "name": "Business Case",
+            "slug": "business-case",
+            "img": null
+        },
+        {
+            "id": 11,
+            "name": "Alien Case",
+            "slug": "alien-case",
+            "img": null
+        },
+        {
+            "id": 12,
+            "name": "Jungle Case",
+            "slug": "jungle-case",
+            "img": null
+        },
+        {
+            "id": 13,
+            "name": "Phoenix Case",
+            "slug": "phoenix-case",
+            "img": null
+        },
+        {
+            "id": 14,
+            "name": "Gladiator Case",
+            "slug": "gladiator-case",
+            "img": null
+        },
+        {
+            "id": 15,
+            "name": "Dream Case",
+            "slug": "dream-case",
+            "img": null
+        },
+        {
+            "id": 16,
+            "name": "Cyborg Case",
+            "slug": "cyborg-case",
+            "img": null
+        },
+        {
+            "id": 17,
+            "name": "Frost Case",
+            "slug": "frost-case",
+            "img": null
+        },
+        {
+            "id": 18,
+            "name": "Slime Case",
+            "slug": "slime-case",
+            "img": null
+        },
+        {
+            "id": 19,
+            "name": "Time Machine Case",
+            "slug": "time-machine-case",
+            "img": null
+        },
+        {
+            "id": 20,
+            "name": "Alchemy Case",
+            "slug": "alchemy-case",
+            "img": null
+        },
+        {
+            "id": 21,
+            "name": "Hell Case",
+            "slug": "hell-case",
+            "img": null
+        },
+        {
+            "id": 22,
+            "name": "Galaxy Case",
+            "slug": "galaxy-case",
+            "img": null
+        },
+        {
+            "id": 23,
+            "name": "Evil Case",
+            "slug": "evil-case",
+            "img": null
+        },
+        {
+            "id": 24,
+            "name": "Clown Case",
+            "slug": "clown-case",
+            "img": null
+        },
+        {
+            "id": 25,
+            "name": "Glass Case",
+            "slug": "glass-case",
+            "img": null
+        },
+        {
+            "id": 26,
+            "name": "Lunar Case",
+            "slug": "lunar-case",
+            "img": null
+        },
+        {
+            "id": 27,
+            "name": "Paradise Case",
+            "slug": "paradise-case",
+            "img": null
+        },
+        {
+            "id": 28,
+            "name": "Retro Case",
+            "slug": "retro-case",
+            "img": null
+        },
+        {
+            "id": 29,
+            "name": "Goblin Case",
+            "slug": "goblin-case",
+            "img": null
+        },
+        {
+            "id": 30,
+            "name": "Top Secret Case",
+            "slug": "top-secret-case",
+            "img": null
+        },
+        {
+            "id": 31,
+            "name": "Pirate Case",
+            "slug": "pirate-case",
+            "img": null
+        },
+        {
+            "id": 32,
+            "name": "Magic Case",
+            "slug": "magic-case",
+            "img": null
+        },
+        {
+            "id": 33,
+            "name": "Bloodmoon Case",
+            "slug": "bloodmoon-case",
+            "img": null
+        },
+        {
+            "id": 34,
+            "name": "Circus Case",
+            "slug": "circus-case",
+            "img": null
+        },
+        {
+            "id": 35,
+            "name": "Neon Case",
+            "slug": "neon-case",
+            "img": null
+        },
+        {
+            "id": 36,
+            "name": "Pink Blast",
+            "slug": "pink-blast",
+            "img": null
+        }
+    ],
+    "caseVersions": [
+        {
+            "id": 1,
+            "caseId": 1,
+            "price": 71,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:43.000Z"
+        },
+        {
+            "id": 2,
+            "caseId": 2,
+            "price": 205,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:44.000Z"
+        },
+        {
+            "id": 3,
+            "caseId": 3,
+            "price": 356,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:45.000Z"
+        },
+        {
+            "id": 4,
+            "caseId": 4,
+            "price": 526,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:46.000Z"
+        },
+        {
+            "id": 5,
+            "caseId": 5,
+            "price": 781,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:46.000Z"
+        },
+        {
+            "id": 6,
+            "caseId": 6,
+            "price": 824,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:47.000Z"
+        },
+        {
+            "id": 7,
+            "caseId": 7,
+            "price": 1048,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:47.000Z"
+        },
+        {
+            "id": 8,
+            "caseId": 8,
+            "price": 1397,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:48.000Z"
+        },
+        {
+            "id": 9,
+            "caseId": 9,
+            "price": 1639,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:49.000Z"
+        },
+        {
+            "id": 10,
+            "caseId": 10,
+            "price": 1723,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:50.000Z"
+        },
+        {
+            "id": 11,
+            "caseId": 11,
+            "price": 1975,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:50.000Z"
+        },
+        {
+            "id": 12,
+            "caseId": 12,
+            "price": 2076,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:51.000Z"
+        },
+        {
+            "id": 13,
+            "caseId": 13,
+            "price": 2094,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:52.000Z"
+        },
+        {
+            "id": 14,
+            "caseId": 14,
+            "price": 2707,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:53.000Z"
+        },
+        {
+            "id": 15,
+            "caseId": 15,
+            "price": 2741,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:53.000Z"
+        },
+        {
+            "id": 16,
+            "caseId": 16,
+            "price": 3181,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:54.000Z"
+        },
+        {
+            "id": 17,
+            "caseId": 17,
+            "price": 3254,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:54.000Z"
+        },
+        {
+            "id": 18,
+            "caseId": 18,
+            "price": 3470,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:55.000Z"
+        },
+        {
+            "id": 19,
+            "caseId": 19,
+            "price": 3488,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:56.000Z"
+        },
+        {
+            "id": 20,
+            "caseId": 20,
+            "price": 3654,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:56.000Z"
+        },
+        {
+            "id": 21,
+            "caseId": 21,
+            "price": 3654,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:57.000Z"
+        },
+        {
+            "id": 22,
+            "caseId": 22,
+            "price": 4024,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:58.000Z"
+        },
+        {
+            "id": 23,
+            "caseId": 23,
+            "price": 4223,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:58.000Z"
+        },
+        {
+            "id": 24,
+            "caseId": 24,
+            "price": 4590,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:37:59.000Z"
+        },
+        {
+            "id": 25,
+            "caseId": 25,
+            "price": 5076,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:38:00.000Z"
+        },
+        {
+            "id": 26,
+            "caseId": 26,
+            "price": 6877,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:38:01.000Z"
+        },
+        {
+            "id": 27,
+            "caseId": 27,
+            "price": 9091,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:38:01.000Z"
+        },
+        {
+            "id": 28,
+            "caseId": 28,
+            "price": 9099,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:38:02.000Z"
+        },
+        {
+            "id": 29,
+            "caseId": 29,
+            "price": 9406,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:38:02.000Z"
+        },
+        {
+            "id": 30,
+            "caseId": 30,
+            "price": 12755,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:38:03.000Z"
+        },
+        {
+            "id": 31,
+            "caseId": 31,
+            "price": 14981,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:38:03.000Z"
+        },
+        {
+            "id": 32,
+            "caseId": 32,
+            "price": 19412,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:38:04.000Z"
+        },
+        {
+            "id": 33,
+            "caseId": 33,
+            "price": 28016,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:38:05.000Z"
+        },
+        {
+            "id": 34,
+            "caseId": 34,
+            "price": 39479,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:38:05.000Z"
+        },
+        {
+            "id": 35,
+            "caseId": 35,
+            "price": 52071,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:38:06.000Z"
+        },
+        {
+            "id": 36,
+            "caseId": 36,
+            "price": 115119,
+            "endedAt": null,
+            "createdAt": "2026-06-10T05:38:07.000Z"
+        }
+    ],
+    "caseItems": [
+        {
+            "id": 1,
+            "caseVersionId": 1,
+            "itemId": "2225761296",
+            "name": "Radioactive Beast Mode",
+            "img": "https://tr.rbxcdn.com/e59b8f7ed8e07f1fcf709449ff974114/110/110/Face/Png",
+            "price": 49770,
+            "rangeFrom": 1,
+            "rangeTo": 21
+        },
+        {
+            "id": 2,
+            "caseVersionId": 1,
+            "itemId": "46355320",
+            "name": "Radioactive Man",
+            "img": "https://tr.rbxcdn.com/d051dc5a3ce61ba71676b28488da722c/110/110/Hat/Png",
+            "price": 20567,
+            "rangeFrom": 22,
+            "rangeTo": 52
+        },
+        {
+            "id": 3,
+            "caseVersionId": 1,
+            "itemId": "5099821552",
+            "name": "Radiation Suppression Helmet",
+            "img": null,
+            "price": 1254,
+            "rangeFrom": 53,
+            "rangeTo": 1033
+        },
+        {
+            "id": 4,
+            "caseVersionId": 1,
+            "itemId": "24826704",
+            "name": "Radioactive Egg of Undead Apocalypse",
+            "img": "https://tr.rbxcdn.com/e731d7c5d527ea5c26036ca16ea25f42/110/110/Hat/Png",
+            "price": 644,
+            "rangeFrom": 1034,
+            "rangeTo": 2977
+        },
+        {
+            "id": 5,
+            "caseVersionId": 1,
+            "itemId": "7856225841",
+            "name": "Toxic Gas Mask Green",
+            "img": null,
+            "price": 425,
+            "rangeFrom": 2978,
+            "rangeTo": 5440
+        },
+        {
+            "id": 6,
+            "caseVersionId": 1,
+            "itemId": "114385449",
+            "name": "Radioactive Robot",
+            "img": "https://tr.rbxcdn.com/22e3b6f452505ac2b799faef79f62552/110/110/Hat/Png",
+            "price": 127,
+            "rangeFrom": 5441,
+            "rangeTo": 10239
+        },
+        {
+            "id": 7,
+            "caseVersionId": 1,
+            "itemId": "12527327878",
+            "name": "Nuclear Radiation Hazard Armband",
+            "img": null,
+            "price": 10,
+            "rangeFrom": 10240,
+            "rangeTo": 54185
+        },
+        {
+            "id": 8,
+            "caseVersionId": 1,
+            "itemId": "4753175753",
+            "name": "Radiation Face Mask",
+            "img": null,
+            "price": 10,
+            "rangeFrom": 54186,
+            "rangeTo": 100000
+        },
+        {
+            "id": 9,
+            "caseVersionId": 2,
+            "itemId": "24485062",
+            "name": "Brighteyes' Lavender Egg",
+            "img": null,
+            "price": 55555,
+            "rangeFrom": 1,
+            "rangeTo": 50
+        },
+        {
+            "id": 10,
+            "caseVersionId": 2,
+            "itemId": "1532381",
+            "name": "Blinking Egg of Relocation",
+            "img": "https://tr.rbxcdn.com/eeca3f346fe8bcfbe6043a42be7051c5/110/110/Hat/Png",
+            "price": 1676,
+            "rangeFrom": 51,
+            "rangeTo": 3010
+        },
+        {
+            "id": 11,
+            "caseVersionId": 2,
+            "itemId": "1532384",
+            "name": "Bouncing Egg of Boing Boing",
+            "img": "https://tr.rbxcdn.com/c916743086b2b302c8c545af6644683f/110/110/Hat/Png",
+            "price": 1577,
+            "rangeFrom": 3011,
+            "rangeTo": 5157
+        },
+        {
+            "id": 12,
+            "caseVersionId": 2,
+            "itemId": "1532395",
+            "name": "Kind Egg of Sharing",
+            "img": "https://tr.rbxcdn.com/5d1b1c79e1d9af34b09a24e5c7cd0d54/110/110/Hat/Png",
+            "price": 1289,
+            "rangeFrom": 5158,
+            "rangeTo": 7583
+        },
+        {
+            "id": 13,
+            "caseVersionId": 2,
+            "itemId": "1533893",
+            "name": "Bluesteel Egg of Genius",
+            "img": "https://tr.rbxcdn.com/322c3ea6bb222b528d13203e93b80b6e/110/110/Hat/Png",
+            "price": 971,
+            "rangeFrom": 7584,
+            "rangeTo": 9183
+        },
+        {
+            "id": 14,
+            "caseVersionId": 2,
+            "itemId": "6594547531",
+            "name": "Easter Egg Bunny Basket",
+            "img": null,
+            "price": 100,
+            "rangeFrom": 9184,
+            "rangeTo": 15256
+        },
+        {
+            "id": 15,
+            "caseVersionId": 2,
+            "itemId": "4820813025",
+            "name": "Easter Backpack",
+            "img": null,
+            "price": 100,
+            "rangeFrom": 15257,
+            "rangeTo": 21576
+        },
+        {
+            "id": 16,
+            "caseVersionId": 2,
+            "itemId": "6594809195",
+            "name": "Easter Egg Hat",
+            "img": null,
+            "price": 70,
+            "rangeFrom": 21577,
+            "rangeTo": 30924
+        },
+        {
+            "id": 17,
+            "caseVersionId": 2,
+            "itemId": "6682339691",
+            "name": "Black Fluffy Bunny Ears",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 30925,
+            "rangeTo": 42919
+        },
+        {
+            "id": 18,
+            "caseVersionId": 2,
+            "itemId": "6533564237",
+            "name": "Easter Boppers",
+            "img": null,
+            "price": 20,
+            "rangeFrom": 42920,
+            "rangeTo": 71737
+        },
+        {
+            "id": 19,
+            "caseVersionId": 2,
+            "itemId": "6564767970",
+            "name": "Easter Confetti",
+            "img": null,
+            "price": 20,
+            "rangeFrom": 71738,
+            "rangeTo": 100000
+        },
+        {
+            "id": 20,
+            "caseVersionId": 3,
+            "itemId": "85879447",
+            "name": "Galactic Forcefield Glove",
+            "img": null,
+            "price": 12593,
+            "rangeFrom": 1,
+            "rangeTo": 52
+        },
+        {
+            "id": 21,
+            "caseVersionId": 3,
+            "itemId": "7333929608",
+            "name": "Force Field",
+            "img": null,
+            "price": 3643,
+            "rangeFrom": 53,
+            "rangeTo": 5087
+        },
+        {
+            "id": 22,
+            "caseVersionId": 3,
+            "itemId": "11883712905",
+            "name": "Visa Security Forcefield",
+            "img": null,
+            "price": 1239,
+            "rangeFrom": 5088,
+            "rangeTo": 11996
+        },
+        {
+            "id": 23,
+            "caseVersionId": 3,
+            "itemId": "7333932592",
+            "name": "Upper Futuristic Exploding Forcefield",
+            "img": null,
+            "price": 235,
+            "rangeFrom": 11997,
+            "rangeTo": 24780
+        },
+        {
+            "id": 24,
+            "caseVersionId": 3,
+            "itemId": "7333870328",
+            "name": "Upper Magma Exploding Forcefield",
+            "img": null,
+            "price": 199,
+            "rangeFrom": 24781,
+            "rangeTo": 28981
+        },
+        {
+            "id": 25,
+            "caseVersionId": 3,
+            "itemId": "7333920186",
+            "name": "Upper Chroma Exploding Forcefield",
+            "img": null,
+            "price": 164,
+            "rangeFrom": 28982,
+            "rangeTo": 36003
+        },
+        {
+            "id": 26,
+            "caseVersionId": 3,
+            "itemId": "7333889060",
+            "name": "Lower Magma Exploding Forcefield",
+            "img": null,
+            "price": 20,
+            "rangeFrom": 36004,
+            "rangeTo": 66121
+        },
+        {
+            "id": 27,
+            "caseVersionId": 3,
+            "itemId": "7333916528",
+            "name": "Lower Chroma Exploding Forcefield",
+            "img": null,
+            "price": 20,
+            "rangeFrom": 66122,
+            "rangeTo": 100000
+        },
+        {
+            "id": 28,
+            "caseVersionId": 4,
+            "itemId": "10000565509",
+            "name": "Water Pond",
+            "img": null,
+            "price": 1539,
+            "rangeFrom": 1,
+            "rangeTo": 838
+        },
+        {
+            "id": 29,
+            "caseVersionId": 4,
+            "itemId": "10716613031",
+            "name": "Aquarius Water Veil",
+            "img": null,
+            "price": 963,
+            "rangeFrom": 839,
+            "rangeTo": 30856
+        },
+        {
+            "id": 30,
+            "caseVersionId": 4,
+            "itemId": "9576242602",
+            "name": "Wacky Water Jetpack",
+            "img": null,
+            "price": 589,
+            "rangeFrom": 30857,
+            "rangeTo": 48673
+        },
+        {
+            "id": 31,
+            "caseVersionId": 4,
+            "itemId": "4876293703",
+            "name": "Water Wings",
+            "img": null,
+            "price": 249,
+            "rangeFrom": 48674,
+            "rangeTo": 65325
+        },
+        {
+            "id": 32,
+            "caseVersionId": 4,
+            "itemId": "10716587788",
+            "name": "Aquarius Water Trail",
+            "img": null,
+            "price": 149,
+            "rangeFrom": 65326,
+            "rangeTo": 100000
+        },
+        {
+            "id": 33,
+            "caseVersionId": 5,
+            "itemId": "34126856",
+            "name": "Aztec Golden Eagle",
+            "img": "https://tr.rbxcdn.com/dd9ff1959277bbf486c157215bfa1d5a/110/110/Hat/Png",
+            "price": 12648,
+            "rangeFrom": 1,
+            "rangeTo": 2041
+        },
+        {
+            "id": 34,
+            "caseVersionId": 5,
+            "itemId": "97101188",
+            "name": "Aztec Bird",
+            "img": null,
+            "price": 3649,
+            "rangeFrom": 2042,
+            "rangeTo": 11895
+        },
+        {
+            "id": 35,
+            "caseVersionId": 5,
+            "itemId": "13207741",
+            "name": "Xolotl's Aztec Warrior Mask",
+            "img": null,
+            "price": 1219,
+            "rangeFrom": 11896,
+            "rangeTo": 16043
+        },
+        {
+            "id": 36,
+            "caseVersionId": 5,
+            "itemId": "5357055013",
+            "name": "Aztec Headdress",
+            "img": null,
+            "price": 483,
+            "rangeFrom": 16044,
+            "rangeTo": 28344
+        },
+        {
+            "id": 37,
+            "caseVersionId": 5,
+            "itemId": "11037067737",
+            "name": "Aztec Warrior Sword",
+            "img": null,
+            "price": 169,
+            "rangeFrom": 28345,
+            "rangeTo": 33068
+        },
+        {
+            "id": 38,
+            "caseVersionId": 5,
+            "itemId": "11037142384",
+            "name": "Aztec Warrior Necklace",
+            "img": null,
+            "price": 10,
+            "rangeFrom": 33069,
+            "rangeTo": 100000
+        },
+        {
+            "id": 39,
+            "caseVersionId": 6,
+            "itemId": "154727201",
+            "name": "Exploding Lab Table",
+            "img": "https://tr.rbxcdn.com/ab87242179c9a103e043850fa6bae806/110/110/Gear/Png",
+            "price": 3311,
+            "rangeFrom": 1,
+            "rangeTo": 9272
+        },
+        {
+            "id": 40,
+            "caseVersionId": 6,
+            "itemId": "503955938",
+            "name": "Advanced Exploding Lab Table",
+            "img": "https://tr.rbxcdn.com/4e3d35b9ff78b02a923381ef20b4f922/110/110/Gear/Png",
+            "price": 2761,
+            "rangeFrom": 9273,
+            "rangeTo": 18371
+        },
+        {
+            "id": 41,
+            "caseVersionId": 6,
+            "itemId": "12739680265",
+            "name": "Explosive Red Barrel",
+            "img": null,
+            "price": 2532,
+            "rangeFrom": 18372,
+            "rangeTo": 22561
+        },
+        {
+            "id": 42,
+            "caseVersionId": 6,
+            "itemId": "24826755",
+            "name": "Explosive Egg of Kaboom!",
+            "img": "https://tr.rbxcdn.com/669ae4bbb61e43fdfc85a73e658363b4/110/110/Hat/Png",
+            "price": 476,
+            "rangeFrom": 22562,
+            "rangeTo": 41226
+        },
+        {
+            "id": 43,
+            "caseVersionId": 6,
+            "itemId": "5677445249",
+            "name": "Cookie Explosion",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 41227,
+            "rangeTo": 49861
+        },
+        {
+            "id": 44,
+            "caseVersionId": 6,
+            "itemId": "9547733353",
+            "name": "Watermelon Explosion",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 49862,
+            "rangeTo": 62499
+        },
+        {
+            "id": 45,
+            "caseVersionId": 6,
+            "itemId": "5733510219",
+            "name": "Cartoon Explosion",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 62500,
+            "rangeTo": 80916
+        },
+        {
+            "id": 46,
+            "caseVersionId": 6,
+            "itemId": "12196622357",
+            "name": "Explosion Headphones",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 80917,
+            "rangeTo": 100000
+        },
+        {
+            "id": 47,
+            "caseVersionId": 7,
+            "itemId": "141740648",
+            "name": "Starry Sleeping Cap",
+            "img": "https://tr.rbxcdn.com/ef86801082c2172dc6c6874f66e48de0/110/110/Hat/Png",
+            "price": 4895,
+            "rangeFrom": 1,
+            "rangeTo": 11027
+        },
+        {
+            "id": 48,
+            "caseVersionId": 7,
+            "itemId": "141740195",
+            "name": "Sleepy Puppy",
+            "img": "https://tr.rbxcdn.com/93a622ad02ccd7d6e8388ec4352e88dd/110/110/Hat/Png",
+            "price": 3249,
+            "rangeFrom": 11028,
+            "rangeTo": 14365
+        },
+        {
+            "id": 49,
+            "caseVersionId": 7,
+            "itemId": "119917040",
+            "name": "Sleepy Owl Friend",
+            "img": "https://tr.rbxcdn.com/043c177395c4919fc80feec11ad186fe/110/110/Hat/Png",
+            "price": 1395,
+            "rangeFrom": 14366,
+            "rangeTo": 23151
+        },
+        {
+            "id": 50,
+            "caseVersionId": 7,
+            "itemId": "259425810",
+            "name": "Red Sleepy Owl",
+            "img": null,
+            "price": 1276,
+            "rangeFrom": 23152,
+            "rangeTo": 32544
+        },
+        {
+            "id": 51,
+            "caseVersionId": 7,
+            "itemId": "259425946",
+            "name": "Yellow Sleep Owl",
+            "img": "https://tr.rbxcdn.com/6d2e7ff9db40067a22d12279a023d7a3/110/110/Hat/Png",
+            "price": 1119,
+            "rangeFrom": 32545,
+            "rangeTo": 39315
+        },
+        {
+            "id": 52,
+            "caseVersionId": 7,
+            "itemId": "259426115",
+            "name": "Blue Sleepy Owl",
+            "img": "https://tr.rbxcdn.com/8a0db0c7b960d37bc2f57cc8cc8bca70/110/110/Hat/Png",
+            "price": 329,
+            "rangeFrom": 39316,
+            "rangeTo": 46625
+        },
+        {
+            "id": 53,
+            "caseVersionId": 7,
+            "itemId": "439942445",
+            "name": "Blue Sleepy Koala",
+            "img": "https://tr.rbxcdn.com/41596301cb1c84cebcfee2106d4072f9/110/110/Hat/Png",
+            "price": 10,
+            "rangeFrom": 46626,
+            "rangeTo": 71522
+        },
+        {
+            "id": 54,
+            "caseVersionId": 7,
+            "itemId": "439942851",
+            "name": "Purple Sleepy Koala",
+            "img": "https://tr.rbxcdn.com/f68a0102b8932e155c88adf54e574b73/110/110/Hat/Png",
+            "price": 10,
+            "rangeFrom": 71523,
+            "rangeTo": 100000
+        },
+        {
+            "id": 55,
+            "caseVersionId": 8,
+            "itemId": "30371876",
+            "name": "Vaiobot's Moneylicious Tie",
+            "img": "https://tr.rbxcdn.com/243f124471f4cc62807374af6a89f11c/110/110/Hat/Png",
+            "price": 321642,
+            "rangeFrom": 1,
+            "rangeTo": 343
+        },
+        {
+            "id": 56,
+            "caseVersionId": 8,
+            "itemId": "97078407",
+            "name": "DJ Money",
+            "img": "https://tr.rbxcdn.com/72d93234664a33a3ca1581f2add6e203/110/110/Hat/Png",
+            "price": 30458,
+            "rangeFrom": 344,
+            "rangeTo": 508
+        },
+        {
+            "id": 57,
+            "caseVersionId": 8,
+            "itemId": "6552812",
+            "name": "Golden Top Hat of Bling Bling",
+            "img": "https://tr.rbxcdn.com/cb03a236f04e1f8ac00a408393fdb0bd/110/110/Hat/Png",
+            "price": 10539,
+            "rangeFrom": 509,
+            "rangeTo": 1660
+        },
+        {
+            "id": 58,
+            "caseVersionId": 8,
+            "itemId": "5167410225",
+            "name": "Back Money",
+            "img": null,
+            "price": 103,
+            "rangeFrom": 1661,
+            "rangeTo": 18648
+        },
+        {
+            "id": 59,
+            "caseVersionId": 8,
+            "itemId": "4996211510",
+            "name": "Cash Pile",
+            "img": null,
+            "price": 75,
+            "rangeFrom": 18649,
+            "rangeTo": 42153
+        },
+        {
+            "id": 60,
+            "caseVersionId": 8,
+            "itemId": "6310448534",
+            "name": "Money Wings",
+            "img": null,
+            "price": 30,
+            "rangeFrom": 42154,
+            "rangeTo": 100000
+        },
+        {
+            "id": 61,
+            "caseVersionId": 9,
+            "itemId": "1098279",
+            "name": "Thunderstorm Hat",
+            "img": null,
+            "price": 50236,
+            "rangeFrom": 1,
+            "rangeTo": 2365
+        },
+        {
+            "id": 62,
+            "caseVersionId": 9,
+            "itemId": "34111862",
+            "name": "Gentlemen of Stratus",
+            "img": "https://tr.rbxcdn.com/ca67ff57dda48e94d199c767235f64ea/110/110/Hat/Png",
+            "price": 3990,
+            "rangeFrom": 2366,
+            "rangeTo": 6085
+        },
+        {
+            "id": 63,
+            "caseVersionId": 9,
+            "itemId": "24826725",
+            "name": "Scenic Egg of the Clouds",
+            "img": "https://tr.rbxcdn.com/115d7c58f99265cbb7c81dac1af12a05/110/110/Hat/Png",
+            "price": 1388,
+            "rangeFrom": 6086,
+            "rangeTo": 10183
+        },
+        {
+            "id": 64,
+            "caseVersionId": 9,
+            "itemId": "107458483",
+            "name": "Pompous, the Cloud",
+            "img": null,
+            "price": 1250,
+            "rangeFrom": 10184,
+            "rangeTo": 16941
+        },
+        {
+            "id": 65,
+            "caseVersionId": 9,
+            "itemId": "7003919478",
+            "name": "Rainbow Cloud Hair Clip",
+            "img": null,
+            "price": 633,
+            "rangeFrom": 16942,
+            "rangeTo": 20912
+        },
+        {
+            "id": 66,
+            "caseVersionId": 9,
+            "itemId": "4882316954",
+            "name": "Head in the Clouds",
+            "img": null,
+            "price": 354,
+            "rangeFrom": 20913,
+            "rangeTo": 23723
+        },
+        {
+            "id": 67,
+            "caseVersionId": 9,
+            "itemId": "6501854843",
+            "name": "Huge Lucky Rainbow",
+            "img": null,
+            "price": 100,
+            "rangeFrom": 23724,
+            "rangeTo": 36362
+        },
+        {
+            "id": 68,
+            "caseVersionId": 9,
+            "itemId": "4882316954",
+            "name": "Head in the Clouds",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 36363,
+            "rangeTo": 60152
+        },
+        {
+            "id": 69,
+            "caseVersionId": 9,
+            "itemId": "6035947104",
+            "name": "Cloud",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 60153,
+            "rangeTo": 80257
+        },
+        {
+            "id": 70,
+            "caseVersionId": 9,
+            "itemId": "6035947104",
+            "name": "Cloud",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 80258,
+            "rangeTo": 100000
+        },
+        {
+            "id": 71,
+            "caseVersionId": 10,
+            "itemId": "89624140",
+            "name": "Shady Business Hat",
+            "img": "https://tr.rbxcdn.com/c598d054ed6a60d44ec591cad99d5522/110/110/Hat/Png",
+            "price": 9345,
+            "rangeFrom": 1,
+            "rangeTo": 3281
+        },
+        {
+            "id": 72,
+            "caseVersionId": 10,
+            "itemId": "19027209",
+            "name": "Perfectly Legitimate Business Hat",
+            "img": "https://tr.rbxcdn.com/e4d7679a2b1b98e013f40c21120a61b4/110/110/Hat/Png",
+            "price": 7635,
+            "rangeFrom": 3282,
+            "rangeTo": 13287
+        },
+        {
+            "id": 73,
+            "caseVersionId": 10,
+            "itemId": "121389389",
+            "name": "Business Cat",
+            "img": "https://tr.rbxcdn.com/4ae96c01629ce8f7faca7417786db7a4/110/110/Hat/Png",
+            "price": 6500,
+            "rangeFrom": 13288,
+            "rangeTo": 19513
+        },
+        {
+            "id": 74,
+            "caseVersionId": 10,
+            "itemId": "8165203866",
+            "name": "Black Business Hat",
+            "img": null,
+            "price": 1642,
+            "rangeFrom": 19514,
+            "rangeTo": 25373
+        },
+        {
+            "id": 75,
+            "caseVersionId": 10,
+            "itemId": "121389389",
+            "name": "Business Cat",
+            "img": "https://tr.rbxcdn.com/4ae96c01629ce8f7faca7417786db7a4/110/110/Hat/Png",
+            "price": 519,
+            "rangeFrom": 25374,
+            "rangeTo": 33588
+        },
+        {
+            "id": 76,
+            "caseVersionId": 10,
+            "itemId": "12300764586",
+            "name": "Black Business Tuxedo Blazer",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 33589,
+            "rangeTo": 42532
+        },
+        {
+            "id": 77,
+            "caseVersionId": 10,
+            "itemId": "30111567",
+            "name": "BC Business Tie",
+            "img": null,
+            "price": 75,
+            "rangeFrom": 42533,
+            "rangeTo": 49647
+        },
+        {
+            "id": 78,
+            "caseVersionId": 10,
+            "itemId": "12331791244",
+            "name": "Anthracite Business Tuxedo Pants",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 49648,
+            "rangeTo": 65643
+        },
+        {
+            "id": 79,
+            "caseVersionId": 10,
+            "itemId": "10644707417",
+            "name": "Default Black Business Glasses",
+            "img": null,
+            "price": 15,
+            "rangeFrom": 65644,
+            "rangeTo": 100000
+        },
+        {
+            "id": 80,
+            "caseVersionId": 11,
+            "itemId": "323192193",
+            "name": "Purple Alien",
+            "img": "https://tr.rbxcdn.com/cc46b4ed752c5ea5a27f75cc23e265e7/110/110/Face/Png",
+            "price": 9828,
+            "rangeFrom": 1,
+            "rangeTo": 14127
+        },
+        {
+            "id": 81,
+            "caseVersionId": 11,
+            "itemId": "69567879",
+            "name": "Dark Alien Hatchling",
+            "img": "https://tr.rbxcdn.com/07cfb1e7767aa19eedeb8f56d654716c/110/110/Gear/Png",
+            "price": 3358,
+            "rangeFrom": 14128,
+            "rangeTo": 24988
+        },
+        {
+            "id": 82,
+            "caseVersionId": 11,
+            "itemId": "76170515",
+            "name": "Alien Parasite",
+            "img": null,
+            "price": 600,
+            "rangeFrom": 24989,
+            "rangeTo": 35646
+        },
+        {
+            "id": 83,
+            "caseVersionId": 11,
+            "itemId": "17449374",
+            "name": "UFO",
+            "img": null,
+            "price": 300,
+            "rangeFrom": 35647,
+            "rangeTo": 42834
+        },
+        {
+            "id": 84,
+            "caseVersionId": 11,
+            "itemId": "153581784",
+            "name": "Alien Arteggfact",
+            "img": "https://tr.rbxcdn.com/301de4203345518a1cbd3b0b0cad8931/110/110/Hat/Png",
+            "price": 220,
+            "rangeFrom": 42835,
+            "rangeTo": 47579
+        },
+        {
+            "id": 85,
+            "caseVersionId": 11,
+            "itemId": "323192193",
+            "name": "Purple Alien",
+            "img": "https://tr.rbxcdn.com/cc46b4ed752c5ea5a27f75cc23e265e7/110/110/Face/Png",
+            "price": 50,
+            "rangeFrom": 47580,
+            "rangeTo": 58624
+        },
+        {
+            "id": 86,
+            "caseVersionId": 11,
+            "itemId": "5063731573",
+            "name": "Green Alien",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 58625,
+            "rangeTo": 79807
+        },
+        {
+            "id": 87,
+            "caseVersionId": 11,
+            "itemId": "159199178",
+            "name": "Alien (face)",
+            "img": null,
+            "price": 55,
+            "rangeFrom": 79808,
+            "rangeTo": 100000
+        },
+        {
+            "id": 88,
+            "caseVersionId": 12,
+            "itemId": "91294485",
+            "name": "Hungry Lion Friend",
+            "img": "https://tr.rbxcdn.com/f1f70861b6fb4f356b67cb95440d85ce/110/110/Gear/Png",
+            "price": 9717,
+            "rangeFrom": 1,
+            "rangeTo": 3151
+        },
+        {
+            "id": 89,
+            "caseVersionId": 12,
+            "itemId": "16678138",
+            "name": "Jungle Commando",
+            "img": "https://tr.rbxcdn.com/a62df2526fa365ffe1cb6362d828b68d/110/110/Face/Png",
+            "price": 7507,
+            "rangeFrom": 3152,
+            "rangeTo": 18791
+        },
+        {
+            "id": 90,
+            "caseVersionId": 12,
+            "itemId": "293316227",
+            "name": "Bombastic Boa",
+            "img": "https://tr.rbxcdn.com/8027a1a838fb66e0a75c6b004cf7211d/110/110/Hat/Png",
+            "price": 3848,
+            "rangeFrom": 18792,
+            "rangeTo": 25625
+        },
+        {
+            "id": 91,
+            "caseVersionId": 12,
+            "itemId": "232503325",
+            "name": "Rainboa",
+            "img": "https://tr.rbxcdn.com/232940475b54c43821985647c3fc107b/110/110/Hat/Png",
+            "price": 3334,
+            "rangeFrom": 25626,
+            "rangeTo": 30010
+        },
+        {
+            "id": 92,
+            "caseVersionId": 12,
+            "itemId": "66305850",
+            "name": "Coral Boa Boa",
+            "img": null,
+            "price": 300,
+            "rangeFrom": 30011,
+            "rangeTo": 47628
+        },
+        {
+            "id": 93,
+            "caseVersionId": 12,
+            "itemId": "13700820",
+            "name": "Silly Monkey",
+            "img": null,
+            "price": 102,
+            "rangeFrom": 47629,
+            "rangeTo": 54623
+        },
+        {
+            "id": 94,
+            "caseVersionId": 12,
+            "itemId": "5460206979",
+            "name": "Jungled Antlers",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 54624,
+            "rangeTo": 78504
+        },
+        {
+            "id": 95,
+            "caseVersionId": 12,
+            "itemId": "6203132529",
+            "name": "Monkey",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 78505,
+            "rangeTo": 100000
+        },
+        {
+            "id": 96,
+            "caseVersionId": 13,
+            "itemId": "362032819",
+            "name": "The Fire Crown",
+            "img": "https://tr.rbxcdn.com/9f93ffd63a507707366d6f60b6f2afbc/110/110/Hat/Png",
+            "price": 478889,
+            "rangeFrom": 1,
+            "rangeTo": 198
+        },
+        {
+            "id": 97,
+            "caseVersionId": 13,
+            "itemId": "81154592",
+            "name": "Firebrand",
+            "img": "https://tr.rbxcdn.com/760fbf5c019887f781d960927ea4cfb3/110/110/Gear/Png",
+            "price": 265899,
+            "rangeFrom": 199,
+            "rangeTo": 516
+        },
+        {
+            "id": 98,
+            "caseVersionId": 13,
+            "itemId": "144507154",
+            "name": "Hooded Firelord",
+            "img": "https://tr.rbxcdn.com/482ee51cf6b07ed88c8a3135ea860719/110/110/Hat/Png",
+            "price": 65899,
+            "rangeFrom": 517,
+            "rangeTo": 607
+        },
+        {
+            "id": 99,
+            "caseVersionId": 13,
+            "itemId": "204490997",
+            "name": "Phoenix Winged Knight Helmet",
+            "img": "https://tr.rbxcdn.com/33fa787808a24182830c711dfe2b38b4/110/110/Hat/Png",
+            "price": 6175,
+            "rangeFrom": 608,
+            "rangeTo": 1278
+        },
+        {
+            "id": 100,
+            "caseVersionId": 13,
+            "itemId": "261827192",
+            "name": "Neon Rainbow Phoenix",
+            "img": "https://tr.rbxcdn.com/a6c9f1b19b21247a543b68d036bc6bd6/110/110/Gear/Png",
+            "price": 6035,
+            "rangeFrom": 1279,
+            "rangeTo": 1656
+        },
+        {
+            "id": 101,
+            "caseVersionId": 13,
+            "itemId": "2041985255",
+            "name": "8-Bit Phoenix Winged Knight Helmet",
+            "img": "https://tr.rbxcdn.com/1ec8386735e77b83936778bcd00c2c6c/110/110/Hat/Png",
+            "price": 2711,
+            "rangeFrom": 1657,
+            "rangeTo": 2088
+        },
+        {
+            "id": 102,
+            "caseVersionId": 13,
+            "itemId": "92142799",
+            "name": "Phoenix",
+            "img": null,
+            "price": 500,
+            "rangeFrom": 2089,
+            "rangeTo": 4243
+        },
+        {
+            "id": 103,
+            "caseVersionId": 13,
+            "itemId": "3858787672",
+            "name": "Phoenix Horns",
+            "img": null,
+            "price": 225,
+            "rangeFrom": 4244,
+            "rangeTo": 8797
+        },
+        {
+            "id": 104,
+            "caseVersionId": 13,
+            "itemId": "153563710",
+            "name": "Egg of the Phoenix",
+            "img": "https://tr.rbxcdn.com/af2f1079d575383e481d113610845a19/110/110/Hat/Png",
+            "price": 178,
+            "rangeFrom": 8798,
+            "rangeTo": 14236
+        },
+        {
+            "id": 105,
+            "caseVersionId": 13,
+            "itemId": "7062106398",
+            "name": "Rising FIre Phoenix",
+            "img": null,
+            "price": 100,
+            "rangeFrom": 14237,
+            "rangeTo": 23897
+        },
+        {
+            "id": 106,
+            "caseVersionId": 13,
+            "itemId": "11386604315",
+            "name": "Phoenix Helm",
+            "img": null,
+            "price": 25,
+            "rangeFrom": 23898,
+            "rangeTo": 61950
+        },
+        {
+            "id": 107,
+            "caseVersionId": 13,
+            "itemId": "3858759677",
+            "name": "Phoenix Hood",
+            "img": null,
+            "price": 25,
+            "rangeFrom": 61951,
+            "rangeTo": 100000
+        },
+        {
+            "id": 108,
+            "caseVersionId": 14,
+            "itemId": "12307223314",
+            "name": "Red & Black Space Gladiator Greatsword",
+            "img": null,
+            "price": 35595,
+            "rangeFrom": 1,
+            "rangeTo": 3537
+        },
+        {
+            "id": 109,
+            "caseVersionId": 14,
+            "itemId": "12303133178",
+            "name": "Gold & Blue Space Gladiator Greatsword",
+            "img": null,
+            "price": 10642,
+            "rangeFrom": 3538,
+            "rangeTo": 12824
+        },
+        {
+            "id": 110,
+            "caseVersionId": 14,
+            "itemId": "12307199626",
+            "name": "Blue & Black Space Gladiator Greatsword",
+            "img": null,
+            "price": 7312,
+            "rangeFrom": 12825,
+            "rangeTo": 14024
+        },
+        {
+            "id": 111,
+            "caseVersionId": 14,
+            "itemId": "7976245066",
+            "name": "Purple & Black Space Gladiator Greatsword",
+            "img": null,
+            "price": 2453,
+            "rangeFrom": 14025,
+            "rangeTo": 21079
+        },
+        {
+            "id": 112,
+            "caseVersionId": 14,
+            "itemId": "51243413",
+            "name": "Gladiator",
+            "img": null,
+            "price": 425,
+            "rangeFrom": 21080,
+            "rangeTo": 27603
+        },
+        {
+            "id": 113,
+            "caseVersionId": 14,
+            "itemId": "6275586940",
+            "name": "Gladiator's Golden Helmet",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 27604,
+            "rangeTo": 62652
+        },
+        {
+            "id": 114,
+            "caseVersionId": 14,
+            "itemId": "6277183918",
+            "name": "Gladiator's Silver Helmet",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 62653,
+            "rangeTo": 100000
+        },
+        {
+            "id": 115,
+            "caseVersionId": 15,
+            "itemId": "24826614",
+            "name": "Royal Agate Egg of Beautiful Dreams",
+            "img": "https://tr.rbxcdn.com/edb611f622dacb58adc98248edc796db/110/110/Hat/Png",
+            "price": 500000,
+            "rangeFrom": 1,
+            "rangeTo": 496
+        },
+        {
+            "id": 116,
+            "caseVersionId": 15,
+            "itemId": "65079090",
+            "name": "Dreamwalker's Dagger",
+            "img": "https://tr.rbxcdn.com/c3ad05d2fdb9be47f54ce8c68d2570f2/110/110/Gear/Png",
+            "price": 19215,
+            "rangeFrom": 497,
+            "rangeTo": 853
+        },
+        {
+            "id": 117,
+            "caseVersionId": 15,
+            "itemId": "102614621",
+            "name": "Dreamweaver Fabergé Egg",
+            "img": "https://tr.rbxcdn.com/6c03e51af85166aaaa914d2d6c03ab04/110/110/Hat/Png",
+            "price": 894,
+            "rangeFrom": 854,
+            "rangeTo": 2297
+        },
+        {
+            "id": 118,
+            "caseVersionId": 15,
+            "itemId": "5356269665",
+            "name": "Dreamy Blue Tv",
+            "img": null,
+            "price": 396,
+            "rangeFrom": 2298,
+            "rangeTo": 5051
+        },
+        {
+            "id": 119,
+            "caseVersionId": 15,
+            "itemId": "5028725987",
+            "name": "Paradise Petals Hair Clip",
+            "img": null,
+            "price": 94,
+            "rangeFrom": 5052,
+            "rangeTo": 16658
+        },
+        {
+            "id": 120,
+            "caseVersionId": 15,
+            "itemId": "8657395615",
+            "name": "Purple Mermaid Paradise Headphones",
+            "img": null,
+            "price": 25,
+            "rangeFrom": 16659,
+            "rangeTo": 58126
+        },
+        {
+            "id": 121,
+            "caseVersionId": 15,
+            "itemId": "8657387855",
+            "name": "Pink Mermaid Paradise Headphones",
+            "img": null,
+            "price": 25,
+            "rangeFrom": 58127,
+            "rangeTo": 100000
+        },
+        {
+            "id": 122,
+            "caseVersionId": 16,
+            "itemId": "467134564",
+            "name": "Silver Cyborg Face Gear",
+            "img": "https://tr.rbxcdn.com/dea0c9ff77547a30c27914212cbaa75b/110/110/Hat/Png",
+            "price": 11441,
+            "rangeFrom": 1,
+            "rangeTo": 20488
+        },
+        {
+            "id": 123,
+            "caseVersionId": 16,
+            "itemId": "27052155",
+            "name": "Cyborg Soldier",
+            "img": "https://tr.rbxcdn.com/ddf306453bcfc82641c56efc7003c16c/110/110/Hat/Png",
+            "price": 3911,
+            "rangeFrom": 20489,
+            "rangeTo": 33811
+        },
+        {
+            "id": 124,
+            "caseVersionId": 16,
+            "itemId": "8143657844",
+            "name": "XX Blue Neon Cyber Mask",
+            "img": null,
+            "price": 1692,
+            "rangeFrom": 33812,
+            "rangeTo": 36272
+        },
+        {
+            "id": 125,
+            "caseVersionId": 16,
+            "itemId": "5095311912",
+            "name": "Cyberjaw Headgear",
+            "img": null,
+            "price": 428,
+            "rangeFrom": 36273,
+            "rangeTo": 48362
+        },
+        {
+            "id": 126,
+            "caseVersionId": 16,
+            "itemId": "1380773045",
+            "name": "Steampunk Cyborg Face",
+            "img": null,
+            "price": 500,
+            "rangeFrom": 48363,
+            "rangeTo": 56368
+        },
+        {
+            "id": 127,
+            "caseVersionId": 16,
+            "itemId": "93078790",
+            "name": "Rogue Cyborg",
+            "img": null,
+            "price": 150,
+            "rangeFrom": 56369,
+            "rangeTo": 66095
+        },
+        {
+            "id": 128,
+            "caseVersionId": 16,
+            "itemId": "790",
+            "name": "Cyborg Shogun",
+            "img": null,
+            "price": 25,
+            "rangeFrom": 66096,
+            "rangeTo": 100000
+        },
+        {
+            "id": 129,
+            "caseVersionId": 17,
+            "itemId": "136802867",
+            "name": "Hooded Frostlord",
+            "img": "https://tr.rbxcdn.com/bf34a8c4e48d2c272950b998a59a6060/110/110/Hat/Png",
+            "price": 104161,
+            "rangeFrom": 1,
+            "rangeTo": 993
+        },
+        {
+            "id": 130,
+            "caseVersionId": 17,
+            "itemId": "62720062",
+            "name": "Azurewrath: Lord of the Frost",
+            "img": "https://tr.rbxcdn.com/d7d455232f8c154c2e0e1a1a7bd71f51/110/110/Hat/Png",
+            "price": 49970,
+            "rangeFrom": 994,
+            "rangeTo": 4174
+        },
+        {
+            "id": 131,
+            "caseVersionId": 17,
+            "itemId": "32858586",
+            "name": "Frostbrand",
+            "img": "https://tr.rbxcdn.com/7e03403c074cdc09c07b7fef0bbae0e6/110/110/Gear/Png",
+            "price": 14804,
+            "rangeFrom": 4175,
+            "rangeTo": 5378
+        },
+        {
+            "id": 132,
+            "caseVersionId": 17,
+            "itemId": "22972723",
+            "name": "Eyes of Everfrost",
+            "img": "https://tr.rbxcdn.com/47100487a666e60d56bf29932ef2c2bd/110/110/Face/Png",
+            "price": 10441,
+            "rangeFrom": 5379,
+            "rangeTo": 7516
+        },
+        {
+            "id": 133,
+            "caseVersionId": 17,
+            "itemId": "194",
+            "name": "Frost Guard General",
+            "img": null,
+            "price": 500,
+            "rangeFrom": 7517,
+            "rangeTo": 11833
+        },
+        {
+            "id": 134,
+            "caseVersionId": 17,
+            "itemId": "152980772",
+            "name": "Egg of Frost",
+            "img": "https://tr.rbxcdn.com/69b7789c27b394dda02a3e4985a1efb3/110/110/Hat/Png",
+            "price": 136,
+            "rangeFrom": 11834,
+            "rangeTo": 20846
+        },
+        {
+            "id": 135,
+            "caseVersionId": 17,
+            "itemId": "4793990854",
+            "name": "Frost Visor",
+            "img": null,
+            "price": 65,
+            "rangeFrom": 20847,
+            "rangeTo": 38218
+        },
+        {
+            "id": 136,
+            "caseVersionId": 17,
+            "itemId": "5861240115",
+            "name": "Frost Spirit - Hood",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 38219,
+            "rangeTo": 59752
+        },
+        {
+            "id": 137,
+            "caseVersionId": 17,
+            "itemId": "6203587851",
+            "name": "Frost Crown",
+            "img": null,
+            "price": 25,
+            "rangeFrom": 59753,
+            "rangeTo": 100000
+        },
+        {
+            "id": 138,
+            "caseVersionId": 18,
+            "itemId": "182774977",
+            "name": "Slimy Eye Ball Top Hat",
+            "img": "https://tr.rbxcdn.com/18a10d91c85964f9d797c761e5f3fc16/110/110/Hat/Png",
+            "price": 20311,
+            "rangeFrom": 1,
+            "rangeTo": 14492
+        },
+        {
+            "id": 139,
+            "caseVersionId": 18,
+            "itemId": "11973362399",
+            "name": "Rainbow Neon Slime Head",
+            "img": null,
+            "price": 2395,
+            "rangeFrom": 14493,
+            "rangeTo": 19009
+        },
+        {
+            "id": 140,
+            "caseVersionId": 18,
+            "itemId": "11973470608",
+            "name": "Blue Neon Slime Head",
+            "img": null,
+            "price": 1106,
+            "rangeFrom": 19010,
+            "rangeTo": 30968
+        },
+        {
+            "id": 141,
+            "caseVersionId": 18,
+            "itemId": "11973480185",
+            "name": "Purple Neon Slime Head",
+            "img": null,
+            "price": 569,
+            "rangeFrom": 30969,
+            "rangeTo": 39900
+        },
+        {
+            "id": 142,
+            "caseVersionId": 18,
+            "itemId": "11973442327",
+            "name": "Orange Neon Slime Head",
+            "img": null,
+            "price": 204,
+            "rangeFrom": 39901,
+            "rangeTo": 56155
+        },
+        {
+            "id": 143,
+            "caseVersionId": 18,
+            "itemId": "11973459574",
+            "name": "Cyan Neon Slime Head",
+            "img": null,
+            "price": 118,
+            "rangeFrom": 56156,
+            "rangeTo": 66865
+        },
+        {
+            "id": 144,
+            "caseVersionId": 18,
+            "itemId": "11973453084",
+            "name": "Green Neon Slime Head",
+            "img": null,
+            "price": 47,
+            "rangeFrom": 66866,
+            "rangeTo": 100000
+        },
+        {
+            "id": 145,
+            "caseVersionId": 19,
+            "itemId": "78621687",
+            "name": "Timelord",
+            "img": "https://tr.rbxcdn.com/426b6a4be0d16be3d96dfa26d9477143/110/110/Hat/Png",
+            "price": 9763,
+            "rangeFrom": 1,
+            "rangeTo": 22073
+        },
+        {
+            "id": 146,
+            "caseVersionId": 19,
+            "itemId": "140483668",
+            "name": "Well Accessorized Time Punk",
+            "img": "https://tr.rbxcdn.com/40fc25f9141ddae7e34a40044cecd581/110/110/Hat/Png",
+            "price": 5744,
+            "rangeFrom": 22074,
+            "rangeTo": 33502
+        },
+        {
+            "id": 147,
+            "caseVersionId": 19,
+            "itemId": "49939702",
+            "name": "Wizard of Time, Of All Times",
+            "img": "https://tr.rbxcdn.com/296d241c0e74f6f29cb70042c5ab2ee1/110/110/Hat/Png",
+            "price": 3929,
+            "rangeFrom": 33503,
+            "rangeTo": 37665
+        },
+        {
+            "id": 148,
+            "caseVersionId": 19,
+            "itemId": "2830573557",
+            "name": "Compact Back Time Machine",
+            "img": null,
+            "price": 1173,
+            "rangeFrom": 37666,
+            "rangeTo": 61561
+        },
+        {
+            "id": 149,
+            "caseVersionId": 19,
+            "itemId": "152980450",
+            "name": "Egg of Time",
+            "img": "https://tr.rbxcdn.com/848b797bf2083e197737123dc4a74a38/110/110/Hat/Png",
+            "price": 238,
+            "rangeFrom": 61562,
+            "rangeTo": 76482
+        },
+        {
+            "id": 150,
+            "caseVersionId": 19,
+            "itemId": "76692269",
+            "name": "Egg Timer",
+            "img": "https://tr.rbxcdn.com/6d2e76ac9971f70fe8e5ffe5a8c79fed/110/110/Hat/Png",
+            "price": 95,
+            "rangeFrom": 76483,
+            "rangeTo": 100000
+        },
+        {
+            "id": 151,
+            "caseVersionId": 20,
+            "itemId": "153059612",
+            "name": "The Darkest Alchemist Faceplate",
+            "img": "https://tr.rbxcdn.com/22cd59306be3eb893c0f0947ecdba0d9/110/110/Hat/Png",
+            "price": 68231,
+            "rangeFrom": 1,
+            "rangeTo": 3461
+        },
+        {
+            "id": 152,
+            "caseVersionId": 20,
+            "itemId": "7170044719",
+            "name": "Alchemists Backpack",
+            "img": null,
+            "price": 21832,
+            "rangeFrom": 3462,
+            "rangeTo": 7297
+        },
+        {
+            "id": 153,
+            "caseVersionId": 20,
+            "itemId": "6711569677",
+            "name": "Alchemist Elemental Sash",
+            "img": null,
+            "price": 4231,
+            "rangeFrom": 7298,
+            "rangeTo": 10396
+        },
+        {
+            "id": 154,
+            "caseVersionId": 20,
+            "itemId": "8933413236",
+            "name": "Alchemists Potion Backpack",
+            "img": null,
+            "price": 1256,
+            "rangeFrom": 10397,
+            "rangeTo": 17452
+        },
+        {
+            "id": 155,
+            "caseVersionId": 20,
+            "itemId": "6711567675",
+            "name": "Alchemist Elemental Hat",
+            "img": null,
+            "price": 216,
+            "rangeFrom": 17453,
+            "rangeTo": 27157
+        },
+        {
+            "id": 156,
+            "caseVersionId": 20,
+            "itemId": "11685412863",
+            "name": "Alchemist Hat",
+            "img": null,
+            "price": 100,
+            "rangeFrom": 27158,
+            "rangeTo": 45277
+        },
+        {
+            "id": 157,
+            "caseVersionId": 20,
+            "itemId": "62252414",
+            "name": "Alchemist's Apprentice",
+            "img": null,
+            "price": 25,
+            "rangeFrom": 45278,
+            "rangeTo": 100000
+        },
+        {
+            "id": 158,
+            "caseVersionId": 21,
+            "itemId": "70437291",
+            "name": "The Devil's Cowboy",
+            "img": "https://tr.rbxcdn.com/ed004ebda159cb163dbd70b6f098afd4/110/110/Hat/Png",
+            "price": 11809,
+            "rangeFrom": 1,
+            "rangeTo": 17069
+        },
+        {
+            "id": 159,
+            "caseVersionId": 21,
+            "itemId": "52502129",
+            "name": "Dare Devil",
+            "img": "https://tr.rbxcdn.com/1754978d1e404ae2c15d15e26b448e6a/110/110/Hat/Png",
+            "price": 5813,
+            "rangeFrom": 17070,
+            "rangeTo": 30618
+        },
+        {
+            "id": 160,
+            "caseVersionId": 21,
+            "itemId": "61894723",
+            "name": "Dare Devil Helmet",
+            "img": "https://tr.rbxcdn.com/10dd4bc9df46d318128d0db1073fc570/110/110/Hat/Png",
+            "price": 3720,
+            "rangeFrom": 30619,
+            "rangeTo": 44831
+        },
+        {
+            "id": 161,
+            "caseVersionId": 21,
+            "itemId": "7790910859",
+            "name": "Devil Horns",
+            "img": null,
+            "price": 682,
+            "rangeFrom": 44832,
+            "rangeTo": 53274
+        },
+        {
+            "id": 162,
+            "caseVersionId": 21,
+            "itemId": "110706148",
+            "name": "Deviled Egg",
+            "img": "https://tr.rbxcdn.com/c3729de52f2994ee29f89e2120862f29/110/110/Hat/Png",
+            "price": 249,
+            "rangeFrom": 53275,
+            "rangeTo": 77554
+        },
+        {
+            "id": 163,
+            "caseVersionId": 21,
+            "itemId": "5891378738",
+            "name": "Red Devil's Tail",
+            "img": null,
+            "price": 96,
+            "rangeFrom": 77555,
+            "rangeTo": 100000
+        },
+        {
+            "id": 164,
+            "caseVersionId": 22,
+            "itemId": "36466277",
+            "name": "Galaxy Emperor",
+            "img": "https://tr.rbxcdn.com/9bc0a5742b00cb95131c8fa06eed6375/110/110/Hat/Png",
+            "price": 60712,
+            "rangeFrom": 1,
+            "rangeTo": 3968
+        },
+        {
+            "id": 165,
+            "caseVersionId": 22,
+            "itemId": "440739783",
+            "name": "Green Galaxy Gaze",
+            "img": "https://tr.rbxcdn.com/ab48ad551c96abd07feab4302bdfd800/110/110/Face/Png",
+            "price": 7340,
+            "rangeFrom": 3969,
+            "rangeTo": 14985
+        },
+        {
+            "id": 166,
+            "caseVersionId": 22,
+            "itemId": "440738448",
+            "name": "Pink Galaxy Gaze",
+            "img": "https://tr.rbxcdn.com/edc8aea46964be02a35fa1250c3d18d1/110/110/Face/Png",
+            "price": 4649,
+            "rangeFrom": 14986,
+            "rangeTo": 23306
+        },
+        {
+            "id": 167,
+            "caseVersionId": 22,
+            "itemId": "440739518",
+            "name": "Blue Galaxy Gaze",
+            "img": "https://tr.rbxcdn.com/ac89c3c26a542007db48674f659ba2ad/110/110/Face/Png",
+            "price": 2395,
+            "rangeFrom": 23307,
+            "rangeTo": 28441
+        },
+        {
+            "id": 168,
+            "caseVersionId": 22,
+            "itemId": "440739240",
+            "name": "Purple Galaxy Gaze",
+            "img": "https://tr.rbxcdn.com/456fa6a7abdaa4f6d67f65cd9c3bde7e/110/110/Face/Png",
+            "price": 894,
+            "rangeFrom": 28442,
+            "rangeTo": 32937
+        },
+        {
+            "id": 169,
+            "caseVersionId": 22,
+            "itemId": "5647995802",
+            "name": "Galaxy Headsets",
+            "img": null,
+            "price": 100,
+            "rangeFrom": 32938,
+            "rangeTo": 63353
+        },
+        {
+            "id": 170,
+            "caseVersionId": 22,
+            "itemId": "5102242952",
+            "name": "Galaxy Glasses",
+            "img": null,
+            "price": 68,
+            "rangeFrom": 63354,
+            "rangeTo": 100000
+        },
+        {
+            "id": 171,
+            "caseVersionId": 23,
+            "itemId": "110336757",
+            "name": "Evil Skeptic",
+            "img": null,
+            "price": 46341,
+            "rangeFrom": 1,
+            "rangeTo": 2829
+        },
+        {
+            "id": 172,
+            "caseVersionId": 23,
+            "itemId": "63690289",
+            "name": "Lord Evil",
+            "img": "https://tr.rbxcdn.com/600061684a07ed8ea4b1f9cc5ddf69ee/110/110/Hat/Png",
+            "price": 26329,
+            "rangeFrom": 2830,
+            "rangeTo": 7941
+        },
+        {
+            "id": 173,
+            "caseVersionId": 23,
+            "itemId": "40893465",
+            "name": "Even Eviler Jester",
+            "img": "https://tr.rbxcdn.com/65b211e2abd6fd69dd4ff95403f88bcc/110/110/Hat/Png",
+            "price": 21349,
+            "rangeFrom": 7942,
+            "rangeTo": 13551
+        },
+        {
+            "id": 174,
+            "caseVersionId": 23,
+            "itemId": "69344084",
+            "name": "Evil Henchman",
+            "img": "https://tr.rbxcdn.com/c5d0cdddf77f7cb2f881e1950de7733d/110/110/Hat/Png",
+            "price": 7696,
+            "rangeFrom": 13552,
+            "rangeTo": 14289
+        },
+        {
+            "id": 175,
+            "caseVersionId": 23,
+            "itemId": "18482382",
+            "name": "Evil Vizer",
+            "img": "https://tr.rbxcdn.com/25ec585473b6842a101f676a367faf77/110/110/Hat/Png",
+            "price": 5467,
+            "rangeFrom": 14290,
+            "rangeTo": 14607
+        },
+        {
+            "id": 176,
+            "caseVersionId": 23,
+            "itemId": "26777611",
+            "name": "Evil Sultan",
+            "img": "https://tr.rbxcdn.com/a193c632528b2aa2b0d65db9b6acc3ab/110/110/Hat/Png",
+            "price": 2285,
+            "rangeFrom": 14608,
+            "rangeTo": 16596
+        },
+        {
+            "id": 177,
+            "caseVersionId": 23,
+            "itemId": "110706148",
+            "name": "Deviled Egg",
+            "img": "https://tr.rbxcdn.com/c3729de52f2994ee29f89e2120862f29/110/110/Hat/Png",
+            "price": 249,
+            "rangeFrom": 16597,
+            "rangeTo": 20734
+        },
+        {
+            "id": 178,
+            "caseVersionId": 23,
+            "itemId": "5505504463",
+            "name": "Evil Teddy Bear Head",
+            "img": null,
+            "price": 60,
+            "rangeFrom": 20735,
+            "rangeTo": 37062
+        },
+        {
+            "id": 179,
+            "caseVersionId": 23,
+            "itemId": "4753467054",
+            "name": "Evil Side",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 37063,
+            "rangeTo": 54506
+        },
+        {
+            "id": 180,
+            "caseVersionId": 23,
+            "itemId": "12601095437",
+            "name": "Evil Smile",
+            "img": null,
+            "price": 20,
+            "rangeFrom": 54507,
+            "rangeTo": 100000
+        },
+        {
+            "id": 181,
+            "caseVersionId": 24,
+            "itemId": "23644960",
+            "name": "Clown Face",
+            "img": "https://tr.rbxcdn.com/e64c25876a57654de577b62cd449d62a/110/110/Face/Png",
+            "price": 61163,
+            "rangeFrom": 1,
+            "rangeTo": 3803
+        },
+        {
+            "id": 182,
+            "caseVersionId": 24,
+            "itemId": "250654457",
+            "name": "Sad Clown",
+            "img": "https://tr.rbxcdn.com/7842a3e247d5c7f5472ab4f2215719db/110/110/Face/Png",
+            "price": 44888,
+            "rangeFrom": 3804,
+            "rangeTo": 7260
+        },
+        {
+            "id": 183,
+            "caseVersionId": 24,
+            "itemId": "21392863",
+            "name": "Clown School Dropout",
+            "img": "https://tr.rbxcdn.com/ec7566102e5dc3f1f6f343a840f66e24/110/110/Face/Png",
+            "price": 15324,
+            "rangeFrom": 7261,
+            "rangeTo": 9539
+        },
+        {
+            "id": 184,
+            "caseVersionId": 24,
+            "itemId": "5644742377",
+            "name": "Lovely Clown Mask",
+            "img": null,
+            "price": 1639,
+            "rangeFrom": 9540,
+            "rangeTo": 12805
+        },
+        {
+            "id": 185,
+            "caseVersionId": 24,
+            "itemId": "5230747378",
+            "name": "Clown Mask",
+            "img": null,
+            "price": 1279,
+            "rangeFrom": 12806,
+            "rangeTo": 13793
+        },
+        {
+            "id": 186,
+            "caseVersionId": 24,
+            "itemId": "6313026932",
+            "name": "Happy Clown",
+            "img": null,
+            "price": 693,
+            "rangeFrom": 13794,
+            "rangeTo": 18663
+        },
+        {
+            "id": 187,
+            "caseVersionId": 24,
+            "itemId": "6684270999",
+            "name": "Clown Hairstyles",
+            "img": null,
+            "price": 132,
+            "rangeFrom": 18664,
+            "rangeTo": 25590
+        },
+        {
+            "id": 188,
+            "caseVersionId": 24,
+            "itemId": "11721197",
+            "name": "Frobow the Sad Clown",
+            "img": null,
+            "price": 90,
+            "rangeFrom": 25591,
+            "rangeTo": 34050
+        },
+        {
+            "id": 189,
+            "caseVersionId": 24,
+            "itemId": "7390473176",
+            "name": "Clown Nose in Red",
+            "img": null,
+            "price": 25,
+            "rangeFrom": 34051,
+            "rangeTo": 65826
+        },
+        {
+            "id": 190,
+            "caseVersionId": 24,
+            "itemId": "7390483335",
+            "name": "Clown Nose in Black",
+            "img": null,
+            "price": 25,
+            "rangeFrom": 65827,
+            "rangeTo": 100000
+        },
+        {
+            "id": 191,
+            "caseVersionId": 25,
+            "itemId": "16646369",
+            "name": "Crazy Glasses",
+            "img": "https://tr.rbxcdn.com/a9cec12a43ccd58ba207310c62f7cf5a/110/110/Hat/Png",
+            "price": 29006,
+            "rangeFrom": 1,
+            "rangeTo": 10661
+        },
+        {
+            "id": 192,
+            "caseVersionId": 25,
+            "itemId": "2316681099",
+            "name": "Blue Chrome Glasses",
+            "img": "https://tr.rbxcdn.com/3b099d36c7a19fc727a3d67c21a09042/110/110/Hat/Png",
+            "price": 5414,
+            "rangeFrom": 10662,
+            "rangeTo": 30754
+        },
+        {
+            "id": 193,
+            "caseVersionId": 25,
+            "itemId": "51243561",
+            "name": "Peace Sign Glasses",
+            "img": "https://tr.rbxcdn.com/04573d411e7e6bb8cb45956158facd42/110/110/Hat/Png",
+            "price": 2885,
+            "rangeFrom": 30755,
+            "rangeTo": 45071
+        },
+        {
+            "id": 194,
+            "caseVersionId": 25,
+            "itemId": "243854130",
+            "name": "Purple Crazy Glasses",
+            "img": "https://tr.rbxcdn.com/38f6d688aa3d6a56b9309e5b37423c56/110/110/Hat/Png",
+            "price": 828,
+            "rangeFrom": 45072,
+            "rangeTo": 57737
+        },
+        {
+            "id": 195,
+            "caseVersionId": 25,
+            "itemId": "6803412842",
+            "name": "Gucci Diamond-Framed Sunglasses",
+            "img": "https://tr.rbxcdn.com/f81517d54974bab7f46550b6be1e279a/110/110/Hat/Png",
+            "price": 423,
+            "rangeFrom": 57738,
+            "rangeTo": 72036
+        },
+        {
+            "id": 196,
+            "caseVersionId": 25,
+            "itemId": "6803401743",
+            "name": "Gucci Sunglasses with Crystals",
+            "img": "https://tr.rbxcdn.com/b56a740806d401b2a306ceef5d68d29b/110/110/Hat/Png",
+            "price": 267,
+            "rangeFrom": 72037,
+            "rangeTo": 80120
+        },
+        {
+            "id": 197,
+            "caseVersionId": 25,
+            "itemId": "250364732",
+            "name": "Lime Glasses",
+            "img": "https://tr.rbxcdn.com/5298aef7e1646e29e035b0fa5551b042/110/110/Hat/Png",
+            "price": 212,
+            "rangeFrom": 80121,
+            "rangeTo": 100000
+        },
+        {
+            "id": 198,
+            "caseVersionId": 26,
+            "itemId": "23301681",
+            "name": "Moon Seeing Stars",
+            "img": "https://tr.rbxcdn.com/11170ac1856aee2c3e9397fb83d78ee0/110/110/Hat/Png",
+            "price": 272550,
+            "rangeFrom": 1,
+            "rangeTo": 1910
+        },
+        {
+            "id": 199,
+            "caseVersionId": 26,
+            "itemId": "162372650",
+            "name": "LOL Moon",
+            "img": "https://tr.rbxcdn.com/c8a0d2f807a7e4acae8066a88d5a2f4a/110/110/Hat/Png",
+            "price": 14338,
+            "rangeFrom": 1911,
+            "rangeTo": 7381
+        },
+        {
+            "id": 200,
+            "caseVersionId": 26,
+            "itemId": "7319168",
+            "name": "The Moon",
+            "img": "https://tr.rbxcdn.com/bc77a9e9a967d99a780a260688f6665a/110/110/Hat/Png",
+            "price": 3666,
+            "rangeFrom": 7382,
+            "rangeTo": 12914
+        },
+        {
+            "id": 201,
+            "caseVersionId": 26,
+            "itemId": "119916848",
+            "name": "Cool Moon Shades",
+            "img": "https://tr.rbxcdn.com/e8235e2d1baf99668e4aaa7ba2822b16/110/110/Hat/Png",
+            "price": 2309,
+            "rangeFrom": 12915,
+            "rangeTo": 21272
+        },
+        {
+            "id": 202,
+            "caseVersionId": 26,
+            "itemId": "24826737",
+            "name": "POW! To the Moon! Egg",
+            "img": "https://tr.rbxcdn.com/57f50a301d591e46cda0c57f5b1e0173/110/110/Hat/Png",
+            "price": 391,
+            "rangeFrom": 21273,
+            "rangeTo": 40717
+        },
+        {
+            "id": 203,
+            "caseVersionId": 26,
+            "itemId": "102618732",
+            "name": "Full Moon Egg",
+            "img": "https://tr.rbxcdn.com/c75e582181f4269325d99c1ad71bc269/110/110/Hat/Png",
+            "price": 120,
+            "rangeFrom": 40718,
+            "rangeTo": 100000
+        },
+        {
+            "id": 204,
+            "caseVersionId": 27,
+            "itemId": "172327379",
+            "name": "Beach Ball Head",
+            "img": "https://tr.rbxcdn.com/88c28d0391ff84667e39ecfcfd9f0db6/110/110/Hat/Png",
+            "price": 22427,
+            "rangeFrom": 1,
+            "rangeTo": 34621
+        },
+        {
+            "id": 205,
+            "caseVersionId": 27,
+            "itemId": "253153907",
+            "name": "Beach House Fedora",
+            "img": "https://tr.rbxcdn.com/a89190c4dc67f3b6ebb971754aa43f11/110/110/Hat/Png",
+            "price": 17571,
+            "rangeFrom": 34622,
+            "rangeTo": 35141
+        },
+        {
+            "id": 206,
+            "caseVersionId": 27,
+            "itemId": "31541373",
+            "name": "Beach Day",
+            "img": "https://tr.rbxcdn.com/ad1d50e88be7b3cc595a9932e85e73ab/110/110/Hat/Png",
+            "price": 2024,
+            "rangeFrom": 35142,
+            "rangeTo": 58086
+        },
+        {
+            "id": 207,
+            "caseVersionId": 27,
+            "itemId": "6963758939",
+            "name": "Beach Day Crown",
+            "img": null,
+            "price": 1074,
+            "rangeFrom": 58087,
+            "rangeTo": 78834
+        },
+        {
+            "id": 208,
+            "caseVersionId": 27,
+            "itemId": "119085989",
+            "name": "Sunny Beach Visor",
+            "img": null,
+            "price": 439,
+            "rangeFrom": 78835,
+            "rangeTo": 100000
+        },
+        {
+            "id": 209,
+            "caseVersionId": 28,
+            "itemId": "29844011",
+            "name": "Retro 80s Headphones",
+            "img": "https://tr.rbxcdn.com/431ccd1616a4b2040d75e3330164b65e/110/110/Hat/Png",
+            "price": 94609,
+            "rangeFrom": 1,
+            "rangeTo": 8662
+        },
+        {
+            "id": 210,
+            "caseVersionId": 28,
+            "itemId": "218674480",
+            "name": "Shocked Retro Robot Head",
+            "img": "https://tr.rbxcdn.com/93834f3c4b911d9c0879da665f5ddc7c/110/110/Hat/Png",
+            "price": 4886,
+            "rangeFrom": 8663,
+            "rangeTo": 12454
+        },
+        {
+            "id": 211,
+            "caseVersionId": 28,
+            "itemId": "117410734",
+            "name": "Retro Pattern Shades",
+            "img": "https://tr.rbxcdn.com/3d5aa98fc7be410f582fb4daef0f3db7/110/110/Hat/Png",
+            "price": 1010,
+            "rangeFrom": 12455,
+            "rangeTo": 23482
+        },
+        {
+            "id": 212,
+            "caseVersionId": 28,
+            "itemId": "8028203294",
+            "name": "Walkboy Retro Music Player",
+            "img": null,
+            "price": 753,
+            "rangeFrom": 23483,
+            "rangeTo": 31278
+        },
+        {
+            "id": 213,
+            "caseVersionId": 28,
+            "itemId": "15726947",
+            "name": "Retro 3D Glasses",
+            "img": null,
+            "price": 532,
+            "rangeFrom": 31279,
+            "rangeTo": 43548
+        },
+        {
+            "id": 214,
+            "caseVersionId": 28,
+            "itemId": "8722289714",
+            "name": "Retro Bandana",
+            "img": null,
+            "price": 50,
+            "rangeFrom": 43549,
+            "rangeTo": 100000
+        },
+        {
+            "id": 215,
+            "caseVersionId": 29,
+            "itemId": "24015579",
+            "name": "Pot Of Gold",
+            "img": "https://tr.rbxcdn.com/4fc9260a6bfe16b9bd1673445f5aa9dc/110/110/Gear/Png",
+            "price": 100000,
+            "rangeFrom": 1,
+            "rangeTo": 7510
+        },
+        {
+            "id": 216,
+            "caseVersionId": 29,
+            "itemId": "1594180",
+            "name": "Golden Teapot of Pwnage",
+            "img": "https://tr.rbxcdn.com/6c68faa1f7d1d0cce63aa6c98dd4ef9d/110/110/Hat/Png",
+            "price": 13130,
+            "rangeFrom": 7511,
+            "rangeTo": 15484
+        },
+        {
+            "id": 217,
+            "caseVersionId": 29,
+            "itemId": "94266158",
+            "name": "Unorthodox Pot of Gold",
+            "img": "https://tr.rbxcdn.com/c99c9d9dee99ab39fffa8a1ce4583ed1/110/110/Hat/Png",
+            "price": 6940,
+            "rangeFrom": 15485,
+            "rangeTo": 20095
+        },
+        {
+            "id": 218,
+            "caseVersionId": 29,
+            "itemId": "12859182816",
+            "name": "Goblin",
+            "img": null,
+            "price": 302,
+            "rangeFrom": 20096,
+            "rangeTo": 30335
+        },
+        {
+            "id": 219,
+            "caseVersionId": 29,
+            "itemId": "4623732543",
+            "name": "Goblin Ears",
+            "img": null,
+            "price": 40,
+            "rangeFrom": 30336,
+            "rangeTo": 100000
+        },
+        {
+            "id": 220,
+            "caseVersionId": 30,
+            "itemId": "16678098",
+            "name": "I'm Secretly A Vampire, The Hat",
+            "img": "https://tr.rbxcdn.com/e912293a975db58a5bb5e65c0f52369e/110/110/Hat/Png",
+            "price": 23726,
+            "rangeFrom": 1,
+            "rangeTo": 30726
+        },
+        {
+            "id": 221,
+            "caseVersionId": 30,
+            "itemId": "1272715",
+            "name": "Helm of the Secret Fire",
+            "img": "https://tr.rbxcdn.com/aa5243f6833802396b51a9774d8f728c/110/110/Hat/Png",
+            "price": 17767,
+            "rangeFrom": 30727,
+            "rangeTo": 44355
+        },
+        {
+            "id": 222,
+            "caseVersionId": 30,
+            "itemId": "21070090",
+            "name": "Servant of the Secret Fire",
+            "img": "https://tr.rbxcdn.com/5e6677526f50e7eb2c126163be48a0dc/110/110/Hat/Png",
+            "price": 11803,
+            "rangeFrom": 44356,
+            "rangeTo": 64135
+        },
+        {
+            "id": 223,
+            "caseVersionId": 30,
+            "itemId": "1744071203",
+            "name": "The Locksmith's Secret",
+            "img": "https://tr.rbxcdn.com/fd1a965b6d1a4ff63ed438a6a7cf06ef/110/110/Hat/Png",
+            "price": 1168,
+            "rangeFrom": 64136,
+            "rangeTo": 67370
+        },
+        {
+            "id": 224,
+            "caseVersionId": 30,
+            "itemId": "22070802",
+            "name": "Secret Kid Wizard Glasses",
+            "img": null,
+            "price": 103,
+            "rangeFrom": 67371,
+            "rangeTo": 100000
+        },
+        {
+            "id": 225,
+            "caseVersionId": 31,
+            "itemId": "43704842",
+            "name": "Pirate Vision",
+            "img": "https://tr.rbxcdn.com/d02e090ab71f7c321def6bf26a6d1e5e/110/110/Hat/Png",
+            "price": 50000,
+            "rangeFrom": 1,
+            "rangeTo": 18046
+        },
+        {
+            "id": 226,
+            "caseVersionId": 31,
+            "itemId": "158068446",
+            "name": "Platinum Pirate Headphones",
+            "img": "https://tr.rbxcdn.com/6123406bc7ab90f035c3c56d82eeafd0/110/110/Hat/Png",
+            "price": 14471,
+            "rangeFrom": 18047,
+            "rangeTo": 23385
+        },
+        {
+            "id": 227,
+            "caseVersionId": 31,
+            "itemId": "46839188",
+            "name": "Pirate Luv",
+            "img": "https://tr.rbxcdn.com/cdf128c21e1994d50e995456e0f737f3/110/110/Hat/Png",
+            "price": 10072,
+            "rangeFrom": 23386,
+            "rangeTo": 30569
+        },
+        {
+            "id": 228,
+            "caseVersionId": 31,
+            "itemId": "236399087",
+            "name": "Steampunk Pirate Captain",
+            "img": "https://tr.rbxcdn.com/ef0715e5785a2a6050ec6193251c941f/110/110/Hat/Png",
+            "price": 7906,
+            "rangeFrom": 30570,
+            "rangeTo": 57514
+        },
+        {
+            "id": 229,
+            "caseVersionId": 31,
+            "itemId": "155671106",
+            "name": "Rusted Steampunk Pirate",
+            "img": "https://tr.rbxcdn.com/c6e9ab85b77eca61e18378f8bad5047c/110/110/Hat/Png",
+            "price": 5227,
+            "rangeFrom": 57515,
+            "rangeTo": 67299
+        },
+        {
+            "id": 230,
+            "caseVersionId": 31,
+            "itemId": "19364667",
+            "name": "Pirate Santa",
+            "img": "https://tr.rbxcdn.com/963a8a03d5d26dd1e252e2fa19589cfe/110/110/Hat/Png",
+            "price": 3814,
+            "rangeFrom": 67300,
+            "rangeTo": 74435
+        },
+        {
+            "id": 231,
+            "caseVersionId": 31,
+            "itemId": "144506058",
+            "name": "Pirate Chicken",
+            "img": "https://tr.rbxcdn.com/e9ff5da9a42e2f39894543c1877e76af/110/110/Hat/Png",
+            "price": 3309,
+            "rangeFrom": 74436,
+            "rangeTo": 97026
+        },
+        {
+            "id": 232,
+            "caseVersionId": 31,
+            "itemId": "19364658",
+            "name": "Pirate Elf",
+            "img": "https://tr.rbxcdn.com/2ba56935ffeeb4498019e606a390daf7/110/110/Hat/Png",
+            "price": 1722,
+            "rangeFrom": 97027,
+            "rangeTo": 100000
+        },
+        {
+            "id": 233,
+            "caseVersionId": 32,
+            "itemId": "439985494",
+            "name": "Sparkle Time Happy Time Magic Flower Hat",
+            "img": "https://tr.rbxcdn.com/1eaaac81a88cf25d90cfcc4fa3a05560/110/110/Hat/Png",
+            "price": 325354,
+            "rangeFrom": 1,
+            "rangeTo": 4549
+        },
+        {
+            "id": 234,
+            "caseVersionId": 32,
+            "itemId": "5162497",
+            "name": "Happy Time Magic Flower Hat",
+            "img": "https://tr.rbxcdn.com/e75b469bc82bc9c9350f59dabf19e973/110/110/Hat/Png",
+            "price": 50861,
+            "rangeFrom": 4550,
+            "rangeTo": 10019
+        },
+        {
+            "id": 235,
+            "caseVersionId": 32,
+            "itemId": "24659699",
+            "name": "Magic Dragon",
+            "img": "https://tr.rbxcdn.com/17a45e65e25c0a5241b9272acbf67e21/110/110/Gear/Png",
+            "price": 9127,
+            "rangeFrom": 10020,
+            "rangeTo": 15626
+        },
+        {
+            "id": 236,
+            "caseVersionId": 32,
+            "itemId": "71037056",
+            "name": "Magic Lamp",
+            "img": "https://tr.rbxcdn.com/6b37adf8ddd48a3e6b1aa837c87fe5fe/110/110/Gear/Png",
+            "price": 5612,
+            "rangeFrom": 15627,
+            "rangeTo": 17279
+        },
+        {
+            "id": 237,
+            "caseVersionId": 32,
+            "itemId": "124730147",
+            "name": "Happy Time Magic Flower Bowler",
+            "img": "https://tr.rbxcdn.com/0bf4ffa21de7df581b47763f489e289f/110/110/Hat/Png",
+            "price": 1023,
+            "rangeFrom": 17280,
+            "rangeTo": 23953
+        },
+        {
+            "id": 238,
+            "caseVersionId": 32,
+            "itemId": "225921000",
+            "name": "Rainbow Magic Carpet",
+            "img": null,
+            "price": 952,
+            "rangeFrom": 23954,
+            "rangeTo": 30566
+        },
+        {
+            "id": 239,
+            "caseVersionId": 32,
+            "itemId": "1016183873",
+            "name": "Golden Magic Carpet",
+            "img": null,
+            "price": 502,
+            "rangeFrom": 30567,
+            "rangeTo": 42814
+        },
+        {
+            "id": 240,
+            "caseVersionId": 32,
+            "itemId": "5802488788",
+            "name": "Magic Wand",
+            "img": null,
+            "price": 108,
+            "rangeFrom": 42815,
+            "rangeTo": 100000
+        },
+        {
+            "id": 241,
+            "caseVersionId": 33,
+            "itemId": "72082328",
+            "name": "Red Sparkle Time Fedora",
+            "img": "https://tr.rbxcdn.com/e940df3a4192a265783664a0cc79e567/110/110/Hat/Png",
+            "price": 4932876,
+            "rangeFrom": 1,
+            "rangeTo": 164
+        },
+        {
+            "id": 242,
+            "caseVersionId": 33,
+            "itemId": "16652251",
+            "name": "Red Tango",
+            "img": "https://tr.rbxcdn.com/4e9515d8ad69032c3dc8a7e2e3cfb859/110/110/Face/Png",
+            "price": 1577028,
+            "rangeFrom": 165,
+            "rangeTo": 1090
+        },
+        {
+            "id": 243,
+            "caseVersionId": 33,
+            "itemId": "102605392",
+            "name": "Agonizingly Red Bucket of Cheer",
+            "img": "https://tr.rbxcdn.com/f74dbbde96213b7334281e4760f1ba39/110/110/Hat/Png",
+            "price": 128652,
+            "rangeFrom": 1091,
+            "rangeTo": 2738
+        },
+        {
+            "id": 244,
+            "caseVersionId": 33,
+            "itemId": "66330295",
+            "name": "Red RAWR",
+            "img": "https://tr.rbxcdn.com/e73c956f85e7fa6edbf502e48019a50f/110/110/Face/Png",
+            "price": 91865,
+            "rangeFrom": 2739,
+            "rangeTo": 3029
+        },
+        {
+            "id": 245,
+            "caseVersionId": 33,
+            "itemId": "193696583",
+            "name": "Red Ice Crown",
+            "img": "https://tr.rbxcdn.com/dfc304e56db0568743f550bba152d9c4/110/110/Hat/Png",
+            "price": 36395,
+            "rangeFrom": 3030,
+            "rangeTo": 4993
+        },
+        {
+            "id": 246,
+            "caseVersionId": 33,
+            "itemId": "20573086",
+            "name": "): Red Grind",
+            "img": "https://tr.rbxcdn.com/237867f939f709c973ad52cca899306b/110/110/Hat/Png",
+            "price": 10689,
+            "rangeFrom": 4994,
+            "rangeTo": 8081
+        },
+        {
+            "id": 247,
+            "caseVersionId": 33,
+            "itemId": "27477255",
+            "name": "Red Balloon",
+            "img": "https://tr.rbxcdn.com/e90407334013fdf7c136075cb59f9d0e/110/110/Gear/Png",
+            "price": 3259,
+            "rangeFrom": 8082,
+            "rangeTo": 16186
+        },
+        {
+            "id": 248,
+            "caseVersionId": 33,
+            "itemId": "7831114287",
+            "name": "Red Business Hat",
+            "img": null,
+            "price": 269,
+            "rangeFrom": 16187,
+            "rangeTo": 100000
+        },
+        {
+            "id": 249,
+            "caseVersionId": 34,
+            "itemId": "402303179",
+            "name": "Fool of the Federation",
+            "img": "https://tr.rbxcdn.com/657e500ef2d4ed1d8d3e43bb2364d21d/110/110/Hat/Png",
+            "price": 245932,
+            "rangeFrom": 1,
+            "rangeTo": 12081
+        },
+        {
+            "id": 250,
+            "caseVersionId": 34,
+            "itemId": "147974365",
+            "name": "Mardi Gras Jester",
+            "img": "https://tr.rbxcdn.com/19e857be6f4d8c3dd3dffff94dc828a3/110/110/Hat/Png",
+            "price": 53241,
+            "rangeFrom": 12082,
+            "rangeTo": 23403
+        },
+        {
+            "id": 251,
+            "caseVersionId": 34,
+            "itemId": "467",
+            "name": "Jester Equinox",
+            "img": null,
+            "price": 12639,
+            "rangeFrom": 23404,
+            "rangeTo": 32652
+        },
+        {
+            "id": 252,
+            "caseVersionId": 34,
+            "itemId": "28626205",
+            "name": "Midnight Jester Mask",
+            "img": null,
+            "price": 3219,
+            "rangeFrom": 32653,
+            "rangeTo": 42678
+        },
+        {
+            "id": 253,
+            "caseVersionId": 34,
+            "itemId": "5803611489",
+            "name": "Purple and Black Jester Hat",
+            "img": null,
+            "price": 863,
+            "rangeFrom": 42679,
+            "rangeTo": 58972
+        },
+        {
+            "id": 254,
+            "caseVersionId": 34,
+            "itemId": "5700604813",
+            "name": "Black and White Jester",
+            "img": null,
+            "price": 325,
+            "rangeFrom": 58973,
+            "rangeTo": 100000
+        },
+        {
+            "id": 255,
+            "caseVersionId": 35,
+            "itemId": "638087256",
+            "name": "Neon Pink Crazy Crown",
+            "img": "https://tr.rbxcdn.com/bfa456e68181db6bc03fda44615cde32/110/110/Hat/Png",
+            "price": 139714,
+            "rangeFrom": 1,
+            "rangeTo": 24227
+        },
+        {
+            "id": 256,
+            "caseVersionId": 35,
+            "itemId": "376805769",
+            "name": "Neon Purple Crazy Crown",
+            "img": "https://tr.rbxcdn.com/92c85cf109eab78af6edc48bfc9c2b6b/110/110/Hat/Png",
+            "price": 46050,
+            "rangeFrom": 24228,
+            "rangeTo": 32384
+        },
+        {
+            "id": 257,
+            "caseVersionId": 35,
+            "itemId": "321346616",
+            "name": "Neon Green Crazy Crown",
+            "img": "https://tr.rbxcdn.com/ac65726874ba3e30a85b52ac3747e044/110/110/Hat/Png",
+            "price": 39575,
+            "rangeFrom": 32385,
+            "rangeTo": 47900
+        },
+        {
+            "id": 258,
+            "caseVersionId": 35,
+            "itemId": "376806474",
+            "name": "Neon Pink Top Hat",
+            "img": "https://tr.rbxcdn.com/9f595bf4d483de2d01455bf2ad1d0689/110/110/Hat/Png",
+            "price": 32768,
+            "rangeFrom": 47901,
+            "rangeTo": 57061
+        },
+        {
+            "id": 259,
+            "caseVersionId": 35,
+            "itemId": "215762773",
+            "name": "Neon Pink Shaggy",
+            "img": "https://tr.rbxcdn.com/c65637032042b8f6f223f68917a04dc9/110/110/Hat/Png",
+            "price": 8853,
+            "rangeFrom": 57062,
+            "rangeTo": 71787
+        },
+        {
+            "id": 260,
+            "caseVersionId": 35,
+            "itemId": "151786902",
+            "name": "Neon Green Beautiful Hair",
+            "img": "https://tr.rbxcdn.com/cfe74b7439b92acad3d8627110cc17ee/110/110/Hat/Png",
+            "price": 7139,
+            "rangeFrom": 71788,
+            "rangeTo": 79474
+        },
+        {
+            "id": 261,
+            "caseVersionId": 35,
+            "itemId": "68358746",
+            "name": "Neon Trihawk",
+            "img": "https://tr.rbxcdn.com/e8f6ad57677af7c0b10f031ca17419c1/110/110/Hat/Png",
+            "price": 4690,
+            "rangeFrom": 79475,
+            "rangeTo": 85607
+        },
+        {
+            "id": 262,
+            "caseVersionId": 35,
+            "itemId": "262399119",
+            "name": "Neon Pink Trihawk",
+            "img": "https://tr.rbxcdn.com/d884db10ae9536c9d586d9339608c5db/110/110/Hat/Png",
+            "price": 4031,
+            "rangeFrom": 85608,
+            "rangeTo": 100000
+        },
+        {
+            "id": 263,
+            "caseVersionId": 36,
+            "itemId": "321345771",
+            "name": "Superb Pink Adventurer",
+            "img": null,
+            "price": 1000000,
+            "rangeFrom": 1,
+            "rangeTo": 4719
+        },
+        {
+            "id": 264,
+            "caseVersionId": 36,
+            "itemId": "334663683",
+            "name": "Pink Sparkle Time Fedora",
+            "img": null,
+            "price": 750000,
+            "rangeFrom": 4720,
+            "rangeTo": 9340
+        },
+        {
+            "id": 265,
+            "caseVersionId": 36,
+            "itemId": "315549204",
+            "name": "WC Ultimates: Pink Diamond Distraction",
+            "img": null,
+            "price": 600000,
+            "rangeFrom": 9341,
+            "rangeTo": 12154
+        },
+        {
+            "id": 266,
+            "caseVersionId": 36,
+            "itemId": "553971558",
+            "name": "Pink Queen of the Night",
+            "img": null,
+            "price": 130000,
+            "rangeFrom": 12155,
+            "rangeTo": 13223
+        },
+        {
+            "id": 267,
+            "caseVersionId": 36,
+            "itemId": "323419816",
+            "name": "Glorious Pink Party Queen",
+            "img": null,
+            "price": 75000,
+            "rangeFrom": 13224,
+            "rangeTo": 14400
+        },
+        {
+            "id": 268,
+            "caseVersionId": 36,
+            "itemId": "435115571",
+            "name": "Ultimate Pink Victory",
+            "img": null,
+            "price": 16000,
+            "rangeFrom": 14401,
+            "rangeTo": 21672
+        },
+        {
+            "id": 269,
+            "caseVersionId": 36,
+            "itemId": "16985920",
+            "name": "Pink Penguin",
+            "img": null,
+            "price": 776,
+            "rangeFrom": 21673,
+            "rangeTo": 84814
+        },
+        {
+            "id": 270,
+            "caseVersionId": 36,
+            "itemId": "25555262",
+            "name": "Pinky The Cyclops",
+            "img": null,
+            "price": 8252,
+            "rangeFrom": 84815,
+            "rangeTo": 94594
+        },
+        {
+            "id": 271,
+            "caseVersionId": 36,
+            "itemId": "1428418448",
+            "name": "Pink Mermaid Princess",
+            "img": null,
+            "price": 22000,
+            "rangeFrom": 94595,
+            "rangeTo": 100000
+        }
+    ]
+}

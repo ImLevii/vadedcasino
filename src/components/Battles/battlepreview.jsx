@@ -5,6 +5,7 @@ import {getCents} from "../../util/balance";
 import {A, useNavigate} from "@solidjs/router";
 import {authedAPI} from "../../util/api";
 import ActiveGame from "../Loader/activegame";
+import {resolveImageSrc} from "../../util/image";
 
 function BattlePreview(props) {
 
@@ -101,7 +102,7 @@ function BattlePreview(props) {
 
           <div class='cases'>
             <For each={props?.battle?.rounds}>{(c, index) => (
-              <img src={`${import.meta.env.VITE_SERVER_URL}${getCase(c?.caseId)?.img}`} height='80'
+              <img src={resolveImageSrc(getCase(c?.caseId)?.img)} height='80'
                    alt=''/>
             )}</For>
           </div>

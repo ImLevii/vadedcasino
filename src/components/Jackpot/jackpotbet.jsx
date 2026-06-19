@@ -1,6 +1,7 @@
 import CoinflipItem from "../Coinflips/coinflipitem";
 import Avatar from "../Level/avatar";
 import {getCents} from "../../util/balance";
+import {resolveImageSrc} from "../../util/image";
 
 function JackpotBet(props) {
 
@@ -18,7 +19,7 @@ function JackpotBet(props) {
     }
 
     function getImage() {
-        if (props?.img) return `${import.meta.env.VITE_SERVER_URL}${props.img}`
+      if (props?.img) return resolveImageSrc(props.img)
         return '/assets/icons/coin.svg'
     }
 

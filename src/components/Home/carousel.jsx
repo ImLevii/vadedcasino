@@ -1,7 +1,8 @@
-import {createSignal, onCleanup, For} from "solid-js";
+import {createResource, createSignal, onCleanup, For, Show} from "solid-js";
 import {A} from "@solidjs/router";
+import {api} from "../../util/api";
 
-const SLIDES = [
+const FALLBACK_SLIDES = [
     {
         title: 'DEPOSIT MATCH BONUSES',
         subtitle: 'FOR NEW AND EXISTING USERS',
@@ -28,12 +29,26 @@ const SLIDES = [
     },
 ]
 
+async function fetchSlides() {
+  const res = await api('/slides', 'GET', null);
+  if (!res?.success || !Array.isArray(res.data)) return FALLBACK_SLIDES;
+  return res.data;
+}
+
+function resolveAsset(path) {
+  if (!path || typeof path !== 'string') return '';
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) return path;
+  const base = import.meta.env.VITE_SERVER_URL || '';
+  return `${base}${path}`;
+}
+
 function Carousel() {
 
+  const [slides] = createResource(fetchSlides)
     const [index, setIndex] = createSignal(0)
 
     const timer = setInterval(() => {
-        setIndex((i) => (i + 1) % SLIDES.length)
+    setIndex((i) => (i + 1) % (slides()?.length || FALLBACK_SLIDES.length))
     }, 6000)
 
     onCleanup(() => clearInterval(timer))
@@ -42,8 +57,11 @@ function Carousel() {
         <>
             <div class='carousel'>
                 <div class='track' style={{transform: `translateX(-${index() * 100}%)`}}>
-                    <For each={SLIDES}>{(slide) => (
-                        <div class='slide'>
+                <For each={slides() || FALLBACK_SLIDES}>{(slide) => (
+                  <div
+                    class='slide'
+                    style={slide.backgroundImage ? { 'background-image': `linear-gradient(125deg, rgba(11,15,22,0.86), rgba(17,22,32,0.76), rgba(13,26,18,0.86)), url(${resolveAsset(slide.backgroundImage)})` } : {}}
+                  >
                             {/* Decorative grid lines */}
                             <div class='slide-grid'/>
 
@@ -52,27 +70,37 @@ function Carousel() {
                             <div class='glow-orb orb-2'/>
 
                             <div class='slide-content'>
-                                <div class='slide-tag'>{slide.tag}</div>
+                                <Show when={slide.tag}>
+                                  <div class='slide-tag' style={{ color: slide.accentColor || '#1fd65f', borderColor: `${slide.accentColor || '#1fd65f'}55`, background: `${slide.accentColor || '#1fd65f'}1a` }}>{slide.tag}</div>
+                                </Show>
                                 <h1>{slide.title}</h1>
-                                <p>{slide.subtitle}</p>
-                                <div class='cta'>{slide.cta}</div>
+                                <Show when={slide.subtitle}><p>{slide.subtitle}</p></Show>
+                                <Show when={slide.cta}><div class='cta' style={{ background: `radial-gradient(60% 60% at 50% 50%, ${slide.accentColor || '#1fd65f'} 0%, #18b853 100%)` }}>{slide.cta}</div></Show>
                             </div>
 
-                            <div class='slide-art'>
-                                <div class='art-ring ring-1'/>
-                                <div class='art-ring ring-2'/>
-                                <div class='art-ring ring-3'/>
-                                <div class='art-dots'/>
-                            </div>
+                              <Show when={slide.image} fallback={(
+                                <div class='slide-art'>
+                                  <div class='art-ring ring-1'/>
+                                  <div class='art-ring ring-2'/>
+                                  <div class='art-ring ring-3'/>
+                                  <div class='art-dots'/>
+                                </div>
+                              )}>
+                                <div class='slide-image-wrap'>
+                                  <img src={resolveAsset(slide.image)} alt={slide.title} />
+                                </div>
+                              </Show>
 
-                            <A href={slide.href} class='gamemode-link'/>
+                              <Show when={slide.href}>
+                                <A href={slide.href} class='gamemode-link'/>
+                              </Show>
                         </div>
                     )}</For>
                 </div>
 
                 {/* Dot indicators */}
                 <div class='dots'>
-                    <For each={SLIDES}>{(_, i) => (
+                          <For each={slides() || FALLBACK_SLIDES}>{(_, i) => (
                         <button class={'dot ' + (index() === i() ? 'active' : '')}
                                 onClick={() => setIndex(i())}/>
                     )}</For>
@@ -107,6 +135,8 @@ function Carousel() {
                 align-items: center;
 
                 background: linear-gradient(125deg, #0b0f16 0%, #111620 50%, #0d1a12 100%);
+                background-size: cover;
+                background-position: center;
                 overflow: hidden;
               }
 
@@ -270,6 +300,28 @@ function Carousel() {
                 mask-image: radial-gradient(circle, black 40%, transparent 70%);
               }
 
+              .slide-image-wrap {
+                position: absolute;
+                right: 54px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 260px;
+                height: 200px;
+                z-index: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                pointer-events: none;
+              }
+
+              .slide-image-wrap img {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+                display: block;
+                filter: drop-shadow(0 20px 34px rgba(0,0,0,0.5));
+              }
+
               /* Dots nav */
               .dots {
                 position: absolute;
@@ -319,6 +371,7 @@ function Carousel() {
                 .slide-tag { display: none; }
 
                 .slide-art { display: none; }
+                .slide-image-wrap { display: none; }
 
                 .cta {
                   font-size: 11px;

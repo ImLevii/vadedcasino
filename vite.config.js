@@ -51,7 +51,14 @@ export default defineConfig({
       '/jackpot': 'http://127.0.0.1:3000',
       '/slots': 'http://127.0.0.1:3000',
       '/mines': 'http://127.0.0.1:3000',
-      '^/admin/': 'http://127.0.0.1:3000',
+      '/slides': 'http://127.0.0.1:3000',
+      '/admin': {
+        target: 'http://127.0.0.1:3000',
+        bypass: (req) => {
+          const accept = req.headers['accept'] || ''
+          if (accept.includes('text/html')) return req.url
+        }
+      },
       '/surveys': 'http://127.0.0.1:3000',
       '/fairness': 'http://127.0.0.1:3000',
     }

@@ -24,6 +24,8 @@ const AdminFilter = lazy(() => import('./components/Admin/filter'))
 const AdminCashier = lazy(() => import('./components/Admin/cashier'))
 const AdminRain = lazy(() => import('./components/Admin/rain'))
 const AdminAnnouncements = lazy(() => import('./components/Admin/announcements'))
+const AdminCases = lazy(() => import('./components/Admin/cases'))
+const AdminSlides = lazy(() => import('./components/Admin/slides'))
 const AdminStatsbook = lazy(() => import('./components/Admin/statsbook'))
 const AdminSettings = lazy(() => import('./components/Admin/settings'))
 
@@ -396,6 +398,18 @@ function App() {
                           <Route path='/announcements' element={
                             <Suspense fallback={<Loader/>}>
                               <AdminAnnouncements/>
+                            </Suspense>
+                          }/>
+
+                          <Route path='/cases' element={
+                            <Suspense fallback={<Loader/>}>
+                              <AdminCases/>
+                            </Suspense>
+                          }/>
+
+                          <Route path='/slides' element={
+                            <Suspense fallback={<Loader/>}>
+                              <AdminSlides/>
                             </Suspense>
                           }/>
 

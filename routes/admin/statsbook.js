@@ -11,6 +11,7 @@ const msInDay = 86400000;
 let launchDay = false;
 
 router.get('/', async (req, res) => {
+    try {
 
     if (!launchDay) {
         [[{ launchDay }]] = await sql.query('SELECT MIN(createdAt) as launchDay FROM users');
@@ -46,7 +47,8 @@ router.get('/', async (req, res) => {
 
     const [robuxDeposits] = await sql.query(`
         SELECT DATE(createdAt) as date, SUM(amount) as total
-        FROM gamePassTxs WHERE DATE(createdAt) >= ? AND DATE(createdAt) <= ? 
+        FROM transactions
+        WHERE type = 'deposit' AND method = 'robux' AND DATE(createdAt) >= ? AND DATE(createdAt) <= ?
         GROUP BY date ORDER BY date DESC
     `, [dayFrom, dayTo]);
 
@@ -54,8 +56,9 @@ router.get('/', async (req, res) => {
     robuxDeposits.forEach(e => robuxDepositsMap[toDateString(e.date)] = e.total);
 
     const [limitedsDeposits] = await sql.query(`
-        SELECT DATE(modifiedAt) as date, SUM(boughtPrice) as total
-        FROM marketplaceListings WHERE DATE(modifiedAt) >= ? AND DATE(modifiedAt) <= ? AND boughtPrice IS NOT NULL
+        SELECT DATE(createdAt) as date, SUM(amount) as total
+        FROM transactions
+        WHERE type = 'deposit' AND method = 'limiteds' AND DATE(createdAt) >= ? AND DATE(createdAt) <= ?
         GROUP BY date ORDER BY date DESC
     `, [dayFrom, dayTo]);
 
@@ -118,6 +121,7 @@ router.get('/', async (req, res) => {
 
         const robuxDepositsCount = robuxDepositsMap[day] || 0;
         const limitedsDepositsCount = limitedsDepositsMap[day] || 0;
+        const coinDepositsCount = Number(robuxDepositsCount) + Number(limitedsDepositsCount);
 
         const giftCardDepositsCount = giftCardDepositsMap[day] || 0; // roundDecimal((giftCardDepositsMap[day] || 0) / cryptoData.robuxRate.robux * cryptoData.robuxRate.usd);
         const cryptoDepositsCount = (cryptoDepositsMap[day] || 0);
@@ -128,6 +132,7 @@ router.get('/', async (req, res) => {
         days.push({
             date: day,
             npc: newUsersCount,
+            coinDeposits: coinDepositsCount,
             robuxDeposits: robuxDepositsCount,
             limitedsDeposits: limitedsDepositsCount,
             cryptoDeposits: cryptoDepositsCount,
@@ -146,6 +151,11 @@ router.get('/', async (req, res) => {
         total: totalDays,
         data: days
     })
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'SERVER_ERROR' });
+    }
 
 });
 
