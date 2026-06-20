@@ -31,6 +31,7 @@ function cleanupAndExit() {
 async function newSocket(socket) {
    
     sendOnlineUsers(socket);
+    socket.on('disconnect', () => sendOnlineUsers(io));
     emitTotalWagered(0, socket);
 
     if (rains.system) {

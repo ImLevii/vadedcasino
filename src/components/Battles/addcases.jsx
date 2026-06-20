@@ -106,7 +106,8 @@ function AddCases(props) {
           width: 100vw;
           height: 100vh;
 
-          background: rgba(18, 20, 28, 0.55);
+          background: rgba(5, 7, 12, 0.72);
+          backdrop-filter: blur(6px);
           cubic-bezier(0, 1, 0, 1);
 
           display: flex;
@@ -121,11 +122,13 @@ function AddCases(props) {
           width: 100%;
           height: 100%;
           max-height: 650px;
-          background: #232a36;
+          background: linear-gradient(180deg, rgba(13, 17, 24, 0.98), rgba(7, 10, 16, 0.98));
 
           display: flex;
           flex-direction: column;
-          border-radius: 16px;
+          border-radius: 12px;
+          border: 1px solid rgba(255,255,255,0.055);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.035), 0 24px 80px rgba(0,0,0,0.45);
           overflow: hidden;
         }
 
@@ -139,19 +142,23 @@ function AddCases(props) {
 
           padding: 0 20px;
 
-          background: #2a323f;
+          background: linear-gradient(180deg, rgba(22, 29, 41, 0.96), rgba(11, 15, 23, 0.98));
+          border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
         .footer {
           min-height: 60px;
+          border-top: 1px solid rgba(255,255,255,0.05);
+          border-bottom: unset;
         }
 
         .info {
           height: 30px;
           padding: 0 10px;
 
-          border-radius: 2px;
-          background: rgba(42, 50, 63, 0.35);
+          border-radius: 4px;
+          background: linear-gradient(180deg, rgba(31, 214, 95, 0.1), rgba(31, 214, 95, 0.04));
+          border: 1px solid rgba(31, 214, 95, 0.12);
           line-height: 30px;
 
           color: #8b92a0;
@@ -176,14 +183,15 @@ function AddCases(props) {
         .bar {
           height: 13px;
           width: 1px;
-          background: #2c3340;
+          background: rgba(255,255,255,0.1);
           margin: 0 10px;
         }
 
         .exit {
           width: 25px;
           height: 25px;
-          background: rgba(42, 50, 63, 1);
+          background: rgba(255,255,255,0.045);
+          border: 1px solid rgba(255,255,255,0.06);
 
           display: flex;
           align-items: center;
@@ -209,6 +217,7 @@ function AddCases(props) {
           flex: 1;
           overflow-y: scroll;
           padding: 20px;
+          background: radial-gradient(80% 55% at 50% 0%, rgba(31,214,95,0.035), rgba(31,214,95,0)), #070a10;
           scrollbar-color: transparent transparent;
         }
 
@@ -225,8 +234,9 @@ function AddCases(props) {
           width: 198px;
           height: 40px;
 
-          border-radius: 3px;
-          background: rgba(0, 0, 0, 0.12);
+          border-radius: 5px;
+          background: rgba(255, 255, 255, 0.035);
+          border: 1px solid rgba(255,255,255,0.055);
 
           padding: 0 0 0 15px;
 
@@ -259,8 +269,8 @@ function AddCases(props) {
           cursor: pointer;
 
           width: 40px;
-          border-radius: 0px 3px 3px 0px;
-          background: rgba(0, 0, 0, 0.12);
+          border-radius: 0px 5px 5px 0px;
+          background: rgba(31, 214, 95, 0.08);
         }
 
         .sort-by {
@@ -278,9 +288,10 @@ function AddCases(props) {
           align-items: center;
           justify-content: center;
 
-          border-radius: 3px;
-          background: #2a323f;
-          box-shadow: 0px 1px 0px 0px #1b202a, 0px -1px 0px 0px #2c3340;
+          border-radius: 5px;
+          background: linear-gradient(180deg, rgba(31, 214, 95, 0.09), rgba(255,255,255,0.025));
+          border: 1px solid rgba(255,255,255,0.055);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.025);
           cursor: pointer;
 
           gap: 8px;

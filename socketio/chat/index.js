@@ -1,5 +1,5 @@
 const io = require('../server');
-const { sendSystemMessage, channels, newMessage } = require('./functions');
+const { sendSystemMessage, sendOnlineUsers, channels, newMessage } = require('./functions');
 const { bannedPhrases, bannedUsers } = require('../../routes/admin/config');
 const { sql } = require('../../database');
 const path = require('path');
@@ -48,6 +48,7 @@ async function joinChat(socket, channel) {
     socket.join(socket.channel);
     socket.emit('chat:join', { success: true, channel });
     socket.emit('chat:pushMessage', channels[channel].messages.filter(m => m.type !== 'rain-end'));
+    sendOnlineUsers(io);
     
 }
 

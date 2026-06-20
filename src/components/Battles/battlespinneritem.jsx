@@ -115,22 +115,36 @@ function BattleSpinnerItem(props) {
 
     return (
         <>
-            <div class='case-item-container'>
+            <div class='case-item-container' style={{ '--rarity': getRarity(props?.price) }}>
+                <div class='card-bg'/>
                 <img class='item-image' src={resolveImageSrc(props.img)} height='100' alt='' draggable={false} ref={item}/>
                 <img class='back-img' src={backImage(props?.price)} height='70' alt='' ref={swords}/>
             </div>
 
             <style jsx>{`
               .case-item-container {
-                height: 100px;
-                width: 100px;
+                                height: 110px;
+                                width: 120px;
 
                 position: relative;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
+                                isolation: isolate;
               }
+
+                            .card-bg {
+                                position: absolute;
+                                inset: 5px 8px;
+                                z-index: -1;
+                                border-radius: 8px;
+                                background: radial-gradient(80% 64% at 50% 50%, color-mix(in srgb, var(--rarity, #A9B5D2) 16%, transparent), transparent 72%), linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.016));
+                                border: 1px solid rgba(255,255,255,0.065);
+                                border-bottom: 2px solid var(--rarity, #A9B5D2);
+                                box-shadow: inset 0 1px 0 rgba(255,255,255,0.038), 0 0 18px -7px var(--rarity, #A9B5D2);
+                                opacity: 0.76;
+                            }
 
               .index {
                 position: absolute;
@@ -144,13 +158,18 @@ function BattleSpinnerItem(props) {
                 user-select: none;
                 scale: 0.7;
                 opacity: 0.3;
-                z-index: 0;
+                                z-index: 1;
+                                width: 104px;
+                                height: 92px;
+                                object-fit: contain;
+                                filter: drop-shadow(0 9px 13px rgba(0,0,0,0.58));
               }
 
               .back-img {
                 position: absolute;
                 z-index: -1;
-                opacity: 0.3;
+                                opacity: 0.18;
+                                filter: drop-shadow(0 8px 14px rgba(0,0,0,0.4));
               }
             `}</style>
         </>

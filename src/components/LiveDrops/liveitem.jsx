@@ -18,7 +18,7 @@ function LiveItem(props) {
     return (
         <>
             <div class={'live-item-container ' + (getRarity(props.price))}>
-              <img src={resolveImageSrc(props.img)} alt='' height='40'/>
+              <img src={resolveImageSrc(props.img)} alt='' height='48'/>
             </div>
 
             <style jsx>{`
@@ -27,20 +27,41 @@ function LiveItem(props) {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                height: 55px;
+                height: 58px;
                 
                 position: relative;
                 z-index: 0;
 
-                border-radius: 10px;
+                border-radius: 7px;
+                overflow: hidden;
+                border: 1px solid rgba(255, 255, 255, 0.045);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 8px 18px rgba(0, 0, 0, 0.22);
+              }
+
+              .live-item-container:after {
+                content: '';
+                position: absolute;
+                left: 10px;
+                right: 10px;
+                bottom: 4px;
+                height: 1px;
+                background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.16), rgba(255,255,255,0));
+                opacity: .55;
+              }
+
+              .live-item-container img {
+                width: 92%;
+                height: 50px;
+                object-fit: contain;
+                filter: drop-shadow(0 9px 9px rgba(0, 0, 0, 0.44));
               }
 
               .live-item-container:before {
                 position: absolute;
                 content: '';
-                border-radius: 10px;
+                border-radius: 7px;
                 z-index: -1;
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(169, 181, 210, 0.14) 0%, rgba(169, 181, 210, 0.00) 100%), #18172b;
+                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(169, 181, 210, 0.16) 0%, rgba(169, 181, 210, 0.00) 100%), linear-gradient(180deg, #111722, #080c14);
                 top: 1px;
                 left: 1px;
                 width: calc(100% - 2px);
@@ -48,23 +69,23 @@ function LiveItem(props) {
               }
 
               .gray {
-                background: linear-gradient(45deg, rgba(169, 181, 210, 1), rgba(169, 181, 210, 0) 70%);
+                background: linear-gradient(45deg, rgba(169, 181, 210, .75), rgba(169, 181, 210, 0) 70%);
               }
 
               .blue {
-                background: linear-gradient(45deg, rgba(65, 118, 255, 1), rgba(65, 118, 255, 0) 70%);
+                background: linear-gradient(45deg, rgba(65, 118, 255, .82), rgba(65, 118, 255, 0) 70%);
               }
 
               .pink {
-                background: linear-gradient(45deg, rgba(220, 95, 222, 1), rgba(220, 95, 222, 0) 70%);
+                background: linear-gradient(45deg, rgba(220, 95, 222, .82), rgba(220, 95, 222, 0) 70%);
               }
 
               .red {
-                background: linear-gradient(45deg, rgba(255, 81, 65, 1), rgba(255, 81, 65, 0) 70%);
+                background: linear-gradient(45deg, rgba(255, 81, 65, .85), rgba(255, 81, 65, 0) 70%);
               }
 
               .gold {
-                background: linear-gradient(45deg, rgba(255, 153, 1, 1), rgba(255, 153, 1, 0) 70%);
+                background: linear-gradient(45deg, rgba(255, 184, 74, .9), rgba(255, 184, 74, 0) 70%);
               }
 
               .blue:before {

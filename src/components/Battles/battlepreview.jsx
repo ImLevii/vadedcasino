@@ -210,6 +210,12 @@ function BattlePreview(props) {
           overflow-x: auto;
           scrollbar-color: rgba(255,255,255,0.1) transparent;
         }
+        
+        .cases img {
+          object-fit: cover;
+          border-radius: 8px;
+          flex-shrink: 0;
+        }
 
         .cases::-webkit-scrollbar {
           height: 3px;

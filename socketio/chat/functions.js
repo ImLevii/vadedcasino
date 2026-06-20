@@ -100,15 +100,17 @@ async function sendOnlineUsers(socket, cache) {
 
     total = Math.floor(io.sockets.sockets.size * multiplier);
 
+    const onlineUsers = {
+        total,
+        channels: channelsUsers
+    };
+
     if (cache) {
-        if (JSON.stringify(channelsUsers) == JSON.stringify(lastOnlineUsers)) return;
-        lastOnlineUsers = channelsUsers;
+        if (JSON.stringify(onlineUsers) == JSON.stringify(lastOnlineUsers)) return;
+        lastOnlineUsers = onlineUsers;
     }
 
-    socket.emit('misc:onlineUsers', {
-        total, // Math.floor(io.engine.clientsCount * multiplier),
-        channels: channelsUsers
-    });
+    socket.emit('misc:onlineUsers', onlineUsers);
 
 }
 

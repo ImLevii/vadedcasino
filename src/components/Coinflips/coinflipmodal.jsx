@@ -48,6 +48,7 @@ function CoinflipModal(props) {
 
               <div class='avatar-container'>
                 <img class={'avatar ' + (isLoser(props?.cf?.ownerSide) ? 'gray' : '')} src={`${import.meta.env.VITE_SERVER_URL}/user/${creator?.id}/img`}
+                     onError={(e) => e.target.src = '/assets/icons/default-avatar.svg'}
                      height='90' width='90' alt=''/>
 
                 <img class={'coin ' + (isLoser(props?.cf?.ownerSide) ? 'gray' : '')} src={`/assets/icons/${props?.cf?.ownerSide}coin.svg`} height='35' width='35'
@@ -76,6 +77,7 @@ function CoinflipModal(props) {
               <div class='avatar-container'>
                 {opponent() ? (
                   <img class={'avatar ' + (isLoser(opponentCoin) ? 'gray' : '')} src={`${import.meta.env.VITE_SERVER_URL}/user/${opponent().id}/img`}
+                       onError={(e) => e.target.src = '/assets/icons/default-avatar.svg'}
                        height='90' width='90' alt=''/>
                 ) : (
                   <p class='nouser'>?</p>
@@ -281,6 +283,7 @@ function CoinflipModal(props) {
 
         .avatar {
           border-radius: 50%;
+          object-fit: cover;
         }
 
         .nouser {

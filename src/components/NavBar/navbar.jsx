@@ -75,6 +75,7 @@ function NavBar(props) {
                                      }}>
                                     <img class='user-avatar'
                                          src={`${import.meta.env.VITE_SERVER_URL}/user/${props.user?.id}/img`}
+                                         onError={(e) => e.target.src = '/assets/icons/default-avatar.svg'}
                                          width='30' height='30'/>
 
                                     <div class='user-info'>

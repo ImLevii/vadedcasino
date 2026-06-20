@@ -22,11 +22,11 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
     if (roulette.round.rolledAt) return res.json({ error: 'ALREADY_STARTED' });
     const color = req.body.color;
 
-    if (![0, 1, 2].includes(color)) {
+    if (![0, 1, 2, 3].includes(color)) {
         return res.json({ error: 'INVALID_COLOR' });
     }
 
-    const maxBet = color == 0 ? 7500 : roulette.config.maxBet;
+    const maxBet = color == 0 ? 7500 : color === 3 ? 10000 : roulette.config.maxBet;
     const amount = roundDecimal(req.body.amount);
 
     if (!amount || amount < 0.01) {
@@ -49,7 +49,7 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
             await connection.query('UPDATE users SET balance = balance - ?, xp = xp + ? WHERE id = ?', [amount, xp, user.id]);
             await xpChanged(user.id, user.xp, roundDecimal(user.xp + xp), connection);
    
-            if (color != 0) {
+            if (color === 1 || color === 2) {
                 const oppositeExists = roulette.bets.find(bet => bet.user.id === user.id && bet.color === (color == 1 ? 2 : 1));
                 if (oppositeExists) {
                     return res.json({ error: 'ALREADY_BET_ON_OTHER_COLOR' });

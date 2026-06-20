@@ -85,13 +85,6 @@ function Footer(props) {
 
                     <div class='divider'/>
 
-                    <div className='rate'>
-                        <p>1000 <span className='gold'>COINS</span></p>
-                        <p>=</p>
-                        <p>$3.50</p>
-                        <img className='coin' src='/assets/icons/coin.svg' height='72' width='86' alt=''/>
-                        <div className='swords'/>
-                    </div>
                 </div>
             </div>
 
@@ -169,46 +162,6 @@ function Footer(props) {
                 background: linear-gradient(0deg, rgba(90, 84, 153, 0.00) 0%, rgba(90, 84, 153, 0.27) 49.47%, rgba(90, 84, 153, 0.00) 100%);
               }
 
-              .rate {
-                min-width: 305px;
-                height: 60px;
-
-                border-radius: 7px;
-                background: rgba(255, 255, 255, 0.02);
-                margin-left: 40px;
-                
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 20px;
-
-                color: #FFF;
-                font-size: 16px;
-                font-weight: 700;
-                
-                position: relative;
-              }
-
-              .swords {
-                width: 100%;
-                height: 100%;
-
-                position: absolute !important;
-                z-index: 0;
-
-                opacity: 0.1;
-                background-image: url("/assets/art/rainchips.svg");
-                background-position: center;
-                background-size: cover;
-                border-radius: 8px;
-              }
-
-              .rate .coin {
-                position: absolute;
-                left: -40px;
-                z-index: 10;
-              }
-
               @media only screen and (max-width: 1000px) {
                 .links, .disclaimer, .links-section {
                   flex-direction: column;
@@ -226,15 +179,6 @@ function Footer(props) {
 
               @media only screen and (max-width: 600px) {
 
-                .rate {
-                  width: 100%;
-                  min-width: unset;
-                  margin-left: unset;
-                }
-
-                .coin {
-                  display: none;
-                }
               }
             `}</style>
         </>

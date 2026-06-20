@@ -25,7 +25,7 @@ function Roulette(props) {
     const [stats, setStats] = createSignal({
         green: 0,
         red: 0,
-        gold: 0
+      black: 0
     })
 
     const [ws] = useWebsocket()
@@ -35,7 +35,7 @@ function Roulette(props) {
             unsubscribeFromGames(ws())
             subscribeToGame(ws(), 'roulette')
             ws().on('roulette:set', (data) => {
-                let stats = { green: 0, red: 0, gold: 0 }
+                let stats = { green: 0, red: 0, black: 0 }
                 let last10 = []
 
                 for (let i = 0; i < data.last.length; i++) {
@@ -131,7 +131,7 @@ function Roulette(props) {
     }
 
     function calculateStats(history) {
-        let stats = { green: 0, red: 0, gold: 0 }
+        let stats = { green: 0, red: 0, black: 0 }
 
         for (let i = 0; i < history.length; i++) {
             let color = numberToColor(history[i])
@@ -145,7 +145,7 @@ function Roulette(props) {
         <>
             <Title>Cosmic Luck | Roulette</Title>
             <Meta name='title' content='Roulette'></Meta>
-            <Meta name='description' content='Bet On Roulette And Win Coins on Cosmic Luck! Play On Red, Green And Gold To Win 14x Multiplier'></Meta>
+            <Meta name='description' content='Bet On Roulette And Win Coins on Cosmic Luck! Play red or black for 2x, green for 14x, and bait red or bait black for 7x.'></Meta>
 
             <div class='roulette-container fadein'>
                 <div class='roulette-header'>
@@ -171,18 +171,18 @@ function Roulette(props) {
                         <p class='label'>LAST 100</p>
                         <div class='stats'>
                             <div class='stat green'>
-                                <RouletteIcon num={1} size='small'/>
+                                <RouletteIcon num={0} size='small'/>
                                 <p>{stats().green}</p>
                             </div>
 
-                            <div class='stat gold'>
-                                <RouletteIcon num={0} size='small'/>
-                                <p>{stats().gold}</p>
+                            <div class='stat red'>
+                                <RouletteIcon num={1} size='small'/>
+                                <p>{stats().red}</p>
                             </div>
 
-                            <div class='stat red'>
+                            <div class='stat black'>
                                 <RouletteIcon num={14} size='small'/>
-                                <p>{stats().red}</p>
+                                <p>{stats().black}</p>
                             </div>
                         </div>
                     </div>
@@ -192,11 +192,13 @@ function Roulette(props) {
                 <RouletteBetControls bet={bet()} setBet={setBet} user={props.user}/>
 
                 <div class='colors'>
-                    <RouletteColor color='green' amount={bet()} bets={bets()} round={round()} state={state()}/>
-
-                    <RouletteColor color='gold' amount={bet()} bets={bets()} round={round()} state={state()}/>
-
                     <RouletteColor color='red' amount={bet()} bets={bets()} round={round()} state={state()}/>
+
+                  <RouletteColor color='green' amount={bet()} bets={bets()} round={round()} state={state()}/>
+
+                    <RouletteColor color='black' amount={bet()} bets={bets()} round={round()} state={state()}/>
+
+                  <RouletteColor color='bait' amount={bet()} bets={bets()} round={round()} state={state()}/>
                 </div>
             </div>
 
@@ -306,13 +308,14 @@ function Roulette(props) {
               }
 
               .stat.green { color: #1fd65f; }
-              .stat.gold { color: #f5a623; }
+              .stat.black { color: #8b92a0; }
               .stat.red { color: #e8455f; }
 
               .colors {
-                display: flex;
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
                 width: 100%;
-                gap: 12px;
+                gap: 16px;
               }
 
               @media only screen and (max-width: 1000px) {
@@ -333,8 +336,14 @@ function Roulette(props) {
                 }
 
                 .colors {
-                  flex-direction: column;
+                  grid-template-columns: 1fr;
                   gap: 28px;
+                }
+              }
+
+              @media only screen and (max-width: 1180px) and (min-width: 876px) {
+                .colors {
+                  grid-template-columns: repeat(2, minmax(0, 1fr));
                 }
               }
             `}</style>

@@ -2,7 +2,6 @@ import Avatar from "../Level/avatar";
 import LiveDot from "./livedot";
 import LiveItem from "./liveitem";
 import {A} from "@solidjs/router";
-import {resolveImageSrc} from "../../util/image";
 
 function LiveDrop(props) {
     return (
@@ -26,10 +25,6 @@ function LiveDrop(props) {
                 </div>
 
                 <div class='details'>
-                    <div class='case'>
-                    <img src={resolveImageSrc(props?.case?.img)} height='40' alt=''/>
-                    </div>
-
                     <LiveItem {...props?.item}/>
                 </div>
 
@@ -41,46 +36,67 @@ function LiveDrop(props) {
 
             <style jsx>{`
               .live-drop-container {
-                width: 170px;
-                min-width: 170px;
-                height: 140px;
+                width: 172px;
+                min-width: 172px;
+                height: 126px;
                 
                 position: relative;
                 z-index: 0;
 
-                border-radius: 10px;
-                background: rgba(0, 0, 0, 0.21);
+                display: flex;
+                flex-direction: column;
+                gap: 7px;
+                padding: 8px;
+
+                border-radius: 8px;
+                background: linear-gradient(180deg, rgba(22, 28, 39, 0.82), rgba(10, 14, 22, 0.88));
+                border: 1px solid rgba(255, 255, 255, 0.045);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045), 0 12px 26px rgba(0, 0, 0, 0.2);
+                overflow: hidden;
+                transition: transform .18s ease, filter .18s ease, border-color .18s ease, box-shadow .18s ease;
+              }
+
+              .live-drop-container:before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                z-index: -1;
+                background: radial-gradient(85% 75% at 50% 20%, rgba(31, 214, 95, 0.055), rgba(31, 214, 95, 0) 58%);
+              }
+
+              .live-drop-container:hover {
+                transform: translateY(-2px);
+                filter: brightness(1.08);
+                border-color: rgba(31, 214, 95, 0.16);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 16px 34px rgba(0, 0, 0, 0.28), 0 0 22px rgba(31, 214, 95, 0.06);
               }
               
               .gold.live-drop-container {
-                background: linear-gradient(rgba(177, 120, 24, 1), rgba(156, 99, 15, 1), rgba(126, 80, 12, 1), rgba(102, 65, 10, 1), rgba(177, 120, 24, 1), rgba(255, 220, 24, 1), rgba(255, 220, 24, 1));
+                background: linear-gradient(180deg, rgba(32, 28, 20, 0.86), rgba(14, 13, 12, 0.9));
+                border-color: rgba(255, 184, 74, 0.1);
               }
               
               .gold.live-drop-container:before {
-                z-index: -1;
                 content: '';
-                position: absolute;
-                width: 168px;
-                height: 138px;
-                top: 1px;
-                left: 1px;
-                border-radius: 10px;
-                background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(252, 164, 33, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(41, 38, 77, 1);
+                background: radial-gradient(85% 75% at 50% 20%, rgba(255, 184, 74, 0.075), rgba(255, 184, 74, 0) 58%);
               }
               
               .live-drop-header {
                 width: 100%;
-                height: fit-content;
+                height: 25px;
                 display: flex;
                 justify-content: space-between;
+                align-items: flex-start;
               }
               
               .type {
-                width: 30px;
-                height: 30px;
+                width: 28px;
+                height: 25px;
 
-                border-radius: 10px 0px 8px 0px;
-                background: rgba(142, 130, 255, 0.08);
+                border-radius: 5px;
+                background: rgba(18, 24, 34, 0.86);
+                border: 1px solid rgba(255, 255, 255, 0.045);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
                 
                 display: flex;
                 align-items: center;
@@ -88,14 +104,16 @@ function LiveDrop(props) {
               }
               
               .view {
-                width: 30px;
-                height: 30px;
+                width: 32px;
+                height: 25px;
                 
                 border: unset;
                 outline: unset;
                 
-                border-radius: 0px 10px 0px 8px;
-                background: rgba(142, 130, 255, 0.08);
+                border-radius: 5px;
+                background: rgba(18, 24, 34, 0.86);
+                border: 1px solid rgba(255, 255, 255, 0.045);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
 
                 display: flex;
                 align-items: center;
@@ -106,36 +124,49 @@ function LiveDrop(props) {
               }
               
               .gold .view, .gold .type {
-                background: linear-gradient(37deg, rgba(255, 153, 0, 0.15) 30.03%, rgba(249, 172, 57, 0.15) 42.84%);
+                background: rgba(49, 39, 23, 0.86);
               }
               
               .avatar {
-                margin-top: 8px;
+                margin-top: -3px;
+                padding: 2px;
+                border-radius: 6px;
+                border: 1px solid rgba(31, 214, 95, 0.58);
+                background: rgba(31, 214, 95, 0.09);
+                box-shadow: 0 0 13px rgba(31, 214, 95, 0.08);
               }
               
               .details {
                 display: flex;
-                padding: 10px 8px;
-                gap: 8px;
+                height: 58px;
               }
-              
-              .case {
-                flex: 1;
-                height: 55px;
-                
+
+              .cost {
+                height: 22px;
+                min-height: 22px;
+                width: 100%;
+                gap: 8px;
+                padding: 0 10px;
+
                 display: flex;
                 align-items: center;
                 justify-content: center;
 
-                border-radius: 10px;
-                border: 1px solid #2D2C59;
-                background: rgba(0, 0, 0, 0.21);
+                border-radius: 5px;
+                background: linear-gradient(180deg, rgba(31, 173, 91, 0.9), rgba(15, 111, 61, 0.94));
+                border: 1px solid rgba(137, 255, 181, 0.13);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 5px 14px rgba(31, 214, 95, 0.13);
+
+                color: #ffffff;
+                font-size: 12px;
+                font-weight: 900;
+                line-height: 1;
+                text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
               }
 
-              .cost {
-                height: 26px;
-                gap: 10px;
-                margin: 0 8px;
+              .cost img {
+                width: 14px;
+                height: 14px;
               }
             `}</style>
         </>

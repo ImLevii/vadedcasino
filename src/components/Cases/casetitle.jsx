@@ -7,20 +7,30 @@ function CaseTitle(props) {
 
             <style jsx>{`
               .title {
-                width: 166px;
-                min-height: 30px;
+                width: calc(100% - 28px);
+                min-height: 29px;
                 
                 border-radius: 5px;
-                background: linear-gradient(185deg, rgba(18, 21, 28, 0), rgba(18, 21, 28, 0) 15%, rgba(18, 21, 28, 0.051) 20%, rgba(18, 21, 28, 1) 100%);
+                border: 1px solid rgba(255, 255, 255, 0.035);
+                background: linear-gradient(180deg, rgba(12, 15, 22, 0.36) 0%, rgba(3, 5, 9, 0.82) 100%);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.025);
 
-                color: #8b92a0;
-                font-size: 13px;
-                font-weight: 600;
+                color: #c7d0de;
+                font-size: 12px;
+                font-weight: 800;
                 
                 text-align: center;
-                line-height: 30px;
+                line-height: 29px;
                 position: relative;
-                z-index: 0;
+                z-index: 2;
+                overflow: hidden;
+              }
+
+              .title p {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                padding: 0 10px;
               }
               
               .full {
@@ -33,12 +43,12 @@ function CaseTitle(props) {
                 top: 1px;
                 
                 z-index: -1;
-                height: 28px;
+                height: 27px;
                 width: calc(100% - 2px);
                 
                 content: '';
                 border-radius: 5px;
-                background: linear-gradient(0deg, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.4) 100%), linear-gradient(222deg, rgba(26, 31, 41, 0.65) 0%, rgba(18, 21, 28, 0.00) 100%);
+                background: linear-gradient(180deg, rgba(16, 18, 24, 0.32) 0%, rgba(7, 9, 13, 0.88) 100%);
               }
             `}</style>
         </>

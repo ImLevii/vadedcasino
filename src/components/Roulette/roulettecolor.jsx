@@ -1,17 +1,13 @@
 import Avatar from "../Level/avatar";
 import {authedAPI, createNotification} from "../../util/api";
 import {createEffect, createSignal, For} from "solid-js";
+import {betColorToDisplayName, betColorToLabel, ROULETTE_COLORS, ROULETTE_MULTIPLIERS} from "../../util/roulettehelpers";
 
-const iconName = {
-    'red': 'roulette-red.svg',
-    'green': 'roulette-green.svg',
-    'gold': 'roulette-gold.svg'
-}
-
-const COLORS = {
-    'gold': 0,
-    'green': 1,
-    'red': 2,
+const iconNames = {
+  red: ['roulette-red.svg', 'roulette-red.svg'],
+  green: ['roulette-green.svg'],
+  black: ['roulette-gold.svg', 'roulette-gold.svg'],
+  bait: ['roulette-red.svg', 'roulette-gold.svg']
 }
 
 function RouletteColor(props) {
@@ -23,27 +19,32 @@ function RouletteColor(props) {
     })
 
     function getBetForColor() {
-        let colorNum = COLORS[props?.color]
+        let colorNum = ROULETTE_COLORS[props?.color]
         return props?.bets?.filter(bet => bet.color === colorNum)?.sort((a,b) => b.amount - a.amount)
     }
 
     function isGrayed() {
         if (props?.state !== 'WINNERS') return ''
-        if (props?.round?.color === COLORS[props?.color]) return ''
+        if (isWinningColor()) return ''
         return 'gray'
+    }
+
+    function isWinningColor() {
+        if (props?.round?.color === ROULETTE_COLORS[props?.color]) return true
+      if (props?.color === 'bait') return props?.round?.result === 7 || props?.round?.result === 8
+        return false
     }
 
     function getWonAmount(amount) {
         let prefix = numberPrefix()
         if (prefix === '') return amount
         if (prefix === '-') return amount
-        if (props?.color === 'gold') return amount * 14
-        return amount * 2
+        return amount * (ROULETTE_MULTIPLIERS[props?.color] || 1)
     }
 
     function numberPrefix() {
         if (props?.state !== 'WINNERS') return ''
-        if (props?.round?.color === COLORS[props?.color]) return '+'
+        if (isWinningColor()) return '+'
         return '-'
     }
 
@@ -54,23 +55,29 @@ function RouletteColor(props) {
                     if (props?.amount < 1) return
 
                     let res = await authedAPI('/roulette/bet', 'POST', JSON.stringify({
-                        color: COLORS[props?.color],
+                        color: ROULETTE_COLORS[props?.color],
                         amount: props?.amount || 0,
                     }), true)
 
                     if (res.success) {
-                        createNotification('success', `Successfully placed a bet on ${props?.color} for ${props?.amount} robux.`)
+                        createNotification('success', `Successfully placed a bet on ${betColorToLabel(props?.color)} for ${props?.amount} coins.`)
                     }
                 }}>
-                    <span class='multi'>x{props?.color === 'gold' ? '14' : '2'}</span>
-                    <span class='cname'>{props.color.toUpperCase()}</span>
-                    <img src={`assets/icons/${iconName[props.color]}`} alt='' height='34'/>
+                    <span class='play-label'>Play {betColorToDisplayName(props.color)}</span>
+                    <div class='payout-row'>
+                      <span class='win-label'>Win {ROULETTE_MULTIPLIERS[props?.color]}x</span>
+                      <div class='chip-icons'>
+                        <For each={iconNames[props.color] || []}>{(icon, index) => (
+                          <img class={'chip-icon icon-' + index()} src={`assets/icons/${icon}`} alt='' height='34'/>
+                        )}</For>
+                      </div>
+                    </div>
                 </button>
 
                 <div class='bets-header'>
                     <p>{bets()?.length} PLAYERS</p>
 
-                    <p class='total gold'>
+                    <p class='total column-total'>
                         <img src='/assets/icons/coin.svg' height='15' alt=''/>
                         {numberPrefix()}
                         {getWonAmount(bets()?.reduce((pv, bet) => pv + bet.amount, 0))?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -124,11 +131,12 @@ function RouletteColor(props) {
 
                 min-height: 64px;
                 max-height: 64px;
-                padding: 0 20px;
+                padding: 0 24px;
 
                 display: flex;
                 align-items: center;
-                gap: 12px;
+                justify-content: space-between;
+                gap: 18px;
                 flex: 1;
 
                 border-radius: 10px;
@@ -141,20 +149,41 @@ function RouletteColor(props) {
                 transform: translateY(-1px);
               }
 
-              .color .multi {
-                font-size: 20px;
-                font-weight: 800;
-              }
-
-              .color .cname {
+              .play-label {
                 font-size: 15px;
                 font-weight: 700;
                 letter-spacing: .5px;
                 opacity: .9;
               }
 
-              .color img {
-                margin-left: auto;
+              .payout-row {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+              }
+
+              .win-label {
+                padding: 2px 6px;
+                border-radius: 4px;
+                background: rgba(0, 0, 0, 0.34);
+                color: #cfd5df;
+                font-size: 15px;
+                font-weight: 800;
+                white-space: nowrap;
+              }
+
+              .chip-icons {
+                display: flex;
+                align-items: center;
+                min-width: 40px;
+              }
+
+              .chip-icon {
+                margin-left: -8px;
+              }
+
+              .chip-icon:first-child {
+                margin-left: 0;
               }
 
               .color.green {
@@ -162,9 +191,14 @@ function RouletteColor(props) {
                 background: linear-gradient(180deg, rgba(31, 214, 95, 0.28) 0%, rgba(31, 214, 95, 0.12) 100%);
               }
 
-              .color.gold {
-                border: 1px solid rgba(245, 166, 35, 0.55);
-                background: linear-gradient(180deg, rgba(245, 166, 35, 0.28) 0%, rgba(245, 166, 35, 0.12) 100%);
+              .color.black {
+                border: 1px solid rgba(139, 146, 160, 0.55);
+                background: #15171d;
+              }
+
+              .color.bait {
+                border: 1px solid rgba(139, 146, 160, 0.55);
+                background: #4a4c50;
               }
 
               .color.red {
@@ -180,8 +214,12 @@ function RouletteColor(props) {
                 filter: drop-shadow(0 0 12px rgba(31, 214, 95, 0.7));
               }
 
-              .color.gold img {
-                filter: drop-shadow(0 0 12px rgba(245, 166, 35, 0.7));
+              .color.black img, .color.bait img[src*="roulette-gold"] {
+                filter: grayscale(1) drop-shadow(0 0 12px rgba(139, 146, 160, 0.7));
+              }
+
+              .color.bait img[src*="roulette-red"] {
+                filter: drop-shadow(0 0 12px rgba(232, 69, 95, 0.7));
               }
 
               .bets-header {
@@ -234,8 +272,8 @@ function RouletteColor(props) {
                 background: rgba(31, 214, 95, 0.08);
               }
 
-              .gold-top {
-                background: rgba(245, 166, 35, 0.08);
+              .black-top, .bait-top {
+                background: rgba(139, 146, 160, 0.08);
               }
 
               .red-top {
@@ -246,8 +284,8 @@ function RouletteColor(props) {
                 color: #1fd65f;
               }
 
-              .gold-top .total {
-                color: #f5a623;
+              .black-top .total, .bait-top .total {
+                color: #8b92a0;
               }
 
               .red-top .total {
@@ -259,9 +297,9 @@ function RouletteColor(props) {
                 text-shadow: 0px 0px 15px #1fd65f;
               }
 
-              .gold-top .top-bet {
-                color: #f5a623;
-                text-shadow: 0px 0px 15px #f5a623;
+              .black-top .top-bet, .bait-top .top-bet {
+                color: #c3cad6;
+                text-shadow: 0px 0px 15px #8b92a0;
               }
 
               .red-top .top-bet {
@@ -288,8 +326,8 @@ function RouletteColor(props) {
                 color: #1fd65f;
               }
 
-              .gold {
-                color: var(--gold);
+              .black, .bait {
+                color: #8b92a0;
               }
 
               .red {

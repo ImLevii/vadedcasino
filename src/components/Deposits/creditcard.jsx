@@ -15,8 +15,8 @@ function CreditCardDeposit(props) {
       let res = await authedAPI('/trading/deposit/cc', 'GET')
 
       setRates({
-        robux: res?.rate?.robux || 1000,
-        usd: res?.rate?.usd || 3.5,
+        robux: res?.rate?.robux || 1,
+        usd: res?.rate?.usd || 0.7,
       })
 
       convertAmounts(0, res?.minAmount)
@@ -78,9 +78,9 @@ function CreditCardDeposit(props) {
 
             <div className='conversions-container'>
               <div className='rate'>
-                <p>{rates().robux} <span className='gold'>ROBUX</span></p>
+                <p>{rates().robux} <span className='gold'>COINS</span></p>
                 <p>=</p>
-                <p>${rates().usd}</p>
+                <p>${rates().usd?.toFixed(2)}</p>
                 <img className='coin' src='/assets/icons/coin.svg' height='48' width='58' alt=''/>
                 <div className='swords'/>
               </div>

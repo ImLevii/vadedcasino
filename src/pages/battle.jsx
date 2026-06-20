@@ -222,7 +222,7 @@ function Battle(props) {
 
                 display: flex;
                 flex-direction: column;
-                gap: 35px;
+                gap: 30px;
 
                 box-sizing: border-box;
                 padding: 30px 0;
@@ -231,16 +231,47 @@ function Battle(props) {
 
               .round-info {
                 width: 100%;
-                height: 65px;
+                height: 70px;
+                position: relative;
 
-                border-radius: 8px;
-                border: 1px solid rgba(255,255,255,0.07);
-                background: #12151c;
+                border-radius: 12px;
+                border: 1px solid rgba(255,255,255,0.065);
+                background: linear-gradient(135deg, 
+                  rgba(18, 24, 35, 0.96), 
+                  rgba(10, 14, 22, 0.98));
+                box-shadow: 
+                  inset 0 1px 0 rgba(255,255,255,0.045), 
+                  0 8px 24px rgba(0,0,0,0.22),
+                  0 16px 40px rgba(0,0,0,0.18);
 
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 0 15px;
+                padding: 0 20px;
+                backdrop-filter: blur(12px);
+                transition: all 0.3s ease;
+              }
+              
+              .round-info::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 1px;
+                background: linear-gradient(90deg, 
+                  transparent, 
+                  rgba(255,255,255,0.1), 
+                  transparent);
+              }
+              
+              .round-info:hover {
+                border-color: rgba(31, 214, 95, 0.12);
+                box-shadow: 
+                  inset 0 1px 0 rgba(255,255,255,0.055), 
+                  0 10px 28px rgba(0,0,0,0.24),
+                  0 18px 44px rgba(0,0,0,0.2),
+                  0 0 0 1px rgba(31, 214, 95, 0.06);
               }
 
               .round-info > * {
@@ -265,23 +296,28 @@ function Battle(props) {
                 justify-content: center;
                 align-items: center;
                 height: 100%;
-                gap: 12px;
+                gap: 14px;
                 
                 position: absolute;
                 transform: translateX(-30px);
                 left: 50%;
-                transition: transform .3s;
+                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
               }
               
               .case {
-                opacity: 0.5;
-                transition: all 0.3s;
-                filter: grayscale(1);
+                opacity: 0.4;
+                transition: all 0.35s ease;
+                filter: grayscale(1) brightness(0.7);
+                transform: scale(0.92);
+                object-fit: cover;
+                border-radius: 8px;
               }
               
               .case.active {
                 opacity: 1;
-                filter: unset;
+                filter: none;
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(31, 214, 95, 0.25);
               }
 
               .columns {
@@ -291,7 +327,32 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 15px;
+                gap: 14px;
+                padding: 12px;
+                border-radius: 14px;
+                border: 1px solid rgba(255,255,255,0.045);
+                background: linear-gradient(135deg, 
+                  rgba(14, 19, 28, 0.78), 
+                  rgba(8, 11, 18, 0.88));
+                box-shadow: 
+                  inset 0 1px 0 rgba(255,255,255,0.03), 
+                  0 10px 32px rgba(0,0,0,0.24),
+                  0 20px 56px rgba(0,0,0,0.2);
+                position: relative;
+              }
+              
+              .columns::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-radius: 14px;
+                background: radial-gradient(circle at 50% 0%, 
+                  rgba(31, 214, 95, 0.015), 
+                  transparent 60%);
+                pointer-events: none;
               }
 
               @media only screen and (max-width: 1040px) {
@@ -310,6 +371,11 @@ function Battle(props) {
 
                 .right {
                   justify-content: center;
+                }
+                
+                .round-info {
+                  height: 65px;
+                  padding: 0 15px;
                 }
               }
 

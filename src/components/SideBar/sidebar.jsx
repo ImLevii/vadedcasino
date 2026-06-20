@@ -49,6 +49,8 @@ function SideBar(props) {
   addDropdown(setRoomDropdown)
   addDropdown(setRulesOpen)
 
+  const roomOnlineCount = () => online()?.channels?.[room()] ?? 0
+
   // Load announcements on mount
   api('/announcements/active', 'GET', null, false).then(res => {
     if (res?.data) setAnnouncements(res.data)
@@ -202,8 +204,10 @@ function SideBar(props) {
           }}>
             <img src={ROOM_ICONS[room()]} height='16' alt=''/>
             <span class='room-name'>{ROOM_SHORT[room()]}</span>
-            <span class='room-dot'/>
-            <span class='room-count'>{online()?.total?.toLocaleString()}</span>
+            <span class='room-status'>
+              <span class='room-dot'/>
+              <span class='room-count'>{roomOnlineCount().toLocaleString()}</span>
+            </span>
             <svg class={'room-chevron ' + (roomDropdown() ? 'open' : '')} width='7' height='5' viewBox='0 0 7 5' fill='none' xmlns='http://www.w3.org/2000/svg'>
               <path d='M3.50001 0.994671C3.62547 0.994671 3.7509 1.04269 3.84655 1.13852L6.8564 4.15579C7.04787 4.34773 7.04787 4.65892 6.8564 4.85078C6.66501 5.04263 6.5 4.99467 6.16316 4.99467L3.50001 4.99467L1 4.99467C0.5 4.99467 0.335042 5.04254 0.14367 4.85068C-0.0478893 4.65883 -0.0478893 4.34764 0.14367 4.1557L3.15347 1.13843C3.24916 1.04258 3.3746 0.994671 3.50001 0.994671Z' fill='#6b7280'/>
             </svg>
@@ -217,7 +221,7 @@ function SideBar(props) {
                   }}>
                     <img src={ROOM_ICONS[key]} height='16' alt=''/>
                     <span>{ROOM_NAMES[key]}</span>
-                    <span class='opt-count'>{online()?.channels?.[key] || 0}</span>
+                    <span class='opt-count'>{(online()?.channels?.[key] || 0).toLocaleString()}</span>
                   </div>
                 }</For>
               </div>
@@ -394,8 +398,8 @@ function SideBar(props) {
 
           display: flex;
           align-items: center;
-          gap: 5px;
-          padding: 0 9px;
+          gap: 7px;
+          padding: 0 8px;
 
           background: #1a1f29;
           border-radius: 6px;
@@ -412,6 +416,13 @@ function SideBar(props) {
           transition: background .2s;
         }
 
+        .room-selector img {
+          width: 18px;
+          height: 18px;
+          object-fit: cover;
+          flex-shrink: 0;
+        }
+
         .room-selector:hover {
           background: #222831;
         }
@@ -421,14 +432,24 @@ function SideBar(props) {
           font-size: 12px;
           font-weight: 700;
           font-family: 'Geogrotesque Wide', sans-serif;
+          line-height: 1;
+          flex-shrink: 0;
+        }
+
+        .room-status {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          min-width: 0;
+          flex-shrink: 0;
         }
 
         .room-dot {
-          width: 7px;
-          height: 7px;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
           background: #1fd65f;
-          box-shadow: 0 0 5px rgba(31, 214, 95, 0.7);
+          box-shadow: 0 0 6px rgba(31, 214, 95, 0.75);
           flex-shrink: 0;
         }
 
@@ -437,6 +458,9 @@ function SideBar(props) {
           font-size: 12px;
           font-weight: 700;
           font-family: 'Geogrotesque Wide', sans-serif;
+          line-height: 1;
+          min-width: 1ch;
+          text-align: left;
         }
 
         .room-chevron {

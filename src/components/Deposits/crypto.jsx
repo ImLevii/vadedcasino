@@ -18,15 +18,15 @@ function CryptoDeposit(props) {
             let res = await authedAPI('/trading/crypto/deposit/wallet', 'POST', JSON.stringify({ currency: props.currency }))
             if (!res.address) return mutate(null)
             setRates({
-                robux: res?.robuxRate?.robux || 1000,
-                usd: res?.robuxRate?.usd || 3.5,
+                robux: res?.robuxRate?.robux || 1,
+                usd: res?.robuxRate?.usd || 0.7,
                 crypto: res.currency.price || 0,
             })
             setName(res.currency.name)
             setSymbol(res.currency.id)
             setConfirmations(res.currency.confirmations)
 
-            convertAmounts(1000, 0, 0)
+            convertAmounts(1, 0, 0)
 
             return mutate(res.address)
         } catch (e) {
@@ -170,9 +170,9 @@ function CryptoDeposit(props) {
                                 credited.</p>
 
                             <div className='rate'>
-                                <p>{rates().robux} <span className='gold'>ROBUX</span></p>
+                                <p>{rates().robux} <span className='gold'>COINS</span></p>
                                 <p>=</p>
-                                <p>${rates().usd}</p>
+                                <p>${rates().usd?.toFixed(2)}</p>
                                 <img className='coin' src='/assets/icons/coin.svg' height='72' width='86' alt=''/>
                                 <div className='swords'/>
                             </div>

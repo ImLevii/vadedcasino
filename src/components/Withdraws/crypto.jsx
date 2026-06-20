@@ -33,8 +33,8 @@ function CryptoWithdraw(props) {
 
       let defaultCurrency = res.currencies.find(e => e.id == 'USDT') || res.currencies[0]
       setRates({
-        robux: res?.robuxRate?.robux || 1000,
-        usd: res?.robuxRate?.usd || 3.5,
+        robux: res?.robuxRate?.robux || 1,
+        usd: res?.robuxRate?.usd || 0.7,
       })
       setPrice(defaultCurrency.price)
       setSymbol(defaultCurrency.id)
@@ -199,7 +199,7 @@ function CryptoWithdraw(props) {
 
             <div class='conversions-container'>
               <div class='rate'>
-                <p>{rates().robux} <span class='gold'>ROBUX</span></p>
+                <p>{rates().robux} <span class='gold'>COINS</span></p>
                 <p>=</p>
                 <p>${rates().usd?.toFixed(2)}</p>
                 <img class='coin' src='/assets/icons/coin.svg' height='48' width='58' alt=''/>

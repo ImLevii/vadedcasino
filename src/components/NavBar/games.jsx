@@ -1,15 +1,15 @@
 import {createSignal, For} from "solid-js";
-import {addDropdown, createNotification} from "../../util/api";
+import {addDropdown, createNotification, closeDropdowns} from "../../util/api";
 import {A} from "@solidjs/router";
 
 const GAMEMODES = [
-    {name: 'CASE BATTLES', href: '/battles', img: '/assets/gamemodes/battles.png'},
-    {name: 'SLOTS', href: '/slots', img: '/assets/gamemodes/slots.png'},
-    {name: 'MINES', href: '/mines', img: '/assets/gamemodes/mines.png'},
-    {name: 'COINFLIP', href: '/coinflip', img: '/assets/gamemodes/coinflip.png'},
-    {name: 'ROULETTE', href: '/roulette', img: '/assets/gamemodes/roulette.png'},
-    {name: 'JACKPOT', href: '/jackpot', img: '/assets/gamemodes/jackpot.png'},
-    {name: 'CASES', href: '/cases', img: '/assets/gamemodes/cases.png'},
+    {name: 'CASE BATTLES', href: '/battles', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/638e2dcf-4f8c-4b96-b5cb-e43b0a517207-CSGOLuck_Thumbnail_960x540_CaseBattle.jpeg'},
+    {name: 'SLOTS', href: '/slots', img: '/assets/gamemodes/slots-green.svg'},
+    {name: 'MINES', href: '/mines', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/666df0e7-15eb-46be-b911-5d014e3d50a4-CSGOLuck_Thumbnail_960x540_Mines.jpeg'},
+    {name: 'COINFLIP', href: '/coinflip', img: '/assets/gamemodes/coinflip-green.svg'},
+    {name: 'ROULETTE', href: '/roulette', img: '/assets/gamemodes/roulette-green.svg'},
+    {name: 'JACKPOT', href: '/jackpot', img: '/assets/gamemodes/jackpot-green.svg'},
+    {name: 'CASES', href: '/cases', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/427a331f-8299-4914-9895-0ff3cac84a47-CSGOLuck_Thumbnail_960x540_CaseOpening.jpeg'},
 ]
 
 function Games() {
@@ -20,7 +20,11 @@ function Games() {
     return (
         <>
             <div class='games-container' onClick={(e) => e.stopPropagation()}>
-                <div class={'games ' + (active() ? 'active' : '')} onClick={() => setActive(!active())}>
+                <div class={'games ' + (active() ? 'active' : '')} onClick={() => {
+                    const wasActive = active();
+                    closeDropdowns();
+                    setActive(!wasActive);
+                }}>
                     <svg class='cube' width="16" height="19" viewBox="0 0 19 22" fill="#8b92a0"
                          xmlns="http://www.w3.org/2000/svg">
                         <path

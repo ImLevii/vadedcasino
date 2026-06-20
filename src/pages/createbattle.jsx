@@ -40,7 +40,7 @@ function CreateBattle(props) {
 
     function createTrail() {
         let value = (slider.value - 0) / 100 * 100
-        slider.style.background = 'linear-gradient(to right, #5F5CA6 0%, #5F5CA6 ' + value + '%, #2B284E ' + value + '%, #2B284E 100%)'
+      slider.style.background = 'linear-gradient(to right, #1fd65f 0%, #1fd65f ' + value + '%, #131a24 ' + value + '%, #131a24 100%)'
     }
 
     function addCase(caseToAdd, num) {
@@ -411,8 +411,9 @@ function CreateBattle(props) {
               .num-cases {
                 height: 30px;
                 padding: 0 10px;
-                border-radius: 2px;
-                background: rgba(90, 84, 153, 0.35);
+                border-radius: 4px;
+                background: linear-gradient(180deg, rgba(31, 214, 95, 0.13), rgba(31, 214, 95, 0.06));
+                border: 1px solid rgba(31, 214, 95, 0.16);
 
                 display: flex;
                 align-items: center;
@@ -441,6 +442,9 @@ function CreateBattle(props) {
                 min-width: 100px;
                 gap: 6px;
                 font-variant-numeric: tabular-nums;
+                border-radius: 4px;
+                background: linear-gradient(180deg, rgba(31, 214, 95, 0.13), rgba(31, 214, 95, 0.06));
+                border: 1px solid rgba(31, 214, 95, 0.16);
               }
 
               .cost p {
@@ -450,13 +454,16 @@ function CreateBattle(props) {
               .bar {
                 width: 100%;
                 height: 1px;
-                background: #3a4250;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
               }
 
               .cases {
-                padding: 15px;
-                background: rgba(90, 84, 153, 0.27);
-                border-radius: 8px;
+                min-height: 262px;
+                padding: 16px;
+                background: radial-gradient(80% 55% at 50% 0%, rgba(31, 214, 95, 0.035), rgba(31, 214, 95, 0)), linear-gradient(180deg, rgba(13, 17, 24, 0.9), rgba(7, 10, 16, 0.96));
+                border-radius: 10px;
+                border: 1px solid rgba(255,255,255,0.055);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.035), 0 16px 42px rgba(0,0,0,0.22);
 
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -469,8 +476,9 @@ function CreateBattle(props) {
                 cursor: pointer;
 
                 height: 230px;
-                background: linear-gradient(200deg, rgba(75, 72, 135, 0), rgba(75, 72, 135, 0), rgba(75, 72, 135, 0.06), rgba(75, 72, 135, 1));
-                border-radius: 10px;
+                background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.012));
+                border: 1px solid rgba(31, 214, 95, 0.14);
+                border-radius: 8px;
 
                 display: flex;
                 align-items: center;
@@ -478,25 +486,35 @@ function CreateBattle(props) {
                 flex-direction: column;
                 gap: 10px;
 
-                color: #AEA4E4;
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 13px;
                 font-weight: 600;
                 z-index: 0;
 
                 position: relative;
+                overflow: hidden;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.035);
+                transition: transform .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease;
               }
 
               .add-case:before {
-                width: calc(100% - 2px);
-                height: calc(100% - 2px);
+                width: 100%;
+                height: 100%;
                 position: absolute;
                 content: '';
-                background: #322D59;
-                top: 1px;
-                left: 1px;
-                border-radius: 10px;
+                background: radial-gradient(80% 60% at 50% 48%, rgba(31,214,95,0.09), rgba(31,214,95,0) 70%), #0b0f17;
+                top: 0;
+                left: 0;
+                border-radius: 8px;
                 z-index: -1;
+              }
+
+              .add-case:hover {
+                transform: translateY(-2px);
+                color: #fff;
+                border-color: rgba(31, 214, 95, 0.36);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 28px rgba(31,214,95,0.1);
               }
 
               .plus {
@@ -507,21 +525,22 @@ function CreateBattle(props) {
                 align-items: center;
                 justify-content: center;
 
-                border-radius: 10px;
-                background: linear-gradient(220deg, rgba(75, 72, 135, 0), rgba(75, 72, 135, 0), rgba(75, 72, 135, 0.06), rgba(75, 72, 135, 1));
+                border-radius: 8px;
+                background: linear-gradient(180deg, rgba(31,214,95,0.2), rgba(31,214,95,0.07));
+                border: 1px solid rgba(31,214,95,0.2);
                 position: relative;
                 z-index: 0;
               }
 
               .plus:before {
-                width: 68px;
-                height: 68px;
+                width: 100%;
+                height: 100%;
                 position: absolute;
                 content: '';
-                background: linear-gradient(0deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.45) 100%), radial-gradient(385.21% 305.21% at 3.46% 224.40%, rgba(156, 78, 255, 0.35) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(222deg, rgba(69, 65, 122, 0.65) 0%, rgba(43, 40, 80, 0.00) 100%), rgba(0, 0, 0, 0.5);
-                top: 1px;
-                left: 1px;
-                border-radius: 10px;
+                background: radial-gradient(90% 80% at 50% 50%, rgba(31,214,95,0.14), rgba(31,214,95,0)), rgba(0, 0, 0, 0.24);
+                top: 0;
+                left: 0;
+                border-radius: 8px;
                 z-index: -1;
               }
 
@@ -532,8 +551,10 @@ function CreateBattle(props) {
                 width: 100%;
                 height: 45px;
 
-                border-radius: 5px;
-                background: linear-gradient(90deg, rgb(104, 100, 164) -49.01%, rgba(90, 84, 149, 0.34) -5.08%, rgba(66, 53, 121, 0) 90.28%);
+                border-radius: 7px;
+                background: linear-gradient(90deg, rgba(31, 214, 95, 0.12) -30%, rgba(17, 23, 34, 0.9) 18%, rgba(7, 10, 16, 0.28) 100%);
+                border: 1px solid rgba(255,255,255,0.035);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.025);
 
                 color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
@@ -578,7 +599,7 @@ function CreateBattle(props) {
                 font-weight: 600;
                 border-bottom: 2px solid transparent;
 
-                transition: color .3s, border .3s;
+                transition: color .3s, border .3s, text-shadow .3s;
               }
               
               .setting:disabled {
@@ -623,6 +644,7 @@ function CreateBattle(props) {
               .setting.active {
                 color: #1fd65f;
                 border-bottom: 2px solid #1fd65f;
+                text-shadow: 0 0 14px rgba(31,214,95,0.28);
               }
 
               .range {
@@ -630,9 +652,10 @@ function CreateBattle(props) {
                 appearance: none;
 
                 border-radius: 25px;
-                background: #2B284E;
+                background: #131a24;
                 max-width: 190px;
                 height: 9px;
+                border: 1px solid rgba(255,255,255,0.04);
                 
                 //margin-right: auto;
               }
@@ -645,6 +668,7 @@ function CreateBattle(props) {
                 background: white;
                 cursor: pointer;
                 border-radius: 50%;
+                box-shadow: 0 0 0 4px rgba(31,214,95,0.11), 0 0 16px rgba(31,214,95,0.25);
               }
 
               .range::-moz-range-thumb {
@@ -655,6 +679,7 @@ function CreateBattle(props) {
                 background: white;
                 cursor: pointer;
                 border-radius: 50%;
+                box-shadow: 0 0 0 4px rgba(31,214,95,0.11), 0 0 16px rgba(31,214,95,0.25);
               }
 
               .coin-text {

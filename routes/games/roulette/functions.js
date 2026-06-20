@@ -6,7 +6,20 @@ const io = require('../../../socketio/server');
 const colorsMultipliers = {
     0: 14,
     1: 2,
-    2: 2
+    2: 2,
+    3: 7
+}
+
+function resultToColor(result) {
+    if (result === 0) return 0;
+    if (result <= 7) return 1;
+    return 2;
+}
+
+function betWins(color, result, resultColor) {
+    if (color === resultColor) return true;
+    if (color === 3) return result === 7 || result === 8;
+    return false;
 }
 
 const roulette = {
@@ -24,7 +37,7 @@ const lastResults = 100;
 
 async function createRouletteRound() {
     const result = Math.floor(Math.random() * 15); // 0-14
-    const color = result === 0 ? 0 : result <= 7 ? 1 : 2;
+    const color = resultToColor(result);
     const [ins] = await sql.query('INSERT INTO roulette (result, color) VALUES (?, ?)', [result, color]);
     const [[newRound]] = await sql.query('SELECT * FROM roulette WHERE id = ?', [ins.insertId]);
     return newRound;
@@ -141,8 +154,8 @@ async function rouletteInterval() {
                 const color = roulette.round.color;
                 let won = 0;
     
-                if (color === bet.color) {
-                    won = bet.amount * colorsMultipliers[color];
+                if (betWins(bet.color, roulette.round.result, color)) {
+                    won = bet.amount * colorsMultipliers[bet.color];
                     await updateUserBalanceStmt.execute([won, bet.user.id]);
                     io.to(bet.user.id).emit('balance', 'add', won);
                 }
@@ -172,5 +185,8 @@ async function rouletteInterval() {
 
 module.exports = {
     roulette,
+    resultToColor,
+    betWins,
+    colorsMultipliers,
     cacheRoulette
 }

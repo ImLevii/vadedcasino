@@ -1,0 +1,52 @@
+<svg width="800" height="450" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="rouletteGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#052e16;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#15803d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16a34a;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="glowRoulette">
+      <stop offset="0%" style="stop-color:#22c55e;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#166534;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#rouletteGradient)"/>
+  
+  <!-- Glow effects -->
+  <circle cx="400" cy="225" r="220" fill="url(#glowRoulette)" opacity="0.4"/>
+  
+  <!-- Roulette wheel outer rim -->
+  <circle cx="400" cy="225" r="150" fill="#052e16" stroke="#10b981" stroke-width="6"/>
+  
+  <!-- Roulette wheel sections (simplified) -->
+  <circle cx="400" cy="225" r="140" fill="#1e293b"/>
+  
+  <!-- Green sections (simplified representation) -->
+  <path d="M 400 225 L 400 85 A 140 140 0 0 1 498.995 125.372 Z" fill="#10b981" opacity="0.9"/>
+  <path d="M 400 225 L 498.995 125.372 A 140 140 0 0 1 540 225 Z" fill="#064e3b" opacity="0.7"/>
+  <path d="M 400 225 L 540 225 A 140 140 0 0 1 498.995 324.628 Z" fill="#10b981" opacity="0.9"/>
+  <path d="M 400 225 L 498.995 324.628 A 140 140 0 0 1 400 365 Z" fill="#064e3b" opacity="0.7"/>
+  <path d="M 400 225 L 400 365 A 140 140 0 0 1 301.005 324.628 Z" fill="#10b981" opacity="0.9"/>
+  <path d="M 400 225 L 301.005 324.628 A 140 140 0 0 1 260 225 Z" fill="#064e3b" opacity="0.7"/>
+  <path d="M 400 225 L 260 225 A 140 140 0 0 1 301.005 125.372 Z" fill="#10b981" opacity="0.9"/>
+  <path d="M 400 225 L 301.005 125.372 A 140 140 0 0 1 400 85 Z" fill="#064e3b" opacity="0.7"/>
+  
+  <!-- Center hub -->
+  <circle cx="400" cy="225" r="30" fill="#10b981" stroke="#064e3b" stroke-width="3"/>
+  <circle cx="400" cy="225" r="15" fill="#064e3b"/>
+  
+  <!-- Winning number -->
+  <text x="400" y="240" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#10b981" text-anchor="middle">0</text>
+  
+  <!-- Ball -->
+  <circle cx="470" cy="150" r="12" fill="#6ee7b7" stroke="#064e3b" stroke-width="2"/>
+  <circle cx="467" cy="147" r="4" fill="#fff" opacity="0.8"/>
+  
+  <!-- Sparkles -->
+  <circle cx="150" cy="100" r="3" fill="#4ade80"/>
+  <circle cx="650" cy="350" r="3" fill="#4ade80"/>
+  <circle cx="200" cy="350" r="4" fill="#22c55e"/>
+  <circle cx="600" cy="100" r="4" fill="#22c55e"/>
+</svg>

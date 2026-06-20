@@ -1,0 +1,43 @@
+<svg width="800" height="450" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="coinflipGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#14532d;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#16a34a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#22c55e;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="glowCoinflip">
+      <stop offset="0%" style="stop-color:#4ade80;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#15803d;stop-opacity:0" />
+    </radialGradient>
+    <linearGradient id="coinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#34d399;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#coinflipGradient)"/>
+  
+  <!-- Glow effects -->
+  <circle cx="280" cy="225" r="180" fill="url(#glowCoinflip)" opacity="0.5"/>
+  <circle cx="520" cy="225" r="180" fill="url(#glowCoinflip)" opacity="0.5"/>
+  
+  <!-- Left coin (heads side) -->
+  <circle cx="280" cy="225" r="100" fill="url(#coinGradient)" stroke="#064e3b" stroke-width="5"/>
+  <circle cx="280" cy="225" r="80" fill="none" stroke="#064e3b" stroke-width="3"/>
+  <text x="280" y="245" font-family="Arial, sans-serif" font-size="50" font-weight="bold" fill="#064e3b" text-anchor="middle">H</text>
+  
+  <!-- Right coin (tails side) -->
+  <ellipse cx="520" cy="225" rx="30" ry="100" fill="url(#coinGradient)" stroke="#064e3b" stroke-width="5"/>
+  <ellipse cx="520" cy="225" rx="20" ry="80" fill="none" stroke="#064e3b" stroke-width="2"/>
+  
+  <!-- Motion lines -->
+  <line x1="350" y1="225" x2="450" y2="225" stroke="#4ade80" stroke-width="3" opacity="0.6" stroke-dasharray="10,5"/>
+  
+  <!-- Sparkles -->
+  <circle cx="150" cy="120" r="3" fill="#4ade80"/>
+  <circle cx="650" cy="330" r="3" fill="#4ade80"/>
+  <circle cx="180" cy="330" r="4" fill="#22c55e"/>
+  <circle cx="620" cy="120" r="4" fill="#22c55e"/>
+</svg>

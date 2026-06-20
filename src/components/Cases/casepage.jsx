@@ -5,7 +5,6 @@ import Loader from "../Loader/loader";
 import CaseItem from "./caseitem";
 import CaseSpinner from "./casespinner";
 import {authedAPI} from "../../util/api";
-import PlainItem from "../Items/plainitem";
 import {useUser} from "../../contexts/usercontextprovider";
 import {generateRandomItems} from "../../resources/cases";
 import Toggle from "../Toggle/toggle";
@@ -22,8 +21,8 @@ function CasePage(props) {
   const [spinning, setSpinning] = createSignal('')
   const [offset, setOffset] = createSignal(0)
   const [winningItems, setWinningItems] = createSignal([])
-  const [spinTime, setSpinTime] = createSignal(7000)
-  const [itemTime, setItemTime] = createSignal(3000)
+  const [spinTime, setSpinTime] = createSignal(4800)
+  const [itemTime, setItemTime] = createSignal(2200)
 
   createEffect(() => {
     if (caseObj() && caseObj()?.items) {
@@ -104,8 +103,8 @@ function CasePage(props) {
       for (let i = 0; i < amt; i++) {
         items[i] = generateRandomItems(caseObj()?.items)
       }
-      setSpinnerItems(items)
       setAmount(amt)
+      setSpinnerItems(items)
     }
   }
 
@@ -142,26 +141,17 @@ function CasePage(props) {
 
         {/* ── Spinner section ── */}
         <div class='spinner-section'>
-          <div class='spinner-indicator'>
-            <svg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'>
-              <path d='M6 8L0.803847 0.5H11.1962L6 8Z' fill='#1fd65f'/>
-            </svg>
-          </div>
-
           <Show when={!caseObj.loading} fallback={<div class='spinner-loader'><Loader/></div>}>
-            <div class='spinner-track'>
-              {spinning() !== 'win' ? (
-                <For each={Array(amount())}>{(spinner, index) =>
-                  <CaseSpinner spinTime={spinTime()} offset={offset()}
-                               items={spinnerItems()[index()]}
-                               spinning={spinning()}
-                               position={index()}/>
-                }</For>
-              ) : (
-                <div class='winnings'>
-                  <For each={winningItems()}>{(item, index) => <PlainItem {...item}/>}</For>
-                </div>
-              )}
+            <div class={'spinner-track amount-' + amount()}>
+              <For each={Array(amount())}>{(spinner, index) =>
+                <CaseSpinner spinTime={spinTime()} offset={offset()}
+                             items={spinnerItems()[index()]}
+                             spinning={spinning()}
+                             layout={amount() >= 3 ? 'multi' : 'row'}
+                             sideArrows={amount() > 1}
+                             position={index()}/>
+              }</For>
+
             </div>
           </Show>
         </div>
@@ -221,10 +211,10 @@ function CasePage(props) {
             {/* Fast open */}
             <div class='fast-toggle' onClick={() => {
               if (spinning() !== '') return
-              setItemTime(itemTime() === 1500 ? 3000 : 1500)
-              setSpinTime(spinTime() === 3000 ? 7000 : 3000)
+              setItemTime(itemTime() === 1100 ? 2200 : 1100)
+              setSpinTime(spinTime() === 2400 ? 4800 : 2400)
             }}>
-              <Toggle active={spinTime() === 3000} toggle={() => null}/>
+              <Toggle active={spinTime() === 2400} toggle={() => null}/>
               <span>QUICK UNBOX</span>
             </div>
           </div>
@@ -337,20 +327,53 @@ function CasePage(props) {
           box-shadow: 0 8px 40px rgba(0,0,0,0.5);
         }
 
-        .spinner-indicator {
+        .spinner-track {
+          min-height: 224px;
           display: flex;
-          justify-content: center;
-          padding-top: 4px;
-          position: relative;
-          z-index: 4;
+          flex-wrap: nowrap;
+          align-items: stretch;
+          gap: 12px;
+          padding: 14px 20px 20px;
+          overflow-x: auto;
+          overflow-y: hidden;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(31, 214, 95, 0.22) transparent;
         }
 
-        .spinner-track {
-          min-height: 160px;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 12px;
-          padding: 10px 20px 20px 20px;
+        .spinner-track.amount-3,
+        .spinner-track.amount-4 {
+          min-height: 282px;
+          display: grid;
+          grid-auto-rows: 252px;
+          align-items: stretch;
+          gap: 0;
+          padding: 10px;
+          overflow-x: hidden;
+          overflow-y: hidden;
+          background: linear-gradient(180deg, rgba(13, 17, 24, 0.96), rgba(8, 11, 17, 0.98));
+          border-top: 1px solid rgba(255, 255, 255, 0.035);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.025), inset 0 0 60px rgba(0, 0, 0, 0.32);
+        }
+
+        .spinner-track.amount-3 {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .spinner-track.amount-4 {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .spinner-track::-webkit-scrollbar {
+          height: 6px;
+        }
+
+        .spinner-track::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .spinner-track::-webkit-scrollbar-thumb {
+          background: rgba(31, 214, 95, 0.22);
+          border-radius: 999px;
         }
 
         .spinner-loader {
@@ -359,21 +382,6 @@ function CasePage(props) {
           justify-content: center;
           min-height: 160px;
           width: 100%;
-        }
-
-        .winnings {
-          flex: 1;
-          min-height: 130px;
-          height: 200px;
-          border-radius: 10px;
-          background: rgba(31, 214, 95, 0.05);
-          border: 1px solid rgba(31, 214, 95, 0.15);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 15px;
-          overflow: hidden;
-          position: relative;
         }
 
         /* ── Controls bar ── */

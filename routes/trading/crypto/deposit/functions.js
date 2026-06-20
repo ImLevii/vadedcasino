@@ -60,8 +60,8 @@ const cryptoData = {
         }
     },
     robuxRate: {
-        robux: 1000,
-        usd: 3.5
+        robux: 1,
+        usd: 0.7
     }
 }
 

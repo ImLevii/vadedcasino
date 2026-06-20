@@ -4,7 +4,7 @@ import {numberToColor} from "../../util/roulettehelpers";
 const CHIP_COLORS = {
   green: { primary: '#1fd65f', secondary: '#18c255', dark: '#061a0e', rim: '#45e57f' },
   red: { primary: '#e8455f', secondary: '#c73550', dark: '#1a0609', rim: '#ff7089' },
-  gold: { primary: '#f5a623', secondary: '#d4851a', dark: '#1a1006', rim: '#ffc84a' }
+  black: { primary: '#8b92a0', secondary: '#323846', dark: '#06080c', rim: '#c3cad6' }
 }
 
 const EDGE_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315]
@@ -120,10 +120,10 @@ function RouletteIcon(props) {
         height: 100px;
         }
 
-        .gold {
-        background: rgba(245, 166, 35, 0.08);
-        border: 1px solid rgba(245, 166, 35, 0.3);
-        box-shadow: 0 0 18px rgba(245, 166, 35, 0.12);
+        .black {
+        background: rgba(139, 146, 160, 0.08);
+        border: 1px solid rgba(139, 146, 160, 0.3);
+        box-shadow: 0 0 18px rgba(139, 146, 160, 0.12);
         }
 
         .red {

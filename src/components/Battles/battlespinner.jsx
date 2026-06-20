@@ -176,7 +176,13 @@ function BattleSpinner(props) {
             )}
           </div>
         ) : props?.player && props?.state === 'ROLLING' ? (
-          <div class='spinner-column red'>
+          <div class='spinner-column'>
+            <div class='battle-arrow battle-arrow-left'/>
+            <div class='battle-arrow battle-arrow-right'/>
+            <div class='center-band'/>
+            <div class='center-line'/>
+            <div class='fade-top'/>
+            <div class='fade-bottom'/>
             <div class='spinner-items' ref={spinner}>
               <Index each={items()}>{(item, index) => (
                 <BattleSpinnerItem
@@ -234,8 +240,11 @@ function BattleSpinner(props) {
           align-items: center;
           justify-content: center;
           border-radius: 10px;
+          overflow: hidden;
 
-          background: linear-gradient(230deg, rgba(18, 20, 28, 0.10) 0%, rgba(31, 36, 46, 0.10) 100%), #2a323f;
+          background: radial-gradient(86% 90% at 50% 50%, rgba(31, 214, 95, 0.03), rgba(8, 10, 16, 0) 50%), linear-gradient(180deg, #0a0d14, #06080e);
+          border: 1px solid rgba(255, 255, 255, 0.055);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 14px 32px rgba(0, 0, 0, 0.24);
         }
 
         .spinner.gold:before {
@@ -251,17 +260,20 @@ function BattleSpinner(props) {
         }
 
         .spinner.green {
-          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(31, 214, 95, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(18, 20, 28, 0.10) 0%, rgba(31, 36, 46, 0.10) 100%), #2a323f;
+          background: radial-gradient(92% 95% at 50.00% 100.00%, rgba(31, 214, 95, 0.2) 0%, rgba(0, 0, 0, 0.00) 70%), linear-gradient(180deg, #0a0d14, #06080e);
+          border-color: rgba(31, 214, 95, 0.25);
           border-bottom: 2px solid #1fd65f;
         }
 
         .spinner.red {
-          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(249, 81, 81, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(18, 20, 28, 0.10) 0%, rgba(31, 36, 46, 0.10) 100%), #2a323f;
+          background: radial-gradient(92% 95% at 50.00% 100.00%, rgba(249, 81, 81, 0.18) 0%, rgba(0, 0, 0, 0.00) 70%), linear-gradient(180deg, #0a0d14, #06080e);
+          border-color: rgba(249, 81, 81, 0.2);
           border-bottom: 2px solid #F95151;
         }
 
         .gold {
-          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(31, 214, 95, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(18, 20, 28, 0.10) 0%, rgba(31, 36, 46, 0.10) 100%), #2a323f;
+          background: radial-gradient(92% 95% at 50.00% 100.00%, rgba(255, 184, 74, 0.16) 0%, rgba(0, 0, 0, 0.00) 70%), linear-gradient(180deg, #0a0d14, #06080e);
+          border-color: rgba(255, 184, 74, 0.16);
         }
 
         .ready {
@@ -390,7 +402,7 @@ function BattleSpinner(props) {
         }
 
         .spinner-column {
-          max-width: 240px;
+          max-width: 260px;
           width: 100%;
           height: 100%;
           position: relative;
@@ -402,18 +414,88 @@ function BattleSpinner(props) {
           align-items: center;
 
           overflow: hidden;
+          background: radial-gradient(90% 52% at 50% 50%, rgba(31, 214, 95, 0.045), rgba(31, 214, 95, 0) 62%);
         }
 
         .spinner-column:before {
-          width: 100%;
-          height: 100%;
-          background-image: url("/assets/icons/battlestripes.png");
-          position: absolute;
-          z-index: -1;
           content: '';
-          opacity: 0.3;
-          top: 0;
+          position: absolute;
+          inset: 0;
+          z-index: -1;
+          background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.045), rgba(255,255,255,0));
+          opacity: 0.45;
+        }
+
+        .center-band {
+          position: absolute;
           left: 0;
+          right: 0;
+          top: 50%;
+          height: 104px;
+          transform: translateY(-52px);
+          pointer-events: none;
+          z-index: 1;
+          background: linear-gradient(180deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.09), rgba(31, 214, 95, 0));
+          box-shadow: inset 0 1px 0 rgba(31, 214, 95, 0.08), inset 0 -1px 0 rgba(31, 214, 95, 0.08), 0 0 44px rgba(31, 214, 95, 0.12);
+          animation: battleCenterGlow 2.8s ease-in-out infinite;
+        }
+
+        .center-line {
+          position: absolute;
+          left: 12px;
+          right: 12px;
+          top: 50%;
+          height: 2px;
+          transform: translateY(-1px);
+          z-index: 4;
+          pointer-events: none;
+          background: linear-gradient(90deg, transparent, rgba(31, 214, 95, 0.28) 12%, #1fd65f 42%, #1fd65f 58%, rgba(31, 214, 95, 0.28) 88%, transparent);
+          box-shadow: 0 0 12px rgba(31, 214, 95, 0.68), 0 0 26px rgba(31, 214, 95, 0.22);
+        }
+
+        .battle-arrow {
+          position: absolute;
+          top: 50%;
+          width: 0;
+          height: 0;
+          z-index: 5;
+          pointer-events: none;
+          filter: drop-shadow(0 0 10px rgba(31, 214, 95, 0.72));
+        }
+
+        .battle-arrow-left {
+          left: 7px;
+          transform: translateY(-50%);
+          border-top: 8px solid transparent;
+          border-bottom: 8px solid transparent;
+          border-left: 11px solid #1fd65f;
+        }
+
+        .battle-arrow-right {
+          right: 7px;
+          transform: translateY(-50%);
+          border-top: 8px solid transparent;
+          border-bottom: 8px solid transparent;
+          border-right: 11px solid #1fd65f;
+        }
+
+        .fade-top, .fade-bottom {
+          position: absolute;
+          left: 0;
+          width: 100%;
+          height: 26%;
+          z-index: 3;
+          pointer-events: none;
+        }
+
+        .fade-top {
+          top: 0;
+          background: linear-gradient(180deg, #06080e 0%, rgba(6, 8, 14, 0.82) 38%, transparent 100%);
+        }
+
+        .fade-bottom {
+          bottom: 0;
+          background: linear-gradient(0deg, #06080e 0%, rgba(6, 8, 14, 0.82) 38%, transparent 100%);
         }
 
         .bar {
@@ -435,6 +517,18 @@ function BattleSpinner(props) {
 
           position: absolute;
           top: 0px;
+          z-index: 2;
+        }
+
+        @keyframes battleCenterGlow {
+          0%, 100% {
+            opacity: .78;
+            box-shadow: inset 0 1px 0 rgba(31, 214, 95, 0.08), inset 0 -1px 0 rgba(31, 214, 95, 0.08), 0 0 34px rgba(31, 214, 95, 0.1);
+          }
+          50% {
+            opacity: 1;
+            box-shadow: inset 0 1px 0 rgba(31, 214, 95, 0.16), inset 0 -1px 0 rgba(31, 214, 95, 0.16), 0 0 52px rgba(31, 214, 95, 0.18);
+          }
         }
 
         .recreate {

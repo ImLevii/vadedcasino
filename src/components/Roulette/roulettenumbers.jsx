@@ -1,33 +1,12 @@
 import {createEffect, createSignal} from "solid-js";
+import {numberToColor} from "../../util/roulettehelpers";
 
 function RouletteNumbers(props) {
 
     let num
     const [type, setType] = createSignal('green')
 
-    createEffect(() => {
-        switch(props.num) {
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-            case 7:
-                return setType('green')
-            case 14:
-            case 13:
-            case 12:
-            case 11:
-            case 10:
-            case 9:
-            case 8:
-                return setType('red')
-            case 0:
-            default:
-                return setType('gold')
-        }
-    })
+    createEffect(() => setType(numberToColor(props.num)))
 
     createEffect(() => {
         if (typeof props.roll?.result === 'number') {
@@ -72,12 +51,12 @@ function RouletteNumbers(props) {
                 font-weight: 600;
               }
               
-              .gold {
+                            .black {
                 border-radius: 4px;
-                background: rgba(245, 166, 35, 0.12);
-                border: 1px solid rgba(245, 166, 35, 0.45);
+                                background: rgba(139, 146, 160, 0.12);
+                                border: 1px solid rgba(139, 146, 160, 0.45);
                 
-                color: #f5a623;
+                                color: #c3cad6;
               }
               
               .red {

@@ -10,6 +10,7 @@ function SpinnerItem(props) {
     let scaleAnim
     let opacityAnim
     let swords
+    const spinEasing = 'cubic-bezier(.08,.78,.16,1)'
 
     let start
     function playSound(timeStamp, delay, index) {
@@ -27,13 +28,29 @@ function SpinnerItem(props) {
 
     createEffect(() => {
         if (props?.spinning === 'spinning') {
-            animate()
+            requestAnimationFrame(() => animate())
+        }
+
+        if (props?.spinning === '') {
+            resetAnimations()
         }
     })
 
+    function resetAnimations() {
+        if (scaleAnim) scaleAnim.cancel()
+        if (opacityAnim) opacityAnim.cancel()
+        scaleAnim = null
+        opacityAnim = null
+        start = null
+
+        if (image) image.style.transform = ''
+        if (item) item.style.opacity = ''
+        if (swords) swords.style.opacity = ''
+    }
+
     function animate() {
         const lastIndex = 50
-        const startIndex = 5
+        const startIndex = 6
 
         if (props?.index < startIndex || props?.index > lastIndex) return
 
@@ -51,15 +68,16 @@ function SpinnerItem(props) {
 
         if (scaleAnim) scaleAnim.cancel()
         if (opacityAnim) opacityAnim.cancel()
+        swords?.getAnimations()?.forEach(animation => animation.cancel())
 
         let config = {
-            duration: props?.spinTime || 7000,
-            easing: 'cubic-bezier(.05,.85,.3,1)',
+            duration: props?.spinTime || 4800,
+            easing: spinEasing,
             fill: 'forwards',
         }
 
         if (props?.position === 0) {
-            let delay = findTimeForOffset(startOffset, ...[0.05, 0.85, 0.3, 1]) * config.duration
+            let delay = findTimeForOffset(startOffset, ...[0.08, 0.78, 0.16, 1]) * config.duration
             requestAnimationFrame((ts) => playSound(ts, delay, props?.index))
         }
 
@@ -110,11 +128,24 @@ function SpinnerItem(props) {
         return '#A9B5D2'
     }
 
+    function formattedPrice(price) {
+        return Number(price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    }
+
     return (
         <>
             <div class='case-item-container' ref={item} style={{ '--rarity': rarityColor(props?.price) }}>
                 <div class='card-bg'/>
                 <img ref={image} class='item-image' src={resolveImageSrc(props.img)} height='90' alt='' draggable={false}/>
+                {props?.spinning === 'win' && props?.index === 50 ? (
+                    <div class='item-meta'>
+                        <p class='item-name'>{props?.name}</p>
+                        <div class='item-price'>
+                            <img src='/assets/icons/coin.svg' height='11' alt=''/>
+                            <span>{formattedPrice(props?.price)}</span>
+                        </div>
+                    </div>
+                ) : null}
                 <img className='back-img' src={backImage(props?.price)} height='60' alt='' ref={swords}/>
             </div>
 
@@ -131,26 +162,76 @@ function SpinnerItem(props) {
                 align-items: center;
                 justify-content: center;
                 
-                opacity: 0.35;
+                opacity: 0.42;
               }
 
               .card-bg {
                 position: absolute;
                 inset: 6px 4px;
                 border-radius: 8px;
-                background: rgba(255,255,255,0.03);
-                border: 1px solid rgba(255,255,255,0.06);
+                background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.018));
+                border: 1px solid rgba(255,255,255,0.065);
                 border-bottom: 2px solid var(--rarity, #A9B5D2);
-                box-shadow: 0 0 16px -4px var(--rarity, #A9B5D2);
-                opacity: 0.6;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.035), 0 0 18px -6px var(--rarity, #A9B5D2);
+                opacity: 0.72;
               }
               
               .item-image {
                 position: relative;
                 user-select: none;
                 z-index: 1;
-                filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
+                filter: drop-shadow(0 8px 14px rgba(0,0,0,0.62));
               }
+
+                            .item-meta {
+                                position: absolute;
+                                left: 10px;
+                                right: 10px;
+                                bottom: 13px;
+                                z-index: 2;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                gap: 5px;
+                                pointer-events: none;
+                                animation: itemMetaIn .18s ease-out both;
+                            }
+
+                            .item-name {
+                                width: 100%;
+                                margin: 0;
+                                color: #f0f4fb;
+                                font-size: 9px;
+                                line-height: 1.1;
+                                font-weight: 900;
+                                text-align: center;
+                                display: -webkit-box;
+                                -webkit-line-clamp: 2;
+                                -webkit-box-orient: vertical;
+                                overflow: hidden;
+                                text-shadow: 0 1px 8px rgba(0,0,0,0.9);
+                            }
+
+                            .item-price {
+                                height: 18px;
+                                display: inline-flex;
+                                align-items: center;
+                                gap: 4px;
+                                padding: 0 7px;
+                                border-radius: 4px;
+                                background: rgba(10, 24, 18, 0.96);
+                                border: 1px solid rgba(31, 214, 95, 0.2);
+                                color: #b7ffd1;
+                                font-size: 10px;
+                                line-height: 1;
+                                font-weight: 900;
+                                box-shadow: 0 0 14px rgba(31, 214, 95, 0.13), inset 0 1px 0 rgba(255,255,255,0.05);
+                            }
+
+                            @keyframes itemMetaIn {
+                                from { opacity: 0; transform: translateY(4px); }
+                                to { opacity: 1; transform: translateY(0); }
+                            }
 
               .back-img {
                 position: absolute;

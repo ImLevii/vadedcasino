@@ -1,12 +1,12 @@
 import {createSignal, For} from "solid-js";
-import {addDropdown} from "../../util/api";
+import {addDropdown, closeDropdowns} from "../../util/api";
 import {A} from "@solidjs/router";
 
 const CASE_LINKS = [
-    {name: 'CASE OPENING', href: '/cases', img: '/assets/gamemodes/cases.png'},
-    {name: 'CASE BATTLES', href: '/battles', img: '/assets/gamemodes/battles.png'},
-    {name: 'DAILY CASES', href: '/cases', img: '/assets/gamemodes/cases.png'},
-    {name: 'SUPERCHARGE CASES', href: '/cases', img: '/assets/gamemodes/cases.png'},
+    {name: 'CASE OPENING', href: '/cases', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/427a331f-8299-4914-9895-0ff3cac84a47-CSGOLuck_Thumbnail_960x540_CaseOpening.jpeg'},
+    {name: 'CASE BATTLES', href: '/battles', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/638e2dcf-4f8c-4b96-b5cb-e43b0a517207-CSGOLuck_Thumbnail_960x540_CaseBattle.jpeg'},
+    {name: 'DAILY CASES', href: '/cases', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/51ca07c1-9691-4f9b-a630-256a641c1d16-CSGOLuck_Thumbnail_960x540_DailyCases.jpeg'},
+    {name: 'SUPERCHARGE CASES', href: '/cases', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/3b116ffd-cb21-413a-96c3-8776a4a902b7-CSGOLuck_Thumbnail_960x540_SuperchargeCases.jpeg'},
 ]
 
 function Cases() {
@@ -17,7 +17,11 @@ function Cases() {
     return (
         <>
             <div class='cases-container' onClick={(e) => e.stopPropagation()}>
-                <div class={'cases ' + (active() ? 'active' : '')} onClick={() => setActive(!active())}>
+                <div class={'cases ' + (active() ? 'active' : '')} onClick={() => {
+                    const wasActive = active();
+                    closeDropdowns();
+                    setActive(!wasActive);
+                }}>
                     <svg class='icon' width="16" height="16" viewBox="0 0 16 16" fill="none"
                          xmlns="http://www.w3.org/2000/svg">
                         <path d="M1.5 5.5H14.5V13C14.5 13.5523 14.0523 14 13.5 14H2.5C1.94772 14 1.5 13.5523 1.5 13V5.5Z"
