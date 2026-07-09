@@ -8,6 +8,11 @@ const connection = {
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
+    // users.id and other BIGINT columns hold 18-digit snowflake IDs that exceed
+    // JS Number precision (2^53). Return BIGINT as a String only when it can't be
+    // represented accurately; smaller values (e.g. COUNT(*)) stay as Numbers.
+    supportBigNumbers: true,
+    bigNumberStrings: false,
     typeCast: function (field, next) {
         if (field.type == "NEWDECIMAL") {
             const value = field.string();
