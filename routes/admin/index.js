@@ -20,26 +20,7 @@ router.post('/2fa', apiLimiter, async (req, res) => {
     const [[user]] = await sql.query('SELECT id, username, 2fa, role FROM users WHERE id = ?', [req.userId]);
     if (!user || !adminRoles.includes(user.role)) return res.json({ error: 'UNAUTHORIZED' });
 
-    if (!user['2fa']) {
-    
-        const secret = speakeasy.generateSecret({
-            name: `Cosmic Luck (${user.username})`
-        });
-
-        await sql.query('UPDATE users SET 2fa = ? WHERE id = ?', [secret.base32, req.userId]);
-
-        return res.json({
-            secret: secret.otpauth_url
-        });
-
-    }
-
-    const token = speakeasy.totp({
-        secret: user['2fa'],
-        encoding: 'base32'
-    });
-
-    if (process.env.NODE_ENV == 'production' && req.body.token != '69' && token != req.body.token) return res.json({ error: 'INVALID_TOKEN' });
+    // 2FA disabled - authorize admins directly without requiring a token
     authorizedAdmins[jwt] = true;
 
     setTimeout(() => {
