@@ -1,7 +1,7 @@
 function FAQ(props) {
 
     function toggleDropdown(e) {
-        e.target.parentElement.classList.toggle('active')
+        e.currentTarget.parentElement.classList.toggle('active')
     }
 
     return (
@@ -328,25 +328,41 @@ function FAQ(props) {
 
                 padding: 0 15px;
 
-                border-radius: 2px;
-                background: rgba(58, 66, 80, 0.45);
+                border-radius: 8px;
+                background: linear-gradient(145deg, rgba(50, 60, 76, 0.58) 0%, rgba(22, 28, 38, 0.78) 100%);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 
-                border: 1px solid transparent;
-                transition: all .3s;
+                                border: 1px solid rgba(131, 147, 168, 0.24);
+                                transition: color .25s, border-color .25s, background-color .25s, box-shadow .25s;
               }
+
+                            button:hover {
+                                color: #dbe5f4;
+                                border-color: rgba(31, 214, 95, 0.35);
+                            }
+
+                            button svg {
+                                transition: transform .25s;
+                            }
+
+                            button svg path {
+                                fill: currentColor;
+                            }
               
               .active button {
-                border-radius: 2px;
-                border: 1px solid #3a4250;
-                background: rgba(58, 66, 80, 0.08);
+                                border-radius: 8px;
+                                color: #edf7ff;
+                                border: 1px solid rgba(31, 214, 95, 0.55);
+                                background: linear-gradient(145deg, rgba(49, 69, 57, 0.56) 0%, rgba(19, 30, 26, 0.8) 100%);
+                                box-shadow: inset 0 1px 0 rgba(162, 237, 192, 0.3), 0 0 0 1px rgba(31, 214, 95, 0.12);
               }
               
               .active button svg {
-                rotate: 180deg;
+                                transform: rotate(180deg);
               }
 
               .dropdown {
@@ -354,9 +370,10 @@ function FAQ(props) {
                 flex-direction: column;
 
                 max-height: 0;
+                opacity: 0;
                 overflow: hidden;
 
-                transition: max-height .3s;
+                transition: max-height .25s, opacity .2s;
               }
 
               .code {
@@ -379,6 +396,7 @@ function FAQ(props) {
 
               .active .dropdown {
                 max-height: 500px;
+                                opacity: 1;
               }
             `}</style>
         </>

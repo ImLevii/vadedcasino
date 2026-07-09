@@ -16,13 +16,12 @@ function Loader(props) {
               }
 
               .loader {
-                height: 8rem;
+                height: clamp(4rem, 12vw, 8rem);
                 aspect-ratio: 1;
-                animation: spin 1s linear infinite;
                 border-radius: 50%;
-
-                border-top: 2px solid #FF9900;
-                border-bottom: 2px solid #FF9900;
+                border: 3px solid rgba(31, 214, 95, 0.2);
+                border-top-color: #1fd65f;
+                animation: spin 0.9s linear infinite;
               }
               
               .small {
@@ -36,6 +35,7 @@ function Loader(props) {
               .small .loader {
                 aspect-ratio: 1;
                 height: 100%;
+                min-height: 1.4rem;
               }
 
               @keyframes spin {

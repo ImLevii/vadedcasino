@@ -357,6 +357,57 @@ function Provably(props) {
         return parts
     }
 
+    function SeedControls() {
+        const hasSeeds = !!seeds()
+
+        return (
+            <div class='seeds-row'>
+                <div class='seed-group'>
+                    <p class='seed-label'>Client Seed</p>
+                    <div class='seed-field'>
+                        <p class='seed-value'>{seeds()?.clientSeed || 'Sign in to view and reroll your seed'}</p>
+                        <button class='icon-btn' title='Copy client seed' onClick={() => copy(seeds()?.clientSeed)} disabled={!hasSeeds}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="14" viewBox="0 0 14 16" fill="currentColor">
+                                <path d="M8.62259 2.2981H1.52163C0.681259 2.2981 0 2.97936 0 3.81974V13.964C0 14.8043 0.681259 15.4856 1.52163 15.4856H8.62259C9.46297 15.4856 10.1442 14.8043 10.1442 13.964V3.81974C10.1442 2.97936 9.46297 2.2981 8.62259 2.2981Z"/>
+                                <path d="M13.1876 1.79089V11.9351C13.1864 12.3383 13.0257 12.7246 12.7406 13.0097C12.4555 13.2948 12.0692 13.4555 11.666 13.4567H11.1588V3.81974C11.1588 3.14713 10.8916 2.50208 10.416 2.02647C9.94036 1.55087 9.2953 1.28368 8.6227 1.28368H3.13467C3.23932 0.987696 3.43295 0.731325 3.68902 0.549713C3.9451 0.368101 4.25107 0.270139 4.56501 0.269257H11.666C12.0692 0.270461 12.4555 0.431162 12.7406 0.716263C13.0257 1.00136 13.1864 1.3877 13.1876 1.79089Z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <button class='rotate-btn' title='Reroll client seed' onClick={rotateClientSeed} disabled={!hasSeeds}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 4V1L8 5L12 9V6C15.31 6 18 8.69 18 12C18 13.01 17.75 13.97 17.3 14.8L18.76 16.26C19.54 15.03 20 13.57 20 12C20 7.58 16.42 4 12 4ZM12 18C8.69 18 6 15.31 6 12C6 10.99 6.25 10.03 6.7 9.2L5.24 7.74C4.46 8.97 4 10.43 4 12C4 16.42 7.58 20 12 20V23L16 19L12 15V18Z"/>
+                    </svg>
+                </button>
+
+                <div class='seed-group'>
+                    <p class='seed-label'>Server Hash</p>
+                    <div class='seed-field'>
+                        <p class='seed-value'>{seeds()?.serverSeedHash || 'Sign in to view and reroll your seed'}</p>
+                        <button class='icon-btn' title='Copy server hash' onClick={() => copy(seeds()?.serverSeedHash)} disabled={!hasSeeds}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="14" viewBox="0 0 14 16" fill="currentColor">
+                                <path d="M8.62259 2.2981H1.52163C0.681259 2.2981 0 2.97936 0 3.81974V13.964C0 14.8043 0.681259 15.4856 1.52163 15.4856H8.62259C9.46297 15.4856 10.1442 14.8043 10.1442 13.964V3.81974C10.1442 2.97936 9.46297 2.2981 8.62259 2.2981Z"/>
+                                <path d="M13.1876 1.79089V11.9351C13.1864 12.3383 13.0257 12.7246 12.7406 13.0097C12.4555 13.2948 12.0692 13.4555 11.666 13.4567H11.1588V3.81974C11.1588 3.14713 10.8916 2.50208 10.416 2.02647C9.94036 1.55087 9.2953 1.28368 8.6227 1.28368H3.13467C3.23932 0.987696 3.43295 0.731325 3.68902 0.549713C3.9451 0.368101 4.25107 0.270139 4.56501 0.269257H11.666C12.0692 0.270461 12.4555 0.431162 12.7406 0.716263C13.0257 1.00136 13.1864 1.3877 13.1876 1.79089Z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <button class='rotate-btn' title='Reroll server seed' onClick={rotateServerSeed} disabled={!hasSeeds}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 4V1L8 5L12 9V6C15.31 6 18 8.69 18 12C18 13.01 17.75 13.97 17.3 14.8L18.76 16.26C19.54 15.03 20 13.57 20 12C20 7.58 16.42 4 12 4ZM12 18C8.69 18 6 15.31 6 12C6 10.99 6.25 10.03 6.7 9.2L5.24 7.74C4.46 8.97 4 10.43 4 12C4 16.42 7.58 20 12 20V23L16 19L12 15V18Z"/>
+                    </svg>
+                </button>
+
+                <div class='seed-group counter'>
+                    <p class='seed-label'>Counter</p>
+                    <div class='seed-field'>
+                        <p class='seed-value'>{seeds()?.nonce ?? '-'}</p>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <>
             <div class='fairness-container fadein'>
@@ -393,6 +444,8 @@ function Provably(props) {
                     </button>
                 </div>
 
+                <SeedControls/>
+
                 <h2 class='section-heading'>TECHNICAL DETAILS</h2>
 
                 <p class='text'>{game().intro}</p>
@@ -410,53 +463,6 @@ function Provably(props) {
                 <div class='actions-row'>
                     <a class='validate-btn' href='https://runkit.com/new' target='_blank' rel='noreferrer'>Validate Result Externally</a>
                 </div>
-
-                <Show when={game().seedsPanel && seeds()}>
-                    <div class='seeds-row'>
-                        <div class='seed-group'>
-                            <p class='seed-label'>Client Seed</p>
-                            <div class='seed-field'>
-                                <p class='seed-value'>{seeds()?.clientSeed}</p>
-                                <button class='icon-btn' title='Copy' onClick={() => copy(seeds()?.clientSeed)}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="14" viewBox="0 0 14 16" fill="currentColor">
-                                        <path d="M8.62259 2.2981H1.52163C0.681259 2.2981 0 2.97936 0 3.81974V13.964C0 14.8043 0.681259 15.4856 1.52163 15.4856H8.62259C9.46297 15.4856 10.1442 14.8043 10.1442 13.964V3.81974C10.1442 2.97936 9.46297 2.2981 8.62259 2.2981Z"/>
-                                        <path d="M13.1876 1.79089V11.9351C13.1864 12.3383 13.0257 12.7246 12.7406 13.0097C12.4555 13.2948 12.0692 13.4555 11.666 13.4567H11.1588V3.81974C11.1588 3.14713 10.8916 2.50208 10.416 2.02647C9.94036 1.55087 9.2953 1.28368 8.6227 1.28368H3.13467C3.23932 0.987696 3.43295 0.731325 3.68902 0.549713C3.9451 0.368101 4.25107 0.270139 4.56501 0.269257H11.666C12.0692 0.270461 12.4555 0.431162 12.7406 0.716263C13.0257 1.00136 13.1864 1.3877 13.1876 1.79089Z"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <button class='rotate-btn' title='Randomize client seed' onClick={rotateClientSeed}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 4V1L8 5L12 9V6C15.31 6 18 8.69 18 12C18 13.01 17.75 13.97 17.3 14.8L18.76 16.26C19.54 15.03 20 13.57 20 12C20 7.58 16.42 4 12 4ZM12 18C8.69 18 6 15.31 6 12C6 10.99 6.25 10.03 6.7 9.2L5.24 7.74C4.46 8.97 4 10.43 4 12C4 16.42 7.58 20 12 20V23L16 19L12 15V18Z"/>
-                            </svg>
-                        </button>
-
-                        <div class='seed-group'>
-                            <p class='seed-label'>Server Hash</p>
-                            <div class='seed-field'>
-                                <p class='seed-value'>{seeds()?.serverSeedHash}</p>
-                                <button class='icon-btn' title='Copy' onClick={() => copy(seeds()?.serverSeedHash)}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="14" viewBox="0 0 14 16" fill="currentColor">
-                                        <path d="M8.62259 2.2981H1.52163C0.681259 2.2981 0 2.97936 0 3.81974V13.964C0 14.8043 0.681259 15.4856 1.52163 15.4856H8.62259C9.46297 15.4856 10.1442 14.8043 10.1442 13.964V3.81974C10.1442 2.97936 9.46297 2.2981 8.62259 2.2981Z"/>
-                                        <path d="M13.1876 1.79089V11.9351C13.1864 12.3383 13.0257 12.7246 12.7406 13.0097C12.4555 13.2948 12.0692 13.4555 11.666 13.4567H11.1588V3.81974C11.1588 3.14713 10.8916 2.50208 10.416 2.02647C9.94036 1.55087 9.2953 1.28368 8.6227 1.28368H3.13467C3.23932 0.987696 3.43295 0.731325 3.68902 0.549713C3.9451 0.368101 4.25107 0.270139 4.56501 0.269257H11.666C12.0692 0.270461 12.4555 0.431162 12.7406 0.716263C13.0257 1.00136 13.1864 1.3877 13.1876 1.79089Z"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <button class='rotate-btn' title='Rotate server seed' onClick={rotateServerSeed}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 4V1L8 5L12 9V6C15.31 6 18 8.69 18 12C18 13.01 17.75 13.97 17.3 14.8L18.76 16.26C19.54 15.03 20 13.57 20 12C20 7.58 16.42 4 12 4ZM12 18C8.69 18 6 15.31 6 12C6 10.99 6.25 10.03 6.7 9.2L5.24 7.74C4.46 8.97 4 10.43 4 12C4 16.42 7.58 20 12 20V23L16 19L12 15V18Z"/>
-                            </svg>
-                        </button>
-
-                        <div class='seed-group counter'>
-                            <p class='seed-label'>Counter</p>
-                            <div class='seed-field'>
-                                <p class='seed-value'>{seeds()?.nonce}</p>
-                            </div>
-                        </div>
-                    </div>
-                </Show>
 
                 <div class='code-panel'>
                     <For each={PROVABLY_CODE[game().code].split('\n')}>
@@ -508,17 +514,20 @@ function Provably(props) {
                 padding: 16px;
                 outline: unset;
                 border-radius: 8px;
-                background: #1a1f29;
-                border: 1px solid #2c3340;
+                background: linear-gradient(145deg, rgba(51, 61, 79, 0.62) 0%, rgba(22, 29, 39, 0.8) 100%);
+                border: 1px solid rgba(131, 147, 168, 0.25);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+                backdrop-filter: blur(12px) saturate(125%);
 
                 cursor: pointer;
                 text-align: left;
-                transition: all .2s;
+                transition: border-color .2s, background-color .2s, transform .2s;
               }
 
               .category-card:hover {
-                border-color: rgba(31, 214, 95, 0.35);
-                background: #1e242f;
+                border-color: rgba(31, 214, 95, 0.42);
+                background: linear-gradient(145deg, rgba(58, 72, 92, 0.7) 0%, rgba(24, 34, 46, 0.86) 100%);
+                transform: translateY(-1px);
               }
 
               .category-info {
@@ -552,9 +561,10 @@ function Provably(props) {
                 padding: 0 14px;
 
                 outline: unset;
-                border-radius: 5px;
-                background: #1a1f29;
-                border: 1px solid #2c3340;
+                border-radius: 7px;
+                background: linear-gradient(145deg, rgba(44, 52, 67, 0.62) 0%, rgba(23, 29, 39, 0.76) 100%);
+                border: 1px solid rgba(131, 147, 168, 0.24);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 
                 color: #8b92a0;
                 font-family: "Geogrotesque Wide", sans-serif;
@@ -562,17 +572,19 @@ function Provably(props) {
                 font-weight: 700;
 
                 cursor: pointer;
-                transition: all .2s;
+                                transition: color .2s, border-color .2s, background-color .2s;
               }
 
               .tab:hover {
                 color: #FFF;
+                                border-color: rgba(31, 214, 95, 0.35);
               }
 
               .tab.active {
                 color: #FFF;
-                background: #2c3340;
-                border-color: #3a4250;
+                                background: linear-gradient(145deg, rgba(49, 69, 57, 0.56) 0%, rgba(19, 30, 26, 0.8) 100%);
+                                border-color: rgba(31, 214, 95, 0.56);
+                                box-shadow: inset 0 1px 0 rgba(162, 237, 192, 0.28);
               }
 
               .back-btn {
@@ -584,9 +596,10 @@ function Provably(props) {
                 padding: 0 16px;
 
                 outline: unset;
-                border-radius: 5px;
-                background: #2c3340;
-                border: 1px solid #3a4250;
+                border-radius: 7px;
+                background: linear-gradient(145deg, rgba(44, 52, 67, 0.62) 0%, rgba(23, 29, 39, 0.76) 100%);
+                border: 1px solid rgba(131, 147, 168, 0.24);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 
                 color: #FFF;
                 font-family: "Geogrotesque Wide", sans-serif;
@@ -595,6 +608,12 @@ function Provably(props) {
 
                 cursor: pointer;
                 white-space: nowrap;
+                                transition: border-color .2s, color .2s;
+                            }
+
+                            .back-btn:hover {
+                                color: #edf6ff;
+                                border-color: rgba(31, 214, 95, 0.35);
               }
 
               .section-heading {
@@ -630,9 +649,10 @@ function Provably(props) {
                 height: 36px;
                 padding: 0 16px;
 
-                border-radius: 5px;
-                background: #2c3340;
-                border: 1px solid #3a4250;
+                border-radius: 7px;
+                background: linear-gradient(145deg, rgba(44, 52, 67, 0.62) 0%, rgba(23, 29, 39, 0.76) 100%);
+                border: 1px solid rgba(131, 147, 168, 0.24);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 
                 color: #FFF;
                 font-family: "Geogrotesque Wide", sans-serif;
@@ -641,11 +661,12 @@ function Provably(props) {
                 text-decoration: none;
 
                 cursor: pointer;
-                transition: all .2s;
+                transition: border-color .2s, color .2s;
               }
 
               .validate-btn:hover {
-                border-color: rgba(31, 214, 95, 0.35);
+                color: #edf6ff;
+                border-color: rgba(31, 214, 95, 0.45);
               }
 
               .seeds-row {
@@ -681,9 +702,10 @@ function Provably(props) {
                 height: 42px;
                 padding: 0 12px;
 
-                border-radius: 5px;
-                background: #0d1016;
-                border: 1px solid #2c3340;
+                border-radius: 7px;
+                background: linear-gradient(145deg, rgba(26, 31, 41, 0.72) 0%, rgba(13, 18, 24, 0.86) 100%);
+                border: 1px solid rgba(131, 147, 168, 0.22);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
               }
 
               .seed-value {
@@ -713,23 +735,34 @@ function Provably(props) {
                 justify-content: center;
               }
 
+                            .icon-btn:disabled, .rotate-btn:disabled {
+                                opacity: 0.45;
+                                cursor: not-allowed;
+                            }
+
               .icon-btn:hover, .rotate-btn:hover {
                 color: #1fd65f;
               }
+
+                            .icon-btn:disabled:hover, .rotate-btn:disabled:hover {
+                                color: #8b92a0;
+                            }
 
               .rotate-btn {
                 width: 42px;
                 height: 42px;
 
-                border-radius: 5px;
-                background: #1a1f29;
-                border: 1px solid #2c3340;
+                                border-radius: 7px;
+                                background: linear-gradient(145deg, rgba(44, 52, 67, 0.62) 0%, rgba(23, 29, 39, 0.76) 100%);
+                                border: 1px solid rgba(131, 147, 168, 0.24);
+                                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
               }
 
               .code-panel {
                 border-radius: 8px;
-                background: #0d1016;
-                border: 1px solid #2c3340;
+                                background: linear-gradient(145deg, rgba(26, 31, 41, 0.72) 0%, rgba(13, 18, 24, 0.86) 100%);
+                                border: 1px solid rgba(131, 147, 168, 0.22);
+                                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
                 padding: 18px 0;
                 margin-top: 6px;
 
@@ -759,7 +792,7 @@ function Provably(props) {
               }
 
               .line-content :global(.tok-keyword) {
-                color: #c792ea;
+                                color: #7de5ac;
               }
 
               .line-content :global(.tok-string) {
