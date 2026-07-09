@@ -67,7 +67,6 @@ export const errors = {
     INVALID_SLUG: 'Slug must use only lowercase letters, numbers, and hyphens.',
     INVALID_NAME: 'Invalid name.',
     INVALID_PRICE: 'Invalid price.',
-    MISSING_ITEMS: 'Please add at least one item.',
     INVALID_PERCENTAGE: 'Each item percentage must be greater than zero.',
     INVALID_PERCENTAGE_SUM: 'Item percentages must add up to 100%.',
     INVALID_RANGE: 'Item ranges are invalid or overlapping.',
