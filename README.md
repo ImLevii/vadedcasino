@@ -32,3 +32,77 @@ Your app is ready to be deployed!
 ## Deployment
 
 You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+
+## Local MySQL Bootstrap
+
+You can bootstrap a local database (create DB, apply schema, and create/update an admin user) with one command:
+
+```bash
+npm run db:bootstrap
+```
+
+### One-command Docker setup (recommended)
+
+If you don't have MySQL installed locally, this command will:
+
+1. Start MySQL in Docker (`docker-compose.mysql.yml`)
+2. Wait until MySQL is reachable
+3. Apply schema + compatibility fixes
+4. Create/update admin user
+
+```bash
+npm run db:docker:bootstrap
+```
+
+Optional custom admin credentials:
+
+```bash
+node scripts/bootstrap-local-docker.js <username> <password>
+```
+
+### SQLite local mode (no MySQL required)
+
+Use SQLite for local development with one command:
+
+```bash
+npm run db:sqlite:bootstrap
+```
+
+This command:
+
+1. Creates/updates `database/local.sqlite` (or `SQLITE_FILE` if set)
+2. Converts and applies `database/schema.sql` to SQLite format
+3. Creates/updates local admin user
+4. Writes `SQL_DIALECT=sqlite` and `SQLITE_FILE=...` into `.env.local`
+
+Optional custom admin credentials:
+
+```bash
+node scripts/bootstrap-local-sqlite.js <username> <password>
+```
+
+The bootstrap script will use these values:
+
+- `SQL_HOST` (default: `localhost`)
+- `SQL_USER` (default: `root`)
+- `SQL_PASS` (default: empty)
+- `SQL_DB` (default: `cosmicluck_local`)
+
+Optional custom admin credentials:
+
+```bash
+node scripts/bootstrap-local-db.js <username> <password>
+```
+
+Examples:
+
+```bash
+node scripts/bootstrap-local-db.js owner supersecret123
+```
+
+Legacy helpers are still available:
+
+```bash
+npm run db:create-admin
+npm run db:fix-schema
+```

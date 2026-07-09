@@ -1,4 +1,5 @@
 const { sql } = require('../database');
+const isSqlite = (process.env.SQL_DIALECT || '').toLowerCase() === 'sqlite';
 
 const DEFAULT_HOME_SLIDES = [
     {
@@ -31,6 +32,35 @@ const DEFAULT_HOME_SLIDES = [
 ];
 
 async function ensureHomeSlidesTable() {
+    if (isSqlite) {
+        await sql.query(`
+            CREATE TABLE IF NOT EXISTS homeSlides (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                subtitle TEXT DEFAULT NULL,
+                cta TEXT DEFAULT NULL,
+                href TEXT DEFAULT NULL,
+                tag TEXT DEFAULT NULL,
+                accentColor TEXT NOT NULL DEFAULT '#1fd65f',
+                image TEXT DEFAULT NULL,
+                backgroundImage TEXT DEFAULT NULL,
+                active INTEGER NOT NULL DEFAULT 1,
+                sortOrder INTEGER NOT NULL DEFAULT 0,
+                createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        await sql.query('CREATE INDEX IF NOT EXISTS idx_homeSlides_active_sort ON homeSlides(active, sortOrder)');
+
+        await sql.query(`
+            CREATE TABLE IF NOT EXISTS homeSlideSeedState (
+                seedKey TEXT NOT NULL PRIMARY KEY,
+                seededAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        return;
+    }
+
     await sql.query(`
         CREATE TABLE IF NOT EXISTS homeSlides (
             id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -71,8 +101,8 @@ async function seedDefaultHomeSlides() {
 
     for (const slide of DEFAULT_HOME_SLIDES) {
         const [existing] = await sql.query(
-            'SELECT id FROM homeSlides WHERE title = ? AND href <=> ? LIMIT 1',
-            [slide.title, slide.href]
+            'SELECT id FROM homeSlides WHERE title = ? AND ((href = ?) OR (href IS NULL AND ? IS NULL)) LIMIT 1',
+            [slide.title, slide.href, slide.href]
         );
 
         if (existing.length) continue;

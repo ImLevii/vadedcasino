@@ -3,26 +3,47 @@ const router = express.Router();
 const { sql } = require('../../database');
 const { sendLog } = require('../../utils');
 const io = require('../../socketio/server');
+const isSqlite = (process.env.SQL_DIALECT || '').toLowerCase() === 'sqlite';
 
 // Ensure table exists at startup
-sql.query(`
-    CREATE TABLE IF NOT EXISTS announcements (
-        id          INT UNSIGNED     NOT NULL AUTO_INCREMENT,
-        message     VARCHAR(500)     NOT NULL,
-        type        ENUM('info','success','warning','error') NOT NULL DEFAULT 'info',
-        link        VARCHAR(500)     DEFAULT NULL,
-        linkText    VARCHAR(100)     DEFAULT NULL,
-        active      TINYINT(1)       NOT NULL DEFAULT 1,
-        dismissible TINYINT(1)       NOT NULL DEFAULT 0,
-        priority    TINYINT UNSIGNED NOT NULL DEFAULT 0,
-        startsAt    DATETIME         DEFAULT NULL,
-        expiresAt   DATETIME         DEFAULT NULL,
-        createdBy   BIGINT UNSIGNED  DEFAULT NULL,
-        createdAt   DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updatedAt   DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        PRIMARY KEY (id)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-`).catch(() => {});
+if (isSqlite) {
+    sql.query(`
+        CREATE TABLE IF NOT EXISTS announcements (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            message TEXT NOT NULL,
+            type TEXT NOT NULL DEFAULT 'info',
+            link TEXT DEFAULT NULL,
+            linkText TEXT DEFAULT NULL,
+            active INTEGER NOT NULL DEFAULT 1,
+            dismissible INTEGER NOT NULL DEFAULT 0,
+            priority INTEGER NOT NULL DEFAULT 0,
+            startsAt TEXT DEFAULT NULL,
+            expiresAt TEXT DEFAULT NULL,
+            createdBy INTEGER DEFAULT NULL,
+            createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    `).catch(() => {});
+} else {
+    sql.query(`
+        CREATE TABLE IF NOT EXISTS announcements (
+            id          INT UNSIGNED     NOT NULL AUTO_INCREMENT,
+            message     VARCHAR(500)     NOT NULL,
+            type        ENUM('info','success','warning','error') NOT NULL DEFAULT 'info',
+            link        VARCHAR(500)     DEFAULT NULL,
+            linkText    VARCHAR(100)     DEFAULT NULL,
+            active      TINYINT(1)       NOT NULL DEFAULT 1,
+            dismissible TINYINT(1)       NOT NULL DEFAULT 0,
+            priority    TINYINT UNSIGNED NOT NULL DEFAULT 0,
+            startsAt    DATETIME         DEFAULT NULL,
+            expiresAt   DATETIME         DEFAULT NULL,
+            createdBy   BIGINT UNSIGNED  DEFAULT NULL,
+            createdAt   DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updatedAt   DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    `).catch(() => {});
+}
 
 function broadcastAnnouncements() {
     getActiveAnnouncements().then(list => {
