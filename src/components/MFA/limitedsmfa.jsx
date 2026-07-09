@@ -109,7 +109,7 @@ function LimitedsMFA(props) {
         .code-container {
           border-radius: 5px;
           border: 1px dashed #544F94;
-          background: rgba(90, 84, 153, 0.27);
+          background: rgba(58, 66, 80, 0.35);
 
           display: flex;
           flex-direction: column;

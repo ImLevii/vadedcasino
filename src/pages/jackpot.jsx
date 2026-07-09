@@ -432,7 +432,7 @@ function Jackpot(props) {
                 height: 90px;
 
                 border-radius: 5px;
-                background: rgba(90, 84, 153, 0.27);
+                background: rgba(58, 66, 80, 0.35);
 
                 color: #FFF;
                 font-family: Geogrotesque Wide, sans-serif;

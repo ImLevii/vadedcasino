@@ -15,7 +15,7 @@ function RewardsBanner(props) {
           {props?.user ? (
               <p>Welcome back, <span className='gold'>{props?.user?.username || ''}</span></p>
           ) : (
-              <p>Welcome to <span className='gold'>BloxClash</span></p>
+              <p>Welcome to <span className='gold'>Cosmic Luck</span></p>
           )}
 
           {props?.user && (

@@ -25,6 +25,7 @@ const AdminCashier = lazy(() => import('./components/Admin/cashier'))
 const AdminRain = lazy(() => import('./components/Admin/rain'))
 const AdminAnnouncements = lazy(() => import('./components/Admin/announcements'))
 const AdminCases = lazy(() => import('./components/Admin/cases'))
+const AdminRewards = lazy(() => import('./components/Admin/rewards'))
 const AdminSlides = lazy(() => import('./components/Admin/slides'))
 const AdminStatsbook = lazy(() => import('./components/Admin/statsbook'))
 const AdminSettings = lazy(() => import('./components/Admin/settings'))
@@ -48,6 +49,8 @@ const SignIn = lazy(() => import('./components/Signin/signin'))
 const Home = lazy(() => import('./pages/home'))
 
 const Profile = lazy(() => import('./pages/profile'))
+const Rewards = lazy(() => import('./pages/rewards'))
+const Overview = lazy(() => import('./components/Profile/overview'))
 const Transactions = lazy(() => import('./components/Profile/transactions'))
 const History = lazy(() => import('./components/Profile/history'))
 const Settings = lazy(() => import('./components/Profile/settings'))
@@ -69,6 +72,8 @@ const CreateBattle = lazy(() => import('./pages/createbattle'))
 const Cases = lazy(() => import('./pages/cases'))
 const CasesPage = lazy(() => import("./components/Cases/casespage"))
 const CasePage = lazy(() => import("./components/Cases/casepage"))
+const CommunityCases = lazy(() => import('./pages/communitycases'))
+const CreateCase = lazy(() => import('./pages/createcase'))
 
 function App() {
 
@@ -88,13 +93,19 @@ function App() {
 
   createEffect(() => {
     if (ws() && ws().connected) {
+      // Remove any previously attached handlers so effect re-runs
+      // (reconnects) don't stack duplicate listeners
+      ws().off('balance')
+      ws().off('xp')
+      ws().off('coinflip:own:started')
+
       ws().on('balance', (type, amount, delay) => {
         if (type === 'set') {
-          setTimeout(() => setBalance(amount), +delay || 0)
+          setTimeout(() => setBalance(+amount), +delay || 0)
         }
 
         if (type === 'add') {
-          setTimeout(() => setBalance(user()?.balance + amount), +delay || 0)
+          setTimeout(() => setBalance((+user()?.balance || 0) + +amount), +delay || 0)
         }
       })
 
@@ -235,6 +246,18 @@ function App() {
                         </Suspense>
                       }/>
 
+                      <Route path='/community' element={
+                        <Suspense fallback={<Loader/>}>
+                          <CommunityCases/>
+                        </Suspense>
+                      }/>
+
+                      <Route path='/community/create' element={
+                        <Suspense fallback={<Loader/>}>
+                          <CreateCase/>
+                        </Suspense>
+                      }/>
+
                       <Route path='/:slug' element={
                         <Suspense fallback={<Loader/>}>
                           <CasePage/>
@@ -327,10 +350,29 @@ function App() {
                             <Profile/>
                           </Suspense>
                         }>
+                          <Route path='/' element={<Overview/>}/>
                           <Route path='/transactions' element={<Transactions/>}/>
                           <Route path='/history' element={<History/>}/>
                           <Route path='/settings' element={<Settings/>}/>
                         </Route>
+
+                        <Route path='/rewards/daily' element={
+                          <Suspense fallback={<Loader/>}>
+                            <Rewards/>
+                          </Suspense>
+                        }/>
+
+                        <Route path='/rewards/cases' element={
+                          <Suspense fallback={<Loader/>}>
+                            <Rewards/>
+                          </Suspense>
+                        }/>
+
+                        <Route path='/rewards/supercharge' element={
+                          <Suspense fallback={<Loader/>}>
+                            <Rewards/>
+                          </Suspense>
+                        }/>
 
                         <Route path='/deposit' element={
                           <Suspense fallback={<Loader/>}>
@@ -404,6 +446,12 @@ function App() {
                           <Route path='/cases' element={
                             <Suspense fallback={<Loader/>}>
                               <AdminCases/>
+                            </Suspense>
+                          }/>
+
+                          <Route path='/rewards' element={
+                            <Suspense fallback={<Loader/>}>
+                              <AdminRewards/>
                             </Suspense>
                           }/>
 

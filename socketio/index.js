@@ -75,7 +75,12 @@ function socketLogin(socket, token) {
     socket.userId = valid.uid;
     socket.emit('auth', { success: true, userId: socket.userId });
 
+    // JWT uid is a string but many emit sites use numeric DB ids
+    // (io.to(user.id)). Socket.io rooms are type-strict, so join both
+    // representations to receive every 'balance'/'xp'/toast emit.
     socket.join(socket.userId);
+    const numericId = Number(socket.userId);
+    if (!Number.isNaN(numericId)) socket.join(numericId);
     // console.log(socket.userId, 'Logged in to socketio');
 
 }
@@ -92,12 +97,14 @@ io.on('connection', function(socket) {
             }
         }
 
+        const first = socket.userId == undefined;
+
         if (socket.userId) {
             socket.leave(socket.userId);
+            const numericId = Number(socket.userId);
+            if (!Number.isNaN(numericId)) socket.leave(numericId);
             socket.userId = null;
         }
-
-        const first = socket.userId == undefined;
 
         socketLogin(socket, token);
         if (first) newSocket(socket);

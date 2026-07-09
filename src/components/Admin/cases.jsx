@@ -227,16 +227,39 @@ function AdminCases() {
       });
     });
 
-    const catalogItems = createMemo(() => catalogResource() || []);
+    const catalogItems = createMemo(() => {
+      // Precompute lowercase search text and selection key once per catalog load
+      return (catalogResource() || []).map((item) => ({
+        ...item,
+        _search: `${item.itemId} ${item.name} ${item.marketHashName || ''} ${item.type || ''} ${item.rarity || ''} ${item.exterior || ''}`.toLowerCase(),
+        _key: item?.itemId?.toString?.() || `${item?.name}::${item?.img}`
+      }));
+    });
+
+    const selectedCatalogKeys = createMemo(() => {
+      const keys = new Set();
+      for (const entry of items()) {
+        if (entry.itemId) keys.add(entry.itemId.toString());
+        keys.add(`${entry.name}::${entry.img}`);
+      }
+      return keys;
+    });
+
+    function isCatalogSelected(item) {
+      const keys = selectedCatalogKeys();
+      const normalizedId = item?.itemId?.toString?.() || '';
+      if (normalizedId && keys.has(normalizedId)) return true;
+      return keys.has(`${item?.name}::${item?.img}`);
+    }
+
+    const CATALOG_RENDER_LIMIT = 150;
 
     const filteredCatalogItems = createMemo(() => {
       const query = catalogQuery().trim().toLowerCase();
-      let list = [...catalogItems()];
+      let list = catalogItems();
 
       if (query) {
-        list = list.filter((item) => {
-          return `${item.itemId} ${item.name} ${item.marketHashName || ''} ${item.type || ''} ${item.rarity || ''} ${item.exterior || ''}`.toLowerCase().includes(query);
-        });
+        list = list.filter((item) => item._search.includes(query));
       }
 
       if (catalogSelectionFilter() === 'selected') {
@@ -269,6 +292,9 @@ function AdminCases() {
         list = list.filter((item) => !item.isStatTrak && !item.isSouvenir);
       }
 
+      // Copy before sorting to avoid mutating the memoized source list
+      list = [...list];
+
       if (catalogSort() === 'price-asc') {
         list.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
       } else if (catalogSort() === 'name-asc') {
@@ -279,6 +305,8 @@ function AdminCases() {
 
       return list;
     });
+
+    const visibleCatalogItems = createMemo(() => filteredCatalogItems().slice(0, CATALOG_RENDER_LIMIT));
 
     const catalogStats = createMemo(() => {
       const selectedCount = catalogItems().filter((item) => isCatalogSelected(item)).length;
@@ -425,32 +453,26 @@ function AdminCases() {
       }));
     }
 
+    function isCatalogDuplicate(item) {
+      const normalizedId = item?.itemId?.toString?.() || '';
+      return items().some((entry) => {
+        if (normalizedId && entry.itemId) return entry.itemId.toString() === normalizedId;
+        return entry.name === item?.name && entry.img === item?.img;
+      });
+    }
+
     function addCatalogItem(item) {
       if (items().length >= 20) {
         createNotification('error', 'You can select up to 20 items.');
         return;
       }
 
-      const normalizedId = item?.itemId?.toString?.() || '';
-      const duplicate = items().some((entry) => {
-        if (normalizedId && entry.itemId) return entry.itemId.toString() === normalizedId;
-        return entry.name === item?.name && entry.img === item?.img;
-      });
-
-      if (duplicate) {
+      if (isCatalogDuplicate(item)) {
         createNotification('error', 'This item is already in the case.');
         return;
       }
 
       setItems((prev) => [...prev, buildItemFromCatalog(item)]);
-    }
-
-    function isCatalogSelected(item) {
-      const normalizedId = item?.itemId?.toString?.() || '';
-      return items().some((entry) => {
-        if (normalizedId && entry.itemId) return entry.itemId.toString() === normalizedId;
-        return entry.name === item?.name && entry.img === item?.img;
-      });
     }
 
     async function loadCase(caseId) {
@@ -843,7 +865,7 @@ function AdminCases() {
                               <div class='catalog-grid'>
                                 <Show when={!catalogResource.loading} fallback={<div class='catalog-empty'>Loading catalog...</div>}>
                                 <Show when={filteredCatalogItems().length} fallback={<div class='catalog-empty'>No items match your search or filters.</div>}>
-                                  <For each={filteredCatalogItems()}>{(entry) => (
+                                  <For each={visibleCatalogItems()}>{(entry) => (
                                     <button
                                       class={`catalog-card ${isCatalogSelected(entry) ? 'selected' : ''}`}
                                       onClick={() => addCatalogItem(entry)}
@@ -855,7 +877,7 @@ function AdminCases() {
                                       </Show>
                                       <div class='catalog-thumb'>
                                         <Show when={entry?.img} fallback={<div class='catalog-thumb-empty'>NO IMG</div>}>
-                                          <img src={resolvePreviewSrc(entry.img)} alt={entry?.name || 'item'} />
+                                          <img src={resolvePreviewSrc(entry.img)} alt={entry?.name || 'item'} loading='lazy' />
                                         </Show>
                                       </div>
                                       <div class='catalog-meta'>
@@ -870,6 +892,11 @@ function AdminCases() {
                                       <div class='catalog-price'>${formatPrice(entry?.price)}</div>
                                     </button>
                                   )}</For>
+                                  <Show when={filteredCatalogItems().length > CATALOG_RENDER_LIMIT}>
+                                    <div class='catalog-empty'>
+                                      Showing first {CATALOG_RENDER_LIMIT} of {filteredCatalogItems().length} items — refine your search or filters to narrow down.
+                                    </div>
+                                  </Show>
                                 </Show>
                                 </Show>
                               </div>

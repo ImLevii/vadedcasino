@@ -1,5 +1,5 @@
 import SpinnerItem from "./spinneritem";
-import {createEffect, For} from "solid-js";
+import {createEffect, For, Show} from "solid-js";
 
 function CaseSpinner(props) {
 
@@ -13,6 +13,10 @@ function CaseSpinner(props) {
   const idleStart = idleItemIndex * itemStep + itemCenter
   const idleEnd = idleStart + itemStep
   const spinEasing = 'cubic-bezier(.08,.78,.16,1)'
+
+  const isIdle = () => props?.spinning === '' || props?.spinning === 'loading'
+  const loopWidth = () => (props?.items?.length || 0) * itemStep
+  const loopDuration = () => Math.max(20, (props?.items?.length || 0) * 1.4)
 
     createEffect(() => {
         if (props?.spinning === 'spinning') {
@@ -76,12 +80,25 @@ function CaseSpinner(props) {
                 <div class='center-indicator'/>
                 <div class='center-line-top'/>
                 <div class='center-line-bottom'/>
-                <div class={'spinner-items ' + (props?.spinning === '' || props?.spinning === 'loading' ? 'idle-track' : '')} ref={spinner}>
+                <div class={'spinner-items ' + (isIdle() ? 'idle-track' : '')} ref={spinner}
+                     style={{
+                       '--idle-from': `-${idleStart}px`,
+                       '--idle-to': `-${idleStart + loopWidth()}px`,
+                       '--idle-duration': `${loopDuration()}s`
+                     }}>
                     <For each={props?.items || []}>{(item, index) => <SpinnerItem spinTime={props?.spinTime} offset={props.offset} img={item.img}
                                                                                   name={item?.name}
                                                                                   spinning={props?.spinning}
                                                                                   price={item?.price}
                                                                                   index={index()} position={props?.position}/>}</For>
+                    {/* duplicated strip for seamless infinite idle loop */}
+                    <Show when={isIdle()}>
+                        <For each={props?.items || []}>{(item, index) => <SpinnerItem spinTime={props?.spinTime} offset={props.offset} img={item.img}
+                                                                                      name={item?.name}
+                                                                                      spinning={props?.spinning}
+                                                                                      price={item?.price}
+                                                                                      index={index()} position={props?.position}/>}</For>
+                    </Show>
                 </div>
             </div>
 
@@ -286,7 +303,7 @@ function CaseSpinner(props) {
               }
 
               .spinner-items.idle-track {
-                animation: idleCarousel 5.75s linear infinite alternate;
+                animation: idleCarousel var(--idle-duration, 60s) linear infinite;
               }
 
               .case-spinner-container:hover .spinner-items.idle-track {
@@ -294,8 +311,8 @@ function CaseSpinner(props) {
               }
 
               @keyframes idleCarousel {
-                0% { transform: translateX(-${idleStart}px); }
-                100% { transform: translateX(-${idleEnd}px); }
+                0% { transform: translateX(var(--idle-from, -${idleStart}px)); }
+                100% { transform: translateX(var(--idle-to, -${idleEnd}px)); }
               }
 
               @keyframes centerGlow {

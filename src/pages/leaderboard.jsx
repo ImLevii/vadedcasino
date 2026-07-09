@@ -462,7 +462,7 @@ function Leaderboard(props) {
               
               .table-data {
                 height: 55px;
-                background: rgba(90, 84, 153, 0.35);
+                background: rgba(58, 66, 80, 0.45);
                 padding: 0 20px;
                 
                 display: flex;
@@ -485,7 +485,7 @@ function Leaderboard(props) {
               }
               
               .table-header p {
-                background: rgba(90, 84, 153, 0.35);
+                background: rgba(58, 66, 80, 0.45);
                 height: 25px;
                 line-height: 25px;
                 padding: 0 15px;

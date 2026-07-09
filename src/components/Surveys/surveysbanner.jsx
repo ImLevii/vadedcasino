@@ -19,7 +19,7 @@ function SurveysBanner(props) {
                 </div>
 
                 <h2 class='white title'>
-                    Don’t Have Robux? Don’t Worry, <span class='gold'>We Got you.</span> Make <span className='gold'>Free Robux</span> With Our Survey Providers.
+                    Don’t Have Coins? Don’t Worry, <span class='gold'>We Got you.</span> Make <span className='gold'>Free Coins</span> With Our Survey Providers.
                 </h2>
 
                 <button class='bevel-purple start'>

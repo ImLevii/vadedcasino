@@ -23,13 +23,17 @@ function LiveDrops(props) {
                 setTop(drops.slice(0,20))
             })
             ws().on('cases:drops', (drop) => {
-                let newLive = [...drop, ...live()].slice(0, 20)
-                setLive(newLive)
+                // Delay the feed update so it doesn't reveal the result while the
+                // opener's spinner animation (~4.8s) is still playing
+                setTimeout(() => {
+                    let newLive = [...drop, ...live()].slice(0, 20)
+                    setLive(newLive)
 
-                if (drop.top) {
-                    let newTop = [...drop, ...top()].slice(0, 20)
-                    setTop(newTop)
-                }
+                    if (drop.top) {
+                        let newTop = [...drop, ...top()].slice(0, 20)
+                        setTop(newTop)
+                    }
+                }, 5300)
             })
         }
 

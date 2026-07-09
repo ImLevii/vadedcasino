@@ -209,7 +209,7 @@ function AdminStatsbook(props) {
               .table-data {
                                 min-height: 56px;
                                 padding: 0 18px;
-                                background: rgba(90, 84, 153, 0.16);
+                                background: rgba(58, 66, 80, 0.2);
                                 border-top: 1px solid rgba(255, 255, 255, 0.045);
                 color: #8b92a0;
                                 font-size: 13px;

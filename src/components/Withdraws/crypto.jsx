@@ -258,7 +258,7 @@ function CryptoWithdraw(props) {
 
                 if (res.success) {
                   setTransactions([res.transaction, ...transactions()].slice(0,10))
-                  createNotification('success', `Successfully created a ${chain().coinName} withdrawal worth ${robux()} Robux.`)
+                  createNotification('success', `Successfully created a ${chain().coinName} withdrawal worth ${robux()} coins.`)
                 }
               }}>
                 SUBMIT WITHDRAWAL
@@ -267,7 +267,7 @@ function CryptoWithdraw(props) {
 
             <div className='disclaimer'>
               <p className='disclaimer-text'>
-                Enter the Robux amount you’d like to withdraw. Network fees will be deducted from your withdraw amount.
+                Enter the coin amount you’d like to withdraw. Network fees will be deducted from your withdraw amount.
                 Average network fees are <span class='white'>${formatNumber(chain()?.fee * price())}</span>
                 &nbsp;<span class='bold white noto'>( <img src='/assets/icons/coin.svg' height='12'/> {formatNumber(chain()?.fee * price() / rates().usd * rates().robux)} )</span>.
                 Keep in mind that after submitting a withdrawal, the transaction becomes irreversible.
@@ -462,7 +462,7 @@ function CryptoWithdraw(props) {
         }
 
         .copy svg {
-          fill: #776EB0;
+          fill: #8b92a0;
           transition: all .1s;
         }
 

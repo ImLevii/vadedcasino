@@ -161,7 +161,7 @@ async function rainInterval(rain) {
             }, 'EN');
         
             users.forEach(user => {
-                sendSystemMessage(io.to(user.id), `You received R$${user.amount} from the rain.`);
+                sendSystemMessage(io.to(user.id), `You received ${user.amount} coins from the rain.`);
                 io.to(user.id).emit('balance', 'set', user.amount + user.balance);
             });
     

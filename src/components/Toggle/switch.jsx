@@ -18,7 +18,7 @@ function Switch(props) {
                   height: 11px;
 
                   border-radius: 3px;
-                  background: rgba(90, 84, 153, 0.35);
+                  background: rgba(58, 66, 80, 0.45);
                   
                   display: flex;
                   align-items: center;
@@ -28,11 +28,11 @@ function Switch(props) {
                 }
                 
                 .dark {
-                  background: #2B284E;
+                  background: #2c3340;
                 }
                 
                 .ultra {
-                  background: #1E1B3A;
+                  background: #12151c;
                 }
                 
                 .dark.active, .ultra.active {

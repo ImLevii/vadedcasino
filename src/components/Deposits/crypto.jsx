@@ -283,7 +283,7 @@ function CryptoDeposit(props) {
               }
 
               .copy svg {
-                fill: #776EB0;
+                fill: #8b92a0;
                 transition: all .1s;
               }
 

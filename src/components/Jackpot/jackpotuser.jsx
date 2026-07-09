@@ -125,7 +125,7 @@ function JackpotUser(props) {
                 font-size: 11px;
                 font-weight: 700;
                 
-                background: rgba(90, 84, 153, 0.35);
+                background: rgba(58, 66, 80, 0.45);
                 border-radius: 3px;
                 margin: auto 0;
               }

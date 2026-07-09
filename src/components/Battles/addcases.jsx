@@ -6,6 +6,7 @@ function AddCases(props) {
 
   const [search, setSearch] = createSignal('')
   const [sort, setSort] = createSignal('DESCENDING')
+  const [filter, setFilter] = createSignal('ALL')
 
   function sortedCases() {
     if (!Array.isArray(props?.cases)) return []
@@ -17,6 +18,8 @@ function AddCases(props) {
       sorted = props?.cases.sort((a, b) => a.price - b.price)
 
     sorted = sorted.filter(c => {
+      if (filter() === 'OFFICIAL' && c.community) return false
+      if (filter() === 'COMMUNITY' && !c.community) return false
       return c?.name?.toLowerCase()?.includes(search().toLowerCase())
     })
 
@@ -38,6 +41,15 @@ function AddCases(props) {
 
             <p class='title'><img src='/assets/icons/battles.svg' height='20' alt=''/>CASE
               SELECTION</p>
+
+            <div class='filter-tabs'>
+              <For each={['ALL', 'OFFICIAL', 'COMMUNITY']}>
+                {(tab) => (
+                  <button class={'filter-tab ' + (filter() === tab ? 'active' : '')}
+                          onClick={() => setFilter(tab)}>{tab}</button>
+                )}
+              </For>
+            </div>
 
             <div class='inputs'>
               <button class={'sort-by tiny ' + (sort() === 'DESCENDING' ? 'flip' : '')}
@@ -98,6 +110,37 @@ function AddCases(props) {
       </div>
 
       <style jsx>{`
+        .filter-tabs {
+          display: flex;
+          gap: 4px;
+          margin-left: 14px;
+        }
+
+        .filter-tab {
+          height: 28px;
+          padding: 0 12px;
+          outline: unset;
+          border-radius: 4px;
+          background: transparent;
+          border: 1px solid transparent;
+          color: #8b92a0;
+          font-family: "Geogrotesque Wide", sans-serif;
+          font-size: 11px;
+          font-weight: 800;
+          cursor: pointer;
+          transition: all .2s;
+        }
+
+        .filter-tab:hover {
+          color: #d6dde8;
+        }
+
+        .filter-tab.active {
+          color: #1fd65f;
+          border-color: rgba(31, 214, 95, 0.4);
+          background: rgba(31, 214, 95, 0.07);
+        }
+
         .modal {
           position: fixed;
           top: 0;

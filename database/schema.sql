@@ -89,6 +89,12 @@ CREATE TABLE IF NOT EXISTS `users` (
     `cryptoAllowance`       DECIMAL(20,2)   DEFAULT NULL,
     `steamId`               VARCHAR(32)     DEFAULT NULL,
     `googleId`              VARCHAR(64)     DEFAULT NULL,
+    `steamTradeUrl`         VARCHAR(255)    DEFAULT NULL,
+    `steamApiKey`           VARCHAR(64)     DEFAULT NULL,
+    `selfLockUntil`         DATETIME        DEFAULT NULL,
+    `soundEnabled`          TINYINT(1)      NOT NULL DEFAULT 1,
+    `visualEffects`         TINYINT(1)      NOT NULL DEFAULT 1,
+    `notificationsEnabled`  TINYINT(1)      NOT NULL DEFAULT 1,
     `createdAt`             DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_affiliateCode` (`affiliateCode`),
@@ -135,12 +141,17 @@ CREATE TABLE IF NOT EXISTS `transactions` (
 -- Cases
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `cases` (
-    `id`    INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `name`  VARCHAR(255) NOT NULL,
-    `slug`  VARCHAR(128) NOT NULL,
-    `img`   VARCHAR(512) DEFAULT NULL,
+    `id`            INT UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `name`          VARCHAR(255)    NOT NULL,
+    `slug`          VARCHAR(128)    NOT NULL,
+    `img`           VARCHAR(512)    DEFAULT NULL,
+    `creatorId`     BIGINT UNSIGNED DEFAULT NULL,
+    `commissionPct` DECIMAL(5,2)    NOT NULL DEFAULT 0,
+    `openCount`     INT UNSIGNED    NOT NULL DEFAULT 0,
+    `likeCount`     INT UNSIGNED    NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uq_cases_slug` (`slug`)
+    UNIQUE KEY `uq_cases_slug` (`slug`),
+    KEY `idx_cases_creatorId` (`creatorId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `caseVersions` (
@@ -184,6 +195,27 @@ CREATE TABLE IF NOT EXISTS `caseOpenings` (
     KEY `idx_caseOpenings_userId` (`userId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS `caseLikes` (
+    `caseId`    INT UNSIGNED    NOT NULL,
+    `userId`    BIGINT UNSIGNED NOT NULL,
+    `createdAt` DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`caseId`, `userId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Creator commission ledger - earnings expire 7 days after creation if unclaimed
+CREATE TABLE IF NOT EXISTS `communityCaseEarnings` (
+    `id`        BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `caseId`    INT UNSIGNED    NOT NULL,
+    `creatorId` BIGINT UNSIGNED NOT NULL,
+    `amount`    DECIMAL(20,2)   NOT NULL,
+    `claimedAt` DATETIME        DEFAULT NULL,
+    `expiresAt` DATETIME        NOT NULL,
+    `createdAt` DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_communityCaseEarnings_creator` (`creatorId`, `claimedAt`, `expiresAt`),
+    KEY `idx_communityCaseEarnings_caseId` (`caseId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- ============================================================
 -- Battles
 -- ============================================================
@@ -197,6 +229,7 @@ CREATE TABLE IF NOT EXISTS `battles` (
     `teams`          TINYINT       NOT NULL DEFAULT 2,
     `playersPerTeam` TINYINT       NOT NULL DEFAULT 1,
     `gamemode`       ENUM('standard','crazy','group') NOT NULL DEFAULT 'standard',
+    `cosmicSpin`     TINYINT(1)    NOT NULL DEFAULT 0,
     `serverSeed`     VARCHAR(255)  NOT NULL DEFAULT '',
     `EOSBlock`       BIGINT UNSIGNED DEFAULT NULL,
     `clientSeed`     VARCHAR(255)  DEFAULT NULL,
@@ -752,6 +785,55 @@ CREATE TABLE IF NOT EXISTS `earnPayoutUsers` (
     PRIMARY KEY (`id`),
     KEY `idx_earnPayoutUsers_payoutId` (`earnPayoutId`),
     KEY `idx_earnPayoutUsers_earnUserId` (`earnUserId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
+-- Profile Rewards
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `dailyCaseClaims` (
+    `id`        INT UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `userId`    BIGINT UNSIGNED NOT NULL,
+    `level`     TINYINT UNSIGNED NOT NULL,
+    `amount`    DECIMAL(20,2)   NOT NULL,
+    `createdAt` DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_dailyCaseClaims_userId_createdAt` (`userId`, `createdAt`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `depositCases` (
+    `id`               INT UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `userId`           BIGINT UNSIGNED NOT NULL,
+    `depositAmount`    DECIMAL(20,2)   NOT NULL,
+    `casesTotal`       INT UNSIGNED    NOT NULL DEFAULT 5,
+    `casesOpened`      INT UNSIGNED    NOT NULL DEFAULT 0,
+    `wagerRequired`    DECIMAL(20,2)   NOT NULL,
+    `wagerProgress`    DECIMAL(20,2)   NOT NULL DEFAULT 0,
+    `active`           TINYINT(1)      NOT NULL DEFAULT 1,
+    `expiresAt`        DATETIME        DEFAULT NULL,
+    `createdAt`        DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_depositCases_userId_active` (`userId`, `active`),
+    KEY `idx_depositCases_expiresAt` (`expiresAt`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `supercharges` (
+    `id`            INT UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `userId`        BIGINT UNSIGNED NOT NULL,
+    `depositAmount` DECIMAL(20,2)   NOT NULL,
+    `bonusAmount`   DECIMAL(20,2)   NOT NULL,
+    `active`        TINYINT(1)      NOT NULL DEFAULT 1,
+    `claimedAt`     DATETIME        DEFAULT NULL,
+    `expiresAt`     DATETIME        DEFAULT NULL,
+    `createdAt`     DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_supercharges_userId_active` (`userId`, `active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `settings` (
+    `id`        VARCHAR(64) NOT NULL,
+    `value`     TEXT        NOT NULL,
+    `updatedAt` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -154,12 +154,16 @@ async function cronLeaderboard(type) {
                 const [result] = await connection.query('INSERT INTO leaderboardUsers (leaderboardId, userId, position, totalWagered, amountWon, createdAt) VALUES (?, ?, ?, ?, ?, DATE(?))', [leaderboard.id, user.id, user.position, user.wagered, user.reward, new Date()]);
                 await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [user.reward, user.id]);
                 await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [user.id, user.reward, 'in', 'leaderboard', result.insertId]);
-                io.to(user.id).emit('balance', 'add', user.reward); // this is kinda bad, will get executed even if tx rolls back
 
             }
 
             leaderboard.users = users;
             await commit();
+
+            // Emit only after the transaction is committed so a rollback can't desync the UI
+            for (const user of users) {
+                io.to(user.id).emit('balance', 'add', user.reward);
+            }
 
         });
 

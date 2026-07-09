@@ -434,28 +434,38 @@ router.post('/upload', async (req, res) => {
     }
 });
 
+let cachedCatalogSource = null;
+let cachedCatalogPayload = null;
+
 router.get('/catalog', async (req, res) => {
     try {
-        const data = getCatalogItems()
-            .map((item) => ({
-                itemId: normalizeItemId(item?.itemId || item?.id),
-                marketHashName: item?.marketHashName || null,
-                name: item?.name || '',
-                img: item?.img || null,
-                price: roundDecimal(Number(item?.price || 0)),
-                type: item?.type || null,
-                weapon: item?.weapon || null,
-                exterior: item?.exterior || null,
-                rarity: item?.rarity || null,
-                collection: item?.collection || null,
-                isStatTrak: !!item?.isStatTrak,
-                isSouvenir: !!item?.isSouvenir,
-                source: item?.source || 'steam-community-market'
-            }))
-            .filter((item) => item.itemId && item.name && item.price > 0)
-            .sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+        const source = getCatalogItems();
 
-        return res.json({ success: true, data });
+        // getCatalogItems() returns a cached array; only re-transform when it changes.
+        if (source !== cachedCatalogSource || !cachedCatalogPayload) {
+            cachedCatalogPayload = source
+                .map((item) => ({
+                    itemId: normalizeItemId(item?.itemId || item?.id),
+                    marketHashName: item?.marketHashName || null,
+                    name: item?.name || '',
+                    img: item?.img || null,
+                    price: roundDecimal(Number(item?.price || 0)),
+                    type: item?.type || null,
+                    weapon: item?.weapon || null,
+                    exterior: item?.exterior || null,
+                    rarity: item?.rarity || null,
+                    collection: item?.collection || null,
+                    isStatTrak: !!item?.isStatTrak,
+                    isSouvenir: !!item?.isSouvenir,
+                    source: item?.source || 'steam-community-market'
+                }))
+                .filter((item) => item.itemId && item.name && item.price > 0)
+                .sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+
+            cachedCatalogSource = source;
+        }
+
+        return res.json({ success: true, data: cachedCatalogPayload });
     } catch (err) {
         return mapApiError(res, err);
     }
@@ -465,77 +475,32 @@ router.get('/', async (req, res) => {
     try {
         const [rows] = await sql.query(`
             SELECT c.id, c.name, c.slug, c.img,
-                   COALESCE(
-                       (
-                           SELECT cv.id
-                           FROM caseVersions cv
-                           WHERE cv.caseId = c.id AND cv.endedAt IS NULL
-                           ORDER BY cv.id DESC
-                           LIMIT 1
-                       ),
-                       (
-                           SELECT cv.id
-                           FROM caseVersions cv
-                           WHERE cv.caseId = c.id
-                           ORDER BY cv.id DESC
-                           LIMIT 1
-                       )
-                   ) AS versionId,
-                   COALESCE(
-                       (
-                           SELECT cv.price
-                           FROM caseVersions cv
-                           WHERE cv.caseId = c.id AND cv.endedAt IS NULL
-                           ORDER BY cv.id DESC
-                           LIMIT 1
-                       ),
-                       (
-                           SELECT cv.price
-                           FROM caseVersions cv
-                           WHERE cv.caseId = c.id
-                           ORDER BY cv.id DESC
-                           LIMIT 1
-                       )
-                   ) AS price,
-                   COALESCE(
-                       (
-                           SELECT cv.createdAt
-                           FROM caseVersions cv
-                           WHERE cv.caseId = c.id AND cv.endedAt IS NULL
-                           ORDER BY cv.id DESC
-                           LIMIT 1
-                       ),
-                       (
-                           SELECT cv.createdAt
-                           FROM caseVersions cv
-                           WHERE cv.caseId = c.id
-                           ORDER BY cv.id DESC
-                           LIMIT 1
-                       )
-                   ) AS createdAt,
-                   (
-                       SELECT COUNT(*)
-                       FROM caseItems ci
-                       WHERE ci.caseVersionId = COALESCE(
-                           (
-                               SELECT cv.id
-                               FROM caseVersions cv
-                               WHERE cv.caseId = c.id AND cv.endedAt IS NULL
-                               ORDER BY cv.id DESC
-                               LIMIT 1
-                           ),
-                           (
-                               SELECT cv.id
-                               FROM caseVersions cv
-                               WHERE cv.caseId = c.id
-                               ORDER BY cv.id DESC
-                               LIMIT 1
-                           )
-                       )
-                   ) AS itemCount,
-                   (SELECT COUNT(*) FROM caseVersions cv2 WHERE cv2.caseId = c.id) AS versionCount,
-                   (SELECT COUNT(*) FROM caseOpenings co INNER JOIN caseVersions cv3 ON cv3.id = co.caseVersionId WHERE cv3.caseId = c.id) AS openingCount
+                   v.id AS versionId,
+                   v.price,
+                   v.createdAt,
+                   COALESCE(ic.itemCount, 0) AS itemCount,
+                   COALESCE(vc.versionCount, 0) AS versionCount,
+                   COALESCE(oc.openingCount, 0) AS openingCount
             FROM cases c
+            LEFT JOIN (
+                SELECT caseId,
+                       COALESCE(MAX(CASE WHEN endedAt IS NULL THEN id END), MAX(id)) AS latestId,
+                       COUNT(*) AS versionCount
+                FROM caseVersions
+                GROUP BY caseId
+            ) vc ON vc.caseId = c.id
+            LEFT JOIN caseVersions v ON v.id = vc.latestId
+            LEFT JOIN (
+                SELECT caseVersionId, COUNT(*) AS itemCount
+                FROM caseItems
+                GROUP BY caseVersionId
+            ) ic ON ic.caseVersionId = v.id
+            LEFT JOIN (
+                SELECT cv.caseId, COUNT(*) AS openingCount
+                FROM caseOpenings co
+                INNER JOIN caseVersions cv ON cv.id = co.caseVersionId
+                GROUP BY cv.caseId
+            ) oc ON oc.caseId = c.id
             ORDER BY c.id DESC
         `);
 

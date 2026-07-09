@@ -14,16 +14,29 @@ const { getUserRakebacks } = require('./rakeback/functions');
 const affiliateRoute = require('./affiliate');
 const rakebackRoute = require('./rakeback');
 const notificationsRoute = require('./notifications');
+const rewardsRoute = require('./rewards');
+const securityRoute = require('./security');
 
 router.use('/affiliate', affiliateRoute);
 router.use('/rakeback', rakebackRoute);
 router.use('/notifications', notificationsRoute);
+router.use('/rewards', rewardsRoute);
+router.use('/', securityRoute);
 
 router.get('/', isAuthed, async (req, res) => {
 
-    const [[user]] = await sql.query('SELECT id, role, username, balance, xp, anon FROM users WHERE id = ?', [req.userId]);
+    const [[user]] = await sql.query('SELECT id, role, username, balance, xp, anon, verified, `2fa`, steamTradeUrl, steamApiKey, selfLockUntil, soundEnabled, visualEffects, notificationsEnabled FROM users WHERE id = ?', [req.userId]);
     const [[{ notifications }]] = await sql.query('SELECT COUNT(*) as notifications FROM notifications WHERE userId = ? AND seen = 0', [req.userId]);
     user.notifications = notifications;
+
+    user.has2fa = !!user['2fa'];
+    delete user['2fa'];
+
+    user.hasTradeUrl = !!user.steamTradeUrl;
+    delete user.steamTradeUrl;
+
+    user.hasApiKey = !!user.steamApiKey;
+    delete user.steamApiKey;
 
     const rakebacks = await getUserRakebacks(req.userId);
     user.rewards = Object.values(rakebacks).filter(e => e.canClaim).length;
@@ -48,6 +61,25 @@ router.post('/mentions', isAuthed, async (req, res) => {
     if (typeof enabled !== 'boolean') return res.status(400).json({ error: 'INVALID_ENABLED' });
 
     await sql.query('UPDATE users SET mentionsEnabled = ? WHERE id = ?', [enabled, req.userId]);
+    res.json({ success: true });
+
+});
+
+const settingsColumns = {
+    sound: 'soundEnabled',
+    visual: 'visualEffects',
+    notifications: 'notificationsEnabled'
+};
+
+router.post('/settings', isAuthed, async (req, res) => {
+
+    const setting = req.body.setting;
+    const enabled = req.body.enable;
+
+    if (typeof setting !== 'string' || !settingsColumns[setting]) return res.status(400).json({ error: 'INVALID_SETTING' });
+    if (typeof enabled !== 'boolean') return res.status(400).json({ error: 'INVALID_ENABLED' });
+
+    await sql.query(`UPDATE users SET ${settingsColumns[setting]} = ? WHERE id = ?`, [enabled, req.userId]);
     res.json({ success: true });
 
 });
@@ -85,7 +117,7 @@ router.get('/inventory', [isAuthed, apiLimiter], async (req, res) => {
 
 const resultsPerPage = 10;
 const allowedTypes = ['deposit', 'withdraw', 'in', 'out'];
-const allowedMethods = ['rakeback', 'robux', 'tip', 'promo', 'affiliate', 'giftcard', 'crypto', 'rain'];
+const allowedMethods = ['rakeback', 'robux', 'tip', 'promo', 'affiliate', 'giftcard', 'crypto', 'rain', 'daily-case', 'deposit-case', 'supercharge'];
 
 router.get('/transactions', isAuthed, async (req, res) => {
 

@@ -194,7 +194,7 @@ function CreateCoinflip(props) {
           margin-left: auto;
 
           border-radius: 2px;
-          background: rgba(90, 84, 153, 0.35);
+          background: rgba(58, 66, 80, 0.45);
           line-height: 30px;
 
           color: #8b92a0;
@@ -284,7 +284,7 @@ function CreateCoinflip(props) {
           color: #8b92a0;
 
           border-radius: 3px;
-          background: rgba(90, 84, 153, 0.35);
+          background: rgba(58, 66, 80, 0.45);
           padding: 10px 12px;
         }
 
@@ -317,7 +317,7 @@ function CreateCoinflip(props) {
           font-weight: 700;
 
           color: rgba(255, 255, 255, 0.35);
-          background: rgba(90, 84, 153, 0.35);
+          background: rgba(58, 66, 80, 0.45);
           position: relative;
           z-index: 0;
 

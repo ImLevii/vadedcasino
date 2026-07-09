@@ -93,7 +93,7 @@ function Docs(props) {
               
               .bar {
                 border-radius: 555px;
-                background: linear-gradient(135deg, #3a4250 0%, rgba(90, 84, 153, 0.00) 100%);
+                background: linear-gradient(135deg, #3a4250 0%, rgba(58, 66, 80, 0.00) 100%);
                 height: 1px;
                 flex: 1;
               }

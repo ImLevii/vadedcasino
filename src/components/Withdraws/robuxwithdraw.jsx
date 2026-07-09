@@ -44,7 +44,7 @@ function RobuxWithdraw(props) {
         <>
             <div class='robux-deposit-container'>
                 <div class='deposit-header'>
-                    <p class='type'>You have selected <span class='gold'>ROBUX</span></p>
+                    <p class='type'>You have selected <span class='gold'>COINS</span></p>
 
                     <p>
                         <span class='gold'>Withdraw amount: </span>
@@ -72,7 +72,7 @@ function RobuxWithdraw(props) {
                     }), true)
 
                     if (res.id) {
-                        createNotification('success', `You are now in position ${res.queuePosition} to withdraw your ${robux()} Robux.`)
+                        createNotification('success', `You are now in position ${res.queuePosition} to withdraw your ${robux()} coins.`)
                         setTxs([res, ...txs()])
                     }
                 }}>WITHDRAW

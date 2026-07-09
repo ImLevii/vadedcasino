@@ -25,7 +25,7 @@ function SurveysWarning(props) {
 
           <p>
             Please fill out surveys and download apps <span class='gold'>AT YOUR OWN RISK</span>.
-            BloxClash takes no responsibility for any damages or data loss
+            Cosmic Luck takes no responsibility for any damages or data loss
             caused by the offer systems.
           </p>
 

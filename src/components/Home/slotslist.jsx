@@ -134,7 +134,7 @@ function SlotsList() {
           height: 1px;
 
           border-radius: 2525px;
-          background: linear-gradient(90deg, #3a4250 0%, rgba(90, 84, 153, 0.00) 100%);
+          background: linear-gradient(90deg, #3a4250 0%, rgba(58, 66, 80, 0.00) 100%);
         }
 
         .slots {

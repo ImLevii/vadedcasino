@@ -204,6 +204,7 @@ function mapBattle(battle, cases, rounds, players, openings = []) {
         clientSeed: battle.clientSeed,
         serverSeed: battle.startedAt ? battle.serverSeed : sha256(battle.serverSeed),
         gamemode: battle.gamemode,
+        cosmicSpin: !!battle.cosmicSpin,
         cases,
         players: players.map(e => {
             return {
@@ -250,15 +251,44 @@ function minifyBattle(battle) {
 }
 
 const rollTime = 6500;
+// Cosmic Spin battles need time for the exclusive second rare-only spin each round
+const cosmicRollTime = 12000;
+const getRollTime = (battle) => battle.cosmicSpin ? cosmicRollTime : rollTime;
 
 async function startBattle(battle, players) {
 
     const [cases] = await sql.query(`
-        SELECT cases.id, cases.name, cases.slug, cases.img, caseVersions.price, caseVersions.id as revId, battleRounds.round FROM battleRounds
+        SELECT cases.id, cases.name, cases.slug, cases.img, cases.creatorId, cases.commissionPct, caseVersions.price, caseVersions.id as revId, battleRounds.round FROM battleRounds
         INNER JOIN caseVersions ON battleRounds.caseVersionId = caseVersions.id
         INNER JOIN cases ON caseVersions.caseId = cases.id
         WHERE battleRounds.battleId = ? ORDER BY battleRounds.round ASC
     `, [battle.id]);
+
+    // Community cases - track opens and credit creator commission (7 days to claim)
+    try {
+
+        const uniqueCases = [...new Map(cases.map(e => [e.id, e])).values()].filter(e => e.creatorId);
+
+        for (const c of uniqueCases) {
+
+            const roundsUsed = cases.filter(e => e.id === c.id).length;
+            await sql.query('UPDATE cases SET openCount = openCount + ? WHERE id = ?', [players.length * roundsUsed, c.id]);
+
+            const payers = players.filter(p => String(p.role).toLowerCase() !== 'bot' && p.id !== c.creatorId).length;
+            const commission = roundDecimal(c.price * (c.commissionPct / 100) * payers * roundsUsed);
+
+            if (commission >= 0.01) {
+                await sql.query(
+                    'INSERT INTO communityCaseEarnings (caseId, creatorId, amount, expiresAt) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))',
+                    [c.id, c.creatorId, commission]
+                );
+            }
+
+        }
+
+    } catch (e) {
+        console.error('[battles] community case commission failed:', e);
+    }
 
     const [casesItems] = await sql.query(`SELECT * FROM caseItems WHERE caseVersionId IN(?);`, [cases.map(e => e.revId)]);
 
@@ -336,7 +366,7 @@ async function startBattle(battle, players) {
 
     if (battle.round) {
 
-        const timeTillNextRound = battle.createdAt.getTime() + (rollTime * battle.round) - Date.now();
+        const timeTillNextRound = battle.createdAt.getTime() + (getRollTime(battle) * battle.round) - Date.now();
         await sleep(timeTillNextRound);
 
     }
@@ -399,7 +429,7 @@ async function startBattle(battle, players) {
             // cachedBattle.rounds = rounds.slice(0, i + 1);
         }
 
-        await sleep(rollTime);
+        await sleep(getRollTime(battle));
 
     }
 

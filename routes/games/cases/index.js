@@ -10,13 +10,17 @@ const { mapItem, newDrops, cachedCases, ensureCasesCacheFresh } = require('./fun
 
 const io = require('../../../socketio/server');
 const { newBets } = require('../../../socketio/bets');
+const { router: communityRouter } = require('./community');
 
 const { enabledFeatures, xpMultiplier } = require('../../admin/config');
+
+// Community cases - must be mounted before the /:slug route
+router.use('/community', communityRouter);
 
 router.get('/', async (req, res) => {
     await ensureCasesCacheFresh();
 
-    let cases = Object.values(cachedCases).map(e => {
+    let cases = Object.values(cachedCases).filter(e => !e.creatorId).map(e => {
         return {
             ...e,
             items: undefined
@@ -50,7 +54,7 @@ router.get('/sitemap.xml', async (req, res) => {
     await ensureCasesCacheFresh();
 
     let str = '<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">';
-    str += Object.values(cachedCases).map(e => `<url><loc>${process.env.FRONTEND_URL}/cases/${e.slug}</loc><lastmod>${e.modifiedAt.toISOString()}</lastmod></url>`).join('');
+    str += Object.values(cachedCases).filter(e => !e.creatorId).map(e => `<url><loc>${process.env.FRONTEND_URL}/cases/${e.slug}</loc><lastmod>${e.modifiedAt.toISOString()}</lastmod></url>`).join('');
     str += frontendRoutes.map(e => `<url><loc>${process.env.FRONTEND_URL}${e}</loc></url>`).join('');
     str += '</urlset>';
 
@@ -95,7 +99,7 @@ router.post('/:id/open', [isAuthed, apiLimiter], async (req, res) => {
     if (amount < 1 || amount > 5) return res.status(400).json({ error: 'INVALID_AMOUNT' });
 
     const [[caseInfo]] = await sql.query(`
-        SELECT cases.id, cases.name, cases.slug, cases.img, caseVersions.price, caseVersions.id as revId FROM cases
+        SELECT cases.id, cases.name, cases.slug, cases.img, cases.creatorId, cases.commissionPct, caseVersions.price, caseVersions.id as revId FROM cases
         INNER JOIN caseVersions ON cases.id = caseVersions.caseId AND caseVersions.endedAt IS NULL
         WHERE cases.id = ?;
     `, [req.params.id]);
@@ -174,6 +178,22 @@ router.post('/:id/open', [isAuthed, apiLimiter], async (req, res) => {
     
             const [nonceIncrease] = await connection.query('UPDATE serverSeeds SET nonce = nonce + ? WHERE id = ?', [amount, seeds.serverSeedId]);
             if (nonceIncrease.affectedRows != 1) return res.status(404).json({ error: 'UNKNOWN_ERROR' });
+
+            // Community case - track openings and credit creator commission (7 days to claim)
+            if (caseInfo.creatorId) {
+                await connection.query('UPDATE cases SET openCount = openCount + ? WHERE id = ?', [amount, caseInfo.id]);
+
+                if (caseInfo.creatorId !== user.id) {
+                    const commission = roundDecimal(price * caseInfo.commissionPct / 100);
+
+                    if (commission >= 0.01) {
+                        await connection.query(
+                            'INSERT INTO communityCaseEarnings (caseId, creatorId, amount, expiresAt) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))',
+                            [caseInfo.id, caseInfo.creatorId, commission]
+                        );
+                    }
+                }
+            }
 
             await commit();
     

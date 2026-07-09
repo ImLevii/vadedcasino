@@ -28,7 +28,7 @@ function JackpotBet(props) {
             <div class={'jp-bet ' + (getRarity(props?.amount || 0))}>
                 <div class='item'>
                     <CoinflipItem price={props?.amount}/>
-                    <p>ROBUX COIN STACK</p>
+                    <p>COIN STACK</p>
                 </div>
 
                 <p class='cost'>

@@ -75,6 +75,7 @@ async function processQueue() {
                 withdraw.status = 'failed';
                 await sql.query('UPDATE robuxExchanges SET status = ? WHERE id = ?', ['failed', withdraw.id]);
                 await sql.query('UPDATE users SET balance = balance + ? WHERE id = ?', [withdraw.totalAmount - withdraw.filledAmount, withdraw.userId]);
+                io.to(withdraw.userId).emit('balance', 'add', withdraw.totalAmount - withdraw.filledAmount);
                 continue;
                 
             };
@@ -105,6 +106,7 @@ async function processQueue() {
                     await sql.query('UPDATE robuxExchanges SET status = ? WHERE id = ?', ['failed', withdraw.id]);
                     withdraw.status = 'failed';
                     await sql.query('UPDATE users SET balance = balance + ? WHERE id = ?', [withdraw.totalAmount - withdraw.filledAmount, withdraw.userId]);
+                    io.to(withdraw.userId).emit('balance', 'add', withdraw.totalAmount - withdraw.filledAmount);
                     sendLog('robuxExchange', `Withdraw #${withdraw.id} failed - No universes found`);
                     continue;
                 }
@@ -178,6 +180,7 @@ async function processQueue() {
                     await sql.query('UPDATE robuxExchanges SET status = ? WHERE id = ?', ['failed', withdraw.id]);
                     withdraw.status = 'failed';
                     await sql.query('UPDATE users SET balance = balance + ? WHERE id = ?', [withdraw.totalAmount - withdraw.filledAmount, withdraw.userId]);
+                    io.to(withdraw.userId).emit('balance', 'add', withdraw.totalAmount - withdraw.filledAmount);
                     sendLog('robuxExchange', `Withdraw #${withdraw.id} failed - Failed to create gamepass`);
                     continue;
                 }
@@ -225,6 +228,7 @@ async function processQueue() {
                         await sql.query('UPDATE robuxExchanges SET status = ? WHERE id = ?', ['failed', withdraw.id]);
                         withdraw.status = 'failed';
                         await sql.query('UPDATE users SET balance = balance + ? WHERE id = ?', [withdraw.totalAmount - withdraw.filledAmount, withdraw.userId]);
+                        io.to(withdraw.userId).emit('balance', 'add', withdraw.totalAmount - withdraw.filledAmount);
                         sendLog('robuxExchange', `Withdraw #${withdraw.id} failed - Has too many gamepasses, haven't found any to remove.`);
                     }
 
@@ -285,7 +289,7 @@ async function processQueue() {
     
                         await commit();
                         io.to(deposit.userId).emit('balance', 'add', balanceToAdd);
-                        io.to(deposit.userId).emit('toast', 'success', `Your have received R$${balanceToAdd} from your pending deposit.`);
+                        io.to(deposit.userId).emit('toast', 'success', `Your have received ${balanceToAdd} coins from your pending deposit.`);
     
                         sendLog('robuxExchange', `Deposit #${deposit.id} successfully matched with withdraw #${withdraw.id} - :robux: R$${amount}`);
 

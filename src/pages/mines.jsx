@@ -49,7 +49,7 @@ function Mines(props) {
         })
         cashoutSFX.play()
         setBombs(res.minePositions || [])
-        createNotification('success', `You won $R${res.payout} from your mines round!`)
+        createNotification('success', `You won ${res.payout} coins from your mines round!`)
     }
 
     async function startGame() {

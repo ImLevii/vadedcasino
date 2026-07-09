@@ -1,0 +1,49 @@
+<svg width="64" height="72" viewBox="0 0 64 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="c3Edge" x1="14" y1="62" x2="56" y2="14" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0a6b30"/>
+      <stop offset="0.5" stop-color="#12a344"/>
+      <stop offset="1" stop-color="#2ee06e"/>
+    </linearGradient>
+    <radialGradient id="c3Face" cx="0.36" cy="0.3" r="0.95">
+      <stop stop-color="#9bffc4"/>
+      <stop offset="0.55" stop-color="#45e57f"/>
+      <stop offset="1" stop-color="#14b04c"/>
+    </radialGradient>
+    <radialGradient id="c3Inner" cx="0.4" cy="0.32" r="0.9">
+      <stop stop-color="#123a22"/>
+      <stop offset="1" stop-color="#081f11"/>
+    </radialGradient>
+    <linearGradient id="c3Star" x1="18" y1="20" x2="40" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eafff2"/>
+      <stop offset="1" stop-color="#56f592"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="rotate(-18 32 36)">
+    <!-- coin depth / edge -->
+    <ellipse cx="35" cy="38" rx="24" ry="29" fill="url(#c3Edge)"/>
+    <!-- edge ridges -->
+    <path d="M56 24 A24 29 0 0 1 59 38 A24 29 0 0 1 55 54" stroke="#083d1c" stroke-width="3"
+          stroke-linecap="round" stroke-dasharray="2.5 5" fill="none" opacity="0.55"/>
+
+    <!-- coin face -->
+    <ellipse cx="29" cy="34" rx="24" ry="29" fill="url(#c3Face)"/>
+    <ellipse cx="29" cy="34" rx="19.5" ry="24" fill="none" stroke="#0e5f2c" stroke-width="1.6" opacity="0.5"/>
+
+    <!-- inner face -->
+    <ellipse cx="29" cy="34" rx="16.5" ry="21" fill="url(#c3Inner)"/>
+    <ellipse cx="29" cy="34" rx="13.5" ry="17.5" fill="none" stroke="#9bffc4" stroke-width="0.8" opacity="0.4"/>
+
+    <!-- cosmic star emblem -->
+    <path d="M29 19.5 L31.9 29.9 L41.5 34 L31.9 38.1 L29 48.5 L26.1 38.1 L16.5 34 L26.1 29.9 Z" fill="url(#c3Star)"/>
+    <circle cx="29" cy="34" r="2.6" fill="#081f11"/>
+
+    <!-- sparkles -->
+    <circle cx="20.5" cy="22" r="1.1" fill="#eafff2" opacity="0.9"/>
+    <circle cx="38.5" cy="45" r="0.9" fill="#9bffc4" opacity="0.75"/>
+
+    <!-- top highlight -->
+    <path d="M10 20 A24 29 0 0 1 34 6.2 A24 29 0 0 1 47 13.5 A28 33 0 0 0 12 26 Z" fill="#ffffff" opacity="0.28"/>
+  </g>
+</svg>

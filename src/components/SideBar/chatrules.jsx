@@ -119,7 +119,7 @@ function ChatRules() {
               }
               
               .number {
-                background: rgba(90, 84, 153, 0.35);
+                background: rgba(58, 66, 80, 0.45);
                 border-radius: 2px;
                 
                 height: 20px;

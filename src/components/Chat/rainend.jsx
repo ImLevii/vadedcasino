@@ -116,7 +116,7 @@ function RainEnd(props) {
                 left: -1px;
                 bottom: 0;
 
-                background: linear-gradient(270deg, rgba(90, 84, 153, 0) 0%, rgba(249, 172, 57, 0.31) 98.73%, rgba(90, 84, 153, 0) 100%);
+                background: linear-gradient(270deg, rgba(58, 66, 80, 0) 0%, rgba(249, 172, 57, 0.31) 98.73%, rgba(58, 66, 80, 0) 100%);
                 border-radius: 0 0 8px 8px;
                 
                 display: flex;

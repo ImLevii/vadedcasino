@@ -1,10 +1,12 @@
 import {createResource, createSignal, For, Show} from "solid-js";
+import {useNavigate} from "@solidjs/router";
 import CaseButton from "./casebutton";
 import Loader from "../Loader/loader";
 import {authedAPI} from "../../util/api";
 
 function Cases(props) {
 
+    const navigate = useNavigate()
     const [cases, {mutate}] = createResource(fetchCases)
 
     const [search, setSearch] = createSignal('')
@@ -73,6 +75,11 @@ function Cases(props) {
                         <button class={'option hide ' + (option() === 'TRENDING' ? 'active' : '')}
                                 onClick={() => setOption('TRENDING')} disabled={true}>
                             TRENDING
+                        </button>
+
+                        <button class='option community'
+                                onClick={() => navigate('/cases/community')}>
+                            COMMUNITY
                         </button>
                     </div>
 
@@ -206,6 +213,15 @@ function Cases(props) {
               .option:disabled {
                 opacity: 0.5;
                 cursor: not-allowed;
+              }
+
+              .option.community {
+                color: #1fd65f;
+                text-shadow: 0 0 14px rgba(31, 214, 95, 0.22);
+              }
+
+              .option.community:hover {
+                color: #45e57f;
               }
 
               .active {

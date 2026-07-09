@@ -71,11 +71,11 @@ function CoinflipPreview(props) {
 
                 position: relative;
 
-                background: rgba(90, 84, 153, 0.27);
+                background: rgba(58, 66, 80, 0.35);
               }
               
               .coinflip-preview-container:nth-child(2n) {
-                background: rgba(90, 84, 153, 0.15);
+                background: rgba(58, 66, 80, 0.2);
               }
               
               .user {

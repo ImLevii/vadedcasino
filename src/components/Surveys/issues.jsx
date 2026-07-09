@@ -24,7 +24,7 @@ function SurveyIssues(props) {
           <h1>HAVING ISSUES?</h1>
 
           <p>
-            Did you not receive your reward? We didn’t either! BloxClash is not
+            Did you not receive your reward? We didn’t either! Cosmic Luck is not
             paid until you receive your reward. This is why we CANNOT help
             you with offers. Contact the provider you did the offer on.
           </p>

@@ -37,7 +37,7 @@ module.exports = {
                 if (amount > user.balance) return sendSystemMessage(socket, 'Insufficient balance.');
 
                 if (user.rainTipAllowance != null && amount > user.rainTipAllowance) {
-                    return sendSystemMessage(socket, `You can only host a rain of R$${user.rainTipAllowance} before exceeding your limit.`);
+                    return sendSystemMessage(socket, `You can only host a rain of ${user.rainTipAllowance} coins before exceeding your limit.`);
                 }
 
                 user.accountLock = await checkAccountLock(user);

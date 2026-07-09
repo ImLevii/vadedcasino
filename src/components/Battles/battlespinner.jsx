@@ -1,7 +1,7 @@
 import {authedAPI, getRandomNumber} from "../../util/api"
 import {createEffect, createSignal, For, Index} from "solid-js"
 import BattleSpinnerItem from "./battlespinneritem"
-import {generateRandomItems} from "../../resources/cases"
+import {generateRandomItems, generateRareItems, getRareItems, isRareItem, maskRareItems} from "../../resources/cases"
 import Avatar from "../Level/avatar"
 import Level from "../Level/level"
 import Countup from "../Countup/countup"
@@ -40,23 +40,38 @@ function BattleSpinner(props) {
       let currentRound = props?.rounds[props?.round - 1]
       if (!currentRound) return
 
-      let caseItems = props?.battle?.cases?.find(c => c.id === currentRound.caseId)?.items
+      let battleCase = props?.battle?.cases?.find(c => c.id === currentRound.caseId)
+      let caseItems = battleCase?.items
       let spinnerItems = generateRandomItems(caseItems, chanceObj)
 
       let winningId = currentRound?.items[props?.index].itemId
       let winningItem = caseItems?.find(item => winningId === item.id)
       spinnerItems[50] = winningItem
 
+      // Cosmic Spin - rare items (including a rare win) show as the Cosmic logo
+      const cosmic = !!props?.battle?.cosmicSpin && getRareItems(caseItems, battleCase?.price).length > 0
+      if (cosmic) spinnerItems = maskRareItems(spinnerItems, battleCase?.price)
+
       setItems([...spinnerItems])
 
       animate()
+
+      if (cosmic && isRareItem(winningItem, battleCase?.price)) {
+        // Exclusive second spin featuring only rare items
+        setTimeout(() => {
+          let rareReel = generateRareItems(caseItems, battleCase?.price, chanceObj)
+          rareReel[50] = winningItem
+          setItems([...rareReel])
+          animate(true)
+        }, 5300)
+      }
     }
   })
 
-  function animate() {
+  function animate(secondPhase = false) {
     if (!spinner) return
 
-    let chanceObj = new Chance(props?.battle?.id + '-' + props?.round)
+    let chanceObj = new Chance(props?.battle?.id + '-' + props?.round + (secondPhase ? '-cosmic' : ''))
     const offset = getRandomNumber(-48, 48, chanceObj)
     const itemsWidth = 100 // 130px + 50px gap
     const itemsGap = 35
@@ -64,11 +79,6 @@ function BattleSpinner(props) {
     const lastItem = 49 * (itemsWidth + itemsGap) // 50th item is 49
 
     spinner.getAnimations().forEach((anim) => {
-      anim.pause()
-      anim.cancel()
-    })
-
-    bar.getAnimations().forEach((anim) => {
       anim.pause()
       anim.cancel()
     })
@@ -85,22 +95,29 @@ function BattleSpinner(props) {
       }
     )
 
-    let color = 'linear-gradient(90deg, rgba(249, 81, 81, 0.00) 0%, #F95151 100%)'
-    if (props?.roundWinners?.includes(props?.team))
-      color = 'linear-gradient(90deg, rgba(31, 214, 95, 0.00) 0%, #1fd65f 100%)'
+    if (!secondPhase) {
+      bar.getAnimations().forEach((anim) => {
+        anim.pause()
+        anim.cancel()
+      })
 
-    bar.animate(
-      {
-        background: [color, color, color],
-        width: [`0`, '100%', '100%'],
-        easing: ['ease', 'ease-out', 'ease-out'],
-        offset: [0, 0.7, 1]
-      },
-      {
-        delay: 5000,
-        duration: 1500,
-      }
-    )
+      let color = 'linear-gradient(90deg, rgba(249, 81, 81, 0.00) 0%, #F95151 100%)'
+      if (props?.roundWinners?.includes(props?.team))
+        color = 'linear-gradient(90deg, rgba(31, 214, 95, 0.00) 0%, #1fd65f 100%)'
+
+      bar.animate(
+        {
+          background: [color, color, color],
+          width: [`0`, '100%', '100%'],
+          easing: ['ease', 'ease-out', 'ease-out'],
+          offset: [0, 0.7, 1]
+        },
+        {
+          delay: props?.battle?.cosmicSpin ? 10500 : 5000,
+          duration: 1500,
+        }
+      )
+    }
 
     setOffset(offset)
   }
@@ -111,6 +128,7 @@ function BattleSpinner(props) {
       teams: props?.battle?.teams,
       playersPerTeam: props?.battle?.playersPerTeam,
       gamemode: props?.battle?.gamemode,
+      cosmicSpin: !!props?.battle?.cosmicSpin,
       funding: props?.creator ? props?.battle?.ownerFunding || 0 : 0,
       minLvl: props?.creator ? props?.battle?.minLevel || 0 : 0,
       isPrivate: props?.creator ? !!props?.battle?.privKey : false,

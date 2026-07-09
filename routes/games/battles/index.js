@@ -61,7 +61,9 @@ router.post('/create', isAuthed, apiLimiter, async (req, res) => {
 
     const private = req.body.isPrivate;
     if (typeof private != 'boolean') return res.status(400).json({ error: 'MISSING_PRIVATE' });
-    
+
+    const cosmicSpin = !!req.body.cosmicSpin;
+
     const uniqueCaseIds = [...new Set(casesIds)];
 
     const [uniqueCases] = await sql.query(`
@@ -107,8 +109,8 @@ router.post('/create', isAuthed, apiLimiter, async (req, res) => {
             const entryPrice = roundDecimal(battleCost * (1 - (fundingPercentage / 100)));
         
             const [battleResult] = await connection.query(
-                `INSERT INTO battles (ownerId, ownerFunding, entryPrice, privKey, minLevel, teams, playersPerTeam, gamemode, serverSeed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-                [user.id, fundingPercentage, entryPrice, privKey, minLvl, teams, playersPerTeam, gamemode, serverSeed]
+                `INSERT INTO battles (ownerId, ownerFunding, entryPrice, privKey, minLevel, teams, playersPerTeam, gamemode, cosmicSpin, serverSeed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+                [user.id, fundingPercentage, entryPrice, privKey, minLvl, teams, playersPerTeam, gamemode, cosmicSpin ? 1 : 0, serverSeed]
             );
             
             const battleId = battleResult.insertId;

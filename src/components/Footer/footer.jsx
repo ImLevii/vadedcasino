@@ -159,7 +159,7 @@ function Footer(props) {
                 min-width: 1px;
                 height: 60px;
 
-                background: linear-gradient(0deg, rgba(90, 84, 153, 0.00) 0%, rgba(90, 84, 153, 0.27) 49.47%, rgba(90, 84, 153, 0.00) 100%);
+                background: linear-gradient(0deg, rgba(58, 66, 80, 0.00) 0%, rgba(58, 66, 80, 0.35) 49.47%, rgba(58, 66, 80, 0.00) 100%);
               }
 
               @media only screen and (max-width: 1000px) {

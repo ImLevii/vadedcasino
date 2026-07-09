@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" fill="none">
+  <defs>
+    <linearGradient id="gemTable" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b8ffd4"/>
+      <stop offset="100%" stop-color="#5df592"/>
+    </linearGradient>
+    <linearGradient id="gemCrownL" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6bf79d"/>
+      <stop offset="100%" stop-color="#1fd65f"/>
+    </linearGradient>
+    <linearGradient id="gemCrownR" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3fe377"/>
+      <stop offset="100%" stop-color="#14b04d"/>
+    </linearGradient>
+    <linearGradient id="gemStar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#dcffe9"/>
+      <stop offset="100%" stop-color="#7dffab"/>
+    </linearGradient>
+    <linearGradient id="gemPav1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#17bd54"/>
+      <stop offset="100%" stop-color="#0a7a34"/>
+    </linearGradient>
+    <linearGradient id="gemPav2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#31e06e"/>
+      <stop offset="100%" stop-color="#0f9440"/>
+    </linearGradient>
+    <linearGradient id="gemPav3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1cca59"/>
+      <stop offset="100%" stop-color="#0b6e2f"/>
+    </linearGradient>
+    <linearGradient id="gemPav4" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#12a848"/>
+      <stop offset="100%" stop-color="#064d1f"/>
+    </linearGradient>
+    <linearGradient id="gemSheen" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="45%" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="55%" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="gemGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1fd65f" stop-opacity="0.5"/>
+      <stop offset="45%" stop-color="#1fd65f" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#1fd65f" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="gemClip">
+      <polygon points="96,74 160,74 208,120 128,208 48,120"/>
+    </clipPath>
+  </defs>
+
+  <!-- pulsing glow -->
+  <circle cx="128" cy="130" r="118" fill="url(#gemGlow)">
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="2.6s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- ground reflection -->
+  <ellipse cx="128" cy="228" rx="58" ry="9" fill="#1fd65f" opacity="0.18">
+    <animate attributeName="opacity" values="0.18;0.1;0.18" dur="4.2s" repeatCount="indefinite"/>
+  </ellipse>
+
+  <!-- floating gem -->
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0;0 -7;0 0" dur="4.2s" repeatCount="indefinite"/>
+
+    <g transform-origin="128 130">
+      <animateTransform attributeName="transform" type="scale"
+        values="1 1;0.72 1;0.05 1;-0.72 1;-1 1;-0.72 1;-0.05 1;0.72 1;1 1"
+        keyTimes="0;0.125;0.25;0.375;0.5;0.625;0.75;0.875;1"
+        dur="3.6s" repeatCount="indefinite" additive="sum"/>
+      <animate attributeName="opacity"
+        values="1;0.92;0.68;0.92;1;0.92;0.68;0.92;1"
+        keyTimes="0;0.125;0.25;0.375;0.5;0.625;0.75;0.875;1"
+        dur="3.6s" repeatCount="indefinite"/>
+
+      <!-- crown -->
+      <polygon points="110,102 146,102 160,74 96,74" fill="url(#gemTable)"/>
+      <polygon points="96,74 110,102 48,120" fill="url(#gemCrownL)"/>
+      <polygon points="160,74 208,120 146,102" fill="url(#gemCrownR)"/>
+      <!-- star facets -->
+      <polygon points="110,102 146,102 128,120" fill="url(#gemStar)"/>
+      <polygon points="48,120 110,102 128,120 88,120" fill="#2ade6c"/>
+      <polygon points="208,120 146,102 128,120 168,120" fill="#19b850"/>
+      <!-- girdle -->
+      <rect x="48" y="118" width="160" height="4" fill="#0c8a3b" opacity="0.9"/>
+      <!-- pavilion -->
+      <polygon points="48,120 88,120 128,208" fill="url(#gemPav1)"/>
+      <polygon points="88,120 128,120 128,208" fill="url(#gemPav2)"/>
+      <polygon points="128,120 168,120 128,208" fill="url(#gemPav3)"/>
+      <polygon points="168,120 208,120 128,208" fill="url(#gemPav4)"/>
+      <!-- internal light bounce -->
+      <polygon points="112,132 144,132 128,168" fill="#7dffab" opacity="0.28"/>
+      <!-- edge highlights -->
+      <polyline points="48,120 96,74 160,74 208,120" stroke="#eafff2" stroke-width="2.5" fill="none" opacity="0.85" stroke-linejoin="round"/>
+      <polyline points="48,120 128,208 208,120" stroke="#a4ffc6" stroke-width="1.8" fill="none" opacity="0.5" stroke-linejoin="round"/>
+      <line x1="48" y1="120" x2="208" y2="120" stroke="#c9ffdd" stroke-width="1.2" opacity="0.55"/>
+      <line x1="128" y1="120" x2="128" y2="208" stroke="#c9ffdd" stroke-width="1" opacity="0.3"/>
+
+      <!-- moving light sweep -->
+      <g clip-path="url(#gemClip)">
+        <rect x="-90" y="40" width="70" height="190" fill="url(#gemSheen)" transform="skewX(-18)">
+          <animateTransform attributeName="transform" type="translate"
+            values="0 0;360 0;360 0" keyTimes="0;0.4;1"
+            dur="3.6s" repeatCount="indefinite" additive="sum"/>
+        </rect>
+      </g>
+    </g>
+
+    <!-- sparkles -->
+    <g fill="#ffffff">
+      <path d="M92 66 L95 76 L105 79 L95 82 L92 92 L89 82 L79 79 L89 76 Z">
+        <animate attributeName="opacity" values="0;1;0" keyTimes="0;0.5;1" dur="2.4s" begin="0s" repeatCount="indefinite"/>
+      </path>
+      <path d="M186 118 L188.5 126 L196 128.5 L188.5 131 L186 139 L183.5 131 L176 128.5 L183.5 126 Z">
+        <animate attributeName="opacity" values="0;1;0" keyTimes="0;0.5;1" dur="3s" begin="0.9s" repeatCount="indefinite"/>
+      </path>
+      <path d="M124 186 L126 192 L132 194 L126 196 L124 202 L122 196 L116 194 L122 192 Z">
+        <animate attributeName="opacity" values="0;1;0" keyTimes="0;0.5;1" dur="2.7s" begin="1.7s" repeatCount="indefinite"/>
+      </path>
+      <path d="M64 108 L66 114 L72 116 L66 118 L64 124 L62 118 L56 116 L62 114 Z">
+        <animate attributeName="opacity" values="0;1;0" keyTimes="0;0.5;1" dur="3.3s" begin="2.3s" repeatCount="indefinite"/>
+      </path>
+    </g>
+  </g>
+</svg>

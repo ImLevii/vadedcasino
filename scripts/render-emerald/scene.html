@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
+  canvas { display: block; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "./node_modules/three/build/three.module.js",
+    "three/addons/": "./node_modules/three/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { createGemGeometry } from './gem-geometry.js';
+
+const SIZE = 512;
+const TOTAL_FRAMES = 240; // 4s @ 60fps
+
+// ---------- Renderer ----------
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(SIZE, SIZE);
+renderer.setClearColor(0x000000, 0);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 50);
+camera.position.set(0, 0.25, 4.8);
+camera.lookAt(0, 0, 0);
+
+// Environment for facet reflections / internal refraction shifts
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+// ---------- Gem ----------
+const gemGroup = new THREE.Group();
+scene.add(gemGroup);
+const geometry = createGemGeometry();
+
+// Inner core: forest-green edges -> neon emerald center via fresnel gradient
+const coreMaterial = new THREE.ShaderMaterial({
+  uniforms: {
+    edgeColor: { value: new THREE.Color('#0d3b24') },
+    centerColor: { value: new THREE.Color('#17e07a') },
+    hotColor: { value: new THREE.Color('#b8ffd9') },
+  },
+  vertexShader: /* glsl */`
+    varying vec3 vNormal;
+    varying vec3 vView;
+    void main() {
+      vNormal = normalize(normalMatrix * normal);
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      vView = normalize(-mv.xyz);
+      gl_Position = projectionMatrix * mv;
+    }
+  `,
+  fragmentShader: /* glsl */`
+    uniform vec3 edgeColor;
+    uniform vec3 centerColor;
+    uniform vec3 hotColor;
+    varying vec3 vNormal;
+    varying vec3 vView;
+    void main() {
+      float facing = clamp(abs(dot(normalize(vNormal), normalize(vView))), 0.0, 1.0);
+      float edge = pow(1.0 - facing, 1.6);
+      vec3 col = mix(centerColor, edgeColor, edge);
+      // White-hot kick on facets aimed at the camera
+      col = mix(col, hotColor, smoothstep(0.86, 1.0, facing) * 0.55);
+      gl_FragColor = vec4(col, 1.0);
+    }
+  `,
+});
+const core = new THREE.Mesh(geometry, coreMaterial);
+core.scale.setScalar(0.985);
+gemGroup.add(core);
+
+// Outer shell: polished glass facets — crisp specular reflections
+const shellMaterial = new THREE.MeshPhysicalMaterial({
+  color: new THREE.Color('#0f5c36'),
+  metalness: 0.0,
+  roughness: 0.035,
+  ior: 1.58,
+  clearcoat: 1.0,
+  clearcoatRoughness: 0.04,
+  envMapIntensity: 4.5,
+  transparent: true,
+  opacity: 0.55,
+  specularIntensity: 1.0,
+  flatShading: true,
+});
+const shell = new THREE.Mesh(geometry, shellMaterial);
+gemGroup.add(shell);
+
+// ---------- Lights ----------
+scene.add(new THREE.AmbientLight(0x1a3326, 0.7)); // soft green fill
+
+const keyLight = new THREE.DirectionalLight(0xffffff, 3.2); // strong front key
+keyLight.position.set(1.2, 2.0, 3.5);
+scene.add(keyLight);
+
+const rimLight = new THREE.DirectionalLight(0x22ff88, 1.6); // green rim
+rimLight.position.set(-2.0, 1.0, -2.5);
+scene.add(rimLight);
+
+const fillLight = new THREE.DirectionalLight(0xccffe6, 0.5); // soft fill
+fillLight.position.set(-1.5, -0.5, 2.0);
+scene.add(fillLight);
+
+// Narrow specular sweep light: orbits, intensity peaks once per loop in front
+const sweepLight = new THREE.DirectionalLight(0xffffff, 0.0);
+scene.add(sweepLight);
+
+// ---------- Glow sprite (restrained outer glow + soft bloom) ----------
+function makeGlowTexture(inner, mid) {
+  const c = document.createElement('canvas');
+  c.width = c.height = 256;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+  g.addColorStop(0, inner);
+  g.addColorStop(0.35, mid);
+  g.addColorStop(1, 'rgba(0,60,30,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 256, 256);
+  return new THREE.CanvasTexture(c);
+}
+// Additive color that still accumulates alpha (plain AdditiveBlending leaves
+// destination alpha at 0 -> invisible on transparent background captures)
+function glowMaterial(map) {
+  const m = new THREE.SpriteMaterial({ map, depthWrite: false, transparent: true });
+  m.blending = THREE.CustomBlending;
+  m.blendEquation = THREE.AddEquation;
+  m.blendSrc = THREE.SrcAlphaFactor;
+  m.blendDst = THREE.OneFactor;
+  m.blendSrcAlpha = THREE.OneFactor;
+  m.blendDstAlpha = THREE.OneMinusSrcAlphaFactor;
+  return m;
+}
+const glow = new THREE.Sprite(glowMaterial(
+  makeGlowTexture('rgba(30,210,120,0.38)', 'rgba(8,130,70,0.14)')
+));
+glow.position.set(0, 0, -1.2);
+scene.add(glow);
+const GLOW_BASE = 2.7;
+
+// Tight bloom sprite hugging the gem for the "polished" hot-spot feel
+const bloom = new THREE.Sprite(glowMaterial(
+  makeGlowTexture('rgba(255,255,255,0.30)', 'rgba(140,255,200,0.10)')
+));
+bloom.position.set(0, 0.15, 0.9);
+bloom.scale.setScalar(1.6);
+scene.add(bloom);
+
+// ---------- Deterministic frame stepping ----------
+const TAU = Math.PI * 2;
+window.setFrame = function (frame) {
+  const t = (frame % TOTAL_FRAMES) / TOTAL_FRAMES; // 0..1, loops perfectly
+
+  // 360° turntable + subtle ±3° tilt (one sine cycle per loop)
+  gemGroup.rotation.y = t * TAU;
+  gemGroup.rotation.x = THREE.MathUtils.degToRad(3) * Math.sin(t * TAU);
+  gemGroup.rotation.z = THREE.MathUtils.degToRad(1.5) * Math.sin(t * TAU + Math.PI / 3);
+
+  // Specular sweep: light orbits once per revolution, narrow gaussian peak
+  // as it crosses the front (azimuth 0 at t = 0.5)
+  const az = (t - 0.5) * TAU;
+  sweepLight.position.set(Math.sin(az) * 4, 1.4, Math.cos(az) * 4);
+  const front = Math.exp(-Math.pow(((t + 0.5) % 1) - 0.5, 2) / (2 * 0.06 * 0.06));
+  sweepLight.intensity = 14 * front;
+  bloom.material.opacity = 0.35 + 0.65 * front;
+
+  // Outer glow pulse 100–108%, two cycles per loop
+  const pulse = 1 + 0.08 * (0.5 + 0.5 * Math.sin(t * TAU * 2));
+  glow.scale.setScalar(GLOW_BASE * pulse);
+  glow.material.opacity = 0.55 + 0.25 * (pulse - 1) / 0.08;
+
+  renderer.render(scene, camera);
+  return true;
+};
+
+// Realtime preview mode: open scene.html?preview=1 in a browser
+if (new URLSearchParams(location.search).has('preview')) {
+  let f = 0;
+  (function loop() {
+    window.setFrame(f++);
+    requestAnimationFrame(loop);
+  })();
+} else {
+  window.setFrame(0);
+}
+window.sceneReady = true;
+</script>
+</body>
+</html>

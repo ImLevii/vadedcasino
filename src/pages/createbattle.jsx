@@ -12,6 +12,7 @@ function CreateBattle(props) {
     const [players, setPlayers] = createSignal('1v1')
     const [gamemode, setGamemode] = createSignal('standard')
     const [isPrivate, setIsPrivate] = createSignal(false)
+    const [cosmicSpin, setCosmicSpin] = createSignal(false)
     const [minLevel, setMinLevel] = createSignal(0, {equals: false})
     const [discount, setDiscount] = createSignal(0)
 
@@ -23,8 +24,13 @@ function CreateBattle(props) {
     const [cases, {mutate}] = createResource(fetchCases)
     async function fetchCases() {
         try {
-            let cases = await authedAPI('/cases', 'GET', null)
-            return mutate(cases)
+            let [official, community] = await Promise.all([
+                authedAPI('/cases', 'GET', null),
+                authedAPI('/cases/community', 'GET', null)
+            ])
+
+            let communityCases = (community?.cases || []).map(c => ({...c, community: true}))
+            return mutate([...(Array.isArray(official) ? official : []), ...communityCases])
         } catch (e) {
             console.log(e)
             return mutate([])
@@ -182,7 +188,8 @@ function CreateBattle(props) {
                                 gamemode: gamemode(),
                                 funding: discount(),
                                 minLvl: minLevel(),
-                                isPrivate: isPrivate()
+                                isPrivate: isPrivate(),
+                                cosmicSpin: cosmicSpin()
                             }), true)
 
                             if (res.success) {
@@ -265,6 +272,12 @@ function CreateBattle(props) {
                     <button disabled={players() === '2v2'} class={'setting ' + (gamemode() === 'group' ? 'active' : '')}
                             onClick={() => changeGamemode('group')}>
                         GROUP MODE
+                    </button>
+
+                    <button class={'setting ' + (cosmicSpin() ? 'active' : '')}
+                            onClick={() => setCosmicSpin(!cosmicSpin())}>
+                        <img src='/assets/icons/cosmic-gem.svg' height='16' alt=''/>
+                        &nbsp;COSMIC SPIN
                     </button>
                 </div>
 

@@ -15,6 +15,9 @@ function Battles(props) {
 
     const [toggle, setToggle] = createSignal('ALL')
     const [sortByPrice, setSortByPrice] = createSignal(true)
+    const [modeFilter, setModeFilter] = createSignal('ALL')
+    const [playersFilter, setPlayersFilter] = createSignal('ALL')
+    const [condFilter, setCondFilter] = createSignal('ALL')
     const [battles, setBattles] = createSignal(null, { equals: false })
     const [user] = useUser()
 
@@ -72,13 +75,29 @@ function Battles(props) {
         hasConnected = !!ws()?.connected
     })
 
+    function getBattleMode(battle) {
+        if (battle.gamemode === 'group') return 'GROUP'
+        if (battle.gamemode === 'crazy') return 'CRAZY'
+        if (battle.playersPerTeam === 2 && battle.teams === 2) return '2V2'
+        if (battle.playersPerTeam === 1 && battle.teams === 4) return '1V1V1V1'
+        if (battle.playersPerTeam === 1 && battle.teams === 3) return '1V1V1'
+        return '1V1'
+    }
+
     function getSortedBattles(battles, toggle, sortByPrice) {
-        if (!Array.isArray(battles) || battles?.length < 2) return battles
+        if (!Array.isArray(battles) || battles?.length < 1) return battles
 
         let baseSort = battles
 
         if (toggle === 'JOINABLE') baseSort = baseSort.filter((battle) => battle.startedAt === null)
         else if (toggle === 'ENDED') baseSort = baseSort.filter((battle) => battle.winnerTeam !== null)
+
+        if (modeFilter() !== 'ALL') baseSort = baseSort.filter((battle) => getBattleMode(battle) === modeFilter())
+        if (playersFilter() !== 'ALL') baseSort = baseSort.filter((battle) => battle.playersPerTeam * battle.teams === +playersFilter())
+        if (condFilter() === 'FUNDED') baseSort = baseSort.filter((battle) => battle.ownerFunding > 0)
+        else if (condFilter() === 'STANDARD') baseSort = baseSort.filter((battle) => !battle.ownerFunding)
+
+        if (baseSort.length < 2) return baseSort
 
         if (sortByPrice) { // Sort by price
             baseSort = baseSort.sort((a, b) => {
@@ -126,53 +145,63 @@ function Battles(props) {
 
             <div class='battles-container fadein'>
                 <div class='battles-header'>
-                    <div class='header-section'>
-                        <p class='title'>
-                            <img src='/assets/icons/battles.svg' height='18' alt=''/>
-                            BATTLES
-                        </p>
-
-                        <div class='cost'>
-                            <img src='/assets/icons/coin.svg' height='15'/>
-                            <p>
-                                {Math.floor(totalPriceOfBattles())?.toLocaleString(undefined, { maximumFractionDigits: 0 }) || '0'}
-                                <span class='gray'>
-                                    .{getCents(totalPriceOfBattles())}
-                                </span>
-                            </p>
+                    <div class='filters'>
+                        <div class='filter'>
+                            <p class='filter-label'>State</p>
+                            <select value={toggle()} onChange={(e) => setToggle(e.target.value)}>
+                                <option value='ALL'>All</option>
+                                <option value='JOINABLE'>Joinable</option>
+                                <option value='ENDED'>Ended</option>
+                            </select>
                         </div>
 
-                        <div class='toggle'>
-                            <p>ALL</p>
-                            <Toggle active={toggle() === 'ALL'} toggle={() => setToggle('ALL')}/>
+                        <div class='filter'>
+                            <p class='filter-label'>Modes</p>
+                            <select value={modeFilter()} onChange={(e) => setModeFilter(e.target.value)}>
+                                <option value='ALL'>All</option>
+                                <option value='1V1'>1v1</option>
+                                <option value='2V2'>2v2</option>
+                                <option value='1V1V1'>1v1v1</option>
+                                <option value='1V1V1V1'>1v1v1v1</option>
+                                <option value='GROUP'>Group</option>
+                                <option value='CRAZY'>Crazy</option>
+                            </select>
                         </div>
 
-                        <div class='toggle'>
-                            <p>JOINABLE</p>
-                            <Toggle active={toggle() === 'JOINABLE'} toggle={() => setToggle('JOINABLE')}/>
+                        <div class='filter'>
+                            <p class='filter-label'>Players</p>
+                            <select value={playersFilter()} onChange={(e) => setPlayersFilter(e.target.value)}>
+                                <option value='ALL'>All</option>
+                                <option value='2'>2</option>
+                                <option value='3'>3</option>
+                                <option value='4'>4</option>
+                                <option value='6'>6</option>
+                            </select>
                         </div>
 
-                        <div class='toggle'>
-                            <p>ENDED</p>
-                            <Toggle active={toggle() === 'ENDED'} toggle={() => setToggle('ENDED')}/>
+                        <div class='filter'>
+                            <p class='filter-label'>Conditions</p>
+                            <select value={condFilter()} onChange={(e) => setCondFilter(e.target.value)}>
+                                <option value='ALL'>All</option>
+                                <option value='FUNDED'>Funded</option>
+                                <option value='STANDARD'>Standard</option>
+                            </select>
+                        </div>
+
+                        <div class='filter'>
+                            <p class='filter-label'>Order</p>
+                            <select value={sortByPrice() ? 'FEATURED' : 'NEWEST'} onChange={(e) => setSortByPrice(e.target.value === 'FEATURED')}>
+                                <option value='FEATURED'>Featured</option>
+                                <option value='NEWEST'>Newest</option>
+                            </select>
                         </div>
                     </div>
 
-                    <div class='header-section right'>
-                        <div class='sort'>
-                            <p class={!sortByPrice() ? 'active' : ''}><span class='trim'>SORT BY</span> DATE</p>
-                            <Switch active={sortByPrice()} toggle={() => setSortByPrice(!sortByPrice())}/>
-                            <p class={sortByPrice() ? 'active' : ''}><span class='trim'>SORT BY</span> PRICE</p>
-                        </div>
-
-                        <p class='stat'>{battles()?.length || 0}  <span class='green'>GAMES</span></p>
-                        <p class='stat'>{getJoinable()?.length || 0} <span class='green'>JOINABLE</span></p>
-
-                        <button class='bevel-gold create'>
-                            CREATE NEW
-                            <A href='/battle/create' class='gamemode-link'></A>
-                        </button>
-                    </div>
+                    <button class='create-battle'>
+                        <img src='/assets/icons/battles.svg' height='15' alt=''/>
+                        Create Battle
+                        <A href='/battle/create' class='gamemode-link'></A>
+                    </button>
                 </div>
 
                 <div class='bar'/>
@@ -201,135 +230,117 @@ function Battles(props) {
               .battles-header {
                 display: flex;
                 justify-content: space-between;
-              }
-              
-              .header-section {
-                display: flex;
-                align-items: center;
-                flex-grow: 1;
+                align-items: flex-end;
                 gap: 15px;
               }
-              
-              .right {
-                justify-content: flex-end;
-              }
-              
-              .title {
-                color: #FFF;
-                font-size: 18px;
-                font-weight: 700;
-                
-                display: flex;
-                align-items: center;
-                gap: 8px;
-              }
-              
-              .cost {
-                height: 30px;
-                padding: 0 10px;
-                min-width: 100px;
-                gap: 6px;
-              }
-              
-              .cost p {
-                margin-top: -2px;
-              }
-              
-              .toggle {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                
-                color: #8b92a0;
-                font-size: 12px;
-                font-weight: 700;
-              }
-              
-              .stat {
-                height: 31px;
-                line-height: 31px;
-                
-                color: #FFF;
-                font-size: 13px;
-                font-weight: 600;
-                
-                padding: 0 15px;
-                border-radius: 3px;
-                background: rgba(31, 214, 95, 0.24);
-              }
-              
-              .create {
-                width: 130px;
-                height: 35px;
-                
-                position: relative;
-                
-                font-size: 14px;
-              }
-              
-              .sort {
-                display: flex;
-                align-items: center;
-                gap: 8px;
 
+              .filters {
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+              }
+
+              .filter {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+              }
+
+              .filter-label {
                 color: #8b92a0;
-                font-size: 12px;
+                font-size: 11px;
                 font-weight: 700;
               }
-              
-              .sort p {
-                transition: color .3s;
+
+              .filter select {
+                height: 40px;
+                min-width: 120px;
+                padding: 0 12px;
+
+                outline: unset;
+                border-radius: 6px;
+                background: #171b23;
+                border: 1px solid rgba(255, 255, 255, 0.07);
+
+                color: #FFF;
+                font-family: "Geogrotesque Wide", sans-serif;
+                font-size: 13px;
+                font-weight: 700;
+
+                cursor: pointer;
+                appearance: none;
+                background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' stroke='%238b92a0' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 12px center;
               }
-              
-              .sort p.active {
-                color: white;
+
+              .filter select:hover {
+                border-color: rgba(31, 214, 95, 0.3);
               }
-              
+
+              .create-battle {
+                height: 42px;
+                padding: 0 20px;
+
+                display: flex;
+                align-items: center;
+                gap: 9px;
+
+                outline: unset;
+                border: unset;
+                border-radius: 8px;
+                background: #1fd65f;
+
+                color: #04240f;
+                font-family: "Geogrotesque Wide", sans-serif;
+                font-size: 14px;
+                font-weight: 700;
+                white-space: nowrap;
+
+                position: relative;
+                cursor: pointer;
+                transition: all .2s;
+              }
+
+              .create-battle img {
+                filter: brightness(0.15);
+              }
+
+              .create-battle:hover {
+                background: #45e57f;
+                box-shadow: 0 0 18px rgba(31, 214, 95, 0.4);
+              }
+
               .bar {
                 flex: 1;
                 height: 1px;
                 background: rgba(255,255,255,0.06);
                 margin: 20px 0;
               }
-              
+
               .battles {
                 display: flex;
                 flex-direction: column;
                 width: 100%;
-                gap: 10px;
+                gap: 12px;
               }
 
-              @media only screen and (max-width: 1420px) {
-                .toggle {
-                  display: none;
-                }
-              }
-
-              @media only screen and (max-width: 1180px) {
-                .stat {
-                  display: none;
-                }
-              }
-
-              @media only screen and (max-width: 700px) {
-                .trim {
-                  display: none;
-                }
-              }
-
-              @media only screen and (max-width: 540px) {
+              @media only screen and (max-width: 800px) {
                 .battles-header {
-                  justify-content: center;
                   flex-direction: column;
-                  align-items: center;
-                  gap: 25px;
+                  align-items: stretch;
                 }
-                
-                .right {
-                  justify-content: center;
+
+                .filter {
+                  flex: 1;
+                }
+
+                .filter select {
+                  width: 100%;
+                  min-width: 0;
                 }
               }
-              
+
               @media only screen and (max-width: 1000px) {
                 .battles-container {
                   padding-bottom: 90px;

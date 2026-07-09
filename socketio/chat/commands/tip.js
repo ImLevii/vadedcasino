@@ -23,7 +23,7 @@ module.exports = {
         if (!amount || isNaN(amount)) return sendMessage(socket, 'Invalid amount.');
         
         amount = roundDecimal(amount);
-        if (amount < 5) return sendMessage(socket, 'The minimum tip amount is R$5.');
+        if (amount < 5) return sendMessage(socket, 'The minimum tip amount is 5 coins.');
     
         try {
     
@@ -34,7 +34,7 @@ module.exports = {
        
                 if (!user.sponsorLock) {
                     const [[deposited]] = await connection.query('SELECT SUM(amount) as total FROM transactions WHERE userId = ? AND type = ? AND createdAt > ?', [socket.userId, 'deposit', new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)]);
-                    if (!deposited?.total || deposited.total < 200) return sendMessage(socket, 'You need to have deposited at least R$200 in the last 2 weeks to tip.');
+                    if (!deposited?.total || deposited.total < 200) return sendMessage(socket, 'You need to have deposited at least 200 coins in the last 2 weeks to tip.');
                 }
 
                 const level = getUserLevel(user.xp);
@@ -44,11 +44,11 @@ module.exports = {
                 if (user.tipBan || user.accountLock) return sendMessage(socket, 'You are banned from tipping.');
     
                 if (user.tipAllowance != null && amount > user.tipAllowance) {
-                    return sendMessage(socket, user.tipAllowance ? `You can only tip R$${user.tipAllowance} more before exceeding your tip limit.` : 'You have reached your tip limit.');
+                    return sendMessage(socket, user.tipAllowance ? `You can only tip ${user.tipAllowance} more coins before exceeding your tip limit.` : 'You have reached your tip limit.');
                 }
     
                 if (user.maxPerTip != null && amount > user.maxPerTip) {
-                    return sendMessage(socket, `You can only tip a maximum of R$${user.maxPerTip} per tip.`);
+                    return sendMessage(socket, `You can only tip a maximum of ${user.maxPerTip} coins per tip.`);
                 }
     
                 const [[toUser]] = await connection.query('SELECT id, username, balance FROM users WHERE LOWER(username) = LOWER(?)', [toUserId]);
@@ -57,7 +57,7 @@ module.exports = {
         
                 if (user.maxTipPerUser != null) {
                     const [[{ totalTipped }]] = await connection.query('SELECT SUM(amount) AS totalTipped FROM tips WHERE fromUserId = ? AND toUserId = ?', [user.id, toUser.id]);
-                    if (totalTipped + amount > user.maxTipPerUser) return sendMessage(socket, `You previously tipped R$${totalTipped} to this user, you can only tip a total of R$${user.maxTipPerUser} to each user.`);
+                    if (totalTipped + amount > user.maxTipPerUser) return sendMessage(socket, `You previously tipped ${totalTipped} coins to this user, you can only tip a total of ${user.maxTipPerUser} coins to each user.`);
                 }
     
                 if (user.tipAllowance != null) {
@@ -90,8 +90,8 @@ module.exports = {
                 io.to(user.id).emit('balance', 'set', roundDecimal(user.balance - amount));    
                 io.to(toUser.id).emit('balance', 'set', roundDecimal(toUser.balance + amount));
     
-                sendMessage(socket, `You tipped R$${amount} to ${toUser.username}`, 'success');
-                sendMessage(io.to(toUser.id), `${user.username} Tipped you R$${amount}`, 'success', toUser.id);
+                sendMessage(socket, `You tipped ${amount} coins to ${toUser.username}`, 'success');
+                sendMessage(io.to(toUser.id), `${user.username} Tipped you ${amount} coins`, 'success', toUser.id);
                 sendLog('tips', `*${user.username}* (\`${user.id}\`) tipped *${toUser.username}* (\`${toUser.id}\`) :robux:R$${amount}`);
 
             });

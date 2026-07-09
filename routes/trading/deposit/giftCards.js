@@ -8,6 +8,7 @@ const { roundDecimal, sendLog, newNotification } = require('../../../utils');
 const io = require('../../../socketio/server');
 const { enabledFeatures, depositBonus } = require('../../admin/config');
 const { cryptoData } = require('../crypto/deposit/functions');
+const { activateDepositRewards } = require('../../user/rewards/functions');
 
 router.post('/redeem', [isAuthed, apiLimiter], async (req, res) => {
 
@@ -30,6 +31,7 @@ router.post('/redeem', [isAuthed, apiLimiter], async (req, res) => {
         
             let amount = giftCard.usd ? roundDecimal((giftCard.amount / cryptoData.robuxRate.usd) * cryptoData.robuxRate.robux) : giftCard.amount;
             const [txResult] = await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [user.id, amount, 'deposit', 'giftcard', giftCard.id]);
+            await activateDepositRewards(connection, user.id, amount);
             
             if (depositBonus) {
                 const bonus = roundDecimal(amount * depositBonus);

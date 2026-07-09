@@ -1,0 +1,16 @@
+{
+  "name": "render-emerald",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Offline render pipeline: faceted emerald gem -> VP9 alpha WEBM",
+  "scripts": {
+    "render": "node render.js",
+    "encode": "node encode.js",
+    "build": "node render.js && node encode.js"
+  },
+  "dependencies": {
+    "ffmpeg-static": "^5.2.0",
+    "puppeteer": "^22.15.0",
+    "three": "^0.166.1"
+  }
+}

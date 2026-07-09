@@ -46,7 +46,7 @@ async function refreshCasesCache() {
     }
 
     const [cases] = await sql.query(`
-        SELECT c.id, c.name, c.slug, c.img, cv.price, cv.id as revId, cv.createdAt as modifiedAt FROM cases c
+        SELECT c.id, c.name, c.slug, c.img, c.creatorId, cv.price, cv.id as revId, cv.createdAt as modifiedAt FROM cases c
         INNER JOIN caseVersions cv ON c.id = cv.caseId AND cv.endedAt IS NULL
     `);
 

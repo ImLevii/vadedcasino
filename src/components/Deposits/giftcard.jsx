@@ -3,25 +3,25 @@ import {authedAPI, createNotification} from "../../util/api";
 
 const CARDS = {
     'g2a': [
-        { img: '/assets/art/g2a3.png', link: 'https://www.g2a.com/bloxclash-gift-card-3-usd-bloxclash-key-global-i10000500684001' },
-        { img: '/assets/art/g2a5.png', link: 'https://www.g2a.com/bloxclash-gift-card-5-usd-bloxclash-key-global-i10000500684002' },
-        { img: '/assets/art/g2a10.png', link: 'https://www.g2a.com/bloxclash-gift-card-10-usd-bloxclash-key-global-i10000500684003' },
-        { img: '/assets/art/g2a25.png', link: 'https://www.g2a.com/bloxclash-gift-card-25-usd-bloxclash-key-global-i10000500684004' },
-        { img: '/assets/art/g2a50.png', link: 'https://www.g2a.com/bloxclash-gift-card-50-usd-bloxclash-key-global-i10000500684005' },
-        { img: '/assets/art/g2a100.png', link: 'https://www.g2a.com/bloxclash-gift-card-100-usd-bloxclash-key-global-i10000500684006' },
-        { img: '/assets/art/g2a250.png', link: 'https://www.g2a.com/bloxclash-gift-card-250-usd-bloxclash-key-global-i10000500684007' },
-        { img: '/assets/art/g2a500.png', link: 'https://www.g2a.com/bloxclash-gift-card-500-usd-bloxclash-key-global-i10000500684008' },
+        { img: '/assets/art/g2a3.svg', link: 'https://www.g2a.com/bloxclash-gift-card-3-usd-bloxclash-key-global-i10000500684001' },
+        { img: '/assets/art/g2a5.svg', link: 'https://www.g2a.com/bloxclash-gift-card-5-usd-bloxclash-key-global-i10000500684002' },
+        { img: '/assets/art/g2a10.svg', link: 'https://www.g2a.com/bloxclash-gift-card-10-usd-bloxclash-key-global-i10000500684003' },
+        { img: '/assets/art/g2a25.svg', link: 'https://www.g2a.com/bloxclash-gift-card-25-usd-bloxclash-key-global-i10000500684004' },
+        { img: '/assets/art/g2a50.svg', link: 'https://www.g2a.com/bloxclash-gift-card-50-usd-bloxclash-key-global-i10000500684005' },
+        { img: '/assets/art/g2a100.svg', link: 'https://www.g2a.com/bloxclash-gift-card-100-usd-bloxclash-key-global-i10000500684006' },
+        { img: '/assets/art/g2a250.svg', link: 'https://www.g2a.com/bloxclash-gift-card-250-usd-bloxclash-key-global-i10000500684007' },
+        { img: '/assets/art/g2a500.svg', link: 'https://www.g2a.com/bloxclash-gift-card-500-usd-bloxclash-key-global-i10000500684008' },
     ],
 
     'kinguin': [
-        { img: '/assets/art/kinguin3.png', link: 'https://www.kinguin.net/category/186314/bloxclash-3-gift-card' },
-        { img: '/assets/art/kinguin5.png', link: 'https://www.kinguin.net/category/186853/bloxclash-5-gift-card' },
-        { img: '/assets/art/kinguin10.png', link: 'https://www.kinguin.net/category/186854/bloxclash-10-gift-card' },
-        { img: '/assets/art/kinguin25.png', link: 'https://www.kinguin.net/category/186855/bloxclash-25-gift-card' },
-        { img: '/assets/art/kinguin50.png', link: 'https://www.kinguin.net/category/186856/bloxclash-50-gift-card' },
-        { img: '/assets/art/kinguin100.png', link: 'https://www.kinguin.net/category/186857/bloxclash-100-gift-card' },
-        { img: '/assets/art/kinguin250.png', link: 'https://www.kinguin.net/category/186858/bloxclash-250-gift-card' },
-        { img: '/assets/art/kinguin500.png', link: 'https://www.kinguin.net/category/186859/bloxclash-500-gift-card' },
+        { img: '/assets/art/kinguin3.svg', link: 'https://www.kinguin.net/category/186314/bloxclash-3-gift-card' },
+        { img: '/assets/art/kinguin5.svg', link: 'https://www.kinguin.net/category/186853/bloxclash-5-gift-card' },
+        { img: '/assets/art/kinguin10.svg', link: 'https://www.kinguin.net/category/186854/bloxclash-10-gift-card' },
+        { img: '/assets/art/kinguin25.svg', link: 'https://www.kinguin.net/category/186855/bloxclash-25-gift-card' },
+        { img: '/assets/art/kinguin50.svg', link: 'https://www.kinguin.net/category/186856/bloxclash-50-gift-card' },
+        { img: '/assets/art/kinguin100.svg', link: 'https://www.kinguin.net/category/186857/bloxclash-100-gift-card' },
+        { img: '/assets/art/kinguin250.svg', link: 'https://www.kinguin.net/category/186858/bloxclash-250-gift-card' },
+        { img: '/assets/art/kinguin500.svg', link: 'https://www.kinguin.net/category/186859/bloxclash-500-gift-card' },
     ]
 }
 

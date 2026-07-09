@@ -12,6 +12,7 @@ const { isAuthed, apiLimiter } = require('../../auth/functions');
 const { enabledFeatures, depositBonus } = require('../../admin/config');
 const { roundDecimal, sendLog, newNotification, formatConsoleError } = require('../../../utils');
 const { cryptoData } = require('../crypto/deposit/functions');
+const { activateDepositRewards } = require('../../user/rewards/functions');
 
 const WebSocket = require('ws');
 
@@ -157,6 +158,7 @@ async function incomingIpn(req, res) {
     
             await connection.query('UPDATE cardDeposits SET robuxAmount = ?, completed = 1 WHERE orderId = ?', [robux, orderId]);
             const [txResult] = await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [deposit.userId, robux, 'deposit', 'card', orderId]);
+            await activateDepositRewards(connection, deposit.userId, robux);
     
             if (depositBonus) {
                 const bonus = roundDecimal(robux * depositBonus);

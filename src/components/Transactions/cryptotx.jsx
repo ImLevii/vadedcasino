@@ -59,7 +59,7 @@ function CryptoTX(props) {
           align-items: center;
           flex-wrap: wrap;
 
-          background: rgba(90, 84, 153, 0.27);
+          background: rgba(58, 66, 80, 0.35);
 
           color: #8b92a0;
           font-size: 14px;

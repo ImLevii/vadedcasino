@@ -118,6 +118,9 @@ const adminRoute = require('./routes/admin');
 const surveysRoute = require('./routes/surveys');
 const fairnessRoute = require('./routes/fairness');
 const slidesRoute = require('./routes/slides');
+const { selfLockGuard } = require('./routes/user/security/functions');
+
+app.use(['/cases', '/battles', '/roulette', '/crash', '/coinflip', '/jackpot', '/slots', '/mines', '/blackjack'], selfLockGuard);
 
 app.use('/auth', authRoute);
 app.use('/user', userRoute);

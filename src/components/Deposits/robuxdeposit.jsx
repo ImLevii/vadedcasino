@@ -45,7 +45,7 @@ function RobuxDeposit(props) {
         <>
             <div class='robux-deposit-container'>
                 <div class='deposit-header'>
-                    <p class='type'>You have selected <span class='gold'>ROBUX</span></p>
+                    <p class='type'>You have selected <span class='gold'>COINS</span></p>
 
                     <p>
                         <span class='gold'>Deposit amount: </span>
@@ -73,7 +73,7 @@ function RobuxDeposit(props) {
                     }), true)
 
                     if (res.id) {
-                        createNotification('success', `You are now in position ${res.queuePosition} to deposit your ${robux()} Robux.`)
+                        createNotification('success', `You are now in position ${res.queuePosition} to deposit your ${robux()} coins.`)
                         setTxs([res, ...txs()])
                     }
                 }}>DEPOSIT

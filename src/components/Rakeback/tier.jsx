@@ -56,7 +56,7 @@ function RakebackTier(props) {
 
           <button class='claim-button' onClick={async () => claimRakeback()}>
             {(props?.reward < props?.min) ?
-              `MIN ${props?.min} ROBUX TO CLAIM` : props?.active ? 'CLAIM NOW' : `CLAIM IN ${formatTimeLeft()}`}
+              `MIN ${props?.min} COINS TO CLAIM` : props?.active ? 'CLAIM NOW' : `CLAIM IN ${formatTimeLeft()}`}
           </button>
         </div>
       </div>

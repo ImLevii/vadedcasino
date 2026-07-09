@@ -10,7 +10,8 @@
     "server": "node app.js",
     "server:dev": "nodemon app.js",
     "csgo:import": "node scripts/import-csgo-market-items.js",
-    "csgo:replace-cases": "node scripts/replace-cases-with-cs.js"
+    "csgo:replace-cases": "node scripts/replace-cases-with-cs.js",
+    "gem:build": "npm --prefix scripts/render-emerald run build"
   },
   "license": "MIT",
   "devDependencies": {

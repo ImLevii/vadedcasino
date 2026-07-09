@@ -329,7 +329,7 @@ function FAQ(props) {
                 padding: 0 15px;
 
                 border-radius: 2px;
-                background: rgba(90, 84, 153, 0.35);
+                background: rgba(58, 66, 80, 0.45);
 
                 display: flex;
                 align-items: center;
@@ -342,7 +342,7 @@ function FAQ(props) {
               .active button {
                 border-radius: 2px;
                 border: 1px solid #3a4250;
-                background: rgba(90, 84, 153, 0.05);
+                background: rgba(58, 66, 80, 0.08);
               }
               
               .active button svg {
@@ -363,7 +363,7 @@ function FAQ(props) {
                 width: 100%;
                 height: auto;
 
-                background: #272549;
+                background: #12151c;
                 color: #47C754;
 
                 padding: 15px;

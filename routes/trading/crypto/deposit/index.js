@@ -10,6 +10,7 @@ const { isAuthed, apiLimiter } = require('../../../auth/functions');
 const { cryptoData, coinpayments } = require('./functions');
 const { enabledFeatures, depositBonus } = require('../../../admin/config');
 const { roundDecimal, sendLog, newNotification } = require('../../../../utils');
+const { activateDepositRewards } = require('../../../user/rewards/functions');
 
 router.get('/', async (req, res) => {
     res.json({
@@ -157,7 +158,7 @@ router.post('/ipn', async (req, res) => {
                 depositId = result.insertId;
 
                 if (status != 'completed') {
-                    io.to(userId).emit('toast', 'success', `Your crypto deposit for R$${robux} has been detected and it\'s awaiting confirmation.`, { duration: 30000 });
+                    io.to(userId).emit('toast', 'success', `Your crypto deposit for ${robux} coins has been detected and it\'s awaiting confirmation.`, { duration: 30000 });
                     sendLog('cryptoDeposits', `New pending crypto deposit from *${userId}* - :robux: R$${robux} (#${depositId})`);
                 }
 
@@ -172,6 +173,7 @@ router.post('/ipn', async (req, res) => {
             
             // if (!exists) [[exists]] = await connection.query('SELECT id, userId FROM cryptoDeposits WHERE txId = ? AND currency = ?', [event.txn_id, currency.id]);
             const [txResult] = await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [userId, robux, 'deposit', 'crypto', depositId]);
+            await activateDepositRewards(connection, userId, robux);
 
             if (depositBonus) {
                 const bonus = roundDecimal(robux * depositBonus);
@@ -186,7 +188,7 @@ router.post('/ipn', async (req, res) => {
             res.sendStatus(200);
 
             io.to(userId).emit('balance', 'add', robux);
-            io.to(userId).emit('toast', 'success', `Your deposit of R$${robux} has been completed.`);
+            io.to(userId).emit('toast', 'success', `Your deposit of ${robux} coins has been completed.`);
 
             sendLog('cryptoDeposits', `Crypto deposit from *${userId}* confirmed - :robux: R$${robux} (#${depositId}). \`$${roundDecimal(usd)}usd\`${currency.explorer ? `\n${currency.explorer.replace('%txid%', event.txn_id)}` : ''}`);
 

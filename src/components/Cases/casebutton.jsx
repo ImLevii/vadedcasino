@@ -14,6 +14,10 @@ function CaseButton(props) {
                 </button>
               )}
 
+              {props?.c?.community && (
+                <span class='community-badge'>COMMUNITY</span>
+              )}
+
                 <CaseTitle name={props?.c?.name || 'Unknown'}/>
 
                 <div class='cost'>
@@ -194,6 +198,22 @@ function CaseButton(props) {
               .favorite:hover {
                 color: #1fd65f;
                 transform: translateY(-1px);
+              }
+
+              .community-badge {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                z-index: 3;
+
+                padding: 3px 7px;
+                border-radius: 3px;
+                background: rgba(31, 214, 95, 0.1);
+                border: 1px solid rgba(31, 214, 95, 0.5);
+                color: #1fd65f;
+                font-size: 9px;
+                font-weight: 800;
+                letter-spacing: .4px;
               }
 
               .rarity-track {

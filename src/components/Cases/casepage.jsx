@@ -6,7 +6,7 @@ import CaseItem from "./caseitem";
 import CaseSpinner from "./casespinner";
 import {authedAPI} from "../../util/api";
 import {useUser} from "../../contexts/usercontextprovider";
-import {generateRandomItems} from "../../resources/cases";
+import {generateRandomItems, generateRareItems, getRareItems, isRareItem, maskRareItems} from "../../resources/cases";
 import Toggle from "../Toggle/toggle";
 import {resolveImageSrc} from "../../util/image";
 
@@ -23,6 +23,7 @@ function CasePage(props) {
   const [winningItems, setWinningItems] = createSignal([])
   const [spinTime, setSpinTime] = createSignal(4800)
   const [itemTime, setItemTime] = createSignal(2200)
+  const [cosmicSpin, setCosmicSpin] = createSignal(false)
 
   createEffect(() => {
     if (caseObj() && caseObj()?.items) {
@@ -80,21 +81,53 @@ function CasePage(props) {
   function spinCases(winningItems, newBal) {
     setOffset(getRandomNumber(-64, 64))
 
+    const casePrice = caseObj()?.price
+    const cosmic = cosmicSpin() && getRareItems(caseObj()?.items, casePrice).length > 0
+    const anyRare = cosmic && winningItems.some(item => isRareItem(item, casePrice))
+
     let items = []
     for (let i = 0; i < amount(); i++) {
       items[i] = generateRandomItems(caseObj()?.items)
       items[i][50] = winningItems[i]
+      // Cosmic Spin - every rare item (including a rare win) shows as the Cosmic logo
+      if (cosmic) items[i] = maskRareItems(items[i], casePrice)
     }
 
     setWinningItems(winningItems)
     setSpinnerItems(items)
     setSpinning('spinning')
-    setTimeout(() => {
+
+    const finish = () => {
       setSpinning('win')
       if (newBal)
         setBalance(newBal)
-    }, spinTime() + 500)
-    setTimeout(() => setSpinning(''), spinTime() + itemTime())
+      setTimeout(() => setSpinning(''), itemTime() - 500)
+    }
+
+    if (anyRare) {
+      // Exclusive second spin featuring only rare items
+      setTimeout(() => {
+        setSpinning('')
+        setOffset(getRandomNumber(-64, 64))
+
+        let rareReels = []
+        for (let i = 0; i < amount(); i++) {
+          rareReels[i] = isRareItem(winningItems[i], casePrice)
+            ? generateRareItems(caseObj()?.items, casePrice)
+            : generateRandomItems(caseObj()?.items)
+          rareReels[i][50] = winningItems[i]
+        }
+
+        setSpinnerItems(rareReels)
+
+        requestAnimationFrame(() => {
+          setSpinning('spinning')
+          setTimeout(finish, spinTime() + 500)
+        })
+      }, spinTime() + 900)
+    } else {
+      setTimeout(finish, spinTime() + 500)
+    }
   }
 
   function setCasesToOpen(amt) {
@@ -208,6 +241,15 @@ function CasePage(props) {
           </div>
 
           <div class='controls-right'>
+            {/* Cosmic Spin */}
+            <div class='fast-toggle' onClick={() => {
+              if (spinning() !== '') return
+              setCosmicSpin(!cosmicSpin())
+            }}>
+              <Toggle active={cosmicSpin()} toggle={() => null}/>
+              <span>COSMIC SPIN</span>
+            </div>
+
             {/* Fast open */}
             <div class='fast-toggle' onClick={() => {
               if (spinning() !== '') return
