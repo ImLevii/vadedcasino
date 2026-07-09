@@ -173,7 +173,6 @@ router.post('/:id/open', [isAuthed, apiLimiter], async (req, res) => {
                 UPDATE users SET balance = balance + ?, xp = xp + ? WHERE id = ?
             `, [value, xp, user.id]);
             
-            io.to(user.id).emit('balance', 'set', roundDecimal(user.balance - price));
             await xpChanged(user.id, user.xp, roundDecimal(user.xp + xp), connection);
     
             const [nonceIncrease] = await connection.query('UPDATE serverSeeds SET nonce = nonce + ? WHERE id = ?', [amount, seeds.serverSeedId]);
@@ -196,6 +195,8 @@ router.post('/:id/open', [isAuthed, apiLimiter], async (req, res) => {
             }
 
             await commit();
+
+            io.to(user.id).emit('balance', 'set', roundDecimal(user.balance - price));
     
             res.json({
                 balance: roundDecimal(user.balance + value),

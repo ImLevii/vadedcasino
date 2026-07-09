@@ -45,9 +45,10 @@ router.post('/create', isAuthed, apiLimiter, async (req, res) => {
             
             await connection.query('INSERT INTO bets (userId, amount, edge, game, gameId, completed) VALUES (?, ?, ?, ?, ?, ?)', [user.id, amount, roundDecimal(amount * 0.05), 'coinflip', coinflipId, false]);
     
-            io.to(user.id).emit('balance', 'set', roundDecimal(user.balance - amount));
             await xpChanged(user.id, user.xp, roundDecimal(user.xp + xp), connection);
             await commit();
+
+            io.to(user.id).emit('balance', 'set', roundDecimal(user.balance - amount));
 
             const coinflip = {
                 id: coinflipId,

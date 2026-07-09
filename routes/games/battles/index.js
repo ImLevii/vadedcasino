@@ -100,7 +100,6 @@ router.post('/create', isAuthed, apiLimiter, async (req, res) => {
             const xp = roundDecimal(cost * xpMultiplier);
             await connection.query(`UPDATE users SET balance = balance - ?, xp = xp + ? WHERE id = ?`, [cost, xp, user.id, cost]);
     
-            io.to(user.id).emit('balance', 'set', roundDecimal(user.balance - cost));
             await xpChanged(user.id, user.xp, roundDecimal(user.xp + xp), connection);
     
             const privKey = private ? Math.random().toString(36).substring(2, 6) : null;
@@ -124,6 +123,8 @@ router.post('/create', isAuthed, apiLimiter, async (req, res) => {
             await connection.query('INSERT INTO bets (userId, amount, edge, game, gameId, completed) VALUES (?, ?, ?, ?, ?, ?)', [user.id, cost, roundDecimal(cost * 0.1), 'battle', battleId, false]);
         
             await commit();
+
+            io.to(user.id).emit('balance', 'set', roundDecimal(user.balance - cost));
             res.json({ success: true, battleId, privKey });
     
             const [items] = await connection.query(`
