@@ -2609,3 +2609,17 @@
 [09/Jul/2026:04:06:34 +0000] - GET /user/rewards/overview 200 393.622 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
 [09/Jul/2026:04:06:36 +0000] - POST /user/rewards/daily-case/10/open 200 799.004 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
 [09/Jul/2026:04:06:43 +0000] - GET /user/rewards/overview 200 385.753 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[09/Jul/2026:04:06:52 +0000] - GET /user/notifications 200 135.277 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[09/Jul/2026:04:06:52 +0000] - DELETE /user/notifications/64 200 130.195 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[09/Jul/2026:04:06:53 +0000] - DELETE /user/notifications/63 200 140.277 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[09/Jul/2026:04:06:54 +0000] - GET /user/transactions?page=1 200 131.920 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[09/Jul/2026:04:06:57 +0000] - GET /user/transactions?page=1&methods=crypto 200 67.681 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[09/Jul/2026:04:06:58 +0000] - GET /user/transactions?page=1&methods=robux 200 67.183 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[09/Jul/2026:04:06:58 +0000] - GET /user/transactions?page=1 200 129.270 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[09/Jul/2026:04:07:01 +0000] - GET /admin/dashboard 200 68.101 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[09/Jul/2026:04:07:04 +0000] - POST /admin/2fa 200 64.468 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[09/Jul/2026:04:07:05 +0000] - GET /admin/dashboard 200 541.652 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[09/Jul/2026:04:07:08 +0000] - GET /admin/cases/catalog 200 174.658 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[09/Jul/2026:04:07:08 +0000] - GET /admin/cases 200 268.106 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[09/Jul/2026:04:07:12 +0000] - GET /admin/cases/43 200 302.712 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[09/Jul/2026:04:08:10 +0000] - GET /slides 200 270.919 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
