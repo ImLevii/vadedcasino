@@ -26,6 +26,8 @@ router.use('/', securityRoute);
 router.get('/', isAuthed, async (req, res) => {
 
     const [[user]] = await sql.query('SELECT id, role, username, balance, xp, anon, verified, `2fa`, steamTradeUrl, steamApiKey, selfLockUntil, soundEnabled, visualEffects, notificationsEnabled FROM users WHERE id = ?', [req.userId]);
+    if (!user) return res.status(404).json({ error: 'USER_NOT_FOUND' });
+
     const [[{ notifications }]] = await sql.query('SELECT COUNT(*) as notifications FROM notifications WHERE userId = ? AND seen = 0', [req.userId]);
     user.notifications = notifications;
 
