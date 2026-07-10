@@ -9,6 +9,7 @@ import {useUser} from "../../contexts/usercontextprovider";
 import {generateRandomItems, generateRareItems, getRareItems, isRareItem, maskRareItems} from "../../resources/cases";
 import Toggle from "../Toggle/toggle";
 import {resolveImageSrc} from "../../util/image";
+import CasePreview from "./casepreview";
 
 function CasePage(props) {
 
@@ -24,6 +25,7 @@ function CasePage(props) {
   const [spinTime, setSpinTime] = createSignal(4800)
   const [itemTime, setItemTime] = createSignal(2200)
   const [cosmicSpin, setCosmicSpin] = createSignal(false)
+  const [showPreview, setShowPreview] = createSignal(false)
 
   createEffect(() => {
     if (caseObj() && caseObj()?.items) {
@@ -241,6 +243,15 @@ function CasePage(props) {
           </div>
 
           <div class='controls-right'>
+            {/* Preview button */}
+            <button class='preview-btn' onClick={() => setShowPreview(true)}>
+              <svg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                <path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+                <circle cx='12' cy='12' r='3' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+              </svg>
+              PREVIEW
+            </button>
+
             {/* Cosmic Spin */}
             <div class='fast-toggle' onClick={() => {
               if (spinning() !== '') return
@@ -276,6 +287,11 @@ function CasePage(props) {
         </Show>
 
       </div>
+
+      {/* ── Case Preview Modal ── */}
+      <Show when={showPreview() && caseObj()}>
+        <CasePreview case={caseObj()} onClose={() => setShowPreview(false)}/>
+      </Show>
 
       <style jsx>{`
         .case-page {
@@ -588,6 +604,30 @@ function CasePage(props) {
         .demo-btn:hover {
           background: #222a36;
           color: #fff;
+        }
+
+        .preview-btn {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          height: 32px;
+          padding: 0 12px;
+          border-radius: 6px;
+          border: 1px solid rgba(255,214,88,0.3);
+          background: rgba(255,214,88,0.08);
+          color: #ffd658;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          cursor: pointer;
+          outline: none;
+          transition: background .2s, border-color .2s;
+          white-space: nowrap;
+        }
+
+        .preview-btn:hover {
+          background: rgba(255,214,88,0.16);
+          border-color: rgba(255,214,88,0.5);
         }
 
         /* ── Items grid ── */

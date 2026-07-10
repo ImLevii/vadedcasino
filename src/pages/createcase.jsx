@@ -1,5 +1,5 @@
 import {useNavigate} from "@solidjs/router";
-import {createResource, createSignal, For, Show} from "solid-js";
+import {createResource, createSignal, For, Show, onMount} from "solid-js";
 import {authedAPI, createNotification} from "../util/api";
 import {resolveImageSrc} from "../util/image";
 import Loader from "../components/Loader/loader";
@@ -7,6 +7,7 @@ import Loader from "../components/Loader/loader";
 const COMMISSION_OPTIONS = [0.5, 1, 2, 3, 5]
 const HOUSE_EDGE = 0.05
 const MAX_ITEMS = 20
+const PAGE_SIZE = 60
 
 function CreateCase(props) {
 
@@ -20,10 +21,29 @@ function CreateCase(props) {
 
     const [search, setSearch] = createSignal('')
     const [sort, setSort] = createSignal('asc')
-    const [offset, setOffset] = createSignal(0)
+    const [allItems, setAllItems] = createSignal([])
+    const [loadingMore, setLoadingMore] = createSignal(false)
+    const [hasMore, setHasMore] = createSignal(true)
+    const [totalItems, setTotalItems] = createSignal(0)
+    const [showScrollTop, setShowScrollTop] = createSignal(false)
 
     const [images] = createResource(fetchImages)
-    const [catalog] = createResource(() => `${search()}|${sort()}|${offset()}`, fetchItems)
+
+    let itemsContainerRef
+
+    onMount(() => {
+        loadMoreItems()
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
+    })
+
+    function handleScroll() {
+        setShowScrollTop(window.scrollY > 600)
+    }
+
+    function scrollToTop() {
+        window.scrollTo({top: 0, behavior: 'smooth'})
+    }
 
     async function fetchImages() {
         try {
@@ -34,12 +54,45 @@ function CreateCase(props) {
         }
     }
 
-    async function fetchItems() {
+    async function loadMoreItems() {
+        if (loadingMore() || !hasMore()) return
+        setLoadingMore(true)
+
         try {
-            return await authedAPI(`/cases/community/items?search=${encodeURIComponent(search())}&sort=${sort()}&offset=${offset()}`, 'GET', null)
+            const offset = allItems().length
+            const res = await authedAPI(`/cases/community/items?search=${encodeURIComponent(search())}&sort=${sort()}&offset=${offset}`, 'GET', null)
+            if (res) {
+                setAllItems([...allItems(), ...(res.items || [])])
+                setTotalItems(res.total || 0)
+                if (!res.items || res.items.length < PAGE_SIZE) {
+                    setHasMore(false)
+                }
+            }
         } catch (e) {
             console.log(e)
-            return null
+        } finally {
+            setLoadingMore(false)
+        }
+    }
+
+    function handleSearchInput(e) {
+        setSearch(e.target.value)
+        setAllItems([])
+        setHasMore(true)
+        loadMoreItems()
+    }
+
+    function handleSortToggle() {
+        setSort(sort() === 'asc' ? 'desc' : 'asc')
+        setAllItems([])
+        setHasMore(true)
+        loadMoreItems()
+    }
+
+    function handleItemsScroll(e) {
+        const el = e.target
+        if (el.scrollHeight - el.scrollTop - el.clientHeight < 200) {
+            loadMoreItems()
         }
     }
 
@@ -79,6 +132,32 @@ function CreateCase(props) {
 
     function setProbability(id, value) {
         setSelected(selected().map(e => e.id === id ? {...e, probability: value} : e))
+    }
+
+    function handleProbabilityInput(id, e) {
+        let val = e.target.value
+        // Allow typing "." by handling it as a string
+        if (val === '.' || val === '') {
+            setProbability(id, val)
+            return
+        }
+        // Only allow valid decimal numbers
+        if (/^\d*\.?\d*$/.test(val)) {
+            setProbability(id, val)
+        }
+    }
+
+    function handleProbabilityBlur(id, e) {
+        let val = e.target.value
+        if (val === '' || val === '.') {
+            setProbability(id, '')
+            return
+        }
+        // Format to max 3 decimal places
+        let num = Number(val)
+        if (!isNaN(num)) {
+            setProbability(id, num.toFixed(3))
+        }
     }
 
     async function createCase() {
@@ -155,43 +234,39 @@ function CreateCase(props) {
 
                         <div class='items-controls'>
                             <input type='text' placeholder='Search for items...' value={search()}
-                                   onInput={(e) => {
-                                       setOffset(0)
-                                       setSearch(e.target.value)
-                                   }}/>
-                            <button class='sort-btn' onClick={() => setSort(sort() === 'asc' ? 'desc' : 'asc')}>
+                                   onInput={handleSearchInput}/>
+                            <button class='sort-btn' onClick={handleSortToggle}>
                                 Price {sort() === 'asc' ? 'Ascending' : 'Descending'}
                             </button>
                         </div>
 
-                        <Show when={!catalog.loading} fallback={<Loader/>}>
-                            <div class='items-grid'>
-                                <For each={catalog()?.items || []}>
-                                    {(item) => (
-                                        <button class={'item-card ' + (isSelected(item) ? 'selected' : '')}
-                                                onClick={() => toggleItem(item)}>
-                                            <img src={item.img} alt='' loading='lazy'/>
-                                            <p class='item-type'>{item.type || 'Item'}</p>
-                                            <p class='item-name'>{item.name}</p>
-                                            <p class='item-price align'>
-                                                <img src='/assets/icons/coin.svg' height='10' width='10' alt=''/>
-                                                {coins(item.price)}
-                                            </p>
-                                        </button>
-                                    )}
-                                </For>
-                            </div>
-
-                            <div class='pager'>
-                                <button disabled={offset() === 0}
-                                        onClick={() => setOffset(Math.max(0, offset() - 60))}>Prev
-                                </button>
-                                <p>{offset() + 1}-{Math.min(offset() + 60, catalog()?.total || 0)} of {(catalog()?.total || 0).toLocaleString()}</p>
-                                <button disabled={offset() + 60 >= (catalog()?.total || 0)}
-                                        onClick={() => setOffset(offset() + 60)}>Next
-                                </button>
-                            </div>
-                        </Show>
+                        <div class='items-grid scroll-items' ref={itemsContainerRef} onScroll={handleItemsScroll}>
+                            <For each={allItems()}>
+                                {(item) => (
+                                    <button class={'item-card ' + (isSelected(item) ? 'selected' : '')}
+                                            onClick={() => toggleItem(item)}>
+                                        <img src={item.img} alt='' loading='lazy'/>
+                                        <p class='item-type'>{item.type || 'Item'}</p>
+                                        <p class='item-name'>{item.name}</p>
+                                        <p class='item-price align'>
+                                            <img src='/assets/icons/coin.svg' height='10' width='10' alt=''/>
+                                            {coins(item.price)}
+                                        </p>
+                                    </button>
+                                )}
+                            </For>
+                            <Show when={loadingMore()}>
+                                <div class='scroll-loader'>
+                                    <Loader/>
+                                </div>
+                            </Show>
+                            <Show when={!hasMore() && allItems().length > 0}>
+                                <p class='end-text'>Showing all {totalItems().toLocaleString()} items</p>
+                            </Show>
+                            <Show when={!loadingMore() && allItems().length === 0}>
+                                <p class='empty-text'>No items found.</p>
+                            </Show>
+                        </div>
                     </div>
 
                     <div class='panel chances-panel'>
@@ -219,10 +294,11 @@ function CreateCase(props) {
                                         <div class='chance-row'>
                                             <div class='chance-input'>
                                                 <span class='pct-icon'>%</span>
-                                                <input type='number' min='0.001' max='99.999' step='0.001'
+                                                <input type='text' inputmode='decimal' min='0.001' max='99.999'
                                                        value={item.probability}
                                                        placeholder='0.00'
-                                                       onInput={(e) => setProbability(item.id, e.target.value)}/>
+                                                       onInput={(e) => handleProbabilityInput(item.id, e)}
+                                                       onBlur={(e) => handleProbabilityBlur(item.id, e)}/>
                                             </div>
                                             <div class='chance-value align'>
                                                 +&nbsp;
@@ -269,6 +345,15 @@ function CreateCase(props) {
                     </div>
                 </div>
             </div>
+
+            {/* Scroll to top button */}
+            <Show when={showScrollTop()}>
+                <button class='scroll-top-btn' onClick={scrollToTop}>
+                    <svg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                        <path d='M12 20V4M12 4L6 10M12 4L18 10' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/>
+                    </svg>
+                </button>
+            </Show>
 
             <style jsx>{`
               .create-case-container {
@@ -480,6 +565,35 @@ function CreateCase(props) {
                 overflow-y: auto;
               }
 
+              .scroll-items {
+                scroll-behavior: smooth;
+              }
+
+              .scroll-loader {
+                grid-column: 1 / -1;
+                display: flex;
+                justify-content: center;
+                padding: 16px;
+              }
+
+              .end-text {
+                grid-column: 1 / -1;
+                text-align: center;
+                color: #5c6474;
+                font-size: 12px;
+                font-weight: 600;
+                padding: 12px;
+              }
+
+              .empty-text {
+                grid-column: 1 / -1;
+                text-align: center;
+                color: #5c6474;
+                font-size: 12px;
+                font-weight: 600;
+                padding: 24px;
+              }
+
               .item-card {
                 display: flex;
                 flex-direction: column;
@@ -539,35 +653,6 @@ function CreateCase(props) {
                 display: flex;
                 align-items: center;
                 gap: 3px;
-              }
-
-              .pager {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 12px;
-                color: #8b92a0;
-                font-size: 12px;
-                font-weight: 600;
-              }
-
-              .pager button {
-                height: 28px;
-                padding: 0 12px;
-                outline: unset;
-                border-radius: 4px;
-                background: #1a1f29;
-                border: 1px solid #2c3340;
-                color: #8b92a0;
-                font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 12px;
-                font-weight: 700;
-                cursor: pointer;
-              }
-
-              .pager button:disabled {
-                opacity: 0.4;
-                cursor: default;
               }
 
               .selected-list {
@@ -748,6 +833,47 @@ function CreateCase(props) {
               .create-btn:disabled {
                 opacity: 0.6;
                 cursor: default;
+              }
+
+              /* Scroll to top button */
+              .scroll-top-btn {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                z-index: 9999;
+
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                border: 1px solid rgba(31, 214, 95, 0.4);
+                background: rgba(18, 21, 28, 0.92);
+                backdrop-filter: blur(8px);
+                color: #1fd65f;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+                transition: all .2s;
+                animation: fadeInUp 0.3s ease;
+              }
+
+              .scroll-top-btn:hover {
+                background: rgba(31, 214, 95, 0.15);
+                border-color: #1fd65f;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 24px rgba(31, 214, 95, 0.2);
+              }
+
+              @keyframes fadeInUp {
+                from {
+                  opacity: 0;
+                  transform: translateY(12px);
+                }
+                to {
+                  opacity: 1;
+                  transform: translateY(0);
+                }
               }
 
               @media only screen and (max-width: 1000px) {
