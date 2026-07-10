@@ -676,23 +676,23 @@ function CreateBattle(props) {
               .range::-webkit-slider-thumb {
                 -webkit-appearance: none;
                 appearance: none;
-                width: 15px;
-                height: 15px;
+                width: 13px;
+                height: 13px;
                 background: white;
                 cursor: pointer;
                 border-radius: 50%;
-                box-shadow: 0 0 0 4px rgba(31,214,95,0.11), 0 0 16px rgba(31,214,95,0.25);
+                box-shadow: 0 0 0 3px rgba(31,214,95,0.08);
               }
 
               .range::-moz-range-thumb {
                 -webkit-appearance: none;
                 appearance: none;
-                width: 15px;
-                height: 15px;
+                width: 13px;
+                height: 13px;
                 background: white;
                 cursor: pointer;
                 border-radius: 50%;
-                box-shadow: 0 0 0 4px rgba(31,214,95,0.11), 0 0 16px rgba(31,214,95,0.25);
+                box-shadow: 0 0 0 3px rgba(31,214,95,0.08);
               }
 
               .coin-text {
