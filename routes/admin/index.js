@@ -67,6 +67,7 @@ const announcementsRoute = require('./announcements');
 const casesRoute = require('./cases');
 const slidesRoute = require('./slides');
 const rewardsRoute = require('./rewards');
+const gamesRoute = require('./games');
 
 router.use('/users', usersRoute);
 router.use('/phrases', phrasesRoute);
@@ -79,5 +80,6 @@ router.use('/announcements', announcementsRoute);
 router.use('/cases', casesRoute);
 router.use('/slides', slidesRoute);
 router.use('/rewards', rewardsRoute);
+router.use('/games', gamesRoute);
 
 module.exports = router;

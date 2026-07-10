@@ -5,6 +5,7 @@ const { mapItem } = require('../cases/functions');
 const { getEOSBlockNumber, waitForEOSBlock } = require('../../../fairness/eos');
 const { newBets } = require('../../../socketio/bets');
 const { getResult, combine, sha256 } = require('../../../fairness');
+const { getGameConfig } = require('../../../routes/admin/gameConfig');
 
 const cachedBattles = {};
 
@@ -498,7 +499,7 @@ async function startBattle(battle, players) {
         return {
             user: e,
             amount: cost,
-            edge: roundDecimal(amount * 0.1),
+            edge: roundDecimal(amount * (getGameConfig('battles', 'houseEdge', 10) / 100)),
             payout: winner ? amount : 0,
             game: 'battle'
         }

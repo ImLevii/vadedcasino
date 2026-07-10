@@ -184,6 +184,7 @@ const { cacheAdmin } = require('./routes/admin/config');
 const { cacheSlots } = require('./routes/games/slots/functions');
 const { cacheSurveys } = require('./routes/surveys/functions');
 const { cacheLeaderboards } = require('./routes/leaderboard/functions');
+const { cacheGameConfig } = require('./routes/admin/gameConfig');
 
 async function start() {
 
@@ -211,7 +212,8 @@ async function start() {
         cacheAdmin,
         cacheSlots,
         cacheSurveys,
-        cacheLeaderboards
+        cacheLeaderboards,
+        cacheGameConfig
     ];
 
     await Promise.all(promises.map((p) => timedPromise(p(), p.name)));

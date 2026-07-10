@@ -17,6 +17,7 @@
     "db:bootstrap:admin": "node scripts/bootstrap-local-db.js admin admin",
     "db:create-admin": "node scripts/create-admin.js",
     "db:fix-schema": "node scripts/fix-schema.js",
+    "db:migrate": "node scripts/apply-migrations.js",
     "csgo:import": "node scripts/import-csgo-market-items.js",
     "csgo:replace-cases": "node scripts/replace-cases-with-cs.js",
     "gem:build": "npm --prefix scripts/render-emerald run build"

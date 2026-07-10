@@ -29,6 +29,8 @@ const AdminRewards = lazy(() => import('./components/Admin/rewards'))
 const AdminSlides = lazy(() => import('./components/Admin/slides'))
 const AdminStatsbook = lazy(() => import('./components/Admin/statsbook'))
 const AdminSettings = lazy(() => import('./components/Admin/settings'))
+const AdminGameSettings = lazy(() => import('./components/Admin/gamesettings'))
+const AdminProbability = lazy(() => import('./components/Admin/probability'))
 
 const Mines = lazy(() => import('./pages/mines'))
 const Crash = lazy(() => import('./pages/crash'))
@@ -470,6 +472,18 @@ function App() {
                           <Route path='/settings' element={
                             <Suspense fallback={<Loader/>}>
                               <AdminSettings/>
+                            </Suspense>
+                          }/>
+
+                          <Route path='/games' element={
+                            <Suspense fallback={<Loader/>}>
+                              <AdminGameSettings/>
+                            </Suspense>
+                          }/>
+
+                          <Route path='/games/probability' element={
+                            <Suspense fallback={<Loader/>}>
+                              <AdminProbability/>
                             </Suspense>
                           }/>
                         </Route>

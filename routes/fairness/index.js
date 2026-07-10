@@ -86,6 +86,136 @@ router.post('/seeds/rotate', [isAuthed, apiLimiter], async (req, res) => {
 
 });
 
+// Public: Get house edge settings for all games
+router.get('/config', async (req, res) => {
+    try {
+        const { getAllGameSettings, getGameConfig } = require('../../routes/admin/gameConfig');
+        
+        const games = ['crash', 'mines', 'roulette', 'coinflip', 'jackpot', 'blackjack'];
+        const config = {};
+        
+        for (const game of games) {
+            config[game] = {
+                houseEdge: getGameConfig(game, 'houseEdge', 5),
+                enabled: true
+            };
+        }
+        
+        res.json({ success: true, data: config });
+    } catch (e) {
+        console.error('[fairness/config] Error:', e);
+        res.json({ success: true, data: {} });
+    }
+});
+
+// Verify a specific crash round fairness
+router.get('/verify/crash/:id', async (req, res) => {
+    try {
+        const [[round]] = await sql.query(
+            'SELECT id, serverSeed, crashPoint, createdAt FROM crash WHERE id = ?',
+            [req.params.id]
+        );
+        
+        if (!round) return res.status(404).json({ error: 'ROUND_NOT_FOUND' });
+        
+        // Recalculate crash point
+        const { getGameConfig } = require('../../routes/admin/gameConfig');
+        const houseEdge = getGameConfig('crash', 'houseEdge', 4);
+        const edgeDecimal = houseEdge / 100;
+        const hash = require('crypto').createHash('sha256').update(round.serverSeed).digest('hex');
+        const h = parseInt(hash.slice(0, 8), 16);
+        const houseCrashDivisor = Math.max(2, Math.round(25 * (edgeDecimal / 0.04)));
+        const result = Math.floor((2 ** 32 / (h + 1)) * (1 - edgeDecimal) * 100) / 100;
+        const verifiedCrashPoint = Math.max(1.00, result);
+        
+        res.json({
+            success: true,
+            data: {
+                id: round.id,
+                serverSeed: round.serverSeed,
+                crashPoint: Number(round.crashPoint),
+                verifiedCrashPoint,
+                match: Number(round.crashPoint) === verifiedCrashPoint,
+                houseEdgeAtTime: houseEdge
+            }
+        });
+    } catch (e) {
+        console.error('[fairness/verify/crash] Error:', e);
+        res.status(500).json({ error: 'INTERNAL_ERROR' });
+    }
+});
+
+// Verify a roulette round fairness
+router.get('/verify/roulette/:id', async (req, res) => {
+    try {
+        const [[round]] = await sql.query(
+            'SELECT id, serverSeed, result, color, rolledAt FROM roulette WHERE id = ?',
+            [req.params.id]
+        );
+        
+        if (!round || !round.serverSeed) return res.status(404).json({ error: 'ROUND_NOT_FOUND_OR_NO_SEED' });
+        
+        // Recalculate
+        const hash = require('crypto').createHash('sha256').update(round.serverSeed).digest('hex');
+        const h = parseInt(hash.slice(0, 8), 16);
+        const verifiedResult = h % 15;
+        
+        res.json({
+            success: true,
+            data: {
+                id: round.id,
+                serverSeed: round.serverSeed,
+                result: round.result,
+                verifiedResult,
+                color: round.color,
+                match: Number(round.result) === verifiedResult
+            }
+        });
+    } catch (e) {
+        console.error('[fairness/verify/roulette] Error:', e);
+        res.status(500).json({ error: 'INTERNAL_ERROR' });
+    }
+});
+
+// Verify a coinflip round fairness
+router.get('/verify/coinflip/:id', async (req, res) => {
+    try {
+        const [[round]] = await sql.query(
+            'SELECT id, serverSeed, clientSeed, winnerSide, startedAt FROM coinflips WHERE id = ?',
+            [req.params.id]
+        );
+        
+        if (!round) return res.status(404).json({ error: 'ROUND_NOT_FOUND' });
+        if (!round.clientSeed) return res.json({ success: true, data: { id: round.id, status: 'pending', message: 'Round has not been resolved yet' } });
+        
+        const combine = (serverSeed, clientSeed) => {
+            return require('crypto').createHmac('sha256', serverSeed).update(clientSeed).digest('hex');
+        };
+        const getResult = hashedValue => {
+            const number = parseInt(hashedValue.charAt(1), 16);
+            return (number % 2 === 0) ? 'ice' : 'fire';
+        };
+        
+        const verifiedWinner = getResult(combine(round.serverSeed, round.clientSeed));
+        
+        res.json({
+            success: true,
+            data: {
+                id: round.id,
+                serverSeed: round.serverSeed,
+                clientSeed: round.clientSeed,
+                winnerSide: round.winnerSide,
+                verifiedWinnerSide: verifiedWinner,
+                match: round.winnerSide === verifiedWinner
+            }
+        });
+    } catch (e) {
+        console.error('[fairness/verify/coinflip] Error:', e);
+        res.status(500).json({ error: 'INTERNAL_ERROR' });
+    }
+});
+
+// Legacy fallback
 router.get('/:id', (req, res) => {
     res.status(501).json({ error: 'Fairness verification not yet implemented' });
 });

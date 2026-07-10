@@ -1,13 +1,13 @@
 const { sql, doTransaction } = require('../../../database');
 const { newBets } = require('../../../socketio/bets');
 const { sleep, roundDecimal } = require('../../../utils');
+const { getGameConfig } = require('../../../routes/admin/gameConfig');
+const { generateServerSeed } = require('../../../fairness');
 const io = require('../../../socketio/server');
+const crypto = require('crypto');
 
-const colorsMultipliers = {
-    0: 14,
-    1: 2,
-    2: 2,
-    3: 7
+function getColorsMultipliers() {
+    return getGameConfig('roulette', 'colorsMultipliers', {0:14,1:2,2:2,3:7});
 }
 
 function resultToColor(result) {
@@ -27,18 +27,26 @@ const roulette = {
     bets: [],
     last: [],
     config: {
-        maxBet: 25000,
-        betTime: 10000,
-        rollTime: 5000
+        maxBet: getGameConfig('roulette', 'maxBet', 25000),
+        betTime: getGameConfig('roulette', 'betTime', 10000),
+        rollTime: getGameConfig('roulette', 'rollTime', 5000)
     }
 };
 
 const lastResults = 100;
 
+// Provably fair roulette result using server seed
+function computeRouletteResult(serverSeed) {
+    const hash = crypto.createHash('sha256').update(serverSeed).digest('hex');
+    const h = parseInt(hash.slice(0, 8), 16);
+    return h % 15; // 0-14
+}
+
 async function createRouletteRound() {
-    const result = Math.floor(Math.random() * 15); // 0-14
+    const serverSeed = generateServerSeed();
+    const result = computeRouletteResult(serverSeed);
     const color = resultToColor(result);
-    const [ins] = await sql.query('INSERT INTO roulette (result, color) VALUES (?, ?)', [result, color]);
+    const [ins] = await sql.query('INSERT INTO roulette (result, color, serverSeed) VALUES (?, ?, ?)', [result, color, serverSeed]);
     const [[newRound]] = await sql.query('SELECT * FROM roulette WHERE id = ?', [ins.insertId]);
     return newRound;
 }
@@ -150,18 +158,21 @@ async function rouletteInterval() {
             const updateBetsStmt = await connection.prepare('UPDATE bets SET completed = 1, winnings = ? WHERE game = ? AND gameId = ?');
             const socketBets = [];
 
+            const colorsMultipliers = getColorsMultipliers();
+            const rouletteEdge = getGameConfig('roulette', 'houseEdge', 5);
+            
             for (const bet of roulette.bets) {
                 const color = roulette.round.color;
                 let won = 0;
     
                 if (betWins(bet.color, roulette.round.result, color)) {
-                    won = bet.amount * colorsMultipliers[bet.color];
+                    won = bet.amount * (colorsMultipliers[bet.color] || 2);
                     await updateUserBalanceStmt.execute([won, bet.user.id]);
                     io.to(bet.user.id).emit('balance', 'add', won);
                 }
     
                 await updateBetsStmt.execute([won, 'roulette', bet.id]);
-                socketBets.push({ user: bet.user, amount: bet.amount, edge: roundDecimal(bet.amount * 0.05), payout: won, game: 'roulette' });
+                socketBets.push({ user: bet.user, amount: bet.amount, edge: roundDecimal(bet.amount * (rouletteEdge / 100)), payout: won, game: 'roulette' });
             }
                 
             await commit();
@@ -187,6 +198,6 @@ module.exports = {
     roulette,
     resultToColor,
     betWins,
-    colorsMultipliers,
+    getColorsMultipliers,
     cacheRoulette
 }

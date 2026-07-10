@@ -1,18 +1,19 @@
 const { sql, doTransaction } = require('../../../database');
 const { newBets } = require('../../../socketio/bets');
 const { sleep, roundDecimal } = require('../../../utils');
-const { sha256, generateServerSeed } = require('../../../fairness') 
+const { sha256, generateServerSeed } = require('../../../fairness');
 const io = require('../../../socketio/server');
 const crypto = require('crypto');
+const { getGameConfig } = require('../../../routes/admin/gameConfig');
 
 const crash = {
     round: {},
     bets: [],
     last: [],
     config: {
-        betTime: 10000,
-        tick: 150,
-        maxProfit: 1000000
+        betTime: getGameConfig('crash', 'betTime', 10000),
+        tick: getGameConfig('crash', 'tickRate', 150),
+        maxProfit: getGameConfig('crash', 'maxProfit', 1000000)
     }
 };
 
@@ -22,12 +23,16 @@ const growthFunc = ms => Math.floor(100 * Math.pow(Math.E, 0.00006 * ms)) / 100;
 const lastResults = 10;
 const tickRate = crash.config.tick;
 
-// Provably fair crash point from server seed (4% house edge)
+// Provably fair crash point from server seed (dynamic house edge)
 function computeCrashPoint(serverSeed) {
+    const houseEdge = getGameConfig('crash', 'houseEdge', 4);
+    const edgeDecimal = houseEdge / 100;
     const hash = crypto.createHash('sha256').update(serverSeed).digest('hex');
     const h = parseInt(hash.slice(0, 8), 16);
-    if (h % 25 === 0) return 1.00; // 4% house wins instantly
-    const result = Math.floor((2 ** 32 / (h + 1)) * 0.96 * 100) / 100;
+    // House edge determines the frequency of immediate crash
+    const houseCrashDivisor = Math.max(2, Math.round(25 * (edgeDecimal / 0.04)));
+    if (h % houseCrashDivisor === 0) return 1.00;
+    const result = Math.floor((2 ** 32 / (h + 1)) * (1 - edgeDecimal) * 100) / 100;
     return Math.max(1.00, result);
 }
 
@@ -157,10 +162,11 @@ function processCashoutsBelow(multiplier) {
             winnings: bet.winnings
         });
 
+        const crashEdge = getGameConfig('crash', 'houseEdge', 4);
         newBets([{
             user: bet.user,
             amount: bet.amount,
-            edge: roundDecimal(bet.amount * 0.075),
+            edge: roundDecimal(bet.amount * (crashEdge / 100 + 0.035)),
             payout: bet.winnings,
             game: 'crash'
         }]);
@@ -233,10 +239,11 @@ async function crashInterval() {
 
     if (crash.bets.length) {
 
+        const crashEdge = getGameConfig('crash', 'houseEdge', 4);
         const losers = crash.bets.map(bet => {
-        
+         
             if (bet.cashoutPoint) return;
-            return { user: bet.user, amount: bet.amount, edge: roundDecimal(bet.amount * 0.075), payout: 0, game: 'crash' };
+            return { user: bet.user, amount: bet.amount, edge: roundDecimal(bet.amount * (crashEdge / 100 + 0.035)), payout: 0, game: 'crash' };
 
         }).filter(bet => bet);
 

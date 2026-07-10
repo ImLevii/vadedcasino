@@ -1,8 +1,9 @@
 const _ = require("lodash");
 const crypto = require("crypto");
+const { getGameConfig } = require('../../../routes/admin/gameConfig');
 
-const houseEdge = 7.5 / 100;
-const totalTiles = 25;
+const houseEdge = () => getGameConfig('mines', 'houseEdge', 7.5) / 100;
+const totalTiles = () => getGameConfig('mines', 'totalTiles', 25);
 
 function shuffle(array,floats, includeMatrix = false) {
 
@@ -65,35 +66,34 @@ function generateFloats(serverSeed, clientSeed, nonce, cursor, count) {
 
 }
 
-function generateMinePositions(serverSeed, clientSeed, nonce, mines) {
-
-    const floats = _.flatten(
-        generateFloats(serverSeed, clientSeed, nonce, 0, mines)
-    ).map((float, index) => float * (25 - index));
-
-    const minePositions = shuffle(
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
-        floats
-    ).slice(0, mines);
-
-    return minePositions;
-
-}
-
 function calculateMultiplier(mineCount, revealedTiles) {
 
     if (revealedTiles < 1) return 1;
+    const tiles = totalTiles();
 
     let successProbability = 1;
     for (let i = 0; i < revealedTiles; i++) {
-        successProbability *= (totalTiles - mineCount - i) / (totalTiles - i);
+        successProbability *= (tiles - mineCount - i) / (tiles - i);
     }
 
     const idealMultiplier = 1 / successProbability;
-    const adjustedMultiplier = idealMultiplier * (1 - houseEdge);
+    const adjustedMultiplier = idealMultiplier * (1 - houseEdge());
 
     return +(adjustedMultiplier.toFixed(2));
 
+}
+
+function generateMinePositions(serverSeed, clientSeed, nonce, mines) {
+
+    const tiles = totalTiles();
+    const floats = _.flatten(
+        generateFloats(serverSeed, clientSeed, nonce, 0, mines)
+    ).map((float, index) => float * (tiles - index));
+
+    const positions = Array.from({ length: tiles }, (_, i) => i);
+    const minePositions = shuffle(positions, floats).slice(0, mines);
+
+    return minePositions;
 }
 
 module.exports = {

@@ -5,16 +5,21 @@ const { sha256, generateServerSeed } = require('../../../fairness');
 const { getEOSBlockNumber, waitForEOSBlock } = require('../../../fairness/eos');
 const io = require('../../../socketio/server');
 const crypto = require('crypto');
+const { getGameConfig } = require('../../../routes/admin/gameConfig');
+
+function getJackpotHouseEdge() { return getGameConfig('jackpot', 'houseEdge', 5); }
+function getJackpotMinPlayers() { return getGameConfig('jackpot', 'minPlayers', 2); }
+function getJackpotBetTime() { return getGameConfig('jackpot', 'betTime', 30000); }
 
 const jackpot = {
     round: {},
     bets: [],
     config: {
-        minPlayers: 2,
-        betTime: 30000,
+        minPlayers: getJackpotMinPlayers(),
+        betTime: getJackpotBetTime(),
         rollTime: 5000,
-        minBet: 1,
-        maxBet: 20000
+        minBet: getGameConfig('jackpot', 'minBet', 1),
+        maxBet: getGameConfig('jackpot', 'maxBet', 20000)
     }
 };
 
@@ -216,7 +221,8 @@ async function jackpotInterval() {
             const socketBets = [];
             const betIds = [];
 
-            const winnings = roundDecimal(jackpot.round.amount * 0.95);
+            const houseEdge = getJackpotHouseEdge();
+            const winnings = roundDecimal(jackpot.round.amount * (1 - houseEdge / 100));
 
             for (const bet of jackpot.bets) {
 
@@ -231,7 +237,7 @@ async function jackpotInterval() {
                     }
                 }
 
-                socketBets.push({ user: bet.user, amount: bet.amount, edge: roundDecimal(bet.amount * 0.05), payout: won, game: 'jackpot' });
+                socketBets.push({ user: bet.user, amount: bet.amount, edge: roundDecimal(bet.amount * (houseEdge / 100)), payout: won, game: 'jackpot' });
 
             }
 
@@ -271,7 +277,8 @@ async function makeBotJoin(amount = jackpot.round.amount) {
             const ticketsTo = ticketsFrom + (amount * 100) - 1;
     
             const [jackpotBetResult] = await connection.query('INSERT INTO jackpotBets (userId, jackpotId, amount, ticketsFrom, ticketsTo) VALUES (?, ?, ?, ?, ?)', [bot.id, jackpot.round.id, amount, ticketsFrom, ticketsTo]);
-            const [betResult] = await connection.query('INSERT INTO bets (userId, amount, edge, game, gameId, completed) VALUES (?, ?, ?, ?, ?, ?)', [bot.id, amount, roundDecimal(amount * 0.05), 'jackpot', jackpotBetResult.insertId, false]);
+    const houseEdge = getJackpotHouseEdge();
+    const [betResult] = await connection.query('INSERT INTO bets (userId, amount, edge, game, gameId, completed) VALUES (?, ?, ?, ?, ?, ?)', [bot.id, amount, roundDecimal(amount * (houseEdge / 100)), 'jackpot', jackpotBetResult.insertId, false]);
     
             jackpot.round.amount = roundDecimal(jackpot.round.amount + amount);
             await connection.query('UPDATE jackpot SET amount = ? WHERE id = ?', [jackpot.round.amount, jackpot.round.id]);

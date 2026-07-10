@@ -8,8 +8,7 @@ const io = require('../../../socketio/server');
 
 const { sql, doTransaction } = require('../../../database');
 const { roundDecimal, xpChanged } = require('../../../utils');
-
-const houseEdge = 0.5 / 100;
+const { getGameConfig } = require('../../admin/gameConfig');
 
 router.use(isAuthed);
 
@@ -100,7 +99,8 @@ router.post('/', async (req, res) => {
             
             }
     
-            const edge = roundDecimal(amount * houseEdge);
+            const blackjackEdge = getGameConfig('blackjack', 'houseEdge', 2.5);
+            const edge = roundDecimal(amount * (blackjackEdge / 100));
             await connection.query('INSERT INTO bets (userId, amount, winnings, edge, game, gameId, completed) VALUES (?, ?, ?, ?, ?, ?, ?)', [req.userId, amount, game.payout, edge, 'blackjack', game.id, game.endedAt ? 1 : 0]);
             await xpChanged(user.id, user.xp, roundDecimal(user.xp + xp), connection);
     

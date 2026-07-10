@@ -14,7 +14,9 @@ const URL_TO_PAGE = {
     '/admin/rewards': 'REWARDS',
     '/admin/slides': 'SLIDER',
     '/admin/statsbook': 'STATSBOOK',
-    '/admin/settings': 'SETTINGS'
+    '/admin/settings': 'SETTINGS',
+    '/admin/games': 'GAME CONTROL',
+    '/admin/games/probability': 'FAIRNESS'
 }
 
 function Admin(props) {
@@ -73,6 +75,8 @@ function Admin(props) {
                                 <A href='/admin/slides' class='admin-link'>SLIDER</A>
                                 <A href='/admin/statsbook' class='admin-link'>STATSBOOK</A>
                                 <A href='/admin/settings' class='admin-link'>SETTINGS</A>
+                                <A href='/admin/games' class='admin-link'>GAME CONTROL</A>
+                                <A href='/admin/games/probability' class='admin-link'>FAIRNESS</A>
                             </div>
                         </div>
                     </div>

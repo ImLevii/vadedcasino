@@ -16,6 +16,7 @@ const { newBets } = require('../../../socketio/bets');
 const { isAuthed } = require('../../auth/functions');
 const { enabledFeatures, xpMultiplier } = require('../../admin/config');
 const { generateMinePositions, calculateMultiplier, totalTiles, houseEdge } = require('./functions');
+const { getGameConfig } = require('../../admin/gameConfig');
 const io = require('../../../socketio/server');
 
 const { sql, doTransaction } = require('../../../database');
@@ -76,7 +77,7 @@ router.post('/start', apiLimiter, async (req, res) => {
                 [req.userId, amount, user.csId, user.ssId, nonce, minesCount, JSON.stringify(minePositions), '[]']
             );
 
-            const edge = roundDecimal(amount * houseEdge);
+            const edge = roundDecimal(amount * houseEdge());
             await connection.query('INSERT INTO bets (userId, amount, winnings, edge, game, gameId, completed) VALUES (?, ?, ?, ?, ?, ?, ?)', [req.userId, amount, 0, edge, 'mines', result.insertId, 0]);
 
             await xpChanged(user.id, user.xp, roundDecimal(user.xp + xp), connection);
@@ -126,7 +127,7 @@ router.post('/reveal', apiLimiter, async (req, res) => {
                 newBets([{
                     user: user,
                     amount: activeGame.amount,
-                    edge: roundDecimal(activeGame.amount * houseEdge),
+                    edge: roundDecimal(activeGame.amount * houseEdge()),
                     payout: 0,
                     game: 'mines'
                 }]);
@@ -200,7 +201,7 @@ async function doPayout(connection, commit, activeGame, multiplier, payout, req,
     newBets([{
         user: user,
         amount: activeGame.amount,
-        edge: roundDecimal(activeGame.amount * houseEdge),
+        edge: roundDecimal(activeGame.amount * houseEdge()),
         payout: payout,
         game: 'mines'
     }]);

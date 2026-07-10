@@ -4,8 +4,10 @@ const { sha256 } = require('../../../fairness');
 const { getEOSBlockNumber, waitForEOSBlock } = require('../../../fairness/eos');
 const { roundDecimal } = require('../../../utils');
 const { newBets } = require('../../../socketio/bets');
-
+const { getGameConfig } = require('../../../routes/admin/gameConfig');
 const crypto = require('crypto');
+
+function getCoinflipEdge() { return getGameConfig('coinflip', 'houseEdge', 5); }
 
 const cachedCoinflips = {};
 
@@ -108,7 +110,8 @@ async function startCoinflip(coinflip) {
 
     const clientSeed = coinflip.clientSeed || await waitForEOSBlock(commitTo);
     const winnerSide = getResult(combine(coinflip.serverSeed, clientSeed));
-    const winnings = roundDecimal((coinflip.amount * 2) * 0.95);
+    const edge = getCoinflipEdge();
+    const winnings = roundDecimal((coinflip.amount * 2) * (1 - edge / 100));
 
     try {
 
@@ -128,11 +131,12 @@ async function startCoinflip(coinflip) {
 
         });
 
+        const edge = getCoinflipEdge();
         newBets([coinflip.fire, coinflip.ice].map(user => {
             return {
                 user,
                 amount: coinflip.amount,
-                edge: roundDecimal(coinflip.amount * 0.05),
+                edge: roundDecimal(coinflip.amount * (edge / 100)),
                 payout: winner.id == user.id ? winnings : 0,
                 game: 'coinflip'
             }

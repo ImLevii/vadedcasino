@@ -13,6 +13,7 @@ const { newBets } = require('../../../socketio/bets');
 const { router: communityRouter } = require('./community');
 
 const { enabledFeatures, xpMultiplier } = require('../../admin/config');
+const { getGameConfig } = require('../../admin/gameConfig');
 
 // Community cases - must be mounted before the /:slug route
 router.use('/community', communityRouter);
@@ -125,7 +126,8 @@ router.post('/:id/open', [isAuthed, apiLimiter], async (req, res) => {
             let value = -price;
             let total = 0;
     
-            const edge = roundDecimal(caseInfo.price * 0.1);
+            const caseEdge = getGameConfig('cases', 'houseEdge', 10);
+            const edge = roundDecimal(caseInfo.price * (caseEdge / 100));
     
             for (let i = 0; i < amount; i++) {
     
