@@ -373,7 +373,8 @@ function CaseButton(props) {
                 pointer-events: none;
               }
 
-              .button:hover .preview-btn-case {
+              .button:hover .preview-btn-case,
+              .creator:hover .preview-btn-case {
                 opacity: 1;
                 pointer-events: auto;
               }

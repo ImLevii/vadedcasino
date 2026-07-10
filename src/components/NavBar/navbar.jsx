@@ -38,7 +38,10 @@ function NavBar(props) {
                                 if (!props?.user) return setSearchParams({modal: 'login'})
                                 setSearchParams({modal: 'rakeback'})
                             }}>
-                                <img src='/assets/icons/rakeback.svg' height='12' width='10' alt=''/>
+                                <svg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                                    <path d='M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z' fill='#1fd65f'/>
+                                    <path d='M12 6v6l4 2' stroke='#0a5e2a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+                                </svg>
                                 REWARDS
                             </button>
                         </div>
