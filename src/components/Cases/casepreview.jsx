@@ -26,20 +26,20 @@ function CasePreview(props) {
 
     // Sort items by probability descending for the visual breakdown
     const sortedItems = () => {
-        if (!caseData()?.items) return []
-        return caseData().items.slice().sort((a, b) => b.probability - a.probability)
+        if (!caseData?.items) return []
+        return caseData.items.slice().sort((a, b) => b.probability - a.probability)
     }
 
     // Calculate total EV
     const totalEV = () => {
-        if (!caseData()?.items) return 0
-        return caseData().items.reduce((sum, item) => sum + item.price * (item.probability / 100), 0)
+        if (!caseData?.items) return 0
+        return caseData.items.reduce((sum, item) => sum + item.price * (item.probability / 100), 0)
     }
 
     // Calculate house edge
     const houseEdge = () => {
-        if (!caseData()?.price || !totalEV()) return 0
-        return ((caseData().price - totalEV()) / caseData().price * 100)
+        if (!caseData?.price || !totalEV()) return 0
+        return ((caseData.price - totalEV()) / caseData.price * 100)
     }
 
     return (
@@ -52,12 +52,12 @@ function CasePreview(props) {
                 {/* Header */}
                 <div class='preview-header'>
                     <div class='preview-header-left'>
-                        <img src={resolveImageSrc(caseData()?.img, '/public/cases/radiation-case.png')} alt='' class='preview-case-img'/>
+                        <img src={resolveImageSrc(caseData?.img, '/public/cases/radiation-case.png')} alt='' class='preview-case-img'/>
                         <div>
-                            <p class='preview-case-name'>{caseData()?.name || 'Case'}</p>
+                            <p class='preview-case-name'>{caseData?.name || 'Case'}</p>
                             <p class='preview-case-price'>
                                 <img src='/assets/icons/coin.svg' height='12' alt=''/>
-                                {coins(caseData()?.price)} per open
+                                {coins(caseData?.price)} per open
                             </p>
                         </div>
                     </div>
@@ -72,7 +72,7 @@ function CasePreview(props) {
                 <div class='preview-stats'>
                     <div class='stat-box'>
                         <span class='stat-label'>Items</span>
-                        <span class='stat-value'>{caseData()?.items?.length || 0}</span>
+                        <span class='stat-value'>{caseData?.items?.length || 0}</span>
                     </div>
                     <div class='stat-box'>
                         <span class='stat-label'>Expected Value</span>
@@ -104,7 +104,7 @@ function CasePreview(props) {
                                              `}/>
                                     </div>
                                     <div class='breakdown-info'>
-                                        <img src={item.img} alt='' class='breakdown-item-img'/>
+                                        <img src={resolveImageSrc(item.img)} alt='' class='breakdown-item-img'/>
                                         <div class='breakdown-item-details'>
                                             <p class='breakdown-item-name'>{item.name}</p>
                                             <p class='breakdown-item-price'>
@@ -128,7 +128,7 @@ function CasePreview(props) {
                             {(item) => (
                                 <div class='preview-item-card' style={`--rarity-color: ${getRarityColor(item.price)}`}>
                                     <div class='preview-item-img-box'>
-                                        <img src={item.img} alt='' class='preview-item-img'/>
+                                        <img src={resolveImageSrc(item.img)} alt='' class='preview-item-img'/>
                                     </div>
                                     <p class='preview-item-name'>{item.name}</p>
                                     <div class='preview-item-bottom'>

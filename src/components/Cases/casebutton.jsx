@@ -1,8 +1,12 @@
+import {createSignal, Show} from "solid-js";
 import {A} from "@solidjs/router";
 import CaseTitle from "./casetitle";
+import CasePreview from "./casepreview";
 import {resolveImageSrc} from "../../util/image";
 
 function CaseButton(props) {
+    const [showPreview, setShowPreview] = createSignal(false)
+
     return (
         <>
             <div class={'case-button ' + (props?.creator ? 'creator' : 'button')}>
@@ -42,6 +46,16 @@ function CaseButton(props) {
                     <A href={`/cases/${props?.c?.slug}`} class='gamemode-link' draggable={false}></A>
                 )}
 
+                {!props.creator && (
+                    <button class='preview-btn-case' onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowPreview(true); }}>
+                        <svg width='12' height='12' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                            <path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+                            <circle cx='12' cy='12' r='3' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+                        </svg>
+                        PREVIEW
+                    </button>
+                )}
+
                 {props?.creator && props?.amount > 0 && (
                     <div class='controls'>
                         <button class='adder bevel-light' onClick={props?.removeCase}>
@@ -74,6 +88,11 @@ function CaseButton(props) {
 
                 <div class='bg'/>
             </div>
+
+            {/* ── Case Preview Modal ── */}
+            <Show when={showPreview() && props?.c}>
+                <CasePreview case={props.c} onClose={() => setShowPreview(false)}/>
+            </Show>
 
             <style jsx>{`
               .case-button {
@@ -292,6 +311,43 @@ function CaseButton(props) {
                 justify-content: center;
                 
                 cursor: pointer;
+              }
+
+              .preview-btn-case {
+                position: absolute;
+                bottom: 52px;
+                right: 8px;
+                z-index: 5;
+
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                height: 24px;
+                padding: 0 8px;
+                border-radius: 4px;
+                border: 1px solid rgba(255,214,88,0.3);
+                background: rgba(0,0,0,0.6);
+                backdrop-filter: blur(4px);
+                color: #ffd658;
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-size: 9px;
+                font-weight: 700;
+                cursor: pointer;
+                outline: none;
+                transition: background .2s, border-color .2s;
+                white-space: nowrap;
+                opacity: 0;
+                pointer-events: none;
+              }
+
+              .button:hover .preview-btn-case {
+                opacity: 1;
+                pointer-events: auto;
+              }
+
+              .preview-btn-case:hover {
+                background: rgba(255,214,88,0.2);
+                border-color: rgba(255,214,88,0.5);
               }
 
               .bg {

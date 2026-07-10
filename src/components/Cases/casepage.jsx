@@ -635,62 +635,6 @@ function CasePage(props) {
           margin-top: 6px;
         }
 
-        .items-label {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 15px;
-          font-weight: 700;
-          color: #1fd65f;
-          margin-bottom: 14px;
-        }
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-          padding: 10px 0 14px 0;
-          flex-wrap: wrap;
-        }
-
-        .back-btn {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 13px;
-          font-weight: 700;
-          color: #8b92a0;
-          text-decoration: none;
-          transition: color .2s;
-        }
-
-        .back-btn:hover {
-          color: #c3cad6;
-        }
-
-        .header-case-info {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          flex: 1;
-        }
-
-        /* ── Items grid ── */
-        .items-section {
-          margin-top: 8px;
-        }
-
-        .items-label {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 15px;
-          font-weight: 700;
-          color: #1fd65f;
-          margin-bottom: 14px;
-        }
-
         .items-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
