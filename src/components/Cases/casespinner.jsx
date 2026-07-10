@@ -148,7 +148,7 @@ function CaseSpinner(props) {
                 height: 0;
                 z-index: 5;
                 pointer-events: none;
-                filter: drop-shadow(0 0 7px rgba(31, 214, 95, 0.68));
+                filter: drop-shadow(0 0 3px rgba(31, 214, 95, 0.4));
               }
 
               .lane-arrow-top {
@@ -253,16 +253,16 @@ function CaseSpinner(props) {
                 transform: translateX(-65px);
                 width: 130px;
                 height: 100%;
-                background: linear-gradient(90deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.095), rgba(31, 214, 95, 0));
+                background: linear-gradient(90deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.055), rgba(31, 214, 95, 0));
                 z-index: 1;
                 pointer-events: none;
-                box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.08), inset -1px 0 0 rgba(31, 214, 95, 0.08), 0 0 46px rgba(31, 214, 95, 0.12);
+                box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.06), inset -1px 0 0 rgba(31, 214, 95, 0.06), 0 0 20px rgba(31, 214, 95, 0.06);
                 animation: centerGlow 2.8s ease-in-out infinite;
               }
 
               .case-spinner-container.multi .center-indicator {
-                background: linear-gradient(90deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.12), rgba(31, 214, 95, 0));
-                box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.12), inset -1px 0 0 rgba(31, 214, 95, 0.12), 0 0 44px rgba(31, 214, 95, 0.14);
+                background: linear-gradient(90deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.07), rgba(31, 214, 95, 0));
+                box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.08), inset -1px 0 0 rgba(31, 214, 95, 0.08), 0 0 18px rgba(31, 214, 95, 0.06);
               }
 
               /* Top and bottom tick lines */
@@ -272,10 +272,10 @@ function CaseSpinner(props) {
                 transform: translateX(-65px);
                 width: 130px;
                 height: 2px;
-                background: linear-gradient(to right, transparent, rgba(31, 214, 95, 0.2) 12%, #1fd65f 38%, #1fd65f 62%, rgba(31, 214, 95, 0.2) 88%, transparent);
+                background: linear-gradient(to right, transparent, rgba(31, 214, 95, 0.12) 12%, #1fd65f 38%, #1fd65f 62%, rgba(31, 214, 95, 0.12) 88%, transparent);
                 z-index: 3;
                 pointer-events: none;
-                box-shadow: 0 0 12px rgba(31, 214, 95, 0.72), 0 0 28px rgba(31, 214, 95, 0.24);
+                box-shadow: 0 0 6px rgba(31, 214, 95, 0.35);
               }
 
               .center-line-top { top: 0; }
@@ -284,7 +284,7 @@ function CaseSpinner(props) {
               .case-spinner-container.multi .center-line-top,
               .case-spinner-container.multi .center-line-bottom {
                 height: 1px;
-                box-shadow: 0 0 10px rgba(31, 214, 95, 0.64), 0 0 22px rgba(31, 214, 95, 0.18);
+                box-shadow: 0 0 4px rgba(31, 214, 95, 0.25);
               }
 
               .spinner-items {
@@ -317,12 +317,12 @@ function CaseSpinner(props) {
 
               @keyframes centerGlow {
                 0%, 100% {
-                  opacity: .78;
-                  box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.08), inset -1px 0 0 rgba(31, 214, 95, 0.08), 0 0 34px rgba(31, 214, 95, 0.10);
+                  opacity: .7;
+                  box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.06), inset -1px 0 0 rgba(31, 214, 95, 0.06), 0 0 12px rgba(31, 214, 95, 0.05);
                 }
                 50% {
                   opacity: 1;
-                  box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.16), inset -1px 0 0 rgba(31, 214, 95, 0.16), 0 0 54px rgba(31, 214, 95, 0.18);
+                  box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.1), inset -1px 0 0 rgba(31, 214, 95, 0.1), 0 0 22px rgba(31, 214, 95, 0.08);
                 }
               }
 
