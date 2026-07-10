@@ -3,9 +3,44 @@ import {A} from "@solidjs/router";
 import CaseTitle from "./casetitle";
 import CasePreview from "./casepreview";
 import {resolveImageSrc} from "../../util/image";
+import {authedAPI} from "../../util/api";
 
 function CaseButton(props) {
     const [showPreview, setShowPreview] = createSignal(false)
+    const [previewData, setPreviewData] = createSignal(null)
+    const [loadingPreview, setLoadingPreview] = createSignal(false)
+
+    async function openPreview(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!props?.c?.slug) return;
+        
+        // If case data already has items, use it directly
+        if (props?.c?.items && props.c.items.length > 0) {
+            setPreviewData(props.c);
+            setShowPreview(true);
+            return;
+        }
+        
+        // Otherwise fetch full case data
+        setLoadingPreview(true);
+        try {
+            const res = await authedAPI(`/cases/${props.c.slug}`, 'GET', null);
+            if (res) {
+                setPreviewData(res);
+                setShowPreview(true);
+            }
+        } catch (err) {
+            console.error('Failed to fetch case preview:', err);
+        } finally {
+            setLoadingPreview(false);
+        }
+    }
+
+    function closePreview() {
+        setShowPreview(false);
+        setPreviewData(null);
+    }
 
     return (
         <>
@@ -46,15 +81,13 @@ function CaseButton(props) {
                     <A href={`/cases/${props?.c?.slug}`} class='gamemode-link' draggable={false}></A>
                 )}
 
-                {!props.creator && (
-                    <button class='preview-btn-case' onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowPreview(true); }}>
-                        <svg width='12' height='12' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                            <path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
-                            <circle cx='12' cy='12' r='3' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
-                        </svg>
-                        PREVIEW
-                    </button>
-                )}
+                <button class='preview-btn-case' onClick={openPreview}>
+                    <svg width='12' height='12' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                        <path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+                        <circle cx='12' cy='12' r='3' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+                    </svg>
+                    {loadingPreview ? 'LOADING...' : 'PREVIEW'}
+                </button>
 
                 {props?.creator && props?.amount > 0 && (
                     <div class='controls'>
@@ -90,8 +123,8 @@ function CaseButton(props) {
             </div>
 
             {/* ── Case Preview Modal ── */}
-            <Show when={showPreview() && props?.c}>
-                <CasePreview case={props.c} onClose={() => setShowPreview(false)}/>
+            <Show when={showPreview() && previewData()}>
+                <CasePreview case={previewData()} onClose={closePreview}/>
             </Show>
 
             <style jsx>{`
