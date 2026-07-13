@@ -160,6 +160,11 @@ function App() {
         <>
           <Toaster
             position='bottom-right'
+            gutter={10}
+            containerStyle={{
+              bottom: '24px',
+              right: '20px',
+            }}
           />
 
           {searchParams.modal === 'login' && !user() && (

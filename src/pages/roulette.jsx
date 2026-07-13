@@ -17,20 +17,26 @@ function Roulette(props) {
     const winSFX = new Audio('/assets/sfx/winorcashout.mp3')
     let rouletteTickTimer = null
 
-    function startRouletteTicking(duration) {
+    // spinPhase = the active-spin window (0 → 90% of rollTime).
+    // Ticking stops naturally here; the hold + snap phases are silent.
+    function startRouletteTicking(spinPhase) {
         if (rouletteTickTimer) clearTimeout(rouletteTickTimer)
         let elapsed = 0
         const tick = () => {
             tickSFX.currentTime = 0
             tickSFX.play().catch(() => {})
-            const progress = Math.min(elapsed / duration, 1)
-            const delay = Math.round(75 + progress * 225)
+            // Exponential growth matches the ease-out cubic-bezier deceleration:
+            // starts at ~80 ms, reaches ~400 ms near the end of the spin phase
+            const progress = Math.min(elapsed / spinPhase, 1)
+            const delay = Math.round(80 * Math.pow(5, progress))
             elapsed += delay
-            if (elapsed < duration) {
+            if (elapsed < spinPhase) {
                 rouletteTickTimer = setTimeout(tick, delay)
+            } else {
+                rouletteTickTimer = null
             }
         }
-        rouletteTickTimer = setTimeout(tick, 75)
+        rouletteTickTimer = setTimeout(tick, 50)
     }
 
     const [bets, setBets] = createSignal([])
@@ -110,17 +116,23 @@ function Roulette(props) {
                 prev10.unshift(roll?.result)
                 prev10 = prev10.slice(0, 10)
 
-                startRouletteTicking(config().rollTime || 5000)
+                // Capture rollTime once so both the ticker and the win-sound
+                // timeout reference the same value
+                const rollTime = config().rollTime || 5000
 
+                // Tick only during the active-spin phase (first 90 % of rollTime).
+                // The remaining 10 % is the hold + snap — silence there feels correct.
+                startRouletteTicking(rollTime * 0.9)
+
+                // Win sound fires exactly when the animation finishes
                 setTimeout(() => {
-                    if (rouletteTickTimer) { clearTimeout(rouletteTickTimer); rouletteTickTimer = null }
                     winSFX.currentTime = 0
                     winSFX.play().catch(() => {})
                     setStats(calculateStats(newLast100))
                     setLast100(newLast100)
                     setLast10(prev10)
                     setState('WINNERS')
-                }, 5000)
+                }, rollTime)
 
                 setRound(roll)
             })
