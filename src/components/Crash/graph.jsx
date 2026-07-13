@@ -1,28 +1,10 @@
-import { createEffect, onMount, Show, For } from 'solid-js';
+import { createEffect, onMount, Show } from 'solid-js';
 import { A } from '@solidjs/router';
-import CrashScene from './crashscene';
+import Rocket3D from './rocket3d';
 
 function CrashGraph(props) {
   let canvasRef;
   let containerRef;
-
-  // Auto-scaling max for the right-side multiplier axis
-  const axisStep = (max) => (max <= 5 ? 1 : max <= 20 ? 2 : max <= 50 ? 5 : 10);
-
-  const axisMax = () => {
-    const m = props.multiplier || 1;
-    const target = Math.max(2, m * 1.4);
-    const step = axisStep(target);
-    return Math.ceil(target / step) * step;
-  };
-
-  const axisTicks = () => {
-    const max = axisMax();
-    const step = axisStep(max);
-    const ticks = [];
-    for (let v = 0; v <= max + 0.001; v += step) ticks.push(Math.round(v * 100) / 100);
-    return ticks;
-  };
 
   onMount(() => {
     window.addEventListener('resize', resizeCanvas);
@@ -185,39 +167,22 @@ function CrashGraph(props) {
           >
             <div class='multiplier-display'>
               <p class='current-label'>
-                {props.isCrashed ? 'CRASHED' : 'CURRENT PAYOUT'}
+                {props.isCrashed ? `CRASHED @ ${props.multiplier.toFixed(2)}x` : 'Current Payout'}
               </p>
               <p class={'multiplier-value ' + (props.isCrashed ? 'crashed' : '')}>
                 {props.multiplier.toFixed(2)}x
               </p>
-              <Show when={props.profit > 0 && !props.isCrashed}>
-                <div class='profit-pill'>
-                  <img src='/assets/icons/coin.svg' height='12' width='12' alt='' />
-                  +{props.profit.toFixed(4)}
-                </div>
-              </Show>
             </div>
           </Show>
         </div>
 
         <div class='graph-canvas'>
-          <CrashScene
+          <Rocket3D
             multiplier={props.multiplier}
             isFlying={props.isFlying}
             isCrashed={props.isCrashed}
             countdown={props.countdown}
-            axisMax={axisMax()}
-            bets={props.bets}
           />
-        </div>
-
-        <div class='y-axis'>
-          <For each={axisTicks()}>{(v) => (
-            <div class='tick' style={{ bottom: `${(v / axisMax()) * 100}%` }}>
-              <span class='tick-label'>{v.toFixed(2)}x</span>
-              <span class='tick-mark' />
-            </div>
-          )}</For>
         </div>
       </div>
 
@@ -322,76 +287,17 @@ function CrashGraph(props) {
 
         .multiplier-value {
           font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 76px;
-          font-weight: 800;
+          font-size: 72px;
+          font-weight: 700;
+          color: #1fd65f;
+          text-shadow: 0px 0px 30px rgba(31, 214, 95, 0.6);
           line-height: 1;
-          letter-spacing: 1px;
-          background: linear-gradient(180deg, #ffffff 0%, #dff6e8 38%, #86b79b 52%, #ffffff 58%, #bfe6cf 100%);
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-          filter: drop-shadow(0 2px 1px rgba(0,0,0,0.5)) drop-shadow(0 0 22px rgba(31,214,95,0.45));
         }
 
         .multiplier-value.crashed {
-          background: linear-gradient(180deg, #ffffff 0%, #ffd9d4 40%, #b9756e 54%, #ffffff 60%, #f0b7b0 100%);
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-          filter: drop-shadow(0 2px 1px rgba(0,0,0,0.5)) drop-shadow(0 0 22px rgba(255,81,65,0.5));
+          color: #ff5141;
+          text-shadow: 0px 0px 30px rgba(255, 81, 65, 0.6);
           animation: crash-flash 0.5s;
-        }
-
-        .profit-pill {
-          margin-top: 10px;
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 5px 12px;
-          border-radius: 20px;
-          background: rgba(31, 214, 95, 0.15);
-          border: 1px solid rgba(31, 214, 95, 0.4);
-          color: #1fd65f;
-          font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 14px;
-          font-weight: 700;
-          font-variant-numeric: tabular-nums;
-        }
-
-        .y-axis {
-          position: absolute;
-          top: 52px;
-          right: 0;
-          height: calc(100% - 62px);
-          width: 66px;
-          z-index: 2;
-          pointer-events: none;
-        }
-
-        .tick {
-          position: absolute;
-          right: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: flex-end;
-          gap: 6px;
-          width: 100%;
-          transform: translateY(50%);
-        }
-
-        .tick-label {
-          font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 11px;
-          font-weight: 600;
-          color: #6b7280;
-          font-variant-numeric: tabular-nums;
-          white-space: nowrap;
-        }
-
-        .tick-mark {
-          width: 6px;
-          height: 1px;
-          background: rgba(255,255,255,0.25);
         }
 
         @keyframes crash-flash {
