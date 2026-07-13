@@ -43,7 +43,6 @@ const frontendRoutes = [
     '/docs/tos',
     '/docs/aml',
     '/docs/privacy',
-    '/jackpot',
     '/leaderboard',
     '/mines',
     '/roulette',

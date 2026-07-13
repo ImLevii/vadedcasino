@@ -72,9 +72,9 @@ function BottomNavBar(props) {
                             </div>
 
                             <div class='gamemode'
-                                 style={{'background-image': 'url("/assets/gamemodes/jackpot.png")'}}>
-                                <A href='/jackpot' class='gamemode-link' onClick={() => setActive(false)}>
-                                    <p class='name'>JACKPOT</p>
+                                 style={{'background-image': 'url("/assets/gamemodes/crash.png")'}}>
+                                <A href='/crash' class='gamemode-link' onClick={() => setActive(false)}>
+                                    <p class='name'>CRASH</p>
                                 </A>
                             </div>
 

@@ -259,8 +259,9 @@ function Battles(props) {
 
                 outline: unset;
                 border-radius: 6px;
-                background: #171b23;
-                border: 1px solid rgba(255, 255, 255, 0.07);
+                background: linear-gradient(180deg, rgba(20, 25, 34, 0.88), rgba(14, 18, 26, 0.92));
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.025);
 
                 color: #FFF;
                 font-family: "Geogrotesque Wide", sans-serif;
@@ -276,6 +277,11 @@ function Battles(props) {
 
               .filter select:hover {
                 border-color: rgba(31, 214, 95, 0.3);
+              }
+              
+              .filter select:focus {
+                border-color: rgba(31, 214, 95, 0.5);
+                box-shadow: 0 0 0 2px rgba(31, 214, 95, 0.12), inset 0 1px 0 rgba(255,255,255,0.035);
               }
 
               .create-battle {
@@ -308,7 +314,12 @@ function Battles(props) {
 
               .create-battle:hover {
                 background: #45e57f;
-                box-shadow: 0 0 18px rgba(31, 214, 95, 0.4);
+                transform: translateY(-1px);
+                box-shadow: 0 0 24px rgba(31, 214, 95, 0.5), 0 0 0 1px rgba(31, 214, 95, 0.2);
+              }
+              
+              .create-battle:active {
+                transform: translateY(0);
               }
 
               .bar {

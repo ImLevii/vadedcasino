@@ -110,7 +110,6 @@ const battlesRoute = require('./routes/games/battles');
 const rouletteRoute = require('./routes/games/roulette');
 const crashRoute = require('./routes/games/crash');
 const coinflipRoute = require('./routes/games/coinflip');
-const jackpotRoute = require('./routes/games/jackpot');
 const slotsRoute = require('./routes/games/slots');
 const minesRoute = require('./routes/games/mines');
 const blackjackRoute = require('./routes/games/blackjack');
@@ -120,7 +119,7 @@ const fairnessRoute = require('./routes/fairness');
 const slidesRoute = require('./routes/slides');
 const { selfLockGuard } = require('./routes/user/security/functions');
 
-app.use(['/cases', '/battles', '/roulette', '/crash', '/coinflip', '/jackpot', '/slots', '/mines', '/blackjack'], selfLockGuard);
+app.use(['/cases', '/battles', '/roulette', '/crash', '/coinflip', '/slots', '/mines', '/blackjack'], selfLockGuard);
 
 app.use('/auth', authRoute);
 app.use('/user', userRoute);
@@ -134,7 +133,6 @@ app.use('/battles', battlesRoute);
 app.use('/roulette', rouletteRoute);
 app.use('/crash', crashRoute);
 app.use('/coinflip', coinflipRoute);
-app.use('/jackpot', jackpotRoute);
 app.use('/slots', slotsRoute);
 app.use('/mines', minesRoute);
 app.use('/blackjack', blackjackRoute);

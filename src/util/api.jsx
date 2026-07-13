@@ -14,15 +14,7 @@ const ACCENT = {
 function ToastIcon(props) {
     const c = ACCENT[props.type] || ACCENT.info
     return (
-        <div style={{
-            width: '36px', height: '36px',
-            borderRadius: '50%',
-            background: `rgba(${c.rgb},0.1)`,
-            border: `1.5px solid rgba(${c.rgb},0.3)`,
-            boxShadow: `0 0 14px rgba(${c.rgb},0.18)`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: '0', position: 'relative', zIndex: '1',
-        }}>
+        <div class='toast-icon'>
             {props.type === 'success' && (
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                      stroke={c.color} stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -53,74 +45,21 @@ function showToast(type, message, options) {
     const duration = options?.duration ?? 3500
 
     return toast.custom((t) => (
-        <div style={{
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            background: `linear-gradient(135deg, rgba(${a.rgb},0.08) 0%, #0c1018 45%)`,
-            border: `1px solid rgba(${a.rgb},0.2)`,
-            borderLeft: `4px solid ${a.color}`,
-            borderRadius: '10px',
-            padding: '13px 14px 16px 12px',
-            boxShadow: `0 12px 40px rgba(0,0,0,0.65), 0 0 0 1px rgba(${a.rgb},0.06), 0 0 28px rgba(${a.rgb},0.07)`,
-            minWidth: '270px',
-            maxWidth: '370px',
-            overflow: 'hidden',
-            opacity: t.visible ? '1' : '0',
-            transform: t.visible ? 'translateX(0) scale(1)' : 'translateX(28px) scale(0.96)',
-            transition: 'opacity 0.2s ease, transform 0.2s ease',
-            fontFamily: "'Geogrotesque Wide', 'Rubik', sans-serif",
-            pointerEvents: 'all',
-            userSelect: 'none',
-        }}>
+        <div class='toast' classList={{ visible: t.visible }} style={{ '--toast-rgb': a.rgb }}>
 
             {/* Ambient radial glow behind icon */}
-            <div style={{
-                position: 'absolute', top: '0', left: '0',
-                width: '90px', height: '90px',
-                background: `radial-gradient(circle at 20% 30%, rgba(${a.rgb},0.14) 0%, transparent 65%)`,
-                pointerEvents: 'none',
-            }}/>
+            <div class='toast-glow'/>
 
             <ToastIcon type={type}/>
 
             {/* Text block */}
-            <div style={{ flex: '1', minWidth: '0', position: 'relative', zIndex: '1' }}>
-                <p style={{
-                    margin: '0 0 3px 0',
-                    color: a.color,
-                    fontSize: '10px',
-                    fontWeight: '800',
-                    letterSpacing: '0.12em',
-                    textTransform: 'uppercase',
-                    lineHeight: '1',
-                }}>{a.label}</p>
-                <p style={{
-                    margin: '0',
-                    color: '#c3cad6',
-                    fontSize: '13px',
-                    fontWeight: '500',
-                    lineHeight: '1.45',
-                    letterSpacing: '0.005em',
-                }}>{message}</p>
+            <div class='toast-body'>
+                <p class='toast-label'>{a.label}</p>
+                <p class='toast-message'>{message}</p>
             </div>
 
             {/* Dismiss button */}
-            <button
-                onClick={() => toast.dismiss(t.id)}
-                style={{
-                    background: 'none', border: 'none', cursor: 'pointer',
-                    padding: '4px', borderRadius: '4px',
-                    color: '#4a5260',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    flexShrink: '0', position: 'relative', zIndex: '1',
-                    transition: 'color 0.15s ease, background 0.15s ease',
-                    alignSelf: 'flex-start',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = '#8b92a0'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = '#4a5260'; e.currentTarget.style.background = 'none' }}
-            >
+            <button class='toast-dismiss' onClick={() => toast.dismiss(t.id)}>
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
                     <line x1="18" y1="6" x2="6" y2="18"/>
@@ -129,20 +68,8 @@ function showToast(type, message, options) {
             </button>
 
             {/* Progress bar */}
-            <div style={{
-                position: 'absolute', bottom: '0', left: '0', right: '0',
-                height: '2px',
-                background: `rgba(${a.rgb},0.1)`,
-                borderRadius: '0 0 10px 10px',
-                overflow: 'hidden',
-            }}>
-                <div style={{
-                    height: '100%',
-                    width: '100%',
-                    background: `linear-gradient(90deg, rgba(${a.rgb},0.5), ${a.color})`,
-                    transformOrigin: 'left center',
-                    animation: `toast-shrink ${duration}ms linear forwards`,
-                }}/>
+            <div class='toast-progress'>
+                <div class='toast-progress-fill' style={{ 'animation-duration': `${duration}ms` }}/>
             </div>
         </div>
     ), { duration, ...options })

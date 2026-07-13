@@ -403,11 +403,11 @@ function CasePage(props) {
         .spinner-section {
           width: 100%;
           border-radius: 12px;
-          background: #06080e;
-          border: 1px solid rgba(255,255,255,0.06);
+          background: linear-gradient(180deg, rgba(5, 7, 12, 0.96), rgba(3, 5, 9, 0.98));
+          border: 1px solid rgba(255,255,255,0.055);
           overflow: hidden;
           position: relative;
-          box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 8px 40px rgba(0,0,0,0.55);
         }
 
         .spinner-track {
@@ -519,8 +519,9 @@ function CasePage(props) {
           width: 36px;
           height: 36px;
           border-radius: 6px;
-          border: 1px solid rgba(255,255,255,0.08);
-          background: #1a1f29;
+          border: 1px solid rgba(255,255,255,0.065);
+          background: linear-gradient(180deg, rgba(22, 27, 37, 0.92), rgba(18, 23, 33, 0.96));
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
 
           font-family: 'Geogrotesque Wide', sans-serif;
           font-size: 13px;
@@ -532,14 +533,17 @@ function CasePage(props) {
         }
 
         .amt-btn:hover {
-          border-color: rgba(31, 214, 95, 0.4);
+          border-color: rgba(31, 214, 95, 0.45);
           color: #fff;
+          background: rgba(31, 214, 95, 0.06);
+          transform: translateY(-1px);
         }
 
         .amt-btn.active {
           border-color: #1fd65f;
-          background: rgba(31, 214, 95, 0.18);
+          background: rgba(31, 214, 95, 0.2);
           color: #fff;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 18px rgba(31, 214, 95, 0.18);
         }
 
         .open-btn {
@@ -554,7 +558,7 @@ function CasePage(props) {
           outline: none;
 
           background: linear-gradient(135deg, #1fd65f 0%, #14b04a 100%);
-          box-shadow: 0 0 18px rgba(31, 214, 95, 0.35), 0 2px 0 #0f8a36;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 20px rgba(31, 214, 95, 0.42), 0 2px 0 #0f8a36;
 
           font-family: 'Geogrotesque Wide', sans-serif;
           font-size: 13px;
@@ -562,11 +566,13 @@ function CasePage(props) {
           color: #fff;
 
           cursor: pointer;
-          transition: filter .2s, box-shadow .2s;
+          transition: filter .2s, box-shadow .2s, transform .2s;
         }
 
         .open-btn:hover {
-          filter: brightness(1.08);
+          filter: brightness(1.1);
+          transform: translateY(-1px);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.24), 0 0 28px rgba(31, 214, 95, 0.55), 0 2px 0 #0f8a36;
         }
 
         .open-btn.loading {
@@ -614,8 +620,9 @@ function CasePage(props) {
           height: 36px;
           padding: 0 16px;
           border-radius: 6px;
-          border: 1px solid rgba(255,255,255,0.08);
-          background: #1a1f29;
+          border: 1px solid rgba(255,255,255,0.065);
+          background: linear-gradient(180deg, rgba(22, 27, 37, 0.92), rgba(18, 23, 33, 0.96));
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
 
           font-family: 'Geogrotesque Wide', sans-serif;
           font-size: 13px;
@@ -623,12 +630,14 @@ function CasePage(props) {
           color: #8b92a0;
 
           cursor: pointer;
-          transition: background .2s, color .2s;
+          transition: all .2s;
         }
 
         .demo-btn:hover {
-          background: #222a36;
+          background: rgba(31, 214, 95, 0.06);
+          border-color: rgba(31, 214, 95, 0.3);
           color: #fff;
+          transform: translateY(-1px);
         }
 
         .preview-btn {

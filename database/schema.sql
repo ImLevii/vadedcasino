@@ -318,37 +318,6 @@ CREATE TABLE IF NOT EXISTS `coinflips` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- Jackpot
--- ============================================================
-CREATE TABLE IF NOT EXISTS `jackpot` (
-    `id`          INT UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `serverSeed`  VARCHAR(255)    NOT NULL DEFAULT '',
-    `amount`      DECIMAL(20,2)   NOT NULL DEFAULT 0,
-    `winnerBet`   INT UNSIGNED    DEFAULT NULL,
-    `ticket`      INT UNSIGNED    DEFAULT NULL,
-    `EOSBlock`    BIGINT UNSIGNED DEFAULT NULL,
-    `clientSeed`  VARCHAR(255)    DEFAULT NULL,
-    `rolledAt`    DATETIME        DEFAULT NULL,
-    `createdAt`   DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `endedAt`     DATETIME        DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    KEY `idx_jackpot_endedAt` (`endedAt`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS `jackpotBets` (
-    `id`          INT UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `userId`      BIGINT UNSIGNED NOT NULL,
-    `jackpotId`   INT UNSIGNED    NOT NULL,
-    `amount`      DECIMAL(20,2)   NOT NULL,
-    `ticketsFrom` INT UNSIGNED    NOT NULL DEFAULT 0,
-    `ticketsTo`   INT UNSIGNED    NOT NULL DEFAULT 0,
-    `createdAt`   DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    KEY `idx_jackpotBets_jackpotId` (`jackpotId`),
-    KEY `idx_jackpotBets_userId` (`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ============================================================
 -- Roulette
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `roulette` (
@@ -524,7 +493,6 @@ INSERT IGNORE INTO `features` (`id`, `enabled`) VALUES
     ('battles', 1),
     ('coinflip', 1),
     ('crash', 1),
-    ('jackpot', 1),
     ('roulette', 1),
     ('mines', 1),
     ('blackjack', 1),
@@ -860,6 +828,10 @@ INSERT IGNORE INTO `gameSettings` (`game`, `key`, `value`, `type`, `label`, `des
 ('crash',   'betTime',            '10000','number','Bet Time (ms)',    'Time players have to place bets',      '1000', '60000', '500'),
 ('crash',   'tickRate',           '150',  'number','Tick Rate (ms)',   'Game tick interval in milliseconds',   '50', '1000', '10'),
 ('crash',   'maxProfit',          '1000000','number','Max Profit',     'Maximum profit per bet',               '1000', '10000000', '1000'),
+('crash',   'maxPayout',          '50000','number','Max Payout',       'Maximum payout per bet',               '1000', '10000000', '1000'),
+('crash',   'minBet',             '0.1',  'number','Min Bet',          'Minimum bet amount',                   '0.01', '1000', '0.01'),
+('crash',   'maxBet',             '25000','number','Max Bet',          'Maximum bet amount',                   '100', '1000000', '100'),
+('crash',   'bonusPotRake',       '1',    'number','Bonus Pot Rake (%)','Percent of each bet feeding the bonus pot', '0', '10', '0.1'),
 ('mines',   'houseEdge',          '7.5',  'number','House Edge (%)',   'The house edge percentage for Mines',  '0', '20', '0.5'),
 ('mines',   'totalTiles',         '25',   'number','Total Tiles',      'Total grid tiles',                     '5', '50', '1'),
 ('roulette','houseEdge',          '5',    'number','House Edge (%)',   'The house edge percentage for Roulette','0', '20', '0.5'),
@@ -868,11 +840,6 @@ INSERT IGNORE INTO `gameSettings` (`game`, `key`, `value`, `type`, `label`, `des
 ('roulette','maxBet',             '25000','number','Max Bet',          'Maximum bet amount',                   '100', '1000000', '100'),
 ('roulette','colorsMultipliers',  '{"0":14,"1":2,"2":2,"3":7}', 'json','Color Multipliers','Payout multipliers per color', NULL, NULL, NULL),
 ('coinflip','houseEdge',          '5',    'number','House Edge (%)',   'The house edge percentage for Coinflip','0', '20', '0.5'),
-('jackpot', 'houseEdge',          '5',    'number','House Edge (%)',   'The house edge percentage for Jackpot', '0', '20', '0.5'),
-('jackpot', 'betTime',            '30000','number','Bet Time (ms)',    'Time before round auto-rolls',          '5000', '120000', '1000'),
-('jackpot', 'minPlayers',         '2',    'number','Min Players',      'Minimum players to start a round',      '1', '10', '1'),
-('jackpot', 'minBet',             '1',    'number','Min Bet',          'Minimum bet amount',                    '0.1', '1000', '0.1'),
-('jackpot', 'maxBet',             '20000','number','Max Bet',          'Maximum bet amount',                    '100', '1000000', '100'),
 ('blackjack','houseEdge',         '2.5',  'number','House Edge (%)',   'The house edge percentage for Blackjack','0', '20', '0.5'),
 ('cases',   'commissionPct',      '0',    'number','Commission (%)',   'Default commission for case creators',  '0', '100', '1'),
 ('cases',   'topDropPrice',       '25000','number','Top Drop Price',   'Minimum item price for top drops',      '1000', '1000000', '1000'),

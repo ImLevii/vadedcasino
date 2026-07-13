@@ -121,7 +121,7 @@ function Roulette(props) {
 
                 // Tick only during the active-spin phase (first 90 % of rollTime).
                 // The remaining 10 % is the hold + snap — silence there feels correct.
-                startRouletteTicking(rollTime * 0.9)
+                // startRouletteTicking(rollTime * 0.9)  // disabled
 
                 // Win sound fires exactly when the animation finishes
                 setTimeout(() => {

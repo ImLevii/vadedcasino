@@ -62,7 +62,6 @@ const gamesNames = {
     roulette: 'Roulette',
     case: 'Cases',
     coinflip: 'Coinflip',
-    jackpot: 'Jackpot',
     battle: 'Battles',
     slot: 'Slots',
     mines: 'Mines'
@@ -91,7 +90,7 @@ async function newBets(bets) {
 
         const countsTowardsRewards = !sponsorLockedUsers.has(user.id) && user.role == 'USER';
 
-        if (!(sponsorGame && ['jackpot', 'coinflip', 'battle'].includes(game)) && countsTowardsRewards) {
+        if (!(sponsorGame && ['coinflip', 'battle'].includes(game)) && countsTowardsRewards) {
             if (edge !== undefined) {
                 totalEdge += edge;
             } else {

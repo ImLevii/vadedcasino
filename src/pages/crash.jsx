@@ -1,281 +1,496 @@
-import {useWebsocket} from "../contexts/socketprovider";
-import {useUser} from "../contexts/usercontextprovider";
-import {createEffect, createSignal, For, onCleanup} from "solid-js";
-import Countup from "../components/Countup/countup";
-import Graph from "../components/Crash/graph";
-import CrashRound from "../components/Crash/round";
-import {authedAPI} from "../util/api";
-import CrashBet from "../components/Crash/crashbet";
-import {subscribeToGame, unsubscribeFromGames} from "../util/socket";
-import {Title} from "@solidjs/meta";
+import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
+import { Title } from '@solidjs/meta';
+import { useWebsocket } from '../contexts/socketprovider';
+import { subscribeToGame, unsubscribeFromGames } from '../util/socket';
+import { authedAPI, createNotification } from '../util/api';
+import CrashPlayerList from '../components/Crash/playerlist';
+import CrashGraph from '../components/Crash/graph';
+import CrashHistory from '../components/Crash/history';
 
 function Crash(props) {
+  let hasConnected = false;
 
-  let hasConnected
-  let dragon
+  const [ws] = useWebsocket();
 
-  const [ws] = useWebsocket()
-  const [user] = useUser()
+  // Game state
+  const [round, setRound] = createSignal(null);
+  const [multiplier, setMultiplier] = createSignal(1.00);
+  const [bets, setBets] = createSignal([]);
+  const [history, setHistory] = createSignal([]);
+  const [pot, setPot] = createSignal(0);
+  const [config, setConfig] = createSignal({ maxPayout: 50000, minBet: 1, maxBet: 100000 });
+  
+  // UI state
+  const [betAmount, setBetAmount] = createSignal('');
+  const [autoCashout, setAutoCashout] = createSignal('');
+  const [countdown, setCountdown] = createSignal(0);
+  const [isFlying, setIsFlying] = createSignal(false);
+  const [isCrashed, setIsCrashed] = createSignal(false);
 
-  const [betMode, setBetMode] = createSignal('manual')
-  const [animationState, setAnimationState] = createSignal('idle')
-  const [multi, setMulti] = createSignal(1)
-  const [timer, setTimer] = createSignal(10)
-  const [config, setConfig] = createSignal(null)
-  const [bets, setBets] = createSignal([])
-  const [history, setHistory] = createSignal([])
+  // Animation state
+  let animationFrame = null;
+  let flightStartTime = null;
+  let lastTickTime = null;
+  let lastTickMultiplier = 1.00;
 
-  const [bet, setBet] = createSignal(null)
-  const [cashoutMulti, setCashoutMulti] = createSignal(null)
-  const [winInc, setWinInc] = createSignal(null)
-  const [lossDec, setLossDec] = createSignal(null)
-  const [profitStop, setProfitStop] = createSignal(null)
-  const [lossStop, setLossStop] = createSignal(null)
-  const [numBets, setNumBets] = createSignal(null)
-  const [autoBetting, setAutoBetting] = createSignal(false)
-  const [currentProfit, setCurrentProfit] = createSignal(0)
+  // Multiplier interpolation: multiplier = floor(100 * e^(0.00006 * ms)) / 100
+  function calculateMultiplier(msSinceStart) {
+    return Math.floor(100 * Math.exp(0.00006 * msSinceStart)) / 100;
+  }
 
-  let timerStart
-  let lastTimestamp
-
-  function countdown(timeStamp) {
-    if (!timerStart) {
-      timerStart = timeStamp
-      lastTimestamp = timeStamp
+  function animateMultiplier() {
+    if (!isFlying()) {
+      animationFrame = null;
+      return;
     }
 
-    let elapsed = timeStamp - timerStart
-    let deltaTime = Math.floor(timeStamp - lastTimestamp)
+    const now = performance.now();
+    const elapsed = now - flightStartTime;
+    const interpolated = calculateMultiplier(elapsed);
+    
+    setMultiplier(Math.max(interpolated, lastTickMultiplier));
+    animationFrame = requestAnimationFrame(animateMultiplier);
+  }
 
-    setTimer(t => Math.max(0, t - deltaTime))
-    if (timer() <= 0 || elapsed >= 10000) {
-      timerStart = null
-      lastTimestamp = null
-      return
+  function startFlight() {
+    setIsFlying(true);
+    setIsCrashed(false);
+    flightStartTime = performance.now();
+    lastTickTime = flightStartTime;
+    lastTickMultiplier = 1.00;
+    setMultiplier(1.00);
+    
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+    animationFrame = requestAnimationFrame(animateMultiplier);
+  }
+
+  function stopFlight(crashPoint) {
+    setIsFlying(false);
+    setIsCrashed(true);
+    setMultiplier(crashPoint);
+    if (animationFrame) {
+      cancelAnimationFrame(animationFrame);
+      animationFrame = null;
     }
-    lastTimestamp = timeStamp
-    window.requestAnimationFrame(countdown)
+  }
+
+  function startCountdownTimer(ms) {
+    setCountdown(ms);
+    const interval = setInterval(() => {
+      setCountdown(prev => {
+        const next = Math.max(0, prev - 100);
+        if (next <= 0) clearInterval(interval);
+        return next;
+      });
+    }, 100);
   }
 
   createEffect(() => {
     if (ws() && ws().connected && !hasConnected) {
-      unsubscribeFromGames(ws())
-      subscribeToGame(ws(), 'crash')
-      ws().on('crash:set', (crash) => {
-        setBets(crash.bets)
-        setConfig(crash.config)
-        setHistory(crash.last)
-        setMulti(crash.round.multiplier)
+      unsubscribeFromGames(ws());
+      subscribeToGame(ws(), 'crash');
 
-        let start = new Date(crash.round.createdAt).getTime()
-        let current = new Date(crash.serverTime).getTime()
-        let timeSince = current - start
+      ws().on('crash:set', (data) => {
+        setConfig({ 
+          maxPayout: data.maxPayout || 50000, 
+          minBet: data.minBet || 1, 
+          maxBet: data.maxBet || 100000 
+        });
+        setHistory(data.last || []);
+        setPot(data.pot || 0);
+        setBets(data.bets || []);
+        setRound(data.round);
 
-        if (crash.round.status === 'ended') {
-          return setAnimationState('crashed')
+        if (data.round?.status === 'created') {
+          // Waiting state
+          const betTimeLeft = data.betTime || 0;
+          setIsFlying(false);
+          setIsCrashed(false);
+          setMultiplier(1.00);
+          startCountdownTimer(betTimeLeft);
+        } else if (data.round?.status === 'started') {
+          // Flying state
+          const serverTime = new Date(data.serverTime).getTime();
+          const startedAt = new Date(data.round.startedAt).getTime();
+          const elapsed = serverTime - startedAt;
+          
+          setIsFlying(true);
+          setIsCrashed(false);
+          flightStartTime = performance.now() - elapsed;
+          lastTickMultiplier = data.round.multiplier || 1.00;
+          setMultiplier(data.round.multiplier || 1.00);
+          
+          if (animationFrame) cancelAnimationFrame(animationFrame);
+          animationFrame = requestAnimationFrame(animateMultiplier);
+        } else if (data.round?.status === 'ended') {
+          // Crashed state
+          stopFlight(data.round.multiplier || 1.00);
         }
+      });
 
-        if (timeSince >= 10000) {
-          startAnimation(true)
-        } else {
-          setTimer(Math.floor(10000 - timeSince))
-          requestAnimationFrame(countdown)
-        }
-      })
-
-      ws().on('crash:tick', (tick) => setMulti(tick))
-
-      ws().on('crash:start', () => {
-        setTimer(0)
-        startAnimation()
-      })
-
-      ws().on('crash:new', () => {
-        dragon?.getAnimations()?.forEach(anim => anim.cancel())
-        setTimer(10000)
-        requestAnimationFrame(countdown)
-        setAnimationState('idle')
-        setMulti(1)
-        setBets([])
-      })
-
-      ws().on('crash:end', () => {
-        setAnimationState('crashed')
-
-        let newHistory = [multi(), ...history()].slice(0, 10)
-        setHistory(newHistory)
-      })
+      ws().on('crash:new', (data) => {
+        setRound({ id: data.id, status: 'created', serverSeedHash: data.serverSeedHash });
+        setBets([]);
+        setIsFlying(false);
+        setIsCrashed(false);
+        setMultiplier(1.00);
+        setPot(data.pot || 0);
+        startCountdownTimer(data.betTime || 10000);
+      });
 
       ws().on('crash:bets', (newBets) => {
-        setBets([...newBets, ...bets()])
-      })
+        setBets(prev => [...newBets, ...prev]);
+      });
 
-      ws().on('crash:cashout', (cashedBet) => {
-        let index = bets().findIndex(b => b.id === cashedBet.id)
-        if (index < 0) return
-        let newBet = {...bets()[index]}
-        newBet.cashoutPoint = cashedBet.cashoutPoint
-        newBet.winnings = cashedBet.winnings
+      ws().on('crash:start', (data) => {
+        setCountdown(0);
+        startFlight();
+      });
 
-        setBets([
-          ...bets().slice(0, index),
-          newBet,
-          ...bets().slice(index + 1)
-        ])
-      })
+      ws().on('crash:tick', (tick) => {
+        // Anchor interpolation to received tick
+        if (isFlying()) {
+          lastTickTime = performance.now();
+          lastTickMultiplier = tick;
+          setMultiplier(tick);
+        }
+      });
 
-      hasConnected = true
+      ws().on('crash:cashout', (data) => {
+        const index = bets().findIndex(b => b.id === data.id);
+        if (index >= 0) {
+          const updated = [...bets()];
+          updated[index] = { 
+            ...updated[index], 
+            cashoutPoint: data.cashoutPoint, 
+            winnings: data.winnings 
+          };
+          setBets(updated);
+        }
+      });
+
+      ws().on('crash:end', (data) => {
+        stopFlight(data.crashPoint);
+        setHistory(prev => [data.crashPoint, ...prev].slice(0, 30));
+      });
+
+      ws().on('crash:pot', (amount) => {
+        setPot(amount);
+      });
+
+      ws().on('crash:pot:won', (data) => {
+        createNotification(
+          'success',
+          `${data.user?.username || 'Anonymous'} won the ${data.amount} coin bonus pot at ${data.cashoutPoint}x!`
+        );
+      });
+
+      hasConnected = true;
     }
 
-    hasConnected = !!ws()?.connected
-  })
-
-  function startAnimation() {
-
-    setAnimationState('start')
-    dragon?.animate([
-      {left: '-40px', offset: 0},
-      {left: '350px', offset: 1}
-    ], {
-      delay: 700,
-      duration: 300,
-      fill: 'forwards'
-    })
-
-    setTimeout(() => {
-      if (animationState() !== 'crashed')
-        setAnimationState('flying')
-
-      dragon?.animate([
-        {left: '350px', transform: 'rotate(0deg)', offset: 0},
-        {left: '500px', bottom: '80px', transform: 'rotate(-45deg)', offset: 1}
-      ], {
-        delay: 0,
-        duration: 300,
-        fill: 'forwards'
-      })
-    }, 1000)
-  }
-
-  function activeBet() {
-    return bets().find(bet => bet?.user?.id === user()?.id)
-  }
-
-  function getButtonStyle() {
-    let bet = activeBet()
-    if (!bet || bet?.cashoutPoint || animationState() === 'crashed') return ''
-    return 'active'
-  }
+    if (!ws() || !ws().connected) {
+      hasConnected = false;
+    }
+  });
 
   onCleanup(() => {
-    dragon.getAnimations().forEach(anim => anim.cancel())
-    cancelAnimationFrame(countdown)
-  })
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+    if (ws() && ws().connected) {
+      ws().off('crash:set');
+      ws().off('crash:new');
+      ws().off('crash:bets');
+      ws().off('crash:start');
+      ws().off('crash:tick');
+      ws().off('crash:cashout');
+      ws().off('crash:end');
+      ws().off('crash:pot');
+      ws().off('crash:pot:won');
+      unsubscribeFromGames(ws());
+    }
+  });
+
+  // Find user's active bet
+  function myBet() {
+    return bets().find(b => b.user?.id === props.user?.id);
+  }
+
+  function hasActiveBet() {
+    const bet = myBet();
+    return bet && !bet.cashoutPoint;
+  }
+
+  async function placeBet() {
+    const amount = parseFloat(betAmount());
+    const autoCashoutPoint = autoCashout() ? parseFloat(autoCashout()) : null;
+    
+    if (!amount || amount < config().minBet) {
+      createNotification('error', `Minimum bet is ${config().minBet} coins`);
+      return;
+    }
+    
+    if (amount > config().maxBet) {
+      createNotification('error', `Maximum bet is ${config().maxBet} coins`);
+      return;
+    }
+
+    await authedAPI('/crash/bet', 'POST', JSON.stringify({ 
+      amount, 
+      autoCashoutPoint 
+    }), true);
+  }
+
+  async function cashout() {
+    await authedAPI('/crash/cashout', 'POST', null, true);
+  }
+
+  function adjustBet(type) {
+    const current = parseFloat(betAmount()) || 0;
+    switch(type) {
+      case 'min':
+        setBetAmount(config().minBet.toString());
+        break;
+      case 'max':
+        setBetAmount(config().maxBet.toString());
+        break;
+      case '+1':
+        setBetAmount((current + 1).toString());
+        break;
+      case '+10':
+        setBetAmount((current + 10).toString());
+        break;
+      case '/2':
+        setBetAmount((current / 2).toString());
+        break;
+      case 'x2':
+        setBetAmount((current * 2).toString());
+        break;
+    }
+  }
+
+  function getButtonState() {
+    const bet = myBet();
+    
+    if (isFlying() && hasActiveBet()) {
+      return { text: `Cashout ${multiplier().toFixed(2)}x`, style: 'cashout', action: cashout };
+    }
+    
+    if (isFlying() && !bet) {
+      return { text: 'Betting closed', style: 'disabled', action: null };
+    }
+    
+    if (isCrashed()) {
+      return { text: 'Play', style: 'play', action: placeBet };
+    }
+    
+    // Waiting for round start
+    return { text: 'Play', style: 'play', action: placeBet };
+  }
+
+  const buttonState = () => getButtonState();
 
   return (
     <>
       <Title>Cosmic Luck | Crash</Title>
 
       <div class='crash-container fadein'>
-        <div class='crash-header'>
-          <img src='/assets/icons/crash.svg' height='14' width='14' alt=''/>
-          <p>CRASH</p>
+        <CrashHistory history={history()} />
+
+        <div class='crash-main'>
+          <CrashPlayerList bets={bets()} isCrashed={isCrashed()} userId={props.user?.id} />
+
+          <CrashGraph
+            multiplier={multiplier()}
+            isFlying={isFlying()}
+            isCrashed={isCrashed()}
+            countdown={countdown()}
+            maxPayout={config().maxPayout}
+          />
         </div>
 
-        <div class='crash-content'>
-          <div class='betting-container'>
-            <div class='betting-options'>
-              <button class={'betting-option ' + (betMode() === 'manual' ? 'active' : '')}
-                      onClick={() => setBetMode('manual')}>MANUAL
-              </button>
-              <button class={'betting-option ' + (betMode() === 'auto' ? 'active' : '')}
-                      onClick={() => setBetMode('auto')}>AUTO
-              </button>
-            </div>
+        <div class='crash-bet-bar'>
+          <div class='bet-input-wrapper'>
+            <img src='/assets/icons/coin.svg' height='14' width='14' alt='' />
+            <input
+              type='number'
+              placeholder='Play Amount'
+              value={betAmount()}
+              onInput={(e) => setBetAmount(e.target.value)}
+            />
+          </div>
 
-            <div class='inputs'>
-              <div class='input-wrapper'>
-                <div class='input-header'>
-                  <p>BET AMOUNT</p>
-                </div>
+          <button class='bevel-light bet-btn' onClick={() => adjustBet('min')}>Min</button>
+          <button class='bevel-light bet-btn' onClick={() => adjustBet('max')}>Max</button>
+          <button class='bevel-light bet-btn' onClick={() => adjustBet('+1')}>+1</button>
+          <button class='bevel-light bet-btn' onClick={() => adjustBet('+10')}>+10</button>
+          <button class='bevel-light bet-btn' onClick={() => adjustBet('/2')}>1/2</button>
+          <button class='bevel-light bet-btn' onClick={() => adjustBet('x2')}>x2</button>
 
-                <div class='input-container'>
-                  <img src='/assets/icons/coin.svg' height='14' width='14' alt=''/>
-                  <input type='number' value={bet()} onInput={(e) => setBet(e.target.valueAsNumber)}
-                         placeholder='0'/>
-                </div>
-              </div>
+          <div class='bet-input-wrapper auto-cashout'>
+            <input
+              type='number'
+              placeholder='Auto Cashout'
+              value={autoCashout()}
+              onInput={(e) => setAutoCashout(e.target.value)}
+            />
+          </div>
 
-              <div class='input-wrapper'>
-                <div class='input-header'>
-                  <p>X MULTIPLIER</p>
-                </div>
+          <div class='bonus-pot'>
+            <img src='/assets/icons/coin.svg' height='14' width='14' alt='' />
+            <span>{pot().toFixed(2)}</span>
+          </div>
 
-                <div class='input-container'>
-                  <input type='number' value={cashoutMulti()}
-                         onInput={(e) => setCashoutMulti(e.target.valueAsNumber)} placeholder='0'/>
-                </div>
-              </div>
+          <button
+            class={'play-button ' + buttonState().style}
+            onClick={buttonState().action}
+            disabled={buttonState().style === 'disabled' || !props.user}
+          >
+            {buttonState().text}
+          </button>
+        </div>
+      </div>
 
-              {betMode() === 'auto' && (
-                <>
-                  <div class='split'>
-                    <div class='input-wrapper'>
-                      <div class='input-header'>
-                        <p>% ON WIN</p>
-                      </div>
+      <style jsx>{`
+        .crash-container {
+          width: 100%;
+          min-height: calc(100vh - 65px);
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          background: radial-gradient(50% 50% at 50% 50%, #10151d 0%, #0b1017 100%);
+        }
 
-                      <div class='input-container'>
-                        <input type='number' value={winInc()}
-                               onInput={(e) => setWinInc(e.target.valueAsNumber)}
-                               placeholder='0'/>
-                      </div>
-                    </div>
+        .crash-main {
+          display: flex;
+          gap: 12px;
+          flex: 1;
+        }
 
-                    <div class='input-wrapper'>
-                      <div class='input-header'>
-                        <p>% ON LOSS</p>
-                      </div>
+        .crash-bet-bar {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          width: 100%;
+        }
 
-                      <div class='input-container'>
-                        <input type='number' value={lossDec()}
-                               onInput={(e) => setLossDec(e.target.valueAsNumber)}
-                               placeholder='0'/>
-                      </div>
-                    </div>
-                  </div>
+        .bet-input-wrapper {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: #14171f;
+          border-radius: 3px;
+          padding: 0 12px;
+          height: 40px;
+          flex: 1;
+          max-width: 200px;
+        }
 
-                  <div class='split'>
-                    <div class='input-wrapper'>
-                      <div class='input-header'>
-                        <p>STOP ON PROFIT</p>
-                      </div>
+        .bet-input-wrapper input {
+          background: none;
+          border: none;
+          outline: none;
+          color: #c3cad6;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 14px;
+          font-weight: 600;
+          width: 100%;
+        }
 
-                      <div class='input-container'>
-                        <input type='number' value={profitStop()}
-                               onInput={(e) => setProfitStop(e.target.valueAsNumber)}
-                               placeholder='0'/>
-                      </div>
-                    </div>
+        .bet-input-wrapper input::placeholder {
+          color: #8b92a0;
+        }
 
-                    <div class='input-wrapper'>
-                      <div class='input-header'>
-                        <p>STOP ON LOSS</p>
-                      </div>
+        .auto-cashout {
+          max-width: 150px;
+        }
 
-                      <div class='input-container'>
-                        <input type='number' value={lossStop()}
-                               onInput={(e) => setLossStop(e.target.valueAsNumber)}
-                               placeholder='0'/>
-                      </div>
-                    </div>
-                  </div>
+        .bet-btn {
+          height: 40px;
+          padding: 0 14px;
+          font-size: 13px;
+          font-weight: 700;
+        }
 
-                  <div class='input-wrapper'>
-                    <div class='input-header'>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="8" viewBox="0 0 15 8" fill="none">
-                        <path
-                          d="M11.227 8.17393e-05C10.6813 -0.00352165 10.1415 0.112054 9.64512 0.338735C9.14877 0.565416 8.7079 0.897735 8.35331 1.31248L7.7969 1.95341L9.03886 3.38789L9.77136 2.5427C9.95114 2.33285 10.1745 2.16469 10.4259 2.04995C10.6773 1.93521 10.9506 1.87662 11.227 1.87829C11.4749 1.87436 11.7211 1.91979 11.9513 2.01194C12.1814 2.1041 12.391 2.24113 12.5677 2.41505C12.7444 2.58898 12.8847 2.79632 12.9805 3.02501C13.0763 3.2537 13.1256 3.49916 13.1256 3.7471C13.1256 3.99504 13.0763 4.2405 12.9805 4.46919C12.8847 4.69788 12.7444 4.90522 12.5677 5.07915C12.391 5.25307 12.1814 5.3901 11.9513 5.48225C11.7211 5.57441 11.4749 5.61984 11.227 5.61591C10.9515 5.61773 10.679 5.55944 10.4284 5.44509C10.1778 5.33074 9.95518 5.16309 9.77605 4.95385C7.05594 1.81302 8.34838 3.31042 6.62067 1.31013C6.26561 0.896112 5.82459 0.564439 5.32832 0.338194C4.83204 0.11195 4.29242 -0.00343042 3.74702 8.17393e-05C2.75325 8.17393e-05 1.80018 0.394856 1.09748 1.09756C0.394774 1.80026 0 2.75333 0 3.7471C0 4.74087 0.394774 5.69394 1.09748 6.39664C1.80018 7.09934 2.75325 7.49412 3.74702 7.49412C4.29267 7.49772 4.83252 7.38214 5.32887 7.15546C5.82521 6.92878 6.26608 6.59646 6.62067 6.18172L7.17709 5.54078L5.93512 4.10631L5.20263 4.9515C5.02284 5.16135 4.79949 5.3295 4.5481 5.44425C4.29672 5.55899 4.02335 5.61757 3.74702 5.61591C3.49911 5.61984 3.2529 5.57441 3.02272 5.48225C2.79254 5.3901 2.583 5.25307 2.40629 5.07915C2.22959 4.90522 2.08926 4.69788 1.99347 4.46919C1.89768 4.2405 1.84835 3.99504 1.84835 3.7471C1.84835 3.49916 1.89768 3.2537 1.99347 3.02501C2.08926 2.79632 2.22959 2.58898 2.40629 2.41505C2.583 2.24113 2.79254 2.1041 3.02272 2.01194C3.2529 1.91979 3.49911 1.87436 3.74702 1.87829C4.02246 1.87646 4.29499 1.93476 4.54558 2.04911C4.79617 2.16346 5.0188 2.3311 5.19793 2.54035C7.91804 5.68118 6.6256 4.18378 8.35331 6.18407C8.76046 6.66905 9.28338 7.04348 9.87367 7.27269C10.464 7.50189 11.1025 7.57847 11.7303 7.49533C12.358 7.41218 12.9547 7.17201 13.4649 6.79704C13.9752 6.42207 14.3826 5.92442 14.6495 5.35016C14.9163 4.77591 15.034 4.14361 14.9915 3.51181C14.9491 2.88 14.748 2.26911 14.4067 1.73569C14.0655 1.20227 13.5952 0.763564 13.0394 0.460181C12.4836 0.156799 11.8602 -0.00145119 11.227 8.17393e-05Z"
+        .bonus-pot {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          background: #1a1f29;
+          border-radius: 20px;
+          padding: 8px 14px;
+          color: #1fd65f;
+          font-size: 14px;
+          font-weight: 700;
+          border: 1px solid rgba(31, 214, 95, 0.15);
+        }
+
+        .play-button {
+          height: 40px;
+          padding: 0 40px;
+          font-size: 14px;
+          font-weight: 700;
+          border: none;
+          border-radius: 3px;
+          cursor: pointer;
+          transition: all 0.2s;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          outline: none;
+        }
+
+        .play-button.play {
+          background: #1fd65f;
+          color: #06210f;
+          box-shadow: 0px -2px 0px #45e57f, 0px 2px 0px #16a049;
+        }
+
+        .play-button.play:hover {
+          background: #18b853;
+        }
+
+        .play-button.cashout {
+          background: linear-gradient(180deg, #ff7a3d 0%, #ff5141 100%);
+          color: white;
+          box-shadow: 0px -2px 0px #ff9966, 0px 2px 0px #cc3d2f;
+        }
+
+        .play-button.cashout:hover {
+          background: linear-gradient(180deg, #ff6624 0%, #ff3d2d 100%);
+        }
+
+        .play-button.disabled {
+          background: #2c3340;
+          color: #5a5f6b;
+          cursor: not-allowed;
+          box-shadow: none;
+        }
+
+        @media (max-width: 1000px) {
+          .crash-main {
+            flex-direction: column;
+          }
+        }
+
+        @media (max-width: 800px) {
+          .crash-bet-bar {
+            flex-wrap: wrap;
+          }
+
+          .bet-input-wrapper,
+          .auto-cashout {
+            max-width: 100%;
+          }
+
+          .play-button {
+            width: 100%;
+          }
+        }
+      `}</style>
+    </>
+  );
+}
+
+export default Crash;
+ 6.42207 14.3826 5.92442 14.6495 5.35016C14.9163 4.77591 15.034 4.14361 14.9915 3.51181C14.9491 2.88 14.748 2.26911 14.4067 1.73569C14.0655 1.20227 13.5952 0.763564 13.0394 0.460181C12.4836 0.156799 11.8602 -0.00145119 11.227 8.17393e-05Z"
                           fill="#9F9AC8"/>
                       </svg>
                       <p>TOTAL BETS</p>

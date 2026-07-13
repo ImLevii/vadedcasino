@@ -142,10 +142,10 @@ function Cases(props) {
                 padding: 10px 12px 10px 18px;
                 margin: 0 0 28px 0;
 
-                border-radius: 8px;
-                border: 1px solid rgba(255, 255, 255, 0.045);
-                background: linear-gradient(180deg, rgba(20, 25, 34, 0.98), rgba(13, 17, 25, 0.98));
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035), 0 14px 36px rgba(0, 0, 0, 0.2);
+                border-radius: 9px;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                background: linear-gradient(180deg, rgba(18, 23, 32, 0.98), rgba(11, 15, 23, 0.98));
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 10px 32px rgba(0, 0, 0, 0.22);
                 position: relative;
                 overflow: hidden;
               }
@@ -155,7 +155,7 @@ function Cases(props) {
                 position: absolute;
                 inset: 0;
                 pointer-events: none;
-                background: linear-gradient(90deg, rgba(31, 214, 95, 0.04), rgba(255, 255, 255, 0.00) 34%, rgba(139, 146, 160, 0.035));
+                background: linear-gradient(90deg, rgba(31, 214, 95, 0.045), rgba(255, 255, 255, 0.00) 34%, rgba(139, 146, 160, 0.04));
               }
 
               .title-wrap {
@@ -255,15 +255,16 @@ function Cases(props) {
                 padding: 0 12px;
 
                 border-radius: 5px;
-                border: 1px solid rgba(255, 255, 255, 0.045);
-                background: rgba(5, 8, 13, 0.5);
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
-                transition: border-color .18s ease, background .18s ease;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                background: rgba(5, 8, 13, 0.55);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+                transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
               }
 
               .number-container:focus-within, .search-container:focus-within {
-                border-color: rgba(31, 214, 95, 0.36);
-                background: rgba(8, 13, 20, 0.72);
+                border-color: rgba(31, 214, 95, 0.42);
+                background: rgba(8, 13, 20, 0.78);
+                box-shadow: 0 0 0 2px rgba(31, 214, 95, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.04);
               }
 
               .number {
@@ -291,13 +292,14 @@ function Cases(props) {
                 height: 36px;
 
                 border-radius: 5px;
-                border: 1px solid rgba(255, 255, 255, 0.045);
-                background: rgba(5, 8, 13, 0.5);
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                background: rgba(5, 8, 13, 0.55);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 
                 padding: 0 0 0 15px;
 
                 display: flex;
+                transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
               }
 
               .search-button {
@@ -307,12 +309,13 @@ function Cases(props) {
 
                 width: 38px;
                 border-radius: 0px 5px 5px 0px;
-                background: rgba(21, 26, 36, 0.82);
-                transition: filter .18s ease;
+                background: rgba(21, 26, 36, 0.9);
+                transition: filter .18s ease, background .18s ease;
               }
 
               .search-button:hover {
-                filter: brightness(1.18);
+                filter: brightness(1.2);
+                background: rgba(31, 214, 95, 0.08);
               }
 
               .sort-by {
@@ -342,8 +345,9 @@ function Cases(props) {
               }
 
               .sort-by:hover {
-                filter: brightness(1.08);
+                filter: brightness(1.1);
                 transform: translateY(-1px);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 12px rgba(0, 0, 0, 0.25);
               }
 
               .gold {

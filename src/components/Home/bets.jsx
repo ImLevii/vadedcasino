@@ -12,7 +12,6 @@ const gameToImage = {
     'roulette': '/assets/icons/roulette.svg',
     'crash': '/assets/icons/crash.svg',
     'coinflip': '/assets/icons/coinflip.svg',
-    'jackpot': '/assets/icons/jackpot.svg',
     'slot': '/assets/icons/slot.svg',
     'mines': '/assets/icons/mines.svg'
 }

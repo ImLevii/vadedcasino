@@ -509,10 +509,10 @@ function CreateBattle(props) {
               .cases {
                 min-height: 262px;
                 padding: 16px;
-                background: radial-gradient(80% 55% at 50% 0%, rgba(31, 214, 95, 0.035), rgba(31, 214, 95, 0)), linear-gradient(180deg, rgba(13, 17, 24, 0.9), rgba(7, 10, 16, 0.96));
+                background: radial-gradient(80% 55% at 50% 0%, rgba(31, 214, 95, 0.042), rgba(31, 214, 95, 0)), linear-gradient(180deg, rgba(11, 15, 22, 0.94), rgba(7, 10, 16, 0.98));
                 border-radius: 10px;
-                border: 1px solid rgba(255,255,255,0.055);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.035), 0 16px 42px rgba(0,0,0,0.22);
+                border: 1px solid rgba(255,255,255,0.06);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 12px 36px rgba(0,0,0,0.24);
 
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -603,8 +603,8 @@ function CreateBattle(props) {
               .add-case:hover {
                 transform: translateY(-2px);
                 color: #fff;
-                border-color: rgba(31, 214, 95, 0.36);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 28px rgba(31,214,95,0.1);
+                border-color: rgba(31, 214, 95, 0.4);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.045), 0 0 32px rgba(31,214,95,0.14);
               }
 
               .plus {
@@ -642,9 +642,9 @@ function CreateBattle(props) {
                 height: 45px;
 
                 border-radius: 7px;
-                background: linear-gradient(90deg, rgba(31, 214, 95, 0.12) -30%, rgba(17, 23, 34, 0.9) 18%, rgba(7, 10, 16, 0.28) 100%);
-                border: 1px solid rgba(255,255,255,0.035);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.025);
+                background: linear-gradient(90deg, rgba(31, 214, 95, 0.12) -30%, rgba(17, 23, 34, 0.94) 18%, rgba(7, 10, 16, 0.32) 100%);
+                border: 1px solid rgba(255,255,255,0.04);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
 
                 color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
@@ -656,6 +656,7 @@ function CreateBattle(props) {
                 display: flex;
                 align-items: center;
                 gap: 20px;
+                transition: border-color 0.2s ease;
               }
               
               .nomargin {
@@ -689,7 +690,11 @@ function CreateBattle(props) {
                 font-weight: 600;
                 border-bottom: 2px solid transparent;
 
-                transition: color .3s, border .3s, text-shadow .3s;
+                transition: color .2s, border-color .2s, text-shadow .2s;
+              }
+              
+              .setting:hover:not(:disabled) {
+                color: #c3cad6;
               }
               
               .setting:disabled {
@@ -728,7 +733,11 @@ function CreateBattle(props) {
                 font-weight: 600;
                 text-align: right;
 
-                transition: color .3s, border .3s;
+                transition: color .2s;
+              }
+              
+              .input-setting input:focus {
+                color: #1fd65f;
               }
 
               .setting.active {
@@ -742,12 +751,16 @@ function CreateBattle(props) {
                 appearance: none;
 
                 border-radius: 25px;
-                background: #131a24;
+                background: linear-gradient(to right, #1fd65f 0%, #1fd65f 0%, #131a24 0%, #131a24 100%);
                 max-width: 190px;
                 height: 9px;
-                border: 1px solid rgba(255,255,255,0.04);
-                
-                //margin-right: auto;
+                border: 1px solid rgba(255,255,255,0.045);
+                box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+                transition: border-color 0.2s ease;
+              }
+              
+              .range:hover {
+                border-color: rgba(31, 214, 95, 0.2);
               }
 
               .range::-webkit-slider-thumb {
@@ -758,7 +771,13 @@ function CreateBattle(props) {
                 background: white;
                 cursor: pointer;
                 border-radius: 50%;
-                box-shadow: 0 0 0 3px rgba(31,214,95,0.08);
+                box-shadow: 0 0 0 3px rgba(31,214,95,0.12), 0 2px 4px rgba(0,0,0,0.3);
+                transition: transform 0.15s ease;
+              }
+              
+              .range::-webkit-slider-thumb:hover {
+                transform: scale(1.1);
+                box-shadow: 0 0 0 4px rgba(31,214,95,0.2), 0 3px 6px rgba(0,0,0,0.35);
               }
 
               .range::-moz-range-thumb {

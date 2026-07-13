@@ -181,9 +181,27 @@ function BattlePreview(props) {
           padding: 14px;
           box-sizing: border-box;
 
-          background: #12151c;
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 8px;
+          background: linear-gradient(180deg, rgba(19, 24, 34, 0.94), rgba(12, 16, 24, 0.98));
+          border: 1px solid rgba(255, 255, 255, 0.055);
+          border-radius: 10px;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.035), 0 8px 24px rgba(0,0,0,0.18);
+          position: relative;
+          overflow: hidden;
+          transition: all 0.2s ease;
+        }
+        
+        .battle-preview-container::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(70% 60% at 50% 0%, rgba(31, 214, 95, 0.028), rgba(31, 214, 95, 0));
+          pointer-events: none;
+        }
+        
+        .battle-preview-container:hover {
+          border-color: rgba(31, 214, 95, 0.15);
+          transform: translateY(-2px);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.045), 0 12px 32px rgba(0,0,0,0.22), 0 0 0 1px rgba(31, 214, 95, 0.05);
         }
 
         .left-col {
@@ -200,11 +218,12 @@ function BattlePreview(props) {
           align-items: center;
           gap: 8px;
 
-          background: #0d1016;
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: linear-gradient(180deg, rgba(10, 14, 20, 0.94), rgba(7, 10, 15, 0.98));
+          border: 1px solid rgba(255, 255, 255, 0.05);
           border-radius: 8px;
           padding: 8px 12px;
           flex: 1;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.025);
         }
 
         .slot {
@@ -216,11 +235,23 @@ function BattlePreview(props) {
           justify-content: center;
 
           border-radius: 8px;
-          background: #171c26;
-          border: 1px solid rgba(31, 214, 95, 0.2);
-          box-shadow: inset 0 0 10px rgba(31, 214, 95, 0.06);
+          background: radial-gradient(75% 75% at 50% 50%, rgba(31, 214, 95, 0.08), rgba(23, 28, 38, 0.9));
+          border: 1px solid rgba(31, 214, 95, 0.24);
+          box-shadow: inset 0 0 12px rgba(31, 214, 95, 0.08), 0 2px 6px rgba(0,0,0,0.2);
           overflow: hidden;
-          transition: all .3s;
+          transition: all .25s ease;
+        }
+        
+        .slot:has(> :not(svg)) {
+          border-color: rgba(31, 214, 95, 0.3);
+          background: radial-gradient(75% 75% at 50% 50%, rgba(31, 214, 95, 0.12), rgba(23, 28, 38, 0.95));
+          box-shadow: inset 0 0 16px rgba(31, 214, 95, 0.12), 0 3px 8px rgba(0,0,0,0.24);
+        }
+        
+        .slot:empty, .slot:has(svg) {
+          background: rgba(23, 28, 38, 0.7);
+          border-style: dashed;
+          border-color: rgba(31, 214, 95, 0.18);
         }
 
         .slot svg {
@@ -259,9 +290,10 @@ function BattlePreview(props) {
           gap: 7px;
           padding: 0 12px;
 
-          background: #0d1016;
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: linear-gradient(180deg, rgba(10, 14, 20, 0.94), rgba(7, 10, 15, 0.98));
+          border: 1px solid rgba(255, 255, 255, 0.05);
           border-radius: 8px;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.025);
 
           font-family: "Geogrotesque Wide", sans-serif;
           font-size: 13px;
@@ -307,7 +339,10 @@ function BattlePreview(props) {
 
         .action-btn:hover {
           color: #FFF;
-          border-color: rgba(31, 214, 95, 0.3);
+          border-color: rgba(31, 214, 95, 0.4);
+          background: rgba(31, 214, 95, 0.06);
+          transform: translateY(-1px);
+          box-shadow: 0 0 14px rgba(31, 214, 95, 0.12);
         }
 
         .action-btn.join {
@@ -318,7 +353,8 @@ function BattlePreview(props) {
 
         .action-btn.join:hover {
           background: #45e57f;
-          box-shadow: 0 0 14px rgba(31, 214, 95, 0.35);
+          transform: translateY(-1px);
+          box-shadow: 0 0 18px rgba(31, 214, 95, 0.45), 0 0 0 1px rgba(31, 214, 95, 0.2);
         }
 
         .cases-panel {
@@ -330,9 +366,10 @@ function BattlePreview(props) {
           padding: 10px;
           box-sizing: border-box;
 
-          background: #171b23;
-          border: 1px solid rgba(255, 255, 255, 0.04);
+          background: linear-gradient(180deg, rgba(20, 24, 33, 0.9), rgba(14, 18, 26, 0.95));
+          border: 1px solid rgba(255, 255, 255, 0.05);
           border-radius: 8px;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.025);
         }
 
         .panel-side {
@@ -364,7 +401,9 @@ function BattlePreview(props) {
 
         .inspect:hover {
           color: #FFF;
-          border-color: rgba(31, 214, 95, 0.3);
+          border-color: rgba(31, 214, 95, 0.4);
+          background: rgba(31, 214, 95, 0.06);
+          transform: translateY(-1px);
         }
 
         .mode-chips {
@@ -436,7 +475,9 @@ function BattlePreview(props) {
         }
 
         .case-tile:hover {
-          border-color: rgba(31, 214, 95, 0.3);
+          border-color: rgba(31, 214, 95, 0.35);
+          transform: scale(1.03);
+          box-shadow: 0 0 16px rgba(31, 214, 95, 0.14);
         }
 
         .case-tile img {

@@ -218,8 +218,8 @@ function Mines(props) {
                 min-height: 45px;
                 height: 45px;
                 
-                background: #2B2455;
-                box-shadow: 0px -1.5px 0px 0px #413972;
+                background: #12151c;
+                box-shadow: 0px -1.5px 0px 0px #1f242e;
 
                 display: flex;
                 align-items: center;
@@ -396,7 +396,7 @@ function Mines(props) {
                 line-height: 43px;
                 text-align: center;
 
-                background: #413976;
+                background: #2c3340;
                 box-shadow: 0px 1px 0px 0px #0e1116, 0px -1px 0px 0px #3a4250;
 
                 font-family: "Geogrotesque Wide", sans-serif;
@@ -427,9 +427,9 @@ function Mines(props) {
               .input-header {
                 width: 100%;
                 height: 30px;
-                background: #413976;
+                background: #232a36;
 
-                color: #9F9AC8;
+                color: #8b92a0;
                 font-size: 12px;
                 font-weight: 700;
 
@@ -442,7 +442,7 @@ function Mines(props) {
               .input-container {
                 height: 40px;
                 border-radius: 0px 0px 3px 3px;
-                border: 1px solid #3E3771;
+                border: 1px solid rgba(255, 255, 255, 0.08);
                 background: #14171f;
 
                 display: flex;
@@ -453,7 +453,7 @@ function Mines(props) {
 
               .modifier {
                 height: 100%;
-                color: #9F9AC8;
+                color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 12px;
                 font-weight: 700;
@@ -481,8 +481,8 @@ function Mines(props) {
                 height: 40px;
                 font-weight: 700;
 
-                background: #413976;
-                box-shadow: 0px 2px 0px 0px #0e1116, 0px -2px 0px 0px #3a4250;
+                background: #2c3340;
+                box-shadow: 0px 2px 0px 0px #1a1f29, 0px -2px 0px 0px #3a4250;
               }
               
               .random:active {

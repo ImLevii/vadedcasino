@@ -131,10 +131,10 @@ function CaseButton(props) {
               .case-button {
                 height: 286px;
 
-                border-radius: 8px;
-                border: 1px solid rgba(255, 255, 255, 0.045);
-                background: linear-gradient(180deg, rgba(31, 36, 47, 0.82) 0%, rgba(17, 20, 28, 0.98) 66%, rgba(10, 13, 20, 1) 100%);
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035), 0 14px 34px rgba(0, 0, 0, 0.24);
+                border-radius: 9px;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                background: linear-gradient(180deg, rgba(24, 30, 41, 0.88) 0%, rgba(15, 19, 28, 0.96) 60%, rgba(10, 13, 20, 1) 100%);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045), 0 10px 30px rgba(0, 0, 0, 0.28);
                 
                 display: flex;
                 align-items: center;
@@ -148,9 +148,9 @@ function CaseButton(props) {
               }
 
               .case-button:hover {
-                border-color: rgba(31, 214, 95, 0.24);
-                transform: translateY(-3px);
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 20px 42px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(31, 214, 95, 0.035);
+                border-color: rgba(31, 214, 95, 0.28);
+                transform: translateY(-4px);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(31, 214, 95, 0.06), 0 0 24px rgba(31, 214, 95, 0.08);
               }
               
               .button:not(.creator) {
@@ -171,8 +171,8 @@ function CaseButton(props) {
               }
 
               .button:hover .image {
-                transform: translateY(-5px) scale(1.03);
-                filter: drop-shadow(0 22px 18px rgba(31, 214, 95, 0.13)) drop-shadow(0 16px 18px rgba(0, 0, 0, 0.45));
+                transform: translateY(-5px) scale(1.04);
+                filter: drop-shadow(0 24px 20px rgba(31, 214, 95, 0.16)) drop-shadow(0 18px 20px rgba(0, 0, 0, 0.48));
               }
               
               .cost {
@@ -292,8 +292,9 @@ function CaseButton(props) {
                 right: 0;
                 height: 4px;
                 border-radius: 99px;
-                background: linear-gradient(90deg, rgba(31, 214, 95, 0.24), rgba(234, 207, 79, 0.55), rgba(255, 85, 113, 0.9));
-                opacity: .82;
+                background: linear-gradient(90deg, rgba(31, 214, 95, 0.3), rgba(234, 207, 79, 0.6), rgba(255, 85, 113, 0.95));
+                opacity: .88;
+                box-shadow: 0 0 6px rgba(31, 214, 95, 0.45), 0 0 12px rgba(234, 207, 79, 0.22);
               }
 
               .track-marker {
@@ -400,7 +401,7 @@ function CaseButton(props) {
                 content: '';
                 position: absolute;
                 inset: 38% 0 38px;
-                background: linear-gradient(90deg, rgba(31, 214, 95, 0.00), rgba(31, 214, 95, 0.12), rgba(255, 214, 88, 0.10), rgba(31, 214, 95, 0.00));
+                background: linear-gradient(90deg, rgba(31, 214, 95, 0.00), rgba(31, 214, 95, 0.14), rgba(255, 214, 88, 0.12), rgba(31, 214, 95, 0.00));
                 opacity: 0;
                 transition: opacity .22s ease;
               }

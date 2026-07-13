@@ -65,7 +65,6 @@ const Affiliates = lazy(() => import('./pages/affiliates'))
 
 const Coinflips = lazy(() => import('./pages/coinflips'))
 const Roulette = lazy(() => import('./pages/roulette'))
-const Jackpot = lazy(() => import('./pages/jackpot'))
 
 const Battles = lazy(() => import('./pages/battles'))
 const Battle = lazy(() => import('./pages/battle'))
@@ -223,17 +222,11 @@ function App() {
                       </Suspense>
                     }/>
 
-                    <Route path='/jackpot' element={
+                    <Route path='/crash' element={
                       <Suspense fallback={<Loader/>}>
-                        <Jackpot user={user()}/>
+                        <Crash user={user()}/>
                       </Suspense>
                     }/>
-
-                    {/*<Route path='/crash' element={*/}
-                    {/*    <Suspense fallback={<Loader/>}>*/}
-                    {/*        <Crash user={user()}/>*/}
-                    {/*    </Suspense>*/}
-                    {/*}/>*/}
 
                     <Route path='/mines' element={
                       <Suspense fallback={<Loader/>}>

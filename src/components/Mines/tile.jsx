@@ -115,12 +115,12 @@ function Tile(props) {
               .mine {
                 aspect-ratio: 1;
                 width: 100%;
-                background: #3A3466;
+                background: #232a36;
                 
-                border-top: 4px solid #463F7B;
-                border-left: 4px solid #463F7B;
-                border-right: 4px solid #2D2852;
-                border-bottom: 4px solid #2D2852;
+                border-top: 4px solid #323b4a;
+                border-left: 4px solid #323b4a;
+                border-right: 4px solid #12151c;
+                border-bottom: 4px solid #12151c;
                 
                 transition: background .3s, border .3s;
                 cursor: pointer;
@@ -133,7 +133,7 @@ function Tile(props) {
               }
               
               .mine:hover {
-                background: #463F7B;
+                background: #2c3340;
               }
               
               .mine.animate {
@@ -153,9 +153,9 @@ function Tile(props) {
 
               .mine.bomb {
                 border-radius: 5px;
-                border: 1px solid rgba(126, 42, 137, 0.25);
-                background: linear-gradient(180deg, rgba(173, 4, 221, 0.15) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(0deg, rgba(18, 16, 36, 0.67) 0%, rgba(18, 16, 36, 0.67) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
-                box-shadow: 0px 2px 7px 0px rgba(0, 0, 0, 0.15) inset, 0px 0px 31px 0px rgba(66, 36, 207, 0.25) inset;
+                border: 1px solid rgba(255, 81, 65, 0.35);
+                background: radial-gradient(139.03% 139.03% at 50% 50%, rgba(255, 81, 65, 0.35) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(0deg, rgba(11, 12, 11, 0.25) 0%, rgba(11, 12, 11, 0.25) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
+                box-shadow: 0px 2px 7px 0px rgba(0, 0, 0, 0.15) inset, 0px 0px 31px 0px rgba(255, 81, 65, 0.45) inset;
               }
               
               .popin {

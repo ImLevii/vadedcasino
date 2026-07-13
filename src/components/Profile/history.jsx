@@ -95,9 +95,6 @@ function History(props) {
           <button class={'bevel-light tab ' + (isActive('coinflip') ? 'active' : '')}
                   onClick={() => setSearchParams({filter: 'coinflip', page: 1})}>COINFLIP
           </button>
-          <button class={'bevel-light tab ' + (isActive('jackpot') ? 'active' : '')}
-                  onClick={() => setSearchParams({filter: 'jackpot', page: 1})}>JACKPOT
-          </button>
           <button class={'bevel-light tab ' + (isActive('roulette') ? 'active' : '')}
                   onClick={() => setSearchParams({filter: 'roulette', page: 1})}>ROULETTE
           </button>

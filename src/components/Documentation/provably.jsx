@@ -92,24 +92,6 @@ const getResult = serverSeed => {
 
 console.log(getResult(serverSeed)); // round crashpoint`,
 
-    JACKPOT: `const crypto = require('crypto');
-
-const combine = (serverSeed, clientSeed) => {
-    return crypto.createHmac('sha256', serverSeed).update(clientSeed).digest('hex');
-}
-
-// returns a float between 0 and 1
-const getFloatResult = hashedValue => {
-    let decimalNumber = parseInt(hashedValue, 16);
-    let maxDecimalValue = parseInt('f'.repeat(64), 16);
-    let floatNumber = decimalNumber / (maxDecimalValue - 1);
-    return Number(floatNumber.toFixed(7));
-};
-
-const percentageWinner = getFloatResult(combine(serverSeed, clientSeed));
-const winnerTicket = Math.floor(totalTickets * percentageWinner);
-console.log(winnerTicket);`,
-
     COINFLIP: `const crypto = require('crypto');
 
 const combine = (serverSeed, clientSeed) => {
@@ -207,21 +189,6 @@ const GAMES = [
         code: 'CRASH'
     },
     {
-        key: 'JACKPOT',
-        label: 'Jackpot',
-        seedsPanel: false,
-        intro: 'In Jackpot, our system generates the result for each round using the SHA-256 hash of 2 inputs:',
-        bullets: [
-            ['Server Seed', 'a randomly generated hash, its SHA256 shown at round creation.'],
-            ['Client Seed', 'the ID of an EOS block we commit to before it is mined.']
-        ],
-        paragraphs: [
-            'When a new jackpot round is created, we make a random server seed and show its SHA256 hash. After all players have placed their bets, we commit to a future block number on the EOS blockchain; once mined, its ID becomes the client seed.',
-            'After the round is over the unhashed server seed is revealed so users can confirm its SHA256 matches the one shown previously. To determine the total number of tickets, multiply the total pot amount of the round by 100.'
-        ],
-        code: 'JACKPOT'
-    },
-    {
         key: 'COINFLIP',
         label: 'Coinflip',
         seedsPanel: false,
@@ -291,7 +258,6 @@ const CATEGORY_ICONS = {
     BATTLES: 'M4 4l7 7-2 2-7-7V4h2zm16 0v2l-7 7 2 2 7-7V4h-2zM7 15l2 2-3 3H4v-2l3-3zm10 0l3 3v2h-2l-3-3 2-2z',
     ROULETTE: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4a6 6 0 1 1 0 12 6 6 0 0 1 0-12zm0 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
     CRASH: 'M13 3c4 0 8 4 8 8l-4 1-5-5 1-4zm-2 4l6 6-2 6-4 2-2-4-4-2 2-4 4-4zM5 17l2 2-3 3H2v-2l3-3z',
-    JACKPOT: 'M5 8h14v2H5V8zm-1 4h16v2H4v-2zm2 4h12v2H6v-2zm3-12h6l1 3H8l1-3z',
     COINFLIP: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4a6 6 0 1 1 0 12 6 6 0 0 1 0-12z',
     MINES: 'M15 4l2 2 2-2 1 1-2 2 2 2-1 1-2-2-1 1a8 8 0 1 1-3-3l1-1-1-1 2-2zM10 20a6 6 0 1 0 0-12 6 6 0 0 0 0 12z',
     DAILY: 'M4 8h16v4h-1v8H5v-8H4V8zm7 4v8h2v-8h-2zm1-10c2 0 3 1 3 3H9c0-2 1-3 3-3zM6 5h4v3H6a1.5 1.5 0 1 1 0-3zm12 0a1.5 1.5 0 1 1 0 3h-4V5h4z',

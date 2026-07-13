@@ -162,7 +162,7 @@ router.get('/transactions', isAuthed, async (req, res) => {
 
 });
 
-const allowedGames = ['battle', 'case', 'coinflip', 'crash', 'jackpot', 'roulette'];
+const allowedGames = ['battle', 'case', 'coinflip', 'crash', 'roulette'];
 
 router.get('/bets', isAuthed, async (req, res) => {
 

@@ -1,152 +1,327 @@
-import {createEffect} from "solid-js";
+import { createEffect, onMount, Show } from 'solid-js';
+import { A } from '@solidjs/router';
 
-const Graph = (props) => {
+function CrashGraph(props) {
+  let canvasRef;
+  let containerRef;
 
-    let graphRef
-    let canvasRef
-    const getTime = mult => Math.log(mult) / 0.00006;
+  onMount(() => {
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+  });
 
-    createEffect(() => {
-        resizeCanvas()
-        window.addEventListener('resize', screenSizeChange)
-        return () => window.removeEventListener('resize', screenSizeChange)
-    })
+  function resizeCanvas() {
+    if (!canvasRef || !containerRef) return;
+    canvasRef.width = containerRef.clientWidth;
+    canvasRef.height = containerRef.clientHeight;
+    drawGraph();
+  }
 
-    function screenSizeChange() {
-        let ctx = graphRef?.getContext('2d')
-        let multi = props?.payout
-        let timeElapsed = getTime(multi)
-        let values = getValues(timeElapsed, multi)
+  createEffect(() => {
+    if (props.multiplier || props.isFlying || props.isCrashed) {
+      drawGraph();
+    }
+  });
 
-        resizeCanvas()
-        clearGraph(ctx)
-        drawAxes(ctx, multi, values)
-        drawGraph(ctx, multi, values)
+  function drawGraph() {
+    if (!canvasRef) return;
+    
+    const ctx = canvasRef.getContext('2d');
+    const width = canvasRef.width;
+    const height = canvasRef.height;
+    
+    ctx.clearRect(0, 0, width, height);
+    
+    if (!props.isFlying && !props.isCrashed) return;
+
+    const multi = props.multiplier || 1.00;
+    const maxTime = Math.max(10000, getTimeFromMultiplier(multi) * 1.2);
+    const maxMulti = Math.max(2.0, multi * 1.2);
+
+    // Draw axes
+    drawAxes(ctx, width, height, maxMulti, maxTime);
+
+    // Draw graph line
+    drawLine(ctx, width, height, multi, maxMulti, maxTime);
+  }
+
+  function getTimeFromMultiplier(multi) {
+    // Inverse of: multi = e^(0.00006 * time)
+    return Math.log(multi) / 0.00006;
+  }
+
+  function drawAxes(ctx, width, height, maxMulti, maxTime) {
+    const padding = 60;
+    const graphWidth = width - padding * 2;
+    const graphHeight = height - padding * 2;
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 1;
+    ctx.font = '12px Geogrotesque Wide';
+    ctx.fillStyle = '#8b92a0';
+
+    // Y-axis ticks (multipliers)
+    const yStep = maxMulti > 5 ? 1 : 0.5;
+    for (let m = 1; m < maxMulti; m += yStep) {
+      const y = height - padding - ((m - 1) / (maxMulti - 1)) * graphHeight;
+      
+      ctx.beginPath();
+      ctx.setLineDash([5, 5]);
+      ctx.moveTo(padding, y);
+      ctx.lineTo(width - padding, y);
+      ctx.stroke();
+      
+      ctx.fillText(`${m.toFixed(2)}x`, width - padding + 10, y + 4);
     }
 
-    function resizeCanvas() {
-        let ctx = graphRef?.getContext('2d')
-
-        if (ctx) {
-            graphRef.height = canvasRef.clientHeight
-            graphRef.width = canvasRef.clientWidth
-        }
+    // X-axis ticks (time)
+    const xStep = 2000; // 2 seconds
+    for (let t = xStep; t < maxTime; t += xStep) {
+      const x = padding + (t / maxTime) * graphWidth;
+      
+      ctx.fillText(`${(t / 1000).toFixed(0)}s`, x - 10, height - padding + 20);
     }
 
-    createEffect(() => {
-        if (props?.payout) {
-            let ctx = graphRef?.getContext('2d')
-            if (!ctx) return
+    ctx.setLineDash([]);
+  }
 
-            let multi = props?.payout
-            let timeElapsed = getTime(multi)
-            let values = getValues(timeElapsed, multi)
+  function drawLine(ctx, width, height, currentMulti, maxMulti, maxTime) {
+    const padding = 60;
+    const graphWidth = width - padding * 2;
+    const graphHeight = height - padding * 2;
 
-            clearGraph(ctx)
-            drawAxes(ctx, multi, values)
-            drawGraph(ctx, multi, values)
-        }
-    })
+    const currentTime = getTimeFromMultiplier(currentMulti);
 
-    function getValues(time, multi) {
-        let yAxisMin = 2
-        let xStart = 20
-        let yStart = 20
-        let xEnd = 80
-        let yEnd = 80
-        let yAxisValue = 2
-        let xAxisValue = 10000 // 10 seconds
-        let canvasHeight = canvasRef.clientHeight
-        let canvasWidth = canvasRef.clientWidth
-        let plotHeight = canvasHeight - yStart
-        let plotWidth = canvasWidth - xStart
+    ctx.strokeStyle = props.isCrashed ? '#ff5141' : '#1fd65f';
+    ctx.lineWidth = 3;
+    ctx.shadowBlur = props.isCrashed ? 0 : 15;
+    ctx.shadowColor = props.isCrashed ? 'transparent' : '#1fd65f';
 
-        if (time > xAxisValue)
-            xAxisValue = time
+    ctx.beginPath();
 
-        if (multi > yAxisValue)
-            yAxisValue = multi
-
-        yAxisValue -= 1
-        let widthIncrement = canvasRef.clientWidth / xAxisValue
-        let heightIncrement = canvasRef.clientHeight / yAxisValue
-        let currentX = time * widthIncrement
-
-        return {
-            xEnd,
-            yEnd,
-            xStart,
-            yStart,
-            canvasHeight,
-            canvasWidth,
-            yAxisValue,
-            xAxisValue,
-            plotHeight,
-            plotWidth,
-            widthIncrement,
-            heightIncrement,
-            currentX
-        }
+    for (let m = 1.00; m <= currentMulti; m += 0.01) {
+      const t = getTimeFromMultiplier(m);
+      const x = padding + (t / maxTime) * graphWidth;
+      const y = height - padding - ((m - 1) / (maxMulti - 1)) * graphHeight;
+      
+      if (m === 1.00) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
     }
 
-    function drawGraph(ctx, multi, values) {
-        ctx.strokeStyle = '#ff9900';
-        ctx.lineWidth = 3
-        ctx.beginPath();
+    ctx.stroke();
+    ctx.shadowBlur = 0;
 
-        for (let m = 1; m < multi; m += 0.01) {
-            let t = getTime(m)
-            let adjustedM = m - 1
-
-            let y = values.canvasHeight - (adjustedM * values.heightIncrement) - values.yStart
-            let x = t * values.widthIncrement
-            ctx.setLineDash([])
-            ctx.lineTo(x, y)
-        }
-
-        ctx.stroke();
+    // Draw current point
+    if (!props.isCrashed) {
+      const x = padding + (currentTime / maxTime) * graphWidth;
+      const y = height - padding - ((currentMulti - 1) / (maxMulti - 1)) * graphHeight;
+      
+      ctx.fillStyle = '#1fd65f';
+      ctx.beginPath();
+      ctx.arc(x, y, 6, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.strokeStyle = 'rgba(31, 214, 95, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(x, y, 12, 0, Math.PI * 2);
+      ctx.stroke();
     }
+  }
 
-    function drawAxes(ctx, multi, values) {
-        function stepValues(x) {
-            var c = .4;
-            var r = .1;
-            while (true) {
+  return (
+    <>
+      <div class='crash-graph' ref={containerRef}>
+        <div class='graph-header'>
+          <A href='/docs/provably' class='fairness-link'>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <span>Game Fairness</span>
+          </A>
 
-                if (x <  c) return r;
+          <div class='max-payout'>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="16 18 22 12 16 6"/>
+              <polyline points="8 6 2 12 8 18"/>
+            </svg>
+            <span>Max Payout</span>
+            <img src='/assets/icons/coin.svg' height='12' width='12' alt='' />
+            <span class='amount'>{(props.maxPayout / 1000).toFixed(2)}K</span>
+          </div>
+        </div>
 
-                c *= 5;
-                r *= 2;
-
-                if (x <  c) return r;
-                c *= 2;
-                r *= 5;
+        <div class='graph-center'>
+          <Show 
+            when={props.isFlying || props.isCrashed}
+            fallback={
+              <div class='countdown-display'>
+                <p class='countdown-label'>Starting in</p>
+                <p class='countdown-value'>{(props.countdown / 1000).toFixed(1)}s</p>
+              </div>
             }
+          >
+            <div class='multiplier-display'>
+              <p class='current-label'>
+                {props.isCrashed ? `CRASHED @ ${props.multiplier.toFixed(2)}x` : 'Current Payout'}
+              </p>
+              <p class={'multiplier-value ' + (props.isCrashed ? 'crashed' : '')}>
+                {props.multiplier.toFixed(2)}x
+              </p>
+            </div>
+          </Show>
+        </div>
+
+        <canvas ref={canvasRef} class='graph-canvas' />
+      </div>
+
+      <style jsx>{`
+        .crash-graph {
+          flex: 1;
+          background: radial-gradient(circle at 50% 50%, #0d1420 0%, #0a0e16 100%);
+          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          position: relative;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
         }
 
-        let payoutSeparation = stepValues(multi);
-
-        ctx.lineWidth=1;
-        ctx.strokeStyle = 'white';
-        ctx.font= "normal normal bold 13px Geogrotesque Wide";
-        ctx.fillStyle = 'white';
-
-        for(let payout = payoutSeparation, i = 0; payout < values.yAxisValue; payout += payoutSeparation, i++) {
-            let y = values.plotHeight - (payout*values.heightIncrement);
-            let text = (payout + 1).toFixed(2) + 'x'
-            let textWidth = ctx.measureText(text).width;
-
-            ctx.fillText(text, values.plotWidth - textWidth, y - 5);
-
-            ctx.beginPath();
-            ctx.moveTo(values.plotWidth, y);
-            ctx.setLineDash([20, 10])
-            ctx.lineTo(20, y);
-            ctx.strokeStyle = '#291114'
-            ctx.stroke();
-
-            if(i > 100) break
+        .graph-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 16px 20px;
+          position: relative;
+          z-index: 2;
         }
+
+        .fairness-link {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          color: #8b92a0;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 12px;
+          font-weight: 600;
+          text-decoration: none;
+          transition: color 0.2s;
+        }
+
+        .fairness-link:hover {
+          color: #c3cad6;
+        }
+
+        .max-payout {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          color: #8b92a0;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 12px;
+          font-weight: 600;
+        }
+
+        .max-payout .amount {
+          color: #1fd65f;
+          font-weight: 700;
+        }
+
+        .graph-center {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          z-index: 2;
+          text-align: center;
+        }
+
+        .countdown-display {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .countdown-label {
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 16px;
+          font-weight: 600;
+          color: #8b92a0;
+          text-transform: uppercase;
+        }
+
+        .countdown-value {
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 56px;
+          font-weight: 700;
+          color: #1fd65f;
+          text-shadow: 0px 0px 20px rgba(31, 214, 95, 0.5);
+        }
+
+        .multiplier-display {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .current-label {
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 14px;
+          font-weight: 600;
+          color: #8b92a0;
+          text-transform: uppercase;
+        }
+
+        .multiplier-value {
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 72px;
+          font-weight: 700;
+          color: #1fd65f;
+          text-shadow: 0px 0px 30px rgba(31, 214, 95, 0.6);
+          line-height: 1;
+        }
+
+        .multiplier-value.crashed {
+          color: #ff5141;
+          text-shadow: 0px 0px 30px rgba(255, 81, 65, 0.6);
+          animation: crash-flash 0.5s;
+        }
+
+        @keyframes crash-flash {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+
+        .graph-canvas {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+          .multiplier-value {
+            font-size: 56px;
+          }
+
+          .countdown-value {
+            font-size: 42px;
+          }
+        }
+      `}</style>
+    </>
+  );
+}
+
+export default CrashGraph;
+
 
         //Calculate X Axis
         let milisecondsSeparation = stepValues(values.xAxisValue);

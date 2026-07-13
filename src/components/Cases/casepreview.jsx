@@ -164,9 +164,9 @@ function CasePreview(props) {
                     overflow-y: auto;
 
                     border-radius: 12px;
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    background: #12151c;
-                    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+                    border: 1px solid rgba(255, 255, 255, 0.065);
+                    background: linear-gradient(180deg, rgba(16, 20, 26, 0.98), rgba(10, 13, 18, 0.98));
+                    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 24px 80px rgba(0, 0, 0, 0.65);
 
                     padding: 0;
                     animation: modalIn 0.25s ease;
@@ -191,10 +191,11 @@ function CasePreview(props) {
                     justify-content: space-between;
                     gap: 12px;
                     padding: 18px 20px;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.055);
                     position: sticky;
                     top: 0;
-                    background: #12151c;
+                    background: linear-gradient(180deg, rgba(16, 20, 26, 0.98), rgba(14, 18, 24, 0.98));
+                    backdrop-filter: blur(8px);
                     z-index: 1;
                 }
 
@@ -252,7 +253,8 @@ function CasePreview(props) {
                     display: flex;
                     gap: 8px;
                     padding: 14px 20px;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                    background: rgba(31, 214, 95, 0.018);
                 }
 
                 .stat-box {
@@ -263,8 +265,9 @@ function CasePreview(props) {
                     gap: 4px;
                     padding: 10px;
                     border-radius: 8px;
-                    background: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.04);
+                    background: rgba(255, 255, 255, 0.035);
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    box-shadow: inset 0 1px 0 rgba(255,255,255,0.025);
                 }
 
                 .stat-label {
@@ -317,8 +320,9 @@ function CasePreview(props) {
                     width: 100%;
                     height: 6px;
                     border-radius: 99px;
-                    background: rgba(255, 255, 255, 0.06);
+                    background: rgba(31, 36, 47, 0.65);
                     overflow: hidden;
+                    box-shadow: inset 0 1px 2px rgba(0,0,0,0.35);
                 }
 
                 .breakdown-bar-fill {
@@ -326,6 +330,7 @@ function CasePreview(props) {
                     border-radius: 99px;
                     transition: width 0.4s ease;
                     min-width: 2px;
+                    box-shadow: 0 0 8px currentColor;
                 }
 
                 .breakdown-info {

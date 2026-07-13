@@ -113,8 +113,6 @@ export const errors = {
     CANT_REDEEM_OWN_CODE: "You can't redeem your own code.",
     CODE_EXPIRED: "This code has reached it's maximum uses.",
     MAX_BET_ROULETTE: "You can only bet a maximum of 100,000 coins per color on roulette.",
-    MIN_BET_JACKPOT: "Minimum bet on jackpot is 5 coins.",
-    MAX_BET_JACKPOT: "You can only bet a maximum of 150,000 coins on jackpot.",
     SPONSOR_LOCK: "This feature is disabled for sponsored users.",
     SPONSOR_LOCK_FUNDING: "You can't fund battles as a sponsor.",
     SPONSOR_ONLY_CASES: "This battle contains cases that are only available for sponsored users.",

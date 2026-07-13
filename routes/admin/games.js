@@ -131,14 +131,6 @@ router.get('/probability', async (req, res) => {
             winMultiplier: (1 - coinflipEdge / 100) * 2
         };
         
-        // Jackpot probability
-        const jackpotEdge = getGameConfig('jackpot', 'houseEdge', 5);
-        data.jackpot = {
-            houseEdge: jackpotEdge,
-            description: 'Jackpot uses EOS block hash. Winner determined by ticket weight distribution.',
-            prizeMultiplier: (1 - jackpotEdge / 100)
-        };
-        
         // Blackjack probability
         const blackjackEdge = getGameConfig('blackjack', 'houseEdge', 2.5);
         data.blackjack = {
@@ -192,12 +184,6 @@ router.get('/fairness/:game?', async (req, res) => {
                         [limit]
                     );
                     break;
-                case 'jackpot':
-                    [rounds] = await sql.query(
-                        'SELECT id, serverSeed, clientSeed, winnerBet, ticket, amount, rolledAt FROM jackpot WHERE endedAt IS NOT NULL ORDER BY id DESC LIMIT ?',
-                        [limit]
-                    );
-                    break;
                 case 'mines':
                     [rounds] = await sql.query(
                         'SELECT id, minesCount, payout, endedAt FROM mines WHERE endedAt IS NOT NULL ORDER BY id DESC LIMIT ?',
@@ -217,7 +203,7 @@ router.get('/fairness/:game?', async (req, res) => {
             res.json({ success: true, data: rounds });
         } else {
             // Get count of rounds per game
-            const games = ['crash', 'coinflip', 'jackpot', 'mines', 'roulette'];
+            const games = ['crash', 'coinflip', 'mines', 'roulette'];
             const counts = {};
             
             for (const g of games) {

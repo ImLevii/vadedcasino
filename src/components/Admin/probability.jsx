@@ -84,10 +84,6 @@ function Probability() {
                                         <Show when={game === 'coinflip'}>
                                             <div class='win-mult'>Win Multiplier: x{info.winMultiplier.toFixed(2)}</div>
                                         </Show>
-
-                                        <Show when={game === 'jackpot'}>
-                                            <div class='prize-mult'>Prize Multiplier: x{info.prizeMultiplier.toFixed(2)}</div>
-                                        </Show>
                                     </div>
                                 )}
                             </For>

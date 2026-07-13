@@ -91,7 +91,7 @@ router.get('/config', async (req, res) => {
     try {
         const { getAllGameSettings, getGameConfig } = require('../../routes/admin/gameConfig');
         
-        const games = ['crash', 'mines', 'roulette', 'coinflip', 'jackpot', 'blackjack'];
+        const games = ['crash', 'mines', 'roulette', 'coinflip', 'blackjack'];
         const config = {};
         
         for (const game of games) {

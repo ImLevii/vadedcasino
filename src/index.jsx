@@ -26,7 +26,7 @@ render(() => <>
                     <MetaProvider>
                         <Title>Cosmic Luck | Win Big on the Best Casino Gaming Site</Title>
                         <Meta name='title' content='Cosmic Luck | Win Big on the Best Casino Gaming Site'></Meta>
-                        <Meta name='description' content='Cosmic Luck: Play our premium games such as Case Battles, Loot Unboxing, Crash, Roulette, Coinflip and Jackpot. Win Coins and withdraw crypto instantly!'></Meta>
+                        <Meta name='description' content='Cosmic Luck: Play our premium games such as Case Battles, Loot Unboxing, Crash, Roulette, Coinflip and Mines. Win Coins and withdraw crypto instantly!'></Meta>
 
                         <App/>
                     </MetaProvider>

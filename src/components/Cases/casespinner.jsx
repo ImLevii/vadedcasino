@@ -111,11 +111,11 @@ function CaseSpinner(props) {
                 height: 204px;
 
                 border-radius: 10px;
-                background: radial-gradient(72% 115% at 50% 50%, rgba(31, 214, 95, 0.038), rgba(8, 10, 16, 0) 48%), linear-gradient(180deg, #0a0d14, #06080e);
+                background: radial-gradient(72% 115% at 50% 50%, rgba(31, 214, 95, 0.045), rgba(8, 10, 16, 0) 48%), linear-gradient(180deg, #0a0d14, #06080e);
                 overflow: hidden;
                 position: relative;
-                border: 1px solid rgba(255,255,255,0.05);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.025), 0 12px 30px rgba(0, 0, 0, 0.22);
+                border: 1px solid rgba(255,255,255,0.06);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 10px 28px rgba(0, 0, 0, 0.24);
               }
 
               .case-spinner-container.multi {
@@ -253,10 +253,10 @@ function CaseSpinner(props) {
                 transform: translateX(-65px);
                 width: 130px;
                 height: 100%;
-                background: linear-gradient(90deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.055), rgba(31, 214, 95, 0));
+                background: linear-gradient(90deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.07), rgba(31, 214, 95, 0));
                 z-index: 1;
                 pointer-events: none;
-                box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.06), inset -1px 0 0 rgba(31, 214, 95, 0.06), 0 0 20px rgba(31, 214, 95, 0.06);
+                box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.08), inset -1px 0 0 rgba(31, 214, 95, 0.08), 0 0 24px rgba(31, 214, 95, 0.08);
                 animation: centerGlow 2.8s ease-in-out infinite;
               }
 
@@ -272,10 +272,10 @@ function CaseSpinner(props) {
                 transform: translateX(-65px);
                 width: 130px;
                 height: 2px;
-                background: linear-gradient(to right, transparent, rgba(31, 214, 95, 0.12) 12%, #1fd65f 38%, #1fd65f 62%, rgba(31, 214, 95, 0.12) 88%, transparent);
+                background: linear-gradient(to right, transparent, rgba(31, 214, 95, 0.16) 12%, #1fd65f 38%, #1fd65f 62%, rgba(31, 214, 95, 0.16) 88%, transparent);
                 z-index: 3;
                 pointer-events: none;
-                box-shadow: 0 0 6px rgba(31, 214, 95, 0.35);
+                box-shadow: 0 0 10px rgba(31, 214, 95, 0.5), 0 0 18px rgba(31, 214, 95, 0.22);
               }
 
               .center-line-top { top: 0; }
@@ -317,12 +317,12 @@ function CaseSpinner(props) {
 
               @keyframes centerGlow {
                 0%, 100% {
-                  opacity: .7;
-                  box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.06), inset -1px 0 0 rgba(31, 214, 95, 0.06), 0 0 12px rgba(31, 214, 95, 0.05);
+                  opacity: .75;
+                  box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.08), inset -1px 0 0 rgba(31, 214, 95, 0.08), 0 0 16px rgba(31, 214, 95, 0.06);
                 }
                 50% {
                   opacity: 1;
-                  box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.1), inset -1px 0 0 rgba(31, 214, 95, 0.1), 0 0 22px rgba(31, 214, 95, 0.08);
+                  box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.14), inset -1px 0 0 rgba(31, 214, 95, 0.14), 0 0 28px rgba(31, 214, 95, 0.1);
                 }
               }
 

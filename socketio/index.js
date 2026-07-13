@@ -10,7 +10,6 @@ const { crash } = require('../routes/games/crash/functions');
 const { cachedCoinflips } = require('../routes/games/coinflip/functions');
 const { getBets, emitTotalWagered } = require('./bets');
 const { validateJwtToken } = require('../routes/auth/functions');
-const { jackpot } = require('../routes/games/jackpot/functions');
 const { discordClient, discordIds } = require('../discord/index');
 const { rewards: surveysRewards } = require('../routes/surveys/functions');
 const cookie = require('cookie');
@@ -249,27 +248,6 @@ io.on('connection', function(socket) {
         socket.leave('roulette');
     });
 
-    socket.on('jackpot:subscribe', () => {
-        
-        // console.log(socket.userId, 'subscribed to jackpot');
-
-        // const round = {
-        //     ...jackpot.round,
-        //     status: jackpot.round.rolledAt ? 'rolling': 'created'
-        // };
-
-        socket.join('jackpot');
-        socket.emit('jackpot:set', {
-            serverTime: new Date(),
-            ...jackpot
-        });
-
-    });
-
-    socket.on('jackpot:unsubscribe', () => {
-        socket.leave('jackpot');
-    });
-
     socket.on('crash:subscribe', () => {
 
         // console.log(socket.userId, 'subscribed to crash');
@@ -278,7 +256,7 @@ io.on('connection', function(socket) {
             id: crash.round.id,
             status: 'created',
             multiplier: 1,
-            serverSeed: crash.round.serverSeed,
+            serverSeedHash: crash.round.serverSeedHash,
             createdAt: crash.round.createdAt,
             startedAt: null,
             endedAt: null
@@ -299,7 +277,12 @@ io.on('connection', function(socket) {
         socket.join('crash');
         socket.emit('crash:set', {
             serverTime: new Date(),
-            ...crash,
+            last: crash.last,
+            pot: crash.pot,
+            betTime: crash.round.createdAt ? Math.max(0, crash.round.createdAt.valueOf() + crash.config.betTime - Date.now()) : 0,
+            maxPayout: crash.config.maxPayout,
+            minBet: crash.config.minBet,
+            maxBet: crash.config.maxBet,
             bets: crash.bets.map(e => ({
                 ...e,
                 user: {

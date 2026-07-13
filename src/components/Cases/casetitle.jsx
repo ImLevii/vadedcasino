@@ -11,9 +11,9 @@ function CaseTitle(props) {
                 min-height: 29px;
                 
                 border-radius: 5px;
-                border: 1px solid rgba(255, 255, 255, 0.035);
-                background: linear-gradient(180deg, rgba(12, 15, 22, 0.36) 0%, rgba(3, 5, 9, 0.82) 100%);
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.025);
+                border: 1px solid rgba(255, 255, 255, 0.04);
+                background: linear-gradient(180deg, rgba(12, 15, 22, 0.4) 0%, rgba(3, 5, 9, 0.86) 100%);
+                box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.03);
 
                 color: #c7d0de;
                 font-size: 12px;
@@ -48,7 +48,7 @@ function CaseTitle(props) {
                 
                 content: '';
                 border-radius: 5px;
-                background: linear-gradient(180deg, rgba(16, 18, 24, 0.32) 0%, rgba(7, 9, 13, 0.88) 100%);
+                background: linear-gradient(180deg, rgba(16, 18, 24, 0.36) 0%, rgba(7, 9, 13, 0.92) 100%);
               }
             `}</style>
         </>

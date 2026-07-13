@@ -87,13 +87,6 @@ function AdminSettings(props) {
                             </div>
 
                             <div className='toggle'>
-                                <p>JACKPOT</p>
-                                <Switch ultradark={true} active={settings()?.jackpot} toggle={() => {
-                                    changeProperty('jackpot', !settings()?.jackpot)
-                                }}/>
-                            </div>
-
-                            <div className='toggle'>
                                 <p>SLOTS</p>
                                 <Switch ultradark={true} active={settings()?.slots} toggle={() => {
                                     changeProperty('slots', !settings()?.slots)

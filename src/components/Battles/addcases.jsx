@@ -165,13 +165,13 @@ function AddCases(props) {
           width: 100%;
           height: 100%;
           max-height: 650px;
-          background: linear-gradient(180deg, rgba(13, 17, 24, 0.98), rgba(7, 10, 16, 0.98));
+          background: linear-gradient(180deg, rgba(11, 15, 22, 0.98), rgba(7, 10, 16, 0.98));
 
           display: flex;
           flex-direction: column;
           border-radius: 12px;
-          border: 1px solid rgba(255,255,255,0.055);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.035), 0 24px 80px rgba(0,0,0,0.45);
+          border: 1px solid rgba(255,255,255,0.06);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 24px 80px rgba(0,0,0,0.5);
           overflow: hidden;
         }
 
@@ -185,13 +185,13 @@ function AddCases(props) {
 
           padding: 0 20px;
 
-          background: linear-gradient(180deg, rgba(22, 29, 41, 0.96), rgba(11, 15, 23, 0.98));
-          border-bottom: 1px solid rgba(255,255,255,0.05);
+          background: linear-gradient(180deg, rgba(20, 27, 39, 0.98), rgba(11, 15, 23, 0.98));
+          border-bottom: 1px solid rgba(255,255,255,0.06);
         }
 
         .footer {
           min-height: 60px;
-          border-top: 1px solid rgba(255,255,255,0.05);
+          border-top: 1px solid rgba(255,255,255,0.06);
           border-bottom: unset;
         }
 
@@ -279,11 +279,18 @@ function AddCases(props) {
 
           border-radius: 5px;
           background: rgba(255, 255, 255, 0.035);
-          border: 1px solid rgba(255,255,255,0.055);
+          border: 1px solid rgba(255,255,255,0.06);
 
           padding: 0 0 0 15px;
 
           display: flex;
+          transition: border-color 0.2s ease, background 0.2s ease;
+        }
+        
+        .search-container:focus-within {
+          border-color: rgba(31, 214, 95, 0.4);
+          background: rgba(31, 214, 95, 0.04);
+          box-shadow: 0 0 0 2px rgba(31, 214, 95, 0.1);
         }
 
         .search {
@@ -314,6 +321,11 @@ function AddCases(props) {
           width: 40px;
           border-radius: 0px 5px 5px 0px;
           background: rgba(31, 214, 95, 0.08);
+          transition: background 0.2s ease;
+        }
+        
+        .search-button:hover {
+          background: rgba(31, 214, 95, 0.14);
         }
 
         .sort-by {

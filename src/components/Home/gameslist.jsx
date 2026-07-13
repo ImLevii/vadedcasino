@@ -53,11 +53,12 @@ function GamesList() {
             link: '/cases',
         },
         {
-            icon: '/assets/icons/jackpot.svg',
-            title: 'JACKPOT',
-            type: 'PVP',
-            image: '/assets/gamemodes/jackpot.png',
-            link: '/jackpot',
+            tag: 'new',
+            icon: '/assets/icons/crash.svg',
+            title: 'CRASH',
+            type: 'HOUSE',
+            image: '/assets/gamemodes/crash.png',
+            link: '/crash',
         },
     ]
 

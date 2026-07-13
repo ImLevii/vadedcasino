@@ -6,7 +6,7 @@ const { doTransaction } = require('../../../database');
 const { isAuthed, apiLimiter } = require('../../auth/functions');
 const { roundDecimal, xpChanged } = require('../../../utils');
 const io = require('../../../socketio/server');
-const { crash } = require('./functions')
+const { crash, capWinnings, addToPot } = require('./functions')
 const { newBets } = require('../../../socketio/bets');
 const { enabledFeatures, xpMultiplier } = require('../../admin/config');
 
@@ -24,7 +24,7 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
 
     const amount = roundDecimal(req.body.amount);
 
-    if (!amount || amount < 1 || amount > 25000) {
+    if (!amount || isNaN(amount) || amount < crash.config.minBet || amount > crash.config.maxBet) {
         return res.json({ error: 'INVALID_AMOUNT' });
     }
 
@@ -73,6 +73,8 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
             bet.autoCashoutPoint = autoCashoutPoint;
     
             crash.bets.push(bet);
+
+            addToPot(amount);
         
             res.json({ success: true });
 
@@ -100,8 +102,7 @@ router.post('/cashout', isAuthed, apiLimiter, async (req, res) => {
     if (bet.cashoutPoint || (bet.autoCashoutPoint && (currentPoint >= bet.autoCashoutPoint))) return res.json({ error: 'ALREADY_CASHED_OUT' });
 
     bet.cashoutPoint = currentPoint;
-    const winnings = roundDecimal(bet.amount * currentPoint);
-    bet.winnings = winnings > crash.config.maxProfit ? crash.config.maxProfit : winnings;
+    bet.winnings = capWinnings(bet.amount, currentPoint);
 
     try {
 
@@ -109,6 +110,7 @@ router.post('/cashout', isAuthed, apiLimiter, async (req, res) => {
 
             const [[user]] = await connection.query('SELECT id, username, balance, xp, anon FROM users WHERE id = ?', [req.userId]);
 
+            await connection.query('UPDATE crashBets SET cashoutPoint = ? WHERE id = ?', [currentPoint, bet.id]);
             await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [bet.winnings, user.id]);
             await connection.query('UPDATE bets SET completed = 1, winnings = ? WHERE game = ? AND gameId = ?', [bet.winnings, 'crash', bet.id]);
 

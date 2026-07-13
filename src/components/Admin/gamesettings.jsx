@@ -7,7 +7,6 @@ const GAME_LABELS = {
     'mines': 'Mines',
     'roulette': 'Roulette',
     'coinflip': 'Coinflip',
-    'jackpot': 'Jackpot',
     'blackjack': 'Blackjack',
     'cases': 'Cases',
     'battles': 'Battles'

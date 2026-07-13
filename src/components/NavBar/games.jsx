@@ -8,7 +8,7 @@ const GAMEMODES = [
     {name: 'MINES', href: '/mines', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/666df0e7-15eb-46be-b911-5d014e3d50a4-CSGOLuck_Thumbnail_960x540_Mines.jpeg'},
     {name: 'COINFLIP', href: '/coinflip', img: '/assets/gamemodes/coinflip-green.svg'},
     {name: 'ROULETTE', href: '/roulette', img: '/assets/gamemodes/roulette-green.svg'},
-    {name: 'JACKPOT', href: '/jackpot', img: '/assets/gamemodes/jackpot-green.svg'},
+    {name: 'CRASH', href: '/crash', img: '/assets/gamemodes/crash.png'},
     {name: 'CASES', href: '/cases', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/427a331f-8299-4914-9895-0ff3cac84a47-CSGOLuck_Thumbnail_960x540_CaseOpening.jpeg'},
 ]
 
