@@ -13,6 +13,26 @@ function Roulette(props) {
     let hasConnected = false
     let bar
 
+    const tickSFX = new Audio('/assets/sfx/casetick.wav')
+    const winSFX = new Audio('/assets/sfx/winorcashout.mp3')
+    let rouletteTickTimer = null
+
+    function startRouletteTicking(duration) {
+        if (rouletteTickTimer) clearTimeout(rouletteTickTimer)
+        let elapsed = 0
+        const tick = () => {
+            tickSFX.currentTime = 0
+            tickSFX.play().catch(() => {})
+            const progress = Math.min(elapsed / duration, 1)
+            const delay = Math.round(75 + progress * 225)
+            elapsed += delay
+            if (elapsed < duration) {
+                rouletteTickTimer = setTimeout(tick, delay)
+            }
+        }
+        rouletteTickTimer = setTimeout(tick, 75)
+    }
+
     const [bets, setBets] = createSignal([])
     const [bet, setBet] = createSignal(0)
     const [timeLeft, setTimeLeft] = createSignal(10000)
@@ -90,7 +110,12 @@ function Roulette(props) {
                 prev10.unshift(roll?.result)
                 prev10 = prev10.slice(0, 10)
 
+                startRouletteTicking(config().rollTime || 5000)
+
                 setTimeout(() => {
+                    if (rouletteTickTimer) { clearTimeout(rouletteTickTimer); rouletteTickTimer = null }
+                    winSFX.currentTime = 0
+                    winSFX.play().catch(() => {})
                     setStats(calculateStats(newLast100))
                     setLast100(newLast100)
                     setLast10(prev10)

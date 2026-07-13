@@ -41,7 +41,7 @@ function parsePrice(raw) {
     if (raw === undefined || raw === null || raw === '') return null;
     const value = Number(raw);
     if (!Number.isFinite(value) || value <= 0) return null;
-    return roundDecimal(value);
+    return roundDecimal(value, 8);
 }
 
 function normalizeText(value, maxLen) {

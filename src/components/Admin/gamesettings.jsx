@@ -1,4 +1,5 @@
 import {createSignal, createEffect, For, Show} from "solid-js";
+import {A} from "@solidjs/router";
 import {authedAPI} from "../../util/api";
 
 const GAME_LABELS = {
@@ -192,7 +193,7 @@ function GameSettings(props) {
                 </Show>
 
                 <div class='probability-link'>
-                    <a href='/admin/games/probability' class='btn'>View Probability & Fairness Tables</a>
+                    <A href='/admin/games/probability' class='btn'>View Probability &amp; Fairness Tables</A>
                 </div>
             </div>
 

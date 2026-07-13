@@ -94,14 +94,11 @@ router.get('/probability', async (req, res) => {
         
         // Crash probability table
         const crashEdge = getGameConfig('crash', 'houseEdge', 4);
+        const houseWinChance = (crashEdge / 100) * 25;
         data.crash = {
             houseEdge: crashEdge,
             description: 'Crash game uses provably fair SHA-256 based crash point generation. House edge determines the multiplier adjustment.',
-            crashProbability: (edge) => {
-                // With 4% house edge, 1 in 25 rounds house wins instantly
-                const houseWinChance = (crashEdge / 100) * 25;
-                return `~${Math.round(houseWinChance)}% chance of immediate house win (crash at 1.00x)`;
-            }
+            crashProbability: `~${Math.round(houseWinChance)}% chance of immediate house win (crash at 1.00x)`
         };
         
         // Mines probability table

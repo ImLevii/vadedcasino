@@ -27,6 +27,26 @@ function CasePage(props) {
   const [cosmicSpin, setCosmicSpin] = createSignal(false)
   const [showPreview, setShowPreview] = createSignal(false)
 
+  const tickSFX = new Audio('/assets/sfx/casetick.wav')
+  const winSFX = new Audio('/assets/sfx/winorcashout.mp3')
+  let tickTimer = null
+
+  function startTicking(duration) {
+    if (tickTimer) clearTimeout(tickTimer)
+    let elapsed = 0
+    const tick = () => {
+      tickSFX.currentTime = 0
+      tickSFX.play().catch(() => {})
+      const progress = Math.min(elapsed / duration, 1)
+      const delay = Math.round(75 + progress * 225)
+      elapsed += delay
+      if (elapsed < duration) {
+        tickTimer = setTimeout(tick, delay)
+      }
+    }
+    tickTimer = setTimeout(tick, 75)
+  }
+
   createEffect(() => {
     if (caseObj() && caseObj()?.items) {
       let items = []
@@ -98,9 +118,13 @@ function CasePage(props) {
     setWinningItems(winningItems)
     setSpinnerItems(items)
     setSpinning('spinning')
+    startTicking(spinTime())
 
     const finish = () => {
+      if (tickTimer) { clearTimeout(tickTimer); tickTimer = null }
       setSpinning('win')
+      winSFX.currentTime = 0
+      winSFX.play().catch(() => {})
       if (newBal)
         setBalance(newBal)
       setTimeout(() => setSpinning(''), itemTime() - 500)
@@ -124,6 +148,7 @@ function CasePage(props) {
 
         requestAnimationFrame(() => {
           setSpinning('spinning')
+          startTicking(spinTime())
           setTimeout(finish, spinTime() + 500)
         })
       }, spinTime() + 900)

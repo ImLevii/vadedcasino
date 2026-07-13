@@ -19,21 +19,21 @@ async function cacheBets() {
 
     const [all] = await sql.query(`
         SELECT bets.amount, bets.winnings, bets.game, bets.createdAt, users.id, users.username, users.xp, users.role, users.anon FROM bets
-        INNER JOIN users ON bets.userId = users.id WHERE bets.completed = 1 ORDER BY bets.id DESC LIMIT ${maxLength}
+        INNER JOIN users ON bets.userId = users.id WHERE bets.completed = 1 AND bets.amount > 0 AND bets.winnings > 0 ORDER BY bets.id DESC LIMIT ${maxLength}
     `);
 
     cachedBets.all = all.map(e => mapBet(e));
 
     const [high] = await sql.query(`
         SELECT bets.amount, bets.winnings, bets.game, bets.createdAt, users.id, users.username, users.xp, users.role, users.anon FROM bets
-        INNER JOIN users ON bets.userId = users.id WHERE bets.completed = 1 AND bets.amount > ${highBetAmount} ORDER BY bets.id DESC LIMIT ${maxLength}
+        INNER JOIN users ON bets.userId = users.id WHERE bets.completed = 1 AND bets.amount > ${highBetAmount} AND bets.winnings > 0 ORDER BY bets.id DESC LIMIT ${maxLength}
     `);
 
     cachedBets.high = high.map(e => mapBet(e));
 
     const [lucky] = await sql.query(`
         SELECT bets.amount, bets.winnings, bets.game, bets.createdAt, users.id, users.username, users.xp, users.role, users.anon FROM bets
-        INNER JOIN users ON bets.userId = users.id WHERE bets.completed = 1 AND bets.winnings / bets.amount > ${luckyBetMultiplier}
+        INNER JOIN users ON bets.userId = users.id WHERE bets.completed = 1 AND bets.amount > 0 AND bets.winnings > 0 AND bets.winnings / bets.amount > ${luckyBetMultiplier}
         ORDER BY bets.id DESC LIMIT ${maxLength}
     `);
 
@@ -86,6 +86,8 @@ async function newBets(bets) {
     const sponsorGame = bets.some(bet => sponsorLockedUsers.has(bet.user.id));
 
     for (const { user, amount, payout, game, edge } of bets) {
+
+        if (!amount || !payout) continue;
 
         const countsTowardsRewards = !sponsorLockedUsers.has(user.id) && user.role == 'USER';
 

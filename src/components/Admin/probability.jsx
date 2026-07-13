@@ -1,4 +1,4 @@
-import {createSignal, createEffect, For, Show} from "solid-js";
+import {createSignal, onMount, For, Show} from "solid-js";
 import {authedAPI} from "../../util/api";
 
 function Probability() {
@@ -7,13 +7,13 @@ function Probability() {
     const [loading, setLoading] = createSignal(true);
     const [error, setError] = createSignal(null);
 
-    createEffect(async () => {
+    onMount(async () => {
         try {
             let res = await authedAPI('/admin/games/probability', 'GET');
-            if (res.success) {
+            if (res && res.success) {
                 setData(res.data);
             } else {
-                setError(res.error || 'Failed to load');
+                setError((res && res.error) || 'Failed to load');
             }
         } catch (e) {
             setError('Network error');
@@ -61,7 +61,7 @@ function Probability() {
                                         </Show>
 
                                         <Show when={game === 'crash'}>
-                                            <div class='crash-info'>{info.crashProbability(info.houseEdge)}</div>
+                                            <div class='crash-info'>{info.crashProbability}</div>
                                         </Show>
 
                                         <Show when={game === 'mines' && info.samplePayouts}>

@@ -82,7 +82,7 @@ function Bets(props) {
                     </thead>
 
                     <tbody>
-                        <For each={bets()}>{(bet, index) => (
+                        <For each={bets().filter(b => b?.amount > 0 && b?.payout > 0)}>{(bet, index) => (
                             <tr class='bet'>
                                 <td>
                                     <div class='image-data white caps'>
