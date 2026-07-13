@@ -590,7 +590,6 @@ export default Crash;
               ) : null}
             </div>
 
-            {/*<div class='ruler'/>*/}
             <div class='bg'/>
           </div>
         </div>
