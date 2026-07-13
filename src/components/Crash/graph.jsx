@@ -1,5 +1,6 @@
 import { createEffect, onMount, Show } from 'solid-js';
 import { A } from '@solidjs/router';
+import Rocket3D from './rocket3d';
 
 function CrashGraph(props) {
   let canvasRef;
@@ -175,7 +176,14 @@ function CrashGraph(props) {
           </Show>
         </div>
 
-        <canvas ref={canvasRef} class='graph-canvas' />
+        <div class='graph-canvas'>
+          <Rocket3D
+            multiplier={props.multiplier}
+            isFlying={props.isFlying}
+            isCrashed={props.isCrashed}
+            countdown={props.countdown}
+          />
+        </div>
       </div>
 
       <style jsx>{`

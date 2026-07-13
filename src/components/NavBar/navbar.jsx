@@ -9,6 +9,7 @@ import {addDropdown} from "../../util/api";
 import {useWebsocket} from "../../contexts/socketprovider";
 import Countup from "../Countup/countup";
 import Notifications from "./notifications";
+import {USD_PER_COIN} from "../../util/numbers";
 
 function NavBar(props) {
 
@@ -65,7 +66,7 @@ function NavBar(props) {
                                     <div class='balance-hover'>
                                         <p class='robux'><Countup end={props?.user?.balance} gray={true}/></p>
                                         <p class='fiat'><span class='gold'>$ </span><Countup
-                                            end={props?.user?.balance / 1000 * 3.5} gray={true}/></p>
+                                            end={(props?.user?.balance || 0) * USD_PER_COIN} gray={true}/></p>
                                     </div>
                                 </div>
 
