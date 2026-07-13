@@ -304,6 +304,8 @@ function Crash(props) {
             isCrashed={isCrashed()}
             countdown={countdown()}
             maxPayout={config().maxPayout}
+            bets={bets()}
+            profit={hasActiveBet() ? (myBet()?.amount || 0) * (multiplier() - 1) : 0}
           />
         </div>
 
