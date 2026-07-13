@@ -18,6 +18,11 @@ const cookie = require('cookie');
 process.on('SIGTERM', cleanupAndExit);
 process.on('SIGINT', cleanupAndExit);
 
+// Per-user rate-limit map for battle emoji reactions (timestamp of last send)
+const emojiRateLimits = {};
+const BATTLE_EMOJI_COOLDOWN_MS = 1500;
+const ALLOWED_BATTLE_EMOJIS = new Set(['🔥', '😂', '💀', '🙏', '🍀', '😤', '👑', '🎰']);
+
 function cleanupAndExit() {
     const m = 'Server is restarting, you will get disconnected for a few seconds..';
     io.emit('toast', 'info', m, {
@@ -197,6 +202,19 @@ io.on('connection', function(socket) {
             socket.leave('battles');
         }
 
+    });
+
+    socket.on('battle:emoji', (battleId, emoji) => {
+        if (!socket.userId) return;
+        if (!battleId || typeof emoji !== 'string') return;
+        if (!ALLOWED_BATTLE_EMOJIS.has(emoji)) return;
+
+        const now = Date.now();
+        const key = socket.userId;
+        if (emojiRateLimits[key] && now - emojiRateLimits[key] < BATTLE_EMOJI_COOLDOWN_MS) return;
+        emojiRateLimits[key] = now;
+
+        io.to(`battle:${battleId}`).emit('battle:emoji', battleId, emoji);
     });
 
     socket.on('roulette:subscribe', () => {

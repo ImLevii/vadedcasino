@@ -21,6 +21,9 @@ function CreateBattle(props) {
     const [groupedCases, setGroupedCases] = createSignal([])
     const [total, setTotal] = createSignal(0)
 
+    const [dragIndex, setDragIndex] = createSignal(null)
+    const [dragOverIndex, setDragOverIndex] = createSignal(null)
+
     const [cases, {mutate}] = createResource(fetchCases)
     async function fetchCases() {
         try {
@@ -82,6 +85,17 @@ function CreateBattle(props) {
 
     function getAmount(id) {
         return groupedCases()?.find(c => c.id === id)?.amount || 0
+    }
+
+    function reorderCases(fromIndex, toIndex) {
+        if (fromIndex === null || fromIndex === toIndex) return
+        const newGrouped = [...groupedCases()]
+        const [moved] = newGrouped.splice(fromIndex, 1)
+        newGrouped.splice(toIndex, 0, moved)
+        // Rebuild flat addedCases from the reordered grouped list
+        const newAdded = newGrouped.flatMap(c => Array(c.amount).fill(c))
+        setAddedCases(newAdded)
+        setGroupedCases(newGrouped)
     }
 
     function groupedCasesToIDArray() {
@@ -219,7 +233,29 @@ function CreateBattle(props) {
                         <p>ADD CASE</p>
                     </button>
 
-                    <For each={groupedCases()}>{(c, index) => <CaseButton creator={true} addCase={() => addCase(c, 1)} removeCase={() => addCase(c, -1)} amount={c?.amount || 0} c={c}/>}</For>
+                    <For each={groupedCases()}>{(c, index) => (
+                        <div
+                            class={'case-drag-wrapper' + (dragOverIndex() === index() && dragIndex() !== index() ? ' drag-over' : '') + (dragIndex() === index() ? ' dragging' : '')}
+                            draggable={true}
+                            onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setDragIndex(index()) }}
+                            onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOverIndex(index()) }}
+                            onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setDragOverIndex(null) }}
+                            onDrop={(e) => { e.preventDefault(); reorderCases(dragIndex(), index()); setDragIndex(null); setDragOverIndex(null) }}
+                            onDragEnd={() => { setDragIndex(null); setDragOverIndex(null) }}
+                        >
+                            <div class='drag-handle' title='Drag to reorder'>
+                                <svg width='10' height='14' viewBox='0 0 10 14' fill='none'>
+                                    <circle cx='2.5' cy='2.5' r='1.5' fill='#8b92a0'/>
+                                    <circle cx='7.5' cy='2.5' r='1.5' fill='#8b92a0'/>
+                                    <circle cx='2.5' cy='7' r='1.5' fill='#8b92a0'/>
+                                    <circle cx='7.5' cy='7' r='1.5' fill='#8b92a0'/>
+                                    <circle cx='2.5' cy='11.5' r='1.5' fill='#8b92a0'/>
+                                    <circle cx='7.5' cy='11.5' r='1.5' fill='#8b92a0'/>
+                                </svg>
+                            </div>
+                            <CaseButton creator={true} addCase={() => addCase(c, 1)} removeCase={() => addCase(c, -1)} amount={c?.amount || 0} c={c}/>
+                        </div>
+                    )}</For>
                 </div>
 
                 <div class='bar'/>
@@ -481,6 +517,47 @@ function CreateBattle(props) {
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
                 grid-gap: 12px;
+              }
+
+              .case-drag-wrapper {
+                position: relative;
+                cursor: grab;
+                border-radius: 9px;
+                transition: opacity 0.15s ease, transform 0.15s ease, outline-color 0.1s ease;
+                outline: 2px solid transparent;
+              }
+
+              .case-drag-wrapper:active {
+                cursor: grabbing;
+              }
+
+              .case-drag-wrapper.dragging {
+                opacity: 0.45;
+                transform: scale(0.97);
+              }
+
+              .case-drag-wrapper.drag-over {
+                outline: 2px solid rgba(31, 214, 95, 0.7);
+                transform: scale(1.03);
+                box-shadow: 0 0 18px rgba(31, 214, 95, 0.18);
+              }
+
+              .drag-handle {
+                position: absolute;
+                top: 5px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 10;
+                opacity: 0;
+                transition: opacity 0.15s ease;
+                pointer-events: none;
+                background: rgba(10, 14, 20, 0.75);
+                border-radius: 4px;
+                padding: 3px 5px;
+              }
+
+              .case-drag-wrapper:hover .drag-handle {
+                opacity: 1;
               }
 
               .add-case {

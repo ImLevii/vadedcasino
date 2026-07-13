@@ -25,10 +25,9 @@ function Roulette(props) {
         const tick = () => {
             tickSFX.currentTime = 0
             tickSFX.play().catch(() => {})
-            // Exponential growth matches the ease-out cubic-bezier deceleration:
-            // starts at ~80 ms, reaches ~400 ms near the end of the spin phase
+            // Linear decel: 75 ms → 300 ms — same pattern as case opening & battles
             const progress = Math.min(elapsed / spinPhase, 1)
-            const delay = Math.round(80 * Math.pow(5, progress))
+            const delay = Math.round(75 + progress * 225)
             elapsed += delay
             if (elapsed < spinPhase) {
                 rouletteTickTimer = setTimeout(tick, delay)
@@ -36,7 +35,7 @@ function Roulette(props) {
                 rouletteTickTimer = null
             }
         }
-        rouletteTickTimer = setTimeout(tick, 50)
+        rouletteTickTimer = setTimeout(tick, 75)
     }
 
     const [bets, setBets] = createSignal([])

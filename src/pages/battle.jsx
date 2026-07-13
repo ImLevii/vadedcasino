@@ -27,6 +27,35 @@ function Battle(props) {
     const [round, setRound] = createSignal(0)
     const [block, setBlock] = createSignal('')
 
+    // Emojis
+    const BATTLE_EMOJIS = ['🔥', '😂', '💀', '🙏', '🍀', '😤', '👑', '🎰']
+    const [floatingEmojis, setFloatingEmojis] = createSignal([])
+    let emojiLastSent = 0
+
+    // Spin sounds — same linear-decel pattern as case opening
+    const battleTickSFX = new Audio('/assets/sfx/casetick.wav')
+    const battleWinSFX = new Audio('/assets/sfx/winorcashout.mp3')
+    let battleTickTimer = null
+
+    function startBattleTicking(spinPhase) {
+        if (battleTickTimer) clearTimeout(battleTickTimer)
+        let elapsed = 0
+        const tick = () => {
+            battleTickSFX.currentTime = 0
+            battleTickSFX.play().catch(() => {})
+            // Linear decel: 75 ms → 300 ms — identical to case opening
+            const progress = Math.min(elapsed / spinPhase, 1)
+            const delay = Math.round(75 + progress * 225)
+            elapsed += delay
+            if (elapsed < spinPhase) {
+                battleTickTimer = setTimeout(tick, delay)
+            } else {
+                battleTickTimer = null
+            }
+        }
+        battleTickTimer = setTimeout(tick, 75)
+    }
+
     // Winning
     const [winnerTeam, setWinnerTeam] = createSignal(0)
     const [roundWinners, setRoundWinners] = createSignal([])
@@ -106,13 +135,24 @@ function Battle(props) {
                 setState('ROLLING')
                 setRound(roundNum)
 
+                // Tick for the active spin phase (90 % of the 5 000 ms spinner duration)
+                startBattleTicking(5000 * 0.9)
+
                 let itemsInRound = wonItems().slice((roundNum - 1) * players(), roundNum * players())
                 setRoundWinners(getRoundWinner(itemsInRound, battle().playersPerTeam))
             })
 
             ws().on('battle:ended', (battleId, { winnerTeam, serverSeed, clientSeed }) => {
+                if (battleTickTimer) { clearTimeout(battleTickTimer); battleTickTimer = null }
+                battleWinSFX.currentTime = 0
+                battleWinSFX.play().catch(() => {})
                 setWinnerTeam(winnerTeam - 1)
                 setState('WINNERS')
+            })
+
+            ws().on('battle:emoji', (battleId, emoji) => {
+                if (battleId !== battle()?.id) return
+                spawnEmoji(emoji)
             })
         }
 
@@ -120,6 +160,7 @@ function Battle(props) {
     })
 
     onCleanup(() => {
+        if (battleTickTimer) { clearTimeout(battleTickTimer); battleTickTimer = null }
         if (ws() && ws().connected) {
             ws().emit('battles:unsubscribe', prevBattle)
             ws().off('battle')
@@ -128,6 +169,7 @@ function Battle(props) {
             ws().off('battle:start')
             ws().off('battle:ended')
             ws().off('battle:start')
+            ws().off('battle:emoji')
         }
     })
 
@@ -160,6 +202,21 @@ function Battle(props) {
         return props?.user?.id === battle()?.players[0].id
     }
 
+    function sendEmoji(emoji) {
+        if (!props.user || !battle() || !ws()) return
+        const now = Date.now()
+        if (now - emojiLastSent < 1500) return
+        emojiLastSent = now
+        ws().emit('battle:emoji', battle().id, emoji)
+    }
+
+    function spawnEmoji(emoji) {
+        const id = Date.now() + Math.random()
+        const x = 5 + Math.random() * 90
+        setFloatingEmojis(prev => [...prev, { id, emoji, x }])
+        setTimeout(() => setFloatingEmojis(prev => prev.filter(e => e.id !== id)), 2800)
+    }
+
     return (
         <>
             <Title>Cosmic Luck | Battle</Title>
@@ -184,9 +241,21 @@ function Battle(props) {
                                 </div>
                             </div>
 
-                            <div class='provably-container'>
+                            <div class='round-info-right'>
+                                <div class='emoji-bar'>
+                                    <For each={BATTLE_EMOJIS}>{(emoji) => (
+                                        <button class='emoji-btn' onClick={() => sendEmoji(emoji)}>{emoji}</button>
+                                    )}</For>
+                                </div>
                                 <A href='/docs/provably' class='provably' style={{width: '130px'}}>PROVABLY FAIR</A>
                             </div>
+                        </div>
+
+                        {/* Floating emoji overlay */}
+                        <div class='emoji-overlay'>
+                            <For each={floatingEmojis()}>{(e) => (
+                                <span class='float-emoji' style={{ left: `${e.x}%` }}>{e.emoji}</span>
+                            )}</For>
                         </div>
 
                         <div class='columns'>
@@ -281,6 +350,71 @@ function Battle(props) {
               .provably-container {
                 display: flex;
                 justify-content: flex-end;
+              }
+
+              .round-info-right {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                justify-content: center;
+                gap: 6px;
+                flex: 1;
+              }
+
+              .emoji-bar {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+              }
+
+              .emoji-btn {
+                background: rgba(255,255,255,0.045);
+                border: 1px solid rgba(255,255,255,0.07);
+                border-radius: 6px;
+                width: 30px;
+                height: 28px;
+                font-size: 15px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: background 0.15s ease, transform 0.1s ease, border-color 0.15s ease;
+                line-height: 1;
+                padding: 0;
+              }
+
+              .emoji-btn:hover {
+                background: rgba(255,255,255,0.09);
+                border-color: rgba(255,255,255,0.16);
+                transform: scale(1.15);
+              }
+
+              .emoji-btn:active {
+                transform: scale(0.92);
+              }
+
+              /* Floating emoji overlay */
+              .emoji-overlay {
+                position: relative;
+                height: 0;
+                overflow: visible;
+                pointer-events: none;
+              }
+
+              @keyframes floatUp {
+                0%   { transform: translateY(0)    scale(1);    opacity: 1;   }
+                70%  { transform: translateY(-140px) scale(1.1); opacity: 0.9; }
+                100% { transform: translateY(-220px) scale(0.7); opacity: 0;   }
+              }
+
+              .float-emoji {
+                position: absolute;
+                bottom: 0;
+                font-size: 32px;
+                animation: floatUp 2.8s ease-out forwards;
+                pointer-events: none;
+                user-select: none;
+                filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
               }
 
               .cases-container {
