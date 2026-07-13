@@ -568,6 +568,16 @@ function App() {
           .center {
             padding-bottom: 50px;
           }
+
+          .content {
+            padding: 0 16px;
+          }
+        }
+
+        @media only screen and (max-width: 600px) {
+          .content {
+            padding: 0 10px;
+          }
         }
       `}</style>
     </>

@@ -20,6 +20,7 @@
     "db:migrate": "node scripts/apply-migrations.js",
     "csgo:import": "node scripts/import-csgo-market-items.js",
     "csgo:replace-cases": "node scripts/replace-cases-with-cs.js",
+    "thumbnails:download": "node scripts/download-thumbnails.js",
     "gem:build": "npm --prefix scripts/render-emerald run build"
   },
   "license": "MIT",

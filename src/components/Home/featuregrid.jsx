@@ -2,16 +2,16 @@ import {For} from "solid-js";
 import {A} from "@solidjs/router";
 
 const FEATURES = [
-    {name: 'CASE BATTLES',      href: '/battles',       accent: '#FF5141', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/638e2dcf-4f8c-4b96-b5cb-e43b0a517207-CSGOLuck_Thumbnail_960x540_CaseBattle.jpeg'},
-    {name: 'CASE OPENING',      href: '/cases',         accent: '#1fd65f', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/427a331f-8299-4914-9895-0ff3cac84a47-CSGOLuck_Thumbnail_960x540_CaseOpening.jpeg'},
-    {name: 'DAILY CASES',       href: '/cases',         accent: '#1fd65f', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/51ca07c1-9691-4f9b-a630-256a641c1d16-CSGOLuck_Thumbnail_960x540_DailyCases.jpeg'},
-    {name: 'SUPERCHARGE CASES', href: '/cases',         accent: '#f0c040', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/3b116ffd-cb21-413a-96c3-8776a4a902b7-CSGOLuck_Thumbnail_960x540_SuperchargeCases.jpeg'},
-    {name: 'MINES',             href: '/mines',         accent: '#DC5FDE', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/666df0e7-15eb-46be-b911-5d014e3d50a4-CSGOLuck_Thumbnail_960x540_Mines.jpeg'},
-    {name: 'GAME FAIRNESS',     href: '/docs/provably', accent: '#1fd65f', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/951b0171-107f-45b8-ac59-204566eafa60-CSGOLuck_Thumbnail_960x540_GameFairness.jpeg'},
-    {name: 'AFFILIATES',        href: '/affiliates',    accent: '#DC5FDE', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/ad09501f-1d4d-4ef6-bc0c-0d74bc59f7a4-CSGOLuck_Thumbnail_960x540_Rewards.jpeg'},
-    {name: 'RANKINGS',          href: '/leaderboard',   accent: '#f0c040', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/139ce9a3-a36a-44c4-a4ee-4b6d4fa640f4-CSGOLuck_Thumbnail_960x540_Rankings.jpeg'},
-    {name: 'BUY COINS',         href: '/deposit',       accent: '#1fd65f', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/566f489c-b4a8-4ad8-8b9f-4b191c4732a9-CSGOLuck_Thumbnail_960x540_Market.jpeg', wide: true},
-    {name: 'MARKET',            href: '/withdraw',      accent: '#4176FF', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/48a028f4-8e12-4cd2-a364-71bdb176a461-CSGOLuck_Thumbnail_960x540_Crash.jpeg', wide: true},
+    {name: 'CASE BATTLES',      href: '/battles',       accent: '#FF5141', img: '/assets/thumbnails/casebattle.jpeg'},
+    {name: 'CASE OPENING',      href: '/cases',         accent: '#1fd65f', img: '/assets/thumbnails/caseopening.jpeg'},
+    {name: 'DAILY CASES',       href: '/cases',         accent: '#1fd65f', img: '/assets/thumbnails/dailycases.jpeg'},
+    {name: 'SUPERCHARGE CASES', href: '/cases',         accent: '#f0c040', img: '/assets/thumbnails/superchargecases.jpeg'},
+    {name: 'MINES',             href: '/mines',         accent: '#DC5FDE', img: '/assets/thumbnails/mines.jpeg'},
+    {name: 'GAME FAIRNESS',     href: '/docs/provably', accent: '#1fd65f', img: '/assets/thumbnails/gamefairness.jpeg'},
+    {name: 'AFFILIATES',        href: '/affiliates',    accent: '#DC5FDE', img: '/assets/thumbnails/rewards.jpeg'},
+    {name: 'RANKINGS',          href: '/leaderboard',   accent: '#f0c040', img: '/assets/thumbnails/rankings.jpeg'},
+    {name: 'BUY COINS',         href: '/deposit',       accent: '#1fd65f', img: '/assets/thumbnails/market.jpeg', wide: true},
+    {name: 'CRASH',             href: '/crash',         accent: '#4176FF', img: '/assets/thumbnails/crash.jpeg', wide: true},
 ]
 
 function FeatureGrid() {

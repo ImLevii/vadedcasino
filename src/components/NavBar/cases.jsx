@@ -3,10 +3,10 @@ import {addDropdown, closeDropdowns} from "../../util/api";
 import {A} from "@solidjs/router";
 
 const CASE_LINKS = [
-    {name: 'CASE OPENING', href: '/cases', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/427a331f-8299-4914-9895-0ff3cac84a47-CSGOLuck_Thumbnail_960x540_CaseOpening.jpeg'},
-    {name: 'CASE BATTLES', href: '/battles', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/638e2dcf-4f8c-4b96-b5cb-e43b0a517207-CSGOLuck_Thumbnail_960x540_CaseBattle.jpeg'},
-    {name: 'DAILY CASES', href: '/rewards/daily', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/51ca07c1-9691-4f9b-a630-256a641c1d16-CSGOLuck_Thumbnail_960x540_DailyCases.jpeg'},
-    {name: 'SUPERCHARGE CASES', href: '/rewards/supercharge', img: 'https://csgoluck.s3.eu-central-1.amazonaws.com/3b116ffd-cb21-413a-96c3-8776a4a902b7-CSGOLuck_Thumbnail_960x540_SuperchargeCases.jpeg'},
+    {name: 'CASE OPENING', href: '/cases', img: '/assets/thumbnails/caseopening.jpeg'},
+    {name: 'CASE BATTLES', href: '/battles', img: '/assets/thumbnails/casebattle.jpeg'},
+    {name: 'DAILY CASES', href: '/rewards/daily', img: '/assets/thumbnails/dailycases.jpeg'},
+    {name: 'SUPERCHARGE CASES', href: '/rewards/supercharge', img: '/assets/thumbnails/superchargecases.jpeg'},
 ]
 
 function Cases() {

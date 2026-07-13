@@ -23,6 +23,17 @@
   box-sizing: border-box;
 }
 
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+img, video, canvas, svg {
+  max-width: 100%;
+}
+
 p {
   margin: unset;
 }
@@ -340,6 +351,35 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+/* ─── Global mobile responsiveness ────────────────────────────────────────── */
+@media only screen and (max-width: 768px) {
+  /* Prevent iOS Safari from zooming into focused inputs (requires >=16px) */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* Toasts: keep inside the viewport on narrow screens */
+  .toast {
+    min-width: unset;
+    max-width: calc(100vw - 32px);
+  }
+
+  /* Larger tap targets for links/buttons rendered via global classes */
+  .user-dropdown-link {
+    height: 32px;
+  }
+
+  .action-btn {
+    height: 38px;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .footer-link {
+    font-size: 13px;
+  }
 }
 
 /* ─── Toast notifications ─────────────────────────────────────────────────── */
