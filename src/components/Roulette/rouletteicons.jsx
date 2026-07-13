@@ -1,66 +1,37 @@
 import {createEffect, createSignal} from "solid-js";
 import {numberToColor} from "../../util/roulettehelpers";
 
-const CHIP_COLORS = {
-  green: { primary: '#1fd65f', secondary: '#18c255', dark: '#061a0e', rim: '#45e57f' },
-  red: { primary: '#e8455f', secondary: '#c73550', dark: '#1a0609', rim: '#ff7089' },
-  black: { primary: '#8b92a0', secondary: '#323846', dark: '#06080c', rim: '#c3cad6' }
+const CHIP_IMAGES = {
+  green: '/assets/chips/chip-green.png',
+  red: '/assets/chips/chip-red.png',
+  black: '/assets/chips/chip-black.png'
 }
 
-const EDGE_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315]
+// Numbers 7 (red) and 8 (black) are the BAIT winning slots — use the
+// square-background chip variant so they stand out in the wheel.
+const BAIT_NUMBERS = new Set([7, 8])
+const BAIT_CHIP_IMAGES = {
+  red: '/assets/chips/chip-red-square.png',
+  black: '/assets/chips/chip-black-square.png'
+}
 
 function PokerChip(props) {
-  const c = CHIP_COLORS[props.color] || CHIP_COLORS.green
-  const size = props.size === 'small' ? 36 : 64
+  const size = () => props.size === 'small' ? 30 : 64
+  // Evaluated inside JSX so SolidJS tracks props.color reactively
+  const isBait = () => props.size !== 'small' && BAIT_NUMBERS.has(props.num)
+  const src = () => isBait()
+    ? (BAIT_CHIP_IMAGES[props.color] || CHIP_IMAGES[props.color] || CHIP_IMAGES.green)
+    : (CHIP_IMAGES[props.color] || CHIP_IMAGES.green)
 
   return (
-    <svg viewBox="0 0 60 60" width={size} height={size} xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id={`glow-${props.color}`} x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="2" result="blur" />
-          <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
-        <radialGradient id={`bg-${props.color}`} cx="40%" cy="35%" r="65%">
-          <stop offset="0%" stopColor={c.secondary} stopOpacity="0.25" />
-          <stop offset="100%" stopColor={c.dark} stopOpacity="1" />
-        </radialGradient>
-      </defs>
-
-      <circle cx="30" cy="30" r="28" fill={`url(#bg-${props.color})`} stroke={c.primary} strokeWidth="1.5" />
-
-      {EDGE_ANGLES.map((angle, i) => (
-        <rect
-          x="26.5"
-          y="1.5"
-          width="7"
-          height="5"
-          rx="1.5"
-          fill={i % 2 === 0 ? c.rim : c.primary}
-          fillOpacity={i % 2 === 0 ? '0.9' : '0.5'}
-          transform={`rotate(${angle} 30 30)`}
-        />
-      ))}
-
-      <circle cx="30" cy="30" r="22" fill="none" stroke={c.primary} strokeWidth="1" strokeOpacity="0.35" />
-      <circle cx="30" cy="30" r="20" fill={c.dark} fillOpacity="0.85" />
-      <circle cx="30" cy="30" r="17" fill="none" stroke={c.primary} strokeWidth="0.75" strokeOpacity="0.3" />
-
-      <text
-        x="30"
-        y="34.5"
-        textAnchor="middle"
-        fill={c.primary}
-        fontSize={props.size === 'small' ? '12' : '16'}
-        fontWeight="700"
-        fontFamily="serif"
-        filter={`url(#glow-${props.color})`}
-        style={{ letterSpacing: 0 }}
-      >
-        ✦
-      </text>
-
-      <ellipse cx="26" cy="18" rx="8" ry="4" fill="white" fillOpacity="0.07" />
-    </svg>
+    <img
+      src={src()}
+      width={size()}
+      height={size()}
+      alt=''
+      draggable={false}
+      style={{ 'object-fit': 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.45))' }}
+    />
   )
 }
 
@@ -95,7 +66,7 @@ function RouletteIcon(props) {
   return (
     <>
       <div ref={icon} class={'spinner-icon ' + type() + ' ' + (props.size || 'large')}>
-        <PokerChip color={type()} size={props.size || 'large'} />
+        <PokerChip color={type()} size={props.size || 'large'} num={props.num} />
       </div>
 
       <style jsx>{`

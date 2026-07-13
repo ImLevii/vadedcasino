@@ -4,10 +4,10 @@ import {createEffect, createSignal, For} from "solid-js";
 import {betColorToDisplayName, betColorToLabel, ROULETTE_COLORS, ROULETTE_MULTIPLIERS} from "../../util/roulettehelpers";
 
 const iconNames = {
-  red: ['roulette-red.svg', 'roulette-red.svg'],
-  green: ['roulette-green.svg'],
-  black: ['roulette-gold.svg', 'roulette-gold.svg'],
-  bait: ['roulette-red.svg', 'roulette-gold.svg']
+  red: ['chips/chip-red.png', 'chips/chip-red.png'],
+  green: ['chips/chip-green.png'],
+  black: ['chips/chip-black.png', 'chips/chip-black.png'],
+  bait: ['chips/chip-red-square.png', 'chips/chip-black-square.png']
 }
 
 function RouletteColor(props) {
@@ -68,7 +68,7 @@ function RouletteColor(props) {
                       <span class='win-label'>Win {ROULETTE_MULTIPLIERS[props?.color]}x</span>
                       <div class='chip-icons'>
                         <For each={iconNames[props.color] || []}>{(icon, index) => (
-                          <img class={'chip-icon icon-' + index()} src={`assets/icons/${icon}`} alt='' height='34'/>
+                          <img class={'chip-icon icon-' + index()} src={`/assets/${icon}`} alt='' height='34'/>
                         )}</For>
                       </div>
                     </div>
