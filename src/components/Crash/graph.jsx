@@ -322,7 +322,7 @@ function CrashGraph(props) {
 
 export default CrashGraph;
 
-
+/*
         //Calculate X Axis
         let milisecondsSeparation = stepValues(values.xAxisValue);
         let XAxisValuesSeparation = values.plotWidth / (values.xAxisValue/milisecondsSeparation);
@@ -372,3 +372,4 @@ export default CrashGraph;
 }
 
 export default Graph;
+*/
