@@ -126,8 +126,8 @@ function RouletteSpinner(props) {
                 z-index: 1;
                 pointer-events: none;
                 background: rgba(31, 214, 95, 0.04);
-                border-left: 1px solid rgba(31, 214, 95, 0.15);
-                border-right: 1px solid rgba(31, 214, 95, 0.15);
+                border-left: 1px solid rgba(31, 214, 95, 0.2);
+                border-right: 1px solid rgba(31, 214, 95, 0.2);
               }
               
               .spinner-container {
@@ -189,6 +189,11 @@ function RouletteSpinner(props) {
                 height: 100%;
               }
 
+              @keyframes selectorPulse {
+                0%, 100% { filter: drop-shadow(0 0 4px rgba(31, 214, 95, 0.7)); }
+                50%       { filter: drop-shadow(0 0 7px rgba(31, 214, 95, 0.9)); }
+              }
+
               .selector {
                 position: absolute;
                 left: 50%;
@@ -196,22 +201,21 @@ function RouletteSpinner(props) {
                 z-index: 4;
                 width: 0;
                 height: 0;
+                animation: selectorPulse 1.8s ease-in-out infinite;
               }
 
               .selector.top {
-                top: -2px;
-                border-left: 9px solid transparent;
-                border-right: 9px solid transparent;
-                border-top: 13px solid #1fd65f;
-                filter: drop-shadow(0 0 8px rgba(31, 214, 95, 1));
+                top: -3px;
+                border-left: 12px solid transparent;
+                border-right: 12px solid transparent;
+                border-top: 17px solid #1fd65f;
               }
 
               .selector.bottom {
-                top: 116px;
-                border-left: 9px solid transparent;
-                border-right: 9px solid transparent;
-                border-bottom: 13px solid #1fd65f;
-                filter: drop-shadow(0 0 8px rgba(31, 214, 95, 1));
+                top: 114px;
+                border-left: 12px solid transparent;
+                border-right: 12px solid transparent;
+                border-bottom: 17px solid #1fd65f;
               }
             `}</style>
         </>

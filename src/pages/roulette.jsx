@@ -25,7 +25,8 @@ function Roulette(props) {
     const [stats, setStats] = createSignal({
         green: 0,
         red: 0,
-      black: 0
+        black: 0,
+        bait: 0
     })
 
     const [ws] = useWebsocket()
@@ -35,12 +36,13 @@ function Roulette(props) {
             unsubscribeFromGames(ws())
             subscribeToGame(ws(), 'roulette')
             ws().on('roulette:set', (data) => {
-                let stats = { green: 0, red: 0, black: 0 }
+                let stats = { green: 0, red: 0, black: 0, bait: 0 }
                 let last10 = []
 
                 for (let i = 0; i < data.last.length; i++) {
                     let color = numberToColor(data.last[i])
                     stats[color]++
+                    if (data.last[i] === 7 || data.last[i] === 8) stats.bait++
 
                     if (i < 10) {
                         last10.push(data.last[i])
@@ -131,11 +133,12 @@ function Roulette(props) {
     }
 
     function calculateStats(history) {
-        let stats = { green: 0, red: 0, black: 0 }
+        let stats = { green: 0, red: 0, black: 0, bait: 0 }
 
         for (let i = 0; i < history.length; i++) {
             let color = numberToColor(history[i])
             stats[color]++
+            if (history[i] === 7 || history[i] === 8) stats.bait++
         }
 
         return stats
@@ -183,6 +186,11 @@ function Roulette(props) {
                             <div class='stat black'>
                                 <RouletteIcon num={14} size='small'/>
                                 <p>{stats().black}</p>
+                            </div>
+
+                            <div class='stat bait'>
+                                <RouletteIcon num={7} size='small'/>
+                                <p>{stats().bait}</p>
                             </div>
                         </div>
                     </div>
@@ -310,6 +318,7 @@ function Roulette(props) {
               .stat.green { color: #1fd65f; }
               .stat.black { color: #8b92a0; }
               .stat.red { color: #e8455f; }
+              .stat.bait { color: #c9a84c; border-color: rgba(201, 168, 76, 0.22); background: rgba(201, 168, 76, 0.07); }
 
               .colors {
                 display: grid;
