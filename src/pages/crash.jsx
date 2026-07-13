@@ -490,11 +490,7 @@ function Crash(props) {
 }
 
 export default Crash;
- 6.42207 14.3826 5.92442 14.6495 5.35016C14.9163 4.77591 15.034 4.14361 14.9915 3.51181C14.9491 2.88 14.748 2.26911 14.4067 1.73569C14.0655 1.20227 13.5952 0.763564 13.0394 0.460181C12.4836 0.156799 11.8602 -0.00145119 11.227 8.17393e-05Z"
-                          fill="#9F9AC8"/>
-                      </svg>
-                      <p>TOTAL BETS</p>
-                    </div>
+/*
 
                     <div class='input-container'>
                       <input type='number' value={numBets()}
@@ -899,4 +895,4 @@ export default Crash;
   );
 }
 
-export default Crash;
+*/
