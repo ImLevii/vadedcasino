@@ -13,13 +13,16 @@ function Message(props) {
             return <span style={{ color: '#1fd65f' }}>{word}&nbsp;</span>
         }
 
-        if (word[0] === ':' || word[word.length - 1] === ':') {
+      if (word[0] === ':' && word[word.length - 1] === ':') {
 
             let emojiName = word.replaceAll(':', '').trim()
-            let emoji = props?.emojis.find(emoji => emoji.name === emojiName)
+        let emoji = (props?.emojis || []).find(emoji => emoji.name === emojiName)
             if (!emoji) return <>{word + ' '}</>
 
-            return <><img style={{ 'vertical-align': 'bottom' }} src={emoji.url} height='24px' alt=''/>&nbsp;</>
+        return <>
+          <img class={'inline-emoji ' + (emoji.animated ? 'animated' : '')}
+             src={emoji.url} alt={`:${emoji.name}:`} title={`:${emoji.name}:`} loading='lazy'/>&nbsp;
+        </>
         }
 
         return word + ' '
@@ -174,6 +177,19 @@ function Message(props) {
                 white-space: pre-wrap;
                 -moz-white-space: pre-wrap;
                 margin: 0;
+              }
+
+              .inline-emoji {
+                width: 24px;
+                height: 24px;
+                object-fit: contain;
+                vertical-align: bottom;
+                border-radius: 4px;
+              }
+
+              .inline-emoji.animated {
+                background: rgba(31,214,95,0.055);
+                box-shadow: 0 0 0 1px rgba(31,214,95,0.1);
               }
 
               .mentioned .message {

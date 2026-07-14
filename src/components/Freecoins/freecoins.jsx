@@ -35,19 +35,32 @@ function Freecoins(props) {
       <div class='modal' onClick={() => close()}>
         <div class='freecoins-container' onClick={(e) => e.stopPropagation()}>
           <div class='fancy-title'>
-            <p>CLAIM <span class='gold'>FREE COINS</span></p>
+            <div class='title-icon'>
+              <img src='/assets/icons/coin.svg' width='20' height='20' alt=''/>
+            </div>
+            <div>
+              <p class='eyebrow'>REWARDS</p>
+              <p>Claim free coins</p>
+            </div>
           </div>
 
-          <p className='close bevel-light' onClick={() => close()}>X</p>
+          <button class='close' aria-label='Close free coins' onClick={() => close()}>
+            <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5'>
+              <path d='M18 6L6 18M6 6l12 12'/>
+            </svg>
+          </button>
 
           <div class='input-wrapper'>
-            <p class='gold'>REDEEEM AN AFFILIATE CODE</p>
+            <div class='input-heading'>
+              <p>Affiliate code</p>
+              <span>One-time reward</span>
+            </div>
             <div class='input'>
-              <input type='text' placeholder='Code "CosmicLuck" for 10 free Coins' value={affCode()} onInput={(e) => setAffCode(e.target.value)}/>
+              <input type='text' placeholder='Enter affiliate code' value={affCode()} onInput={(e) => setAffCode(e.target.value)}/>
 
               <Show when={!affRes.loading}>
                 {!affRes() && (
-                  <button className='redeem bevel-gold' onClick={async () => {
+                  <button class='redeem' disabled={!affCode().trim()} onClick={async () => {
                     if (affCode().length < 1) return
 
                     let res = await authedAPI('/user/affiliate', 'POST', JSON.stringify({
@@ -57,17 +70,20 @@ function Freecoins(props) {
                     if (res.success) {
                       createNotification('success', `Successfully redeemed affiliate code ${affCode()}.`)
                     }
-                  }}>REDEEM</button>
+                  }}>Redeem</button>
                 )}
               </Show>
             </div>
           </div>
 
           <div className='input-wrapper'>
-            <p className='gold'>REDEEM A PROMO CODE</p>
+            <div class='input-heading'>
+              <p>Promo code</p>
+              <span>Limited drops</span>
+            </div>
             <div className='input'>
-              <input type='text' placeholder='...' value={promo()} onInput={(e) => setPromo(e.target.value)}/>
-              <button className='redeem bevel-gold' onClick={async () => {
+              <input type='text' placeholder='Enter promo code' value={promo()} onInput={(e) => setPromo(e.target.value)}/>
+              <button class='redeem' disabled={!promo().trim()} onClick={async () => {
                 if (promo().length < 1) return
 
                 let res = await authedAPI('/user/promo', 'POST', JSON.stringify({
@@ -77,11 +93,11 @@ function Freecoins(props) {
                 if (res.success) {
                   createNotification('success', `Successfully redeemed promocode ${promo()}.`)
                 }
-              }}>REDEEM</button>
+              }}>Redeem</button>
             </div>
           </div>
 
-          <p class='claim-more'>You can claim free coins by using an affiliate code, or by redeeming a promo code posted by us on our socials.</p>
+          <p class='claim-more'>Follow Cosmic Luck for new promo drops and reward announcements.</p>
 
           <div class='bar'/>
 
@@ -134,14 +150,15 @@ function Freecoins(props) {
       <style jsx>{`
         .modal {
           position: fixed;
-          top: 0;
-          left: 0;
+          inset: 0;
 
           width: 100vw;
           height: 100vh;
 
-          background: rgba(24, 23, 47, 0.55);
-          cubic-bezier(0,1,0,1);
+          padding: 24px;
+          background: rgba(4, 7, 11, 0.72);
+          backdrop-filter: blur(10px) saturate(115%);
+          -webkit-backdrop-filter: blur(10px) saturate(115%);
 
           display: flex;
           align-items: center;
@@ -151,88 +168,112 @@ function Freecoins(props) {
         }
 
         .freecoins-container {
-          max-width: 870px;
-          max-height: 440px;
+          max-width: 620px;
+          max-height: calc(100vh - 48px);
 
-          height: 100%;
+          height: fit-content;
           width: 100%;
 
-          border-radius: 15px;
-          background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(252, 164, 33, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(201deg, #302E5B -33.09%, #372F68 102.17%);
+          border-radius: 12px;
+          border: 1px solid var(--glass-border);
+          background:
+            radial-gradient(100% 90% at 0 0, rgba(31,214,95,0.09), transparent 58%),
+            linear-gradient(145deg, rgba(25,33,44,0.98), rgba(9,13,20,0.99));
+          box-shadow: inset 0 1px 0 var(--glass-highlight), 0 28px 80px rgba(0,0,0,0.62);
 
           display: flex;
           flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 30px;
+          gap: 20px;
+          padding: 24px;
+          overflow-y: auto;
           
           transition: max-height .3s;
           position: relative;
         }
 
         .fancy-title {
-          width: 300px;
-          height: 50px;
-          
-          position: absolute;
-          top: -25px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding-right: 42px;
 
-          background: conic-gradient(from 180deg at 50% 50%, #FFDC18 -0.3deg, #B17818 72.1deg, rgba(156, 99, 15, 0.611382) 139.9deg, rgba(126, 80, 12, 0.492874) 180.52deg, rgba(102, 65, 10, 0.61) 215.31deg, #B17818 288.37deg, #FFDC18 359.62deg, #FFDC18 359.7deg, #B17818 432.1deg);
-          border-radius: 8px;
+          color: #f4f7fb;
+          font-size: 22px;
+          font-weight: 800;
+          text-transform: uppercase;
+        }
 
+        .title-icon {
+          width: 42px;
+          height: 42px;
+          flex-shrink: 0;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 10px;
-          padding: 0 0 0 10px;
-
-          color: #FFF;
-          font-size: 28px;
-          font-weight: 700;
-          
-          z-index: 1;
+          border-radius: 9px;
+          border: 1px solid rgba(31,214,95,0.28);
+          background: rgba(31,214,95,0.1);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 22px rgba(31,214,95,0.08);
         }
 
-        .fancy-title:after {
-          position: absolute;
-          content: '';
-          width: calc(100% - 2px);
-          height: calc(100% - 2px);
-
-          top: 1px;
-          left: 1px;
-          z-index: -1;
-          border-radius: 8px;
-
-          background: linear-gradient(0deg, rgba(31, 214, 95, 0.25), rgba(31, 214, 95, 0.25)), linear-gradient(252.77deg, #12151c -27.53%, #1f242e 175.86%);
+        .eyebrow {
+          margin-bottom: 3px;
+          color: #1fd65f;
+          font-size: 9px;
+          font-weight: 800;
+          letter-spacing: .12em;
         }
         
         .input-wrapper {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 8px;
 
-          color: #FFF;
-          font-size: 14px;
+          color: #dce2eb;
+          font-size: 13px;
           font-weight: 700;
 
           width: 100%;
-          max-width: 600px;
+          max-width: none;
+        }
+
+        .input-heading {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .input-heading p {
+          font-weight: 700;
+        }
+
+        .input-heading span {
+          color: #667080;
+          font-family: 'Rubik', sans-serif;
+          font-size: 10px;
+          font-weight: 500;
         }
         
         .input {
-          border-radius: 3px;
-          border: 1px dashed #B17818;
-          background: rgba(44, 35, 72, 0.67);
+          border-radius: 8px;
+          border: 1px solid rgba(255,255,255,0.08);
+          background: rgba(5, 9, 14, 0.48);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.025);
 
           width: 100%;
-          height: 50px;
+          height: 48px;
           
           display: flex;
           align-items: center;
           gap: 12px;
           
-          padding: 0 8px 0px 16px;
+          padding: 0 7px 0 14px;
+          transition: border-color .18s, box-shadow .18s;
+        }
+
+        .input:focus-within {
+          border-color: rgba(31,214,95,0.38);
+          box-shadow: 0 0 0 3px rgba(31,214,95,0.06), inset 0 1px 0 rgba(255,255,255,0.03);
         }
         
         input {
@@ -249,24 +290,43 @@ function Freecoins(props) {
         }
         
         input::placeholder {
-          color: #8E86A6;
+          color: #626c7c;
         }
         
         .redeem {
-          width: 70px;
-          height: 30px;
+          min-width: 88px;
+          height: 34px;
+          border: 0;
+          border-radius: 6px;
+          background: linear-gradient(180deg, #25df68, #18b950);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 2px 0 #0d8034;
+          color: #04190b;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 12px;
+          font-weight: 800;
+          cursor: pointer;
+        }
+
+        .redeem:disabled {
+          background: #252c37;
+          box-shadow: none;
+          color: #596273;
+          cursor: not-allowed;
         }
         
         .claim-more {
-          max-width: 600px;
-          color: white;
-          font-size: 16px;
+          color: #7f8998;
+          font-family: 'Rubik', sans-serif;
+          font-size: 12px;
+          line-height: 1.5;
           text-align: center;
         }
         
         .socials {
           display: flex;
           align-items: center;
+          justify-content: center;
+          flex-wrap: wrap;
           gap: 8px;
         }
         
@@ -277,68 +337,86 @@ function Freecoins(props) {
           height: 30px;
           padding: 0 12px;
           line-height: 30px;
-          color: white;
-          fill: white;
+          color: #b9c1cd;
+          fill: #8b95a5;
           font-weight: 600;
           font-family: "Geogrotesque Wide", sans-serif;
           
-          gap: 8px;
-          
+          gap: 7px;
+          border-radius: 6px;
+          border: 1px solid rgba(255,255,255,0.07);
+          background: rgba(255,255,255,0.035);
+          transition: color .18s, border-color .18s, background .18s;
         }
         
         a svg {
-          fill: white;
+          fill: currentColor;
+        }
+
+        a:hover {
+          color: #eef3f8;
+          border-color: rgba(31,214,95,0.24);
+          background: rgba(31,214,95,0.07);
         }
         
         .bar {
-          width: 190px;
+          width: 100%;
           height: 1px;
-          background: linear-gradient(53deg, #F90 54.58%, #F9AC39 69.11%);
-        }
-        
-        .discord {
-          border-radius: 4px;
-          background: #5865F2;
-          box-shadow: 0px 1.5px 0px 0px #454FB7, 0px -1.5px 0px 0px #717DFE;
-        }
-        
-        .twitch {
-          border-radius: 4px;
-          background: #673AB7;
-          box-shadow: 0px 1.5px 0px 0px #503286, 0px -1.5px 0px 0px #7443CB;
-        }
-        
-        .youtube {
-          border-radius: 4px;
-          background: #F61C0D;
-          box-shadow: 0px 1.5px 0px 0px #BE2015, 0px -1.5px 0px 0px #FF4B3F;
-        }
-        
-        .twitter {
-          border-radius: 4px;
-          background: #03A9F4;
-          box-shadow: 0px 1.5px 0px 0px #0788C2, 0px -1.5px 0px 0px #2DBAFA;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.09), transparent);
         }
 
         .close {
-          width: 26px;
-          height: 26px;
+          width: 32px;
+          height: 32px;
 
-          background: #4E4A8D;
-          box-shadow: 0px -1px 0px #5F5AA7, 0px 1px 0px #272548;
-          border-radius: 3px;
+          background: rgba(255,255,255,0.045);
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 7px;
 
           display: flex;
           align-items: center;
           justify-content: center;
           
           position: absolute;
-          top: 16px;
-          right: 16px;
+          top: 20px;
+          right: 20px;
 
-          font-weight: 700;
-          color: #8b92a0;
+          color: #7d8797;
           cursor: pointer;
+          transition: color .18s, background .18s, border-color .18s;
+        }
+
+        .close:hover {
+          color: #ff7474;
+          border-color: rgba(255,81,65,0.2);
+          background: rgba(255,81,65,0.08);
+        }
+
+        @media only screen and (max-width: 640px) {
+          .modal {
+            padding: 12px;
+            align-items: flex-end;
+          }
+
+          .freecoins-container {
+            max-height: calc(100vh - 24px);
+            padding: 20px 16px;
+            gap: 17px;
+          }
+
+          .fancy-title {
+            font-size: 18px;
+          }
+
+          .input {
+            height: auto;
+            min-height: 48px;
+          }
+
+          .socials a {
+            flex: 1 1 calc(50% - 4px);
+            justify-content: center;
+          }
         }
       `}</style>
     </>

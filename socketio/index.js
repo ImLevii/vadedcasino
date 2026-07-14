@@ -53,7 +53,8 @@ async function newSocket(socket) {
     socket.emit('chat:emojis', discordClient.guilds.cache.get(discordIds.guild)?.emojis?.cache.map(e => {
         return {
             name: e.name,
-            url: e.url
+            url: e.url,
+            animated: Boolean(e.animated)
         }
     }) || []);
 

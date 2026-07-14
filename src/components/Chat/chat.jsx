@@ -1,4 +1,4 @@
-import {createEffect, createSignal, For} from "solid-js";
+import {createEffect, createMemo, createSignal, For, Show} from "solid-js";
 import ChatMessage from "./message";
 import SystemMessage from "./systemmessage";
 import RainTip from "./raintip";
@@ -30,7 +30,25 @@ function Chat(props) {
     const [replying, setReplying] = createSignal()
 
     const [emojisOpen, setEmojisOpen] = createSignal(false)
+    const [emojiTab, setEmojiTab] = createSignal('custom')
+    const [emojiSearch, setEmojiSearch] = createSignal('')
     addDropdown(setEmojisOpen)
+
+    const customEmojis = createMemo(() => {
+      const query = emojiSearch().trim().toLowerCase()
+      return (props?.emojis || []).filter(emoji => {
+        if (emojiTab() === 'gif' && !emoji.animated) return false
+        if (emojiTab() === 'custom' && emoji.animated) return false
+        return !query || emoji.name.toLowerCase().includes(query)
+      })
+    })
+
+    const unicodeEmojis = createMemo(() => {
+      const query = emojiSearch().trim()
+      return query ? UNICODE_EMOJIS.filter(emoji => emoji.includes(query)) : UNICODE_EMOJIS
+    })
+
+    const animatedCount = createMemo(() => (props?.emojis || []).filter(emoji => emoji.animated).length)
 
     createEffect(() => {
         if (replying() || !replying()) // just to proc the effect
@@ -88,6 +106,12 @@ function Chat(props) {
         }, 1)
     }
 
+    function insertEmoji(value) {
+      const separator = text() && !text().endsWith(' ') ? ' ' : ''
+      setText(`${text()}${separator}${value}`)
+      requestAnimationFrame(() => sendRef?.focus())
+    }
+
     const handleKeyPress = (e, message) => {
         if (e.key === 'Backspace' && message.length === 0) {
             setReplying(null)
@@ -140,10 +164,11 @@ function Chat(props) {
                             </p>
                         )}
 
-                        <input type='text' class='send-message-input' placeholder='Send message...'
+                           <input type='text' class='send-message-input' placeholder='Send message...'
+                             maxLength='300'
                                value={text()}
                                ref={sendRef}
-                               onChange={(e) => setText(e.target.value)}
+                             onInput={(e) => setText(e.target.value)}
                                onKeyDown={(e) => handleKeyPress(e, e.target.value)}/>
                     </div>
 
@@ -155,26 +180,61 @@ function Chat(props) {
 
                         {emojisOpen() && (
                             <div class='emojis-wrapper' onClick={(e) => e.stopPropagation()}>
-                                {props?.emojis?.length > 0 && (
-                                    <div class='emojis-section'>
-                                        <p class='emojis-label'>CUSTOM</p>
-                                        <div class='emojis'>
-                                            <For each={props.emojis}>{(emoji) =>
-                                                <img src={emoji.url} class='emoji' alt={`:${emoji.name}:`}
-                                                     height='24' width='24' title={`:${emoji.name}:`}
-                                                     onClick={() => setText(text() + ` :${emoji.name}:`)}/>
-                                            }</For>
-                                        </div>
-                                    </div>
-                                )}
-                                <div class='emojis-section'>
-                                    {props?.emojis?.length > 0 && <p class='emojis-label'>UNICODE</p>}
-                                    <div class='emojis'>
-                                        <For each={UNICODE_EMOJIS}>{(emoji) =>
-                                            <span class='emoji emoji-unicode' title={emoji}
-                                                  onClick={() => setText(text() + emoji)}>{emoji}</span>
-                                        }</For>
-                                    </div>
+                            <div class='picker-header'>
+                              <div>
+                                <p class='picker-title'>Emojis</p>
+                                <p class='picker-subtitle'>Add a reaction to your message</p>
+                              </div>
+                              <button class='picker-close' aria-label='Close emoji picker' onClick={() => setEmojisOpen(false)}>
+                                <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5'>
+                                  <path d='M18 6L6 18M6 6l12 12'/>
+                                </svg>
+                              </button>
+                            </div>
+
+                            <div class='emoji-search-wrap'>
+                              <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'>
+                                <circle cx='11' cy='11' r='8'/><path d='m21 21-4.35-4.35'/>
+                              </svg>
+                              <input value={emojiSearch()} onInput={(e) => setEmojiSearch(e.target.value)} placeholder='Search emojis'/>
+                            </div>
+
+                            <div class='emoji-tabs'>
+                              <button class={emojiTab() === 'custom' ? 'active' : ''} onClick={() => setEmojiTab('custom')}>Custom</button>
+                              <button class={emojiTab() === 'gif' ? 'active' : ''} onClick={() => setEmojiTab('gif')}>
+                                GIF <span>{animatedCount()}</span>
+                              </button>
+                              <button class={emojiTab() === 'unicode' ? 'active' : ''} onClick={() => setEmojiTab('unicode')}>Unicode</button>
+                            </div>
+
+                            <div class='emoji-content'>
+                              <Show when={emojiTab() !== 'unicode'}>
+                                <div class='emojis'>
+                                  <For each={customEmojis()}>{(emoji) =>
+                                    <button class='emoji-tile' title={`:${emoji.name}:`} onClick={() => insertEmoji(`:${emoji.name}:`)}>
+                                      <img src={emoji.url} class='emoji-image' alt={`:${emoji.name}:`} loading='lazy'/>
+                                      <Show when={emoji.animated}><span class='gif-badge'>GIF</span></Show>
+                                    </button>
+                                  }</For>
+                                </div>
+                                <Show when={customEmojis().length === 0}>
+                                  <div class='emoji-empty'>
+                                    <span>{emojiTab() === 'gif' ? 'GIF' : 'Aa'}</span>
+                                    <p>{emojiTab() === 'gif' ? 'No animated emojis found' : 'No custom emojis found'}</p>
+                                  </div>
+                                </Show>
+                              </Show>
+
+                              <Show when={emojiTab() === 'unicode'}>
+                                <div class='emojis'>
+                                  <For each={unicodeEmojis()}>{(emoji) =>
+                                    <button class='emoji-tile emoji-unicode' title={emoji} onClick={() => insertEmoji(emoji)}>{emoji}</button>
+                                  }</For>
+                                </div>
+                                <Show when={unicodeEmojis().length === 0}>
+                                  <div class='emoji-empty'><span>?</span><p>No emojis found</p></div>
+                                </Show>
+                              </Show>
                                 </div>
                             </div>
                         )}
@@ -231,10 +291,11 @@ function Chat(props) {
               }
 
               .send-message {
-                background: #1a1f29;
+                background: linear-gradient(180deg, rgba(35,43,56,0.72), rgba(18,24,33,0.82));
 
-                border: 1px solid rgba(255, 255, 255, 0.06);
-                border-radius: 6px;
+                border: 1px solid var(--glass-border);
+                border-radius: 8px;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 8px 22px rgba(0,0,0,0.18);
 
                 min-height: 44px;
                 width: calc(100% - 28px);
@@ -284,14 +345,15 @@ function Chat(props) {
                 align-items: center;
                 justify-content: center;
 
-                background: #2a313d;
-                border-radius: 5px;
+                background: linear-gradient(180deg, rgba(67,78,96,0.8), rgba(39,47,61,0.9));
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 6px;
                 cursor: pointer;
                 transition: background .2s;
               }
 
               .send:hover {
-                background: #323a48;
+                background: linear-gradient(180deg, rgba(31,214,95,0.84), rgba(21,160,72,0.9));
               }
 
               .send svg {
@@ -317,7 +379,7 @@ function Chat(props) {
 
                 border-radius: 5px;
                 border: 1px solid rgba(255, 255, 255, 0.06);
-                background: rgba(255, 255, 255, 0.04);
+                background: linear-gradient(180deg, rgba(52,62,78,0.58), rgba(27,34,45,0.68));
 
                 display: flex;
                 align-items: center;
@@ -333,84 +395,219 @@ function Chat(props) {
               }
 
               .emojis-wrapper {
-                width: 240px;
-                max-height: 220px;
+                width: 270px;
+                height: min(340px, calc(100vh - 170px));
 
                 position: absolute;
                 bottom: calc(100% + 8px);
 
-                border-radius: 8px;
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                background: #1a1f29;
-                box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5);
+                border-radius: 10px;
+                border: 1px solid var(--glass-border);
+                background:
+                  radial-gradient(100% 80% at 0 0, rgba(31,214,95,0.07), transparent 62%),
+                  linear-gradient(160deg, rgba(29,37,49,0.98), rgba(12,17,24,0.99));
+                box-shadow: inset 0 1px 0 var(--glass-highlight), 0 -16px 38px rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(18px) saturate(125%);
+                -webkit-backdrop-filter: blur(18px) saturate(125%);
 
-                padding: 10px;
-                overflow-y: auto;
+                padding: 12px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                overflow: hidden;
 
                 right: 0;
                 z-index: 10;
                 cursor: initial;
               }
 
-              .emojis-wrapper::-webkit-scrollbar {
-                width: 3px;
-              }
-
-              .emojis-wrapper::-webkit-scrollbar-track {
-                background: transparent;
-              }
-
-              .emojis-wrapper::-webkit-scrollbar-thumb {
-                background: rgba(255, 255, 255, 0.15);
-                border-radius: 3px;
-              }
-
-              .emojis-section {
+              .picker-header {
+                min-height: 34px;
                 display: flex;
-                flex-direction: column;
-                gap: 6px;
-                margin-bottom: 10px;
+                align-items: center;
+                justify-content: space-between;
               }
 
-              .emojis-section:last-child {
-                margin-bottom: 0;
+              .picker-title {
+                color: #f1f5f9;
+                font-size: 13px;
+                font-weight: 800;
               }
 
-              .emojis-label {
+              .picker-subtitle {
+                margin-top: 2px;
+                color: #6f7888;
+                font-family: 'Rubik', sans-serif;
+                font-size: 10px;
+              }
+
+              .picker-close {
+                width: 26px;
+                height: 26px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 6px;
+                background: rgba(255,255,255,0.035);
+                color: #7f8999;
+                cursor: pointer;
+              }
+
+              .picker-close:hover {
+                color: #dbe2ec;
+                background: rgba(255,255,255,0.07);
+              }
+
+              .emoji-search-wrap {
+                height: 34px;
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                padding: 0 10px;
+                border: 1px solid rgba(255,255,255,0.07);
+                border-radius: 7px;
+                background: rgba(5,8,13,0.46);
+                color: #687284;
+              }
+
+              .emoji-search-wrap:focus-within {
+                border-color: rgba(31,214,95,0.34);
+                box-shadow: 0 0 0 2px rgba(31,214,95,0.07);
+              }
+
+              .emoji-search-wrap input {
+                width: 100%;
+                border: 0;
+                outline: 0;
+                background: transparent;
+                color: #d8dee8;
+                font-family: 'Rubik', sans-serif;
+                font-size: 12px;
+              }
+
+              .emoji-tabs {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 3px;
+                padding: 3px;
+                border-radius: 7px;
+                background: rgba(4,7,11,0.42);
+              }
+
+              .emoji-tabs button {
+                height: 28px;
+                border: 0;
+                border-radius: 5px;
+                background: transparent;
+                color: #707a8b;
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-size: 10px;
                 font-weight: 700;
-                color: #6b7280;
-                letter-spacing: 0.05em;
+                cursor: pointer;
+              }
+
+              .emoji-tabs button.active {
+                color: #baffd1;
+                background: rgba(31,214,95,0.12);
+                box-shadow: inset 0 0 0 1px rgba(31,214,95,0.18);
+              }
+
+              .emoji-tabs span {
+                color: #1fd65f;
+              }
+
+              .emoji-content {
+                flex: 1;
+                min-height: 0;
+                overflow-y: auto;
+                padding-right: 2px;
+              }
+
+              .emoji-content::-webkit-scrollbar {
+                width: 3px;
+              }
+
+              .emoji-content::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,0.14);
+                border-radius: 3px;
               }
 
               .emojis {
-                display: flex;
-                flex-wrap: wrap;
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
                 gap: 4px;
               }
 
-              .emoji {
+              .emoji-tile {
+                width: 31px;
+                height: 31px;
+                padding: 3px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                border: 1px solid transparent;
+                border-radius: 6px;
+                background: transparent;
                 cursor: pointer;
-                border-radius: 4px;
-                transition: background .15s;
+                transition: background .15s, border-color .15s, transform .15s;
               }
 
-              .emoji:hover {
-                background: rgba(255, 255, 255, 0.08);
+              .emoji-tile:hover {
+                background: rgba(31,214,95,0.09);
+                border-color: rgba(31,214,95,0.2);
+                transform: translateY(-1px);
+              }
+
+              .emoji-image {
+                width: 24px;
+                height: 24px;
+                object-fit: contain;
+              }
+
+              .gif-badge {
+                position: absolute;
+                right: -1px;
+                bottom: -1px;
+                padding: 1px 2px;
+                border-radius: 3px;
+                background: #1fd65f;
+                color: #06140b;
+                font-size: 6px;
+                font-weight: 900;
               }
 
               .emoji-unicode {
                 font-size: 20px;
-                width: 28px;
-                height: 28px;
+                user-select: none;
+              }
+
+              .emoji-empty {
+                height: 100%;
+                min-height: 100px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                color: #687284;
+                font-family: 'Rubik', sans-serif;
+                font-size: 11px;
+              }
+
+              .emoji-empty span {
+                width: 36px;
+                height: 36px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                border-radius: 4px;
-                cursor: pointer;
-                transition: background .15s;
-                user-select: none;
+                border: 1px solid rgba(255,255,255,0.07);
+                border-radius: 8px;
+                background: rgba(255,255,255,0.035);
+                color: #8c96a6;
+                font-size: 11px;
+                font-weight: 800;
               }
             `}</style>
         </>
