@@ -100,6 +100,7 @@ export async function api(path, method, body, notification = false, headers =  {
             method,
             headers,
             body,
+            credentials: 'include',
             signal: controller.signal
         })
 
@@ -126,6 +127,9 @@ export async function api(path, method, body, notification = false, headers =  {
     } catch (e) {
         clearTimeout(timeoutId)
         console.log('There was an error when trying to fetch ' + path, e)
+        if (notification) {
+            showToast('error', e.name === 'AbortError' ? 'The server took too long to respond.' : 'Unable to reach the server.')
+        }
         return null
     }
 }
@@ -156,10 +160,15 @@ export function getRandomNumber(min, max, chance) {
 }
 
 export function getJWT() {
-    return document.cookie.split("; ").find((row) => row.startsWith("jwt="))?.split("=")[1] || ''
+    const value = document.cookie.split("; ").find((row) => row.startsWith("jwt="))?.slice(4) || ''
+    try {
+        return decodeURIComponent(value)
+    } catch (_) {
+        return value
+    }
 }
 
 export function logout() {
-    document.cookie = `jwt= ; SameSite=Lax; Secure; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+    document.cookie = `jwt=; Path=/; SameSite=Lax;${window.location.protocol === 'https:' ? ' Secure;' : ''} expires=Thu, 01 Jan 1970 00:00:00 GMT`
     window.location.reload()
 }

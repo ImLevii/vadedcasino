@@ -39,7 +39,10 @@ function SignIn(props) {
     }
 
     async function handleLoginData(data, stayOpenOnFail) {
-        if (!data || data.error) { return cancelLogin(stayOpenOnFail) }
+      if (!data || data.error) {
+        cancelLogin(stayOpenOnFail)
+        return false
+      }
 
         if (data.phase && data.phase === 'CAPTCHA') {
             setLoginId(data.loginId)
@@ -51,6 +54,7 @@ function SignIn(props) {
         }
 
         if (data.phase && data.phase === '2FA') {
+          setLoginId(data.loginId)
             setIsLoggingIn(true)
             setTwoFactorOpen(true)
             setCaptchaOpen(false)
@@ -58,35 +62,40 @@ function SignIn(props) {
         }
 
         if (data.token) {
+          try {
+            const expires = new Date(Date.now() + data.expiresIn * 1000)
+            const secure = window.location.protocol === 'https:' ? ' Secure;' : ''
+            document.cookie = `jwt=${encodeURIComponent(data.token)}; Path=/; SameSite=Lax;${secure} expires=${expires.toUTCString()}`
 
-            const d = new Date(Date.now() + data.expiresIn * 1000);
-            document.cookie = `jwt=${data.token}; expires=${d.toUTCString()};`
-
-            if (props?.ws() && props?.ws()?.connected) {
-                props?.ws().emit('auth', getJWT())
-            }
-
-            let user = await fetchUser()
-            mutateUser(user)
-
-            // AFFILIATES
-            let code = localStorage.getItem('aff')
-            if (code) {
-                let res = await authedAPI('/user/affiliate', 'POST', JSON.stringify({
-                    code: code
-                }), true)
-
-                if (res.success) {
-                    createNotification('success', `Successfully redeemed affiliate code ${code}.`)
+            if (props?.ws() && props.ws().connected) {
+              props.ws().emit('auth', data.token)
                 }
-                localStorage.removeItem('aff')
+
+            const currentUser = await fetchUser()
+            if (!currentUser) {
+              createNotification('error', 'Signed in, but your account could not be loaded. Please try again.')
+              return false
+            }
+            mutateUser(currentUser)
+
+            const code = localStorage.getItem('aff')
+            if (code) {
+              const res = await authedAPI('/user/affiliate', 'POST', JSON.stringify({ code }), true)
+              if (res?.success) {
+                createNotification('success', `Successfully redeemed affiliate code ${code}.`)
+              }
+              localStorage.removeItem('aff')
             }
 
-            close(false)
+            close()
+            return true
+          } finally {
+            setIsLoggingIn(false)
+          }
         }
 
         cancelLogin()
-        return true
+        return false
     }
 
     function cancelLogin(stayOpenOnFail) {
@@ -164,8 +173,14 @@ function SignIn(props) {
                             if (!agree()) return createNotification('error', 'You must accept our Terms and Conditions')
                             if (isLoggingIn()) return
                             setIsLoggingIn(true)
+                          try {
                             const data = await api('/auth/login', 'POST', JSON.stringify({ username: username(), password: password() }), true)
-                            handleLoginData(data)
+                            await handleLoginData(data)
+                          } catch (error) {
+                            console.error('Login failed:', error)
+                            createNotification('error', 'Unable to complete sign in. Please try again.')
+                            cancelLogin()
+                          }
                         }}>
                             {isLoggingIn() ? (
                                 <span class='btn-loading'>SIGNING IN…</span>

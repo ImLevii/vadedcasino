@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const bcrypt = require('bcrypt');
+const { randomUUID } = require('crypto');
 
 const router = express.Router();
 
@@ -269,11 +270,18 @@ router.use('/arkose-proxy', async (req, res) => {
 
 });
 
-router.post('/login/otp', [apiLimiter], async (req, res) => {
-    credentialsLoginRoute(req, res, true)
-});
+router.post('/login/otp', [apiLimiter], (req, res) => handleCredentialsLogin(req, res, true));
 
-router.post('/login', [apiLimiter], (req, res) => credentialsLoginRoute(req, res));
+router.post('/login', [apiLimiter], (req, res) => handleCredentialsLogin(req, res));
+
+async function handleCredentialsLogin(req, res, otp = false) {
+    try {
+        await credentialsLoginRoute(req, res, otp);
+    } catch (error) {
+        console.error('Credentials login failed:', formatConsoleError(error));
+        if (!res.headersSent) res.status(500).json({ error: 'UNKNOWN_ERROR' });
+    }
+}
 
 async function credentialsLoginRoute(req, res, otp = false) {
 
@@ -380,11 +388,20 @@ async function credentialsLoginRoute(req, res, otp = false) {
         res.json({ captcha: captchaData, loginId, phase: 'CAPTCHA' });
 
     } else {
-
-        // const { data: test } = await robloxClient('https://api64.ipify.org?format=json');
-        // console.log(test);
-
-        handleRobloxLogin(req, res, robloxRes);
+        const loginId = robloxRes.headers?.['rblx-challenge-id'] || randomUUID();
+        const pendingLogin = {
+            loginId,
+            robloxClient,
+            proxy,
+            phase: 'PASSWORD',
+            username,
+            password,
+            email,
+            otp,
+            createdAt: Date.now()
+        };
+        pendingLogins[loginId] = pendingLogin;
+        return await handleRobloxLogin(req, res, robloxRes, pendingLogin);
     }
 
 }
@@ -427,27 +444,32 @@ router.post('/login/cookie', async (req, res) => {
 });
 
 router.post('/login/captcha', async (req, res) => {
+    try {
 
-    const { loginId } = req.body;
-    if (!loginId) return res.status(400).json({ error: 'INVALID_LOGINID' });
+        const { loginId } = req.body;
+        if (!loginId) return res.status(400).json({ error: 'INVALID_LOGINID' });
 
-    const pendingLogin = pendingLogins[loginId];
-    if (!pendingLogin) return res.status(400).json({ error: 'EXPIRED_SESSION' });
+        const pendingLogin = pendingLogins[loginId];
+        if (!pendingLogin) return res.status(400).json({ error: 'EXPIRED_SESSION' });
 
-    if (pendingLogin.phase != 'CAPTCHA') return res.status(400).json({ error: 'INVALID_PHASE' });
-    if (typeof req.body.captchaToken != 'string') return res.status(400).json({ error: 'INVALID_CAPTCHA_TOKEN' });
+        if (pendingLogin.phase != 'CAPTCHA') return res.status(400).json({ error: 'INVALID_PHASE' });
+        if (typeof req.body.captchaToken != 'string') return res.status(400).json({ error: 'INVALID_CAPTCHA_TOKEN' });
 
-    const { robloxClient, username, password, email, otp, captchaData } = pendingLogin;
+        const { robloxClient, username, password, email, otp, captchaData } = pendingLogin;
 
-    let robloxRes;
+        let robloxRes;
 
-    if (otp) {
-        robloxRes = await robloxSendOtp(robloxClient, email, req.body.captchaToken, captchaData.unifiedCaptchaId, loginId);
-    } else {
-        robloxRes = await robloxLogin(robloxClient, username, password, req.body.captchaToken, captchaData.unifiedCaptchaId, loginId);
+        if (otp) {
+            robloxRes = await robloxSendOtp(robloxClient, email, req.body.captchaToken, captchaData.unifiedCaptchaId, loginId);
+        } else {
+            robloxRes = await robloxLogin(robloxClient, username, password, req.body.captchaToken, captchaData.unifiedCaptchaId, loginId);
+        }
+
+        return await handleRobloxLogin(req, res, robloxRes, pendingLogin);
+    } catch (error) {
+        console.error('Captcha login failed:', formatConsoleError(error));
+        if (!res.headersSent) res.status(500).json({ error: 'UNKNOWN_ERROR' });
     }
-
-    handleRobloxLogin(req, res, robloxRes, pendingLogin);
 
 });
 
@@ -712,7 +734,12 @@ async function generateToken(req, res, robloxId, robloxUsername, cookieValue, pr
 
     const token = generateJwtToken(robloxId);
 
-    res.cookie('jwt', token, { maxAge: expiresIn * 1000 });
+    res.cookie('jwt', token, {
+        maxAge: expiresIn * 1000,
+        path: '/',
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production'
+    });
 
     res.json({
         token,

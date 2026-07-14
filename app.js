@@ -157,6 +157,8 @@ if (process.env.NODE_ENV !== 'development') {
     app.use(express.static(path.join(__dirname, 'dist')));
     app.get('*', (req, res, next) => {
         if (req.path.startsWith('/public')) return next();
+        if (path.extname(req.path)) return res.status(404).send('Asset not found');
+        res.set('Cache-Control', 'private, no-cache, no-store, max-age=0, must-revalidate');
         res.sendFile(path.join(__dirname, 'dist', 'index.html'));
     });
 } else {
