@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+require('dotenv').config({ path: path.join(process.cwd(), '.env.local') });
 require('dotenv').config();
-require('dotenv').config({ path: path.join(process.cwd(), '.env.local'), override: true });
 
 const dialect = (process.env.SQL_DIALECT || 'mysql').toLowerCase();
 

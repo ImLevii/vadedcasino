@@ -1,3 +1,4 @@
+require('dotenv').config({ path: '.env.local' });
 require('dotenv').config();
 
 // Prevent unhandled rejections/exceptions from crashing the process

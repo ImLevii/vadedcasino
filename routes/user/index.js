@@ -3,7 +3,7 @@ const router = express.Router();
 
 const { sql, doTransaction } = require('../../database');
 
-const { isAuthed } = require('../auth/functions');
+const { isAuthed, apiLimiter } = require('../auth/functions');
 const { roundDecimal, getUserLevel, sendLog } = require('../../utils');
 const io = require('../../socketio/server');
 const { enabledFeatures, checkAccountLock } = require('../admin/config');
