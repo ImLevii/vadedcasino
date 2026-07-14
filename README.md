@@ -159,8 +159,10 @@ SKINDECK_MODE=sandbox
 - `SKINDECK_API_KEY` and `SKINDECK_WEBHOOK_SECRET` are server-only secrets. Never prefix them with `VITE_` or expose them to browser code.
 - `SKINDECK_MODE` accepts `sandbox` or `live`. Start in sandbox.
 - Register the webhook URL as `https://<cosmic-luck-host>/trading/skindeck/webhook` after confirming the required event subscriptions in SkinDeck's current merchant documentation.
+- Each user must save a valid Steam Trade URL and 32-character Steam Web API key from `/profile`. SkinDeck reads both values from the server-side user record; clients cannot submit or override them in payment requests.
+- Sandbox mode exposes a local marketplace-style inventory and signed checkout. The checkout signature includes the selected item IDs, so the credited basket cannot be changed after session creation.
 
-The repository currently fails closed at the provider boundary because SkinDeck's live merchant documentation is protected by a Vercel security checkpoint. The API base URLs, endpoint paths, authentication header, webhook signature algorithm, payload schemas, and provider status map must be filled from a current official docs export before `contractReady` can be enabled. Do not infer those values.
+Live mode remains fail-closed until the production provider adapter and callback signature/status mapping are implemented and verified against SkinDeck's current merchant contract.
 
 The local ledger uses a unique provider reference and row-locked terminal transitions. Deposit value comes only from the provider-confirmed USD value, using the existing Cosmic Luck conversion rate. Withdrawals move coins into `heldBalance` before any provider order and consume or refund that hold exactly once.
 

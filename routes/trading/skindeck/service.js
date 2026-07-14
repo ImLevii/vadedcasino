@@ -100,9 +100,9 @@ async function createPaymentTransaction(userId, type, connectionOverride) {
 }
 
 async function getLockedPayment(connection, reference) {
-    const byProvider = reference.providerRef != null;
-    const column = byProvider ? 'providerRef' : 'internalRef';
-    const value = byProvider ? reference.providerRef : reference.internalRef;
+    const byInternal = reference.internalRef != null;
+    const column = byInternal ? 'internalRef' : 'providerRef';
+    const value = byInternal ? reference.internalRef : reference.providerRef;
     if (!value) throw new Error('A payment reference is required.');
 
     const [[payment]] = await connection.query(

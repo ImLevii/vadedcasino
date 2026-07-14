@@ -19,7 +19,10 @@ function loadServiceWithFakeDatabase(state) {
         async query(query, params = []) {
             const normalized = query.replace(/\s+/g, ' ').trim().toLowerCase();
 
-            if (normalized.startsWith('select * from paymenttransactions')) return [[state.payment]];
+            if (normalized.startsWith('select * from paymenttransactions')) {
+                state.lookupParams = params;
+                return [[state.payment]];
+            }
             if (normalized.startsWith('select id from users')) return [[{id: state.payment.userId}]];
             if (normalized.startsWith('update paymenttransactions')) {
                 state.payment.providerRef = params[0] || state.payment.providerRef;
@@ -97,6 +100,63 @@ test('provider contract supports sandbox and fails closed for unverified live mo
     assert.equal(assertProviderContract('sandbox'), 'sandbox');
     assert.equal(isProviderContractReady('live'), false);
     assert.throws(assertProviderContract, error => error.code === 'SKINDECK_CONTRACT_UNAVAILABLE');
+});
+
+test('SkinDeck provider operations require the stored Steam profile', async () => {
+    const {assertSteamProfile, createSkinDeckClient} = require('../../routes/trading/skindeck/client');
+    assert.throws(() => assertSteamProfile({steamId: '100'}), error => error.code === 'STEAM_DETAILS_REQUIRED');
+
+    const previousMode = process.env.SKINDECK_MODE;
+    process.env.SKINDECK_MODE = 'sandbox';
+    const client = createSkinDeckClient();
+    await assert.rejects(client.listInventory({steamId: '100'}), error => error.code === 'STEAM_DETAILS_REQUIRED');
+    if (previousMode == null) delete process.env.SKINDECK_MODE;
+    else process.env.SKINDECK_MODE = previousMode;
+});
+
+test('sandbox checkout signature binds the selected item basket', async () => {
+    const previousMode = process.env.SKINDECK_MODE;
+    process.env.SKINDECK_MODE = 'sandbox';
+    const {createSkinDeckClient} = require('../../routes/trading/skindeck/client');
+    const client = createSkinDeckClient();
+    const profile = {steamId: '100', tradeUrl: 'https://steamcommunity.com/tradeoffer/new/?partner=1&token=test', apiKey: 'A'.repeat(32)};
+    const selected = ['sandbox-ak47-redline', 'sandbox-awp-asiimov'];
+    const session = await client.createDeposit({internalRef: 'internal-ref', origin: 'https://example.test', itemIds: selected, profile});
+    const url = new URL(session.redirectUrl);
+
+    assert.equal(client.verifyCheckout('internal-ref', url.searchParams.get('token'), selected), true);
+    assert.equal(client.verifyCheckout('internal-ref', url.searchParams.get('token'), ['sandbox-knife-doppler']), false);
+
+    if (previousMode == null) delete process.env.SKINDECK_MODE;
+    else process.env.SKINDECK_MODE = previousMode;
+});
+
+test('provider state update finds a new payment by its internal reference', async () => {
+    const state = {
+        payment: {
+            id: 41,
+            internalRef: 'internal-ref',
+            providerRef: null,
+            userId: '100',
+            type: 'deposit',
+            status: 'initiating'
+        },
+        balance: 0,
+        genericTransactions: 0,
+        commits: 0
+    };
+    const {updateProviderState} = loadServiceWithFakeDatabase(state);
+
+    const result = await updateProviderState({
+        internalRef: 'internal-ref',
+        providerRef: 'new-provider-ref',
+        providerStatus: 'created',
+        status: 'pending'
+    });
+
+    assert.equal(result.duplicate, false);
+    assert.deepEqual(state.lookupParams, ['skindeck', 'internal-ref']);
+    assert.equal(state.commits, 1);
 });
 
 test('duplicate completed deposit credits exactly once', async () => {

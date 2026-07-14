@@ -48,6 +48,32 @@ function requireSkinDeck(req, res, next) {
     next();
 }
 
+async function requireSteamProfile(req, res, next) {
+    try {
+        const [[user]] = await sql.query(
+            'SELECT id, steamTradeUrl, steamApiKey FROM users WHERE id = ?',
+            [req.userId]
+        );
+        if (!user) return res.status(404).json({ error: 'USER_NOT_FOUND' });
+
+        const missing = [];
+        if (!user.steamTradeUrl) missing.push('tradeUrl');
+        if (!user.steamApiKey) missing.push('apiKey');
+        if (missing.length) {
+            return res.status(400).json({ error: 'STEAM_DETAILS_REQUIRED', missing, profileUrl: '/profile' });
+        }
+
+        req.skinDeckProfile = {
+            steamId: `${user.id}`,
+            tradeUrl: user.steamTradeUrl,
+            apiKey: user.steamApiKey
+        };
+        next();
+    } catch (error) {
+        next(error);
+    }
+}
+
 function requestOrigin(req) {
     return `${req.protocol}://${req.get('host')}`;
 }
@@ -65,14 +91,15 @@ function sendSkinDeckError(res, error) {
 
 function checkoutHtml({ internalRef, token, items }) {
     const options = items.map(item =>
-        `<label><input type="radio" name="itemId" value="${item.id}" required> ${item.name} - $${item.providerValue.toFixed(2)}</label>`
+        `<div class="item"><img src="${item.image}" alt=""><span><strong>${item.name}</strong><small>${item.wear || 'CS2 Skin'}</small></span><b>$${item.providerValue.toFixed(2)}</b></div>`
     ).join('');
+    const itemIds = items.map(item => item.id).join(',');
 
     return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SkinDeck Sandbox Checkout</title><style>
-body{margin:0;min-height:100vh;display:grid;place-items:center;background:#090d14;color:#cbd3df;font-family:Arial,sans-serif}.checkout{width:min(520px,calc(100% - 32px));padding:28px;border:1px solid #263244;background:#101722}h1{margin:0 0 8px;color:#fff;font-size:24px}p{color:#8590a0}label{display:block;margin:10px 0;padding:14px;border:1px solid #283446;background:#0b111a}button{width:100%;height:44px;margin-top:18px;border:0;background:#1fd65f;color:#071109;font-weight:700;cursor:pointer}.tag{color:#1fd65f;font-size:11px;font-weight:700}
-</style></head><body><main class="checkout"><span class="tag">SANDBOX ONLY</span><h1>Select test skins</h1><p>No Steam items or money move in this environment.</p><form method="post" action="/trading/skindeck/sandbox/deposits/${internalRef}/complete"><input type="hidden" name="token" value="${token}">${options}<button type="submit">COMPLETE TEST DEPOSIT</button></form></main></body></html>`;
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#090d14;color:#cbd3df;font-family:Arial,sans-serif}.checkout{width:min(560px,calc(100% - 32px));padding:28px;border:1px solid #263244;background:#101722}h1{margin:0 0 8px;color:#fff;font-size:24px}p{color:#8590a0}.item{display:flex;align-items:center;gap:12px;margin:8px 0;padding:10px;border:1px solid #283446;background:#0b111a}.item img{width:64px;height:42px;object-fit:contain}.item span{display:flex;flex:1;flex-direction:column;gap:3px}.item strong{color:#fff;font-size:13px}.item small{color:#77808e}.item b{color:#1fd65f;font-size:13px}button{width:100%;height:44px;margin-top:18px;border:0;background:#1fd65f;color:#071109;font-weight:700;cursor:pointer}.tag{color:#1fd65f;font-size:11px;font-weight:700}
+</style></head><body><main class="checkout"><span class="tag">SANDBOX ONLY</span><h1>Confirm test deposit</h1><p>No Steam items or money move in this environment.</p><form method="post" action="/trading/skindeck/sandbox/deposits/${internalRef}/complete"><input type="hidden" name="token" value="${token}"><input type="hidden" name="itemIds" value="${itemIds}">${options}<button type="submit">COMPLETE TEST DEPOSIT</button></form></main></body></html>`;
 }
 
 function parsePage(value) {
@@ -160,21 +187,27 @@ router.post('/webhook', async (req, res) => {
     }
 });
 
-router.post('/deposits', isAuthed, apiLimiter, requireSkinDeck, async (req, res) => {
-    const payment = await createPaymentTransaction(req.userId, 'deposit');
-
+router.post('/deposits', isAuthed, apiLimiter, requireSkinDeck, requireSteamProfile, async (req, res) => {
+    let payment;
     try {
         const client = createSkinDeckClient();
+        const itemIds = req.body?.itemIds;
+        payment = await createPaymentTransaction(req.userId, 'deposit');
         const session = await client.createDeposit({
             internalRef: payment.internalRef,
             userId: req.userId,
-            origin: requestOrigin(req)
+            origin: requestOrigin(req),
+            itemIds,
+            profile: req.skinDeckProfile
         });
         await updateProviderState({
             internalRef: payment.internalRef,
             providerRef: session.providerRef,
             providerStatus: session.providerStatus,
-            status: session.status
+            status: session.status,
+            skinItems: session.items,
+            providerValue: session.providerValue,
+            providerCurrency: session.providerCurrency
         });
         logSkinDeck('info', 'deposit_created', { userId: req.userId, internalRef: payment.internalRef });
         return res.status(201).json({
@@ -183,23 +216,27 @@ router.post('/deposits', isAuthed, apiLimiter, requireSkinDeck, async (req, res)
             redirectUrl: session.redirectUrl
         });
     } catch (error) {
-        await updateProviderState({
-            internalRef: payment.internalRef,
-            providerStatus: 'request-failed',
-            status: 'failed',
-            lastError: error.message
-        });
+        if (payment) {
+            await updateProviderState({
+                internalRef: payment.internalRef,
+                providerStatus: 'request-failed',
+                status: 'failed',
+                lastError: error.message
+            });
+        }
         return sendSkinDeckError(res, error);
     }
 });
 
-router.get('/skins', isAuthed, requireSkinDeck, async (req, res) => {
+router.get('/inventory', isAuthed, requireSkinDeck, requireSteamProfile, async (req, res) => {
     try {
         const client = createSkinDeckClient();
-        const items = (await client.listSkins()).map(item => ({
+        const items = (await client.listInventory(req.skinDeckProfile)).map(item => ({
             id: item.id,
             name: item.name,
             image: item.image,
+            wear: item.wear,
+            rarity: item.rarity,
             value: usdToCoins(item.providerValue)
         }));
         return res.json({ items });
@@ -208,7 +245,24 @@ router.get('/skins', isAuthed, requireSkinDeck, async (req, res) => {
     }
 });
 
-router.post('/withdrawals', isAuthed, apiLimiter, withdrawalLimiter, requireSkinDeck, async (req, res) => {
+router.get('/skins', isAuthed, requireSkinDeck, requireSteamProfile, async (req, res) => {
+    try {
+        const client = createSkinDeckClient();
+        const items = (await client.listSkins(req.skinDeckProfile)).map(item => ({
+            id: item.id,
+            name: item.name,
+            image: item.image,
+            wear: item.wear,
+            rarity: item.rarity,
+            value: usdToCoins(item.providerValue)
+        }));
+        return res.json({ items });
+    } catch (error) {
+        return sendSkinDeckError(res, error);
+    }
+});
+
+router.post('/withdrawals', isAuthed, apiLimiter, withdrawalLimiter, requireSkinDeck, requireSteamProfile, async (req, res) => {
     let payment;
     try {
         const client = createSkinDeckClient();
@@ -221,7 +275,11 @@ router.post('/withdrawals', isAuthed, apiLimiter, withdrawalLimiter, requireSkin
             skinItems: quote.items
         });
 
-        const order = await client.createWithdrawal({ internalRef: payment.internalRef, itemIds: req.body.itemIds });
+        const order = await client.createWithdrawal({
+            internalRef: payment.internalRef,
+            itemIds: req.body.itemIds,
+            profile: req.skinDeckProfile
+        });
         const result = await settleWithdrawal({
             internalRef: payment.internalRef,
             providerRef: order.providerRef,
@@ -248,13 +306,14 @@ router.post('/withdrawals', isAuthed, apiLimiter, withdrawalLimiter, requireSkin
 router.get('/sandbox/deposits/:internalRef', requireSkinDeck, async (req, res) => {
     try {
         const client = createSkinDeckClient();
-        if (client.mode !== 'sandbox' || !client.verifyCheckout(req.params.internalRef, req.query.token)) {
+        const itemIds = `${req.query.items || ''}`.split(',').filter(Boolean);
+        if (client.mode !== 'sandbox' || !client.verifyCheckout(req.params.internalRef, req.query.token, itemIds)) {
             return res.status(403).send('Invalid sandbox checkout link.');
         }
         return res.type('html').send(checkoutHtml({
             internalRef: req.params.internalRef,
             token: req.query.token,
-            items: await client.listSkins()
+            items: await client.quoteItems(itemIds).then(quote => quote.items)
         }));
     } catch (error) {
         return sendSkinDeckError(res, error);
@@ -264,11 +323,14 @@ router.get('/sandbox/deposits/:internalRef', requireSkinDeck, async (req, res) =
 router.post('/sandbox/deposits/:internalRef/complete', requireSkinDeck, async (req, res) => {
     try {
         const client = createSkinDeckClient();
-        if (client.mode !== 'sandbox' || !client.verifyCheckout(req.params.internalRef, req.body?.token)) {
+        const itemIds = Array.isArray(req.body?.itemIds)
+            ? req.body.itemIds
+            : `${req.body?.itemIds || ''}`.split(',').filter(Boolean);
+        if (client.mode !== 'sandbox' || !client.verifyCheckout(req.params.internalRef, req.body?.token, itemIds)) {
             return res.status(403).send('Invalid sandbox checkout link.');
         }
 
-        const quote = await client.quoteItems([req.body?.itemId]);
+        const quote = await client.quoteItems(itemIds);
         const result = await settleDeposit({
             internalRef: req.params.internalRef,
             providerRef: `sandbox-deposit-${req.params.internalRef}`,
