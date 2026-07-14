@@ -17,6 +17,12 @@
   /* CSGO LUCK accent is neon green; kept in the --gold slot so it cascades app-wide */
   --gold: #1fd65f;
   --gradient-bg: linear-gradient(277.39deg, #161a22 -69.8%, #1b202a 144.89%);
+
+  --glass-bg: rgba(18, 24, 34, 0.58);
+  --glass-bg-strong: rgba(12, 16, 23, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-highlight: rgba(255, 255, 255, 0.06);
+  --morph-shadow: 0 14px 40px rgba(0, 0, 0, 0.34);
 }
 
 * {
@@ -43,7 +49,32 @@ body {
   font-family: "Geogrotesque Wide", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(252.77deg, #0e1116 -27.53%, #161a22 175.86%);
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(31, 214, 95, 0.12), transparent 48%),
+    radial-gradient(900px 500px at -10% 15%, rgba(65, 118, 255, 0.08), transparent 45%),
+    linear-gradient(252.77deg, #0e1116 -27.53%, #161a22 175.86%);
+  color: #c3cad6;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.2;
+  z-index: -1;
+}
+
+.glass-panel {
+  background: linear-gradient(180deg, var(--glass-bg), var(--glass-bg-strong));
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), var(--morph-shadow);
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
 }
 
 .bevel {

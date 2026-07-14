@@ -188,7 +188,7 @@ function AdminSettings(props) {
                             <div className='toggle'>
                                 <p>RAKEBACK</p>
                                 <Switch ultradark={true} active={settings()?.rakeback} toggle={() => {
-                                    changeProperty('Rakeback', !settings()?.rakeback)
+                                    changeProperty('rakeback', !settings()?.rakeback)
                                 }}/>
                             </div>
 

@@ -1,4 +1,4 @@
-import { createEffect, onMount, Show } from 'solid-js';
+import { createEffect, onCleanup, onMount, Show } from 'solid-js';
 import { A } from '@solidjs/router';
 import Rocket3D from './rocket3d';
 
@@ -9,6 +9,10 @@ function CrashGraph(props) {
   onMount(() => {
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
+  });
+
+  onCleanup(() => {
+    window.removeEventListener('resize', resizeCanvas);
   });
 
   function resizeCanvas() {
@@ -292,6 +296,7 @@ function CrashGraph(props) {
           color: #1fd65f;
           text-shadow: 0px 0px 30px rgba(31, 214, 95, 0.6);
           line-height: 1;
+          transition: color .18s ease, text-shadow .18s ease, transform .18s ease;
         }
 
         .multiplier-value.crashed {
@@ -329,55 +334,3 @@ function CrashGraph(props) {
 }
 
 export default CrashGraph;
-
-/*
-        //Calculate X Axis
-        let milisecondsSeparation = stepValues(values.xAxisValue);
-        let XAxisValuesSeparation = values.plotWidth / (values.xAxisValue/milisecondsSeparation);
-
-        //Draw X Axis Values
-        for(var miliseconds = 0, counter = 0, i = 0; miliseconds < values.xAxisValue; miliseconds+=milisecondsSeparation, counter++, i++) {
-            let seconds = miliseconds/1000;
-            let textWidth = ctx.measureText(seconds).width;
-            let x = (counter*XAxisValuesSeparation) + values.xStart
-            ctx.fillText(seconds + 's', x - textWidth/2, values.plotHeight + 11);
-
-            if(i > 100) break
-        }
-
-        //Draw background Axis
-        ctx.lineWidth=1;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(0, values.canvasHeight);
-        ctx.lineTo(0, values.canvasHeight);
-        ctx.stroke();
-    }
-
-    function clearGraph(ctx) {
-        ctx.clearRect(0, 0, graphRef?.width, graphRef?.height);
-    }
-
-    return (
-        <>
-            <div ref={canvasRef} class='canvas'>
-                <canvas ref={graphRef}></canvas>
-            </div>
-
-            <style jsx>{`
-              .canvas {
-                top: 0;
-                left: 0;
-                z-index: 1;
-                position: absolute;
-                display: flex;
-                height: 100%;
-                width: 100%;
-              }
-            `}</style>
-        </>
-    )
-}
-
-export default Graph;
-*/

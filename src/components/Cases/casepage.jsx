@@ -1,4 +1,4 @@
-import {createEffect, createResource, createSignal, For, Show} from "solid-js";
+import {createEffect, createResource, createSignal, For, onCleanup, Show} from "solid-js";
 import {A, useParams} from "@solidjs/router";
 import CaseTitle from "./casetitle";
 import Loader from "../Loader/loader";
@@ -10,6 +10,7 @@ import {generateRandomItems, generateRareItems, getRareItems, isRareItem, maskRa
 import Toggle from "../Toggle/toggle";
 import {resolveImageSrc} from "../../util/image";
 import CasePreview from "./casepreview";
+import {playGameSFX, stopSFXChannel} from "../../util/sound";
 
 function CasePage(props) {
 
@@ -27,16 +28,17 @@ function CasePage(props) {
   const [cosmicSpin, setCosmicSpin] = createSignal(false)
   const [showPreview, setShowPreview] = createSignal(false)
 
-  const tickSFX = new Audio('/assets/sfx/casetick.wav')
-  const winSFX = new Audio('/assets/sfx/winorcashout.mp3')
   let tickTimer = null
 
   function startTicking(duration) {
     if (tickTimer) clearTimeout(tickTimer)
     let elapsed = 0
     const tick = () => {
-      tickSFX.currentTime = 0
-      tickSFX.play().catch(() => {})
+      playGameSFX('case-tick', '/assets/sfx/casetick.wav', {
+        channel: 'spin-tick',
+        volume: 0.52,
+        minIntervalMs: 45,
+      })
       const progress = Math.min(elapsed / duration, 1)
       const delay = Math.round(75 + progress * 225)
       elapsed += delay
@@ -123,8 +125,11 @@ function CasePage(props) {
     const finish = () => {
       if (tickTimer) { clearTimeout(tickTimer); tickTimer = null }
       setSpinning('win')
-      winSFX.currentTime = 0
-      winSFX.play().catch(() => {})
+      playGameSFX('case-win', '/assets/sfx/winorcashout.mp3', {
+        channel: 'result-win',
+        volume: 0.62,
+        fadeInMs: 80,
+      })
       if (newBal)
         setBalance(newBal)
       setTimeout(() => setSpinning(''), itemTime() - 500)
@@ -167,6 +172,14 @@ function CasePage(props) {
       setSpinnerItems(items)
     }
   }
+
+  onCleanup(() => {
+    if (tickTimer) {
+      clearTimeout(tickTimer)
+      tickTimer = null
+    }
+    stopSFXChannel('spin-tick', { fadeOutMs: 80 })
+  })
 
   return (
     <>

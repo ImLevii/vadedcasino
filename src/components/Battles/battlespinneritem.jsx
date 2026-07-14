@@ -1,6 +1,7 @@
 import {createEffect, onCleanup} from "solid-js";
 import {findTimeForOffset} from "../../util/cases";
 import {resolveImageSrc} from "../../util/image";
+import {playGameSFX} from "../../util/sound";
 
 function BattleSpinnerItem(props) {
 
@@ -14,8 +15,11 @@ function BattleSpinnerItem(props) {
 
         if (elapsed > delay) {
             start = null
-            let tick = new Audio('/assets/sfx/casetick.wav')
-            tick.play()
+            playGameSFX('battle-item-tick', '/assets/sfx/casetick.wav', {
+                channel: 'spin-tick',
+                volume: 0.45,
+                minIntervalMs: 50,
+            })
             return
         }
         window.requestAnimationFrame((ts) => playSound(ts, delay, index))

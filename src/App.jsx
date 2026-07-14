@@ -533,6 +533,14 @@ function App() {
 
           position: relative;
           padding: 0 25px;
+          background:
+            radial-gradient(140% 70% at 50% -8%, rgba(31, 214, 95, 0.06), transparent 45%),
+            linear-gradient(180deg, rgba(10, 13, 19, 0.64), rgba(8, 11, 17, 0.66));
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 16px;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 16px 40px rgba(0,0,0,0.28);
+          backdrop-filter: blur(8px) saturate(120%);
+          -webkit-backdrop-filter: blur(8px) saturate(120%);
           scrollbar-color: transparent transparent;
         }
 
@@ -571,6 +579,7 @@ function App() {
 
           .content {
             padding: 0 16px;
+            border-radius: 12px;
           }
         }
 

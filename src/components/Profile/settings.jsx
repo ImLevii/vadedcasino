@@ -65,8 +65,9 @@ function Settings(props) {
                     <div class='table-column'>
                         <input ref={slider} type='range' className='range' value={sound()}
                                onInput={(e) => {
-                                   setSound(e.target.valueAsNumber)
-                                   localStorage.setItem('sound', sound())
+                                   const value = e.target.valueAsNumber
+                                   setSound(value)
+                                   localStorage.setItem('sound', value)
                                }}
                         />
                     </div>

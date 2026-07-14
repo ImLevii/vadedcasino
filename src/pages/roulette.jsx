@@ -1,4 +1,4 @@
-import {createEffect, createSignal, For} from "solid-js";
+import {createEffect, createSignal, For, onCleanup} from "solid-js";
 import RouletteSpinner from "../components/Roulette/roulettespinner";
 import RouletteIcon from "../components/Roulette/rouletteicons";
 import {useWebsocket} from "../contexts/socketprovider";
@@ -7,14 +7,13 @@ import RouletteBetControls from "../components/Roulette/betcontrols";
 import RouletteColor from "../components/Roulette/roulettecolor";
 import {subscribeToGame, unsubscribeFromGames} from "../util/socket";
 import {Meta, Title} from "@solidjs/meta";
+import {playGameSFX, stopSFXChannel} from "../util/sound";
 
 function Roulette(props) {
 
     let hasConnected = false
     let bar
 
-    const tickSFX = new Audio('/assets/sfx/casetick.wav')
-    const winSFX = new Audio('/assets/sfx/winorcashout.mp3')
     let rouletteTickTimer = null
 
     // spinPhase = the active-spin window (0 → 90% of rollTime).
@@ -23,8 +22,11 @@ function Roulette(props) {
         if (rouletteTickTimer) clearTimeout(rouletteTickTimer)
         let elapsed = 0
         const tick = () => {
-            tickSFX.currentTime = 0
-            tickSFX.play().catch(() => {})
+          playGameSFX('roulette-tick', '/assets/sfx/casetick.wav', {
+            channel: 'spin-tick',
+            volume: 0.5,
+            minIntervalMs: 45,
+          })
             // Linear decel: 75 ms → 300 ms — same pattern as case opening & battles
             const progress = Math.min(elapsed / spinPhase, 1)
             const delay = Math.round(75 + progress * 225)
@@ -60,6 +62,13 @@ function Roulette(props) {
         if (ws() && ws().connected && !hasConnected) {
             unsubscribeFromGames(ws())
             subscribeToGame(ws(), 'roulette')
+
+        ws().off('roulette:set')
+        ws().off('roulette:bets')
+        ws().off('roulette:bet:update')
+        ws().off('roulette:new')
+        ws().off('roulette:roll')
+
             ws().on('roulette:set', (data) => {
                 let stats = { green: 0, red: 0, black: 0, bait: 0 }
                 let last10 = []
@@ -102,6 +111,11 @@ function Roulette(props) {
             ws().on('roulette:new', (roll) => {
                 setBets([])
                 setState('')
+              if (rouletteTickTimer) {
+                clearTimeout(rouletteTickTimer)
+                rouletteTickTimer = null
+              }
+              stopSFXChannel('spin-tick', { fadeOutMs: 70 })
                 startCountdown()
             })
 
@@ -121,12 +135,15 @@ function Roulette(props) {
 
                 // Tick only during the active-spin phase (first 90 % of rollTime).
                 // The remaining 10 % is the hold + snap — silence there feels correct.
-                // startRouletteTicking(rollTime * 0.9)  // disabled
+                startRouletteTicking(rollTime * 0.9)
 
                 // Win sound fires exactly when the animation finishes
                 setTimeout(() => {
-                    winSFX.currentTime = 0
-                    winSFX.play().catch(() => {})
+                  playGameSFX('roulette-win', '/assets/sfx/winorcashout.mp3', {
+                    channel: 'result-win',
+                    volume: 0.62,
+                    fadeInMs: 80,
+                  })
                     setStats(calculateStats(newLast100))
                     setLast100(newLast100)
                     setLast10(prev10)
@@ -143,6 +160,23 @@ function Roulette(props) {
             hasConnected = false
         }
     })
+
+      onCleanup(() => {
+        if (rouletteTickTimer) {
+          clearTimeout(rouletteTickTimer)
+          rouletteTickTimer = null
+        }
+        stopSFXChannel('spin-tick', { fadeOutMs: 70 })
+
+        if (ws() && ws().connected) {
+          ws().off('roulette:set')
+          ws().off('roulette:bets')
+          ws().off('roulette:bet:update')
+          ws().off('roulette:new')
+          ws().off('roulette:roll')
+          unsubscribeFromGames(ws())
+        }
+      })
 
     async function startCountdown(duration = config().betTime) {
 

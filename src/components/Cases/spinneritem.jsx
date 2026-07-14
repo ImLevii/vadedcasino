@@ -2,6 +2,7 @@ import BezierEasing from 'bezier-easing';
 import {createEffect} from "solid-js";
 import {findTimeForOffset} from "../../util/cases";
 import {resolveImageSrc} from "../../util/image";
+import {playGameSFX} from "../../util/sound";
 
 function SpinnerItem(props) {
 
@@ -19,8 +20,11 @@ function SpinnerItem(props) {
 
         if (elapsed > delay) {
             start = null
-            let tick = new Audio('/assets/sfx/casetick.wav')
-            tick.play()
+            playGameSFX('case-item-tick', '/assets/sfx/casetick.wav', {
+                channel: 'spin-tick',
+                volume: 0.45,
+                minIntervalMs: 50,
+            })
             return
         }
         window.requestAnimationFrame((ts) => playSound(ts, delay, index))

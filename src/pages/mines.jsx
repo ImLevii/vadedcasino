@@ -5,6 +5,7 @@ import {authedAPI, createNotification} from "../util/api";
 import {Meta, Title} from "@solidjs/meta";
 import {formatNumber} from "../util/numbers";
 import Tile from "../components/Mines/tile";
+import {playGameSFX} from "../util/sound";
 
 function Mines(props) {
 
@@ -16,8 +17,6 @@ function Mines(props) {
 
     const [isProcessing, setIsProcessing] = createSignal(false)
     const [random, setRandom] = createSignal(null)
-
-    let cashoutSFX = new Audio('/assets/sfx/winorcashout.mp3')
 
     async function getActiveGame() {
         let game = await authedAPI(`/mines`, 'GET', null)
@@ -47,7 +46,11 @@ function Mines(props) {
             multiplier: res.multiplier,
             active: false,
         })
-        cashoutSFX.play()
+        playGameSFX('mines-win', '/assets/sfx/winorcashout.mp3', {
+          channel: 'result-win',
+          volume: 0.62,
+          fadeInMs: 70,
+        })
         setBombs(res.minePositions || [])
         createNotification('success', `You won ${res.payout} coins from your mines round!`)
     }

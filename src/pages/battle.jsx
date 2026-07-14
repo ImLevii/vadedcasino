@@ -9,6 +9,7 @@ import {subscribeToGame, unsubscribeFromGames} from "../util/socket";
 import {calculateWinnings, convertItems, fillEmptySlots, getRoundWinner, getWonItems} from "../util/battleutil";
 import {Title} from "@solidjs/meta";
 import {resolveImageSrc} from "../util/image";
+import {playGameSFX, stopSFXChannel} from "../util/sound";
 
 function Battle(props) {
 
@@ -33,16 +34,17 @@ function Battle(props) {
     let emojiLastSent = 0
 
     // Spin sounds — same linear-decel pattern as case opening
-    const battleTickSFX = new Audio('/assets/sfx/casetick.wav')
-    const battleWinSFX = new Audio('/assets/sfx/winorcashout.mp3')
     let battleTickTimer = null
 
     function startBattleTicking(spinPhase) {
         if (battleTickTimer) clearTimeout(battleTickTimer)
         let elapsed = 0
         const tick = () => {
-            battleTickSFX.currentTime = 0
-            battleTickSFX.play().catch(() => {})
+          playGameSFX('battle-tick', '/assets/sfx/casetick.wav', {
+            channel: 'spin-tick',
+            volume: 0.5,
+            minIntervalMs: 45,
+          })
             // Linear decel: 75 ms → 300 ms — identical to case opening
             const progress = Math.min(elapsed / spinPhase, 1)
             const delay = Math.round(75 + progress * 225)
@@ -144,8 +146,11 @@ function Battle(props) {
 
             ws().on('battle:ended', (battleId, { winnerTeam, serverSeed, clientSeed }) => {
                 if (battleTickTimer) { clearTimeout(battleTickTimer); battleTickTimer = null }
-                battleWinSFX.currentTime = 0
-                battleWinSFX.play().catch(() => {})
+              playGameSFX('battle-win', '/assets/sfx/winorcashout.mp3', {
+                channel: 'result-win',
+                volume: 0.62,
+                fadeInMs: 80,
+              })
                 setWinnerTeam(winnerTeam - 1)
                 setState('WINNERS')
             })
@@ -161,6 +166,7 @@ function Battle(props) {
 
     onCleanup(() => {
         if (battleTickTimer) { clearTimeout(battleTickTimer); battleTickTimer = null }
+      stopSFXChannel('spin-tick', { fadeOutMs: 70 })
         if (ws() && ws().connected) {
             ws().emit('battles:unsubscribe', prevBattle)
             ws().off('battle')
