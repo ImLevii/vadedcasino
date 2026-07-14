@@ -5,7 +5,8 @@ const UserContext = createContext();
 
 export function UserProvider(props) {
 
-    const [fetched, setFetched] = createSignal(false)
+    const initialJwt = getJWT()
+    const [fetched, setFetched] = createSignal(!initialJwt)
     const failSafe = setTimeout(() => {
         if (!fetched()) {
             console.warn('Startup auth timed out, releasing loading screen.')
@@ -15,7 +16,7 @@ export function UserProvider(props) {
 
     onCleanup(() => clearTimeout(failSafe))
 
-    const [user, { mutate }] = createResource(getUser), userData = [user, {
+    const [user, { mutate }] = createResource(() => initialJwt || null, getUser), userData = [user, {
         mutateUser(newUser) {
             mutate(newUser)
         },
@@ -49,23 +50,17 @@ export function UserProvider(props) {
     }]
 
     async function getUser() {
-        let jwt = getJWT()
-        if (!jwt || jwt?.length < 1) {
-            setFetched(true)
-            return null
-        }
-
         try {
             let data = await fetchUser()
             mutate(data)
             setFetched(true)
             clearTimeout(failSafe)
 
-            if (data) {
+            if (data && window.$crisp) {
                 // CRISP LIVE CHAT
-                $crisp.push(["set", "user:nickname", [data.username]]);
+                window.$crisp.push(["set", "user:nickname", [data.username]]);
 
-                $crisp.push(["set", "session:data", [[
+                window.$crisp.push(["set", "session:data", [[
                     ["user-id", data.id]
                 ]]]);
             }

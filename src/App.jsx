@@ -1,5 +1,5 @@
 import {Routes, Route, useSearchParams, useLocation} from '@solidjs/router'
-import {createEffect, createSignal, ErrorBoundary, lazy, Suspense} from "solid-js";
+import {createEffect, createSignal, ErrorBoundary, lazy, onCleanup, onMount, Suspense} from "solid-js";
 import {useUser} from "./contexts/usercontextprovider";
 import Sidebar from "./components/SideBar/sidebar";
 import {authedAPI, closeDropdowns, createNotification} from "./util/api";
@@ -15,6 +15,7 @@ import Freecoins from "./components/Freecoins/freecoins";
 import Rakeback from "./components/Rakeback/rakeback";
 import AML from "./components/Documentation/aml";
 import UserModal from "./components/UserPopup/userpopup";
+import SignIn from "./components/Signin/signin";
 
 const Admin = lazy(() => import('./pages/admin'))
 const AdminDashboard = lazy(() => import('./components/Admin/dashboard'))
@@ -45,8 +46,6 @@ const TOS = lazy(() => import('./components/Documentation/tos'))
 const Privacy = lazy(() => import('./components/Documentation/privacy'))
 const Provably = lazy(() => import('./components/Documentation/provably'))
 const FAQ = lazy(() => import('./components/Documentation/faq'))
-
-const SignIn = lazy(() => import('./components/Signin/signin'))
 
 const Home = lazy(() => import('./pages/home'))
 
@@ -85,6 +84,13 @@ function App() {
   const [user, {hasFetched, setBalance, setXP, getUser}] = useUser()
   const [ws] = useWebsocket()
   const [chat, setChat] = createSignal(false)
+
+  onMount(() => {
+    const recoveryReset = setTimeout(() => {
+      sessionStorage.removeItem('chunk-recovery-attempted')
+    }, 30000)
+    onCleanup(() => clearTimeout(recoveryReset))
+  })
 
   createEffect(() => {
     if (location.pathname && pageContent) {
@@ -186,13 +192,26 @@ function App() {
             fallback={err => {
               console.log(err.message)
               if (err.message.includes('dynamically imported module')) {
-                return window.location.reload()
+                const recoveryKey = 'chunk-recovery-attempted'
+                if (!sessionStorage.getItem(recoveryKey)) {
+                  sessionStorage.setItem(recoveryKey, 'true')
+                  const url = new URL(window.location.href)
+                  url.searchParams.set('_refresh', Date.now().toString())
+                  window.location.replace(url.toString())
+                  return null
+                }
               }
 
               return (
                 <>
-                  <p>An error has occurred. Please press f12, copy the red text in the console, and report
-                    this.</p>
+                  <div class='startup-error'>
+                    <h2>We could not load this page</h2>
+                    <p>The latest site files did not finish loading. Refresh once or return home.</p>
+                    <button class='bevel-gold' onClick={() => {
+                      sessionStorage.removeItem('chunk-recovery-attempted')
+                      window.location.href = '/'
+                    }}>RETURN HOME</button>
+                  </div>
                   {console.log(err)}
                 </>
               )
@@ -573,6 +592,42 @@ function App() {
 
         .app::-webkit-scrollbar {
           display: none;
+        }
+
+        .startup-error {
+          width: min(460px, calc(100vw - 36px));
+          margin: 18vh auto 0;
+          padding: 28px;
+          border: 1px solid rgba(255, 255, 255, 0.09);
+          border-radius: 8px;
+          background: linear-gradient(145deg, rgba(22, 29, 39, 0.94), rgba(8, 12, 18, 0.98));
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 20px 50px rgba(0,0,0,.38);
+          color: #c3cad6;
+          font-family: Geogrotesque Wide, sans-serif;
+          text-align: center;
+        }
+
+        .startup-error h2 {
+          margin: 0 0 10px;
+          color: #fff;
+          font-size: 20px;
+          letter-spacing: 0;
+        }
+
+        .startup-error p {
+          margin: 0 0 22px;
+          color: #8b92a0;
+          font-size: 13px;
+          line-height: 1.5;
+        }
+
+        .startup-error button {
+          min-width: 150px;
+          height: 40px;
+          border: 0;
+          font-family: inherit;
+          font-weight: 700;
+          cursor: pointer;
         }
 
         @media only screen and (max-width: 1000px) {

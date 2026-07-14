@@ -100,7 +100,7 @@ function SignIn(props) {
     }
 
     function close() {
-        setSearchParams({ modal: null })
+      setSearchParams({ modal: null }, { replace: true })
     }
 
     onCleanup(() => window.removeEventListener('message', handleIFrameMessage))
