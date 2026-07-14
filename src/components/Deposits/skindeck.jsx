@@ -79,6 +79,13 @@ function SkinDeckDeposit() {
                     <a class='profile-link' href='/profile'>OPEN PROFILE</a>
                 </div>
             }>
+                <div class='market-head'>
+                    <div class='market-brand'>
+                        <img src='https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/730/942c04efaa5bc87afb6f2a97dbf17ac614c8a84d/capsule_184x69.jpg' alt='Counter-Strike 2'/>
+                        <div><span>COUNTER-STRIKE 2</span><strong>Inventory Deposit</strong></div>
+                    </div>
+                    <div class='market-state'><i></i><span>SKINDECK ONLINE</span></div>
+                </div>
                 <div class='market-layout'>
                     <div class='inventory-pane'>
                         <div class='toolbar'>
@@ -165,10 +172,18 @@ function SkinDeckDeposit() {
 
             <style jsx>{`
                 .skindeck-market, .skindeck-market * { box-sizing: border-box; }
-                .skindeck-market { min-height: 570px; border: 1px solid #202631; border-radius: 8px; overflow: hidden; background: #0c1018; box-shadow: 0 18px 45px rgba(0,0,0,.28); font-family: Geogrotesque Wide, sans-serif; }
+                .skindeck-market { min-height: 570px; border: 1px solid #242c38; border-radius: 8px; overflow: hidden; background: #0c1018; box-shadow: inset 0 1px rgba(255,255,255,.025), 0 22px 52px rgba(0,0,0,.32); font-family: Geogrotesque Wide, sans-serif; }
                 button, input, select, a { font-family: inherit; letter-spacing: 0; }
-                .market-layout { min-height: 570px; display: grid; grid-template-columns: minmax(0, 1fr) 300px; }
-                .inventory-pane { min-width: 0; padding: 18px; border-right: 1px solid #202631; }
+                .market-head { height: 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border-bottom: 1px solid #242c38; background: linear-gradient(90deg, rgba(31,214,95,.055), transparent 35%), #111720; }
+                .market-brand { display: flex; align-items: center; gap: 11px; }
+                .market-brand > img { width: 54px; height: 30px; border: 1px solid rgba(255,255,255,.09); border-radius: 4px; object-fit: cover; }
+                .market-brand > div { display: flex; flex-direction: column; gap: 2px; }
+                .market-brand span { color: #717c8b; font-size: 8px; font-weight: 800; }
+                .market-brand strong { color: #f4f7fb; font-size: 12px; }
+                .market-state { display: flex; align-items: center; gap: 7px; color: #768190; font-size: 8px; font-weight: 800; }
+                .market-state i { width: 7px; height: 7px; border-radius: 50%; background: #1fd65f; box-shadow: 0 0 10px rgba(31,214,95,.7); }
+                .market-layout { min-height: 540px; display: grid; grid-template-columns: minmax(0, 1fr) 300px; }
+                .inventory-pane { min-width: 0; padding: 18px; border-right: 1px solid #242c38; background: radial-gradient(circle at 45% 30%, rgba(38,50,67,.12), transparent 48%); }
                 .toolbar { display: grid; grid-template-columns: minmax(180px,1fr) 170px 38px; gap: 8px; }
                 .search-box { height: 38px; display: flex; align-items: center; gap: 9px; padding: 0 11px; border: 1px solid #222a36; border-radius: 6px; background: #151b25; }
                 .search-box img { width: 13px; height: 13px; opacity: .65; }
@@ -179,17 +194,17 @@ function SkinDeckDeposit() {
                 .icon-button:hover { border-color: rgba(31,214,95,.4); }
                 .inventory-meta { height: 36px; display: flex; align-items: center; justify-content: space-between; color: #697382; font-size: 9px; font-weight: 700; }
                 .instant { color: #1fd65f; }
-                .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 8px; }
-                .skin-card { --rarity:#607087; min-width: 0; height: 182px; position: relative; display: flex; flex-direction: column; padding: 10px; overflow: hidden; border: 1px solid #252c38; border-radius: 6px; background: radial-gradient(circle at 50% 22%, color-mix(in srgb, var(--rarity) 15%, transparent), transparent 42%), #141922; color: inherit; text-align: left; cursor: pointer; transition: border-color .16s ease, transform .16s ease, background .16s ease; }
+                .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(156px, 1fr)); gap: 9px; }
+                .skin-card { --rarity:#607087; min-width: 0; height: 202px; position: relative; display: flex; flex-direction: column; padding: 11px; overflow: hidden; border: 1px solid #29313d; border-radius: 6px; background: linear-gradient(180deg, rgba(255,255,255,.018), transparent 52%), radial-gradient(circle at 50% 24%, color-mix(in srgb, var(--rarity) 18%, transparent), transparent 45%), #141922; color: inherit; text-align: left; cursor: pointer; box-shadow: inset 0 1px rgba(255,255,255,.02), 0 8px 18px rgba(0,0,0,.13); transition: border-color .16s ease, transform .16s ease, background .16s ease, box-shadow .16s ease; }
                 .skin-card.classified { --rarity:#c84edd; }
                 .skin-card.covert { --rarity:#e84d55; }
                 .skin-card.rare { --rarity:#e4b84a; }
-                .skin-card:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--rarity) 55%, #303846); }
-                .skin-card.selected { border-color: #1fd65f; box-shadow: inset 0 0 0 1px rgba(31,214,95,.22), 0 0 18px rgba(31,214,95,.07); }
+                .skin-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--rarity) 60%, #303846); box-shadow: 0 12px 24px rgba(0,0,0,.25); }
+                .skin-card.selected { border-color: #1fd65f; box-shadow: inset 0 0 0 1px rgba(31,214,95,.22), 0 0 22px rgba(31,214,95,.09); }
                 .wear { position: absolute; top: 9px; left: 9px; color: #7d8795; font-size: 8px; font-weight: 700; text-transform: uppercase; }
                 .check { width: 15px; height: 15px; position: absolute; top: 9px; right: 9px; display: grid; place-items: center; border: 1px solid #48515e; border-radius: 3px; color: #061209; background: transparent; font-size: 10px; font-weight: 900; }
                 .selected .check { border-color: #1fd65f; background: #1fd65f; }
-                .skin-image { height: 92px; display: grid; place-items: center; margin: 12px 0 4px; }
+                .skin-image { height: 108px; display: grid; place-items: center; margin: 13px 0 5px; }
                 .skin-image img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 8px 10px rgba(0,0,0,.4)); }
                 .skin-card > strong { min-height: 28px; color: #eef2f8; font-size: 10px; line-height: 1.3; }
                 .skin-wear { overflow: hidden; color: #626c7b; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
@@ -197,7 +212,7 @@ function SkinDeckDeposit() {
                 .price img, .trade-total strong img { width: 12px; height: 12px; }
                 .loading { min-height: 400px; display: grid; place-items: center; }
                 .no-results { padding: 70px 10px; color: #737d8b; font-size: 11px; text-align: center; }
-                .trade-sidebar { min-width: 0; display: grid; grid-template-rows: 54px auto minmax(0, 1fr) 92px; background: #11161e; }
+                .trade-sidebar { min-width: 0; display: grid; grid-template-rows: 54px auto minmax(0, 1fr) 92px; background: linear-gradient(180deg, #121923, #0f141c); }
                 .side-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 8px; border-bottom: 1px solid #202631; }
                 .side-tabs button { display: flex; align-items: center; justify-content: center; gap: 7px; border: 0; border-radius: 4px; background: transparent; color: #8993a2; font-size: 10px; font-weight: 700; cursor: pointer; }
                 .side-tabs button.active { background: #1a222d; color: #fff; }
@@ -239,7 +254,7 @@ function SkinDeckDeposit() {
                 .requirements span.ready { border-color: rgba(31,214,95,.35); color: #1fd65f; }
                 .profile-link { height: 38px; display: inline-flex; align-items: center; padding: 0 16px; border-radius: 5px; background: #1fd65f; color: #06130a; font-size: 9px; font-weight: 900; text-decoration: none; }
                 @media (max-width: 900px) { .market-layout { grid-template-columns: 1fr; } .inventory-pane { border-right: 0; } .trade-sidebar { min-height: 430px; border-top: 1px solid #202631; } }
-                @media (max-width: 600px) { .inventory-pane { padding: 12px; } .toolbar { grid-template-columns: minmax(0,1fr) 38px; } .toolbar select { grid-column: 1 / -1; grid-row: 2; height: 36px; } .item-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .skin-card { height: 176px; } .steam-setup { align-items: flex-start; flex-direction: column; padding: 24px; } .profile-link { width: 100%; justify-content: center; } .requirements { flex-wrap: wrap; } }
+                @media (max-width: 600px) { .market-head { padding: 0 12px; } .market-state { display: none; } .inventory-pane { padding: 12px; } .toolbar { grid-template-columns: minmax(0,1fr) 38px; } .toolbar select { grid-column: 1 / -1; grid-row: 2; height: 36px; } .item-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .skin-card { height: 184px; } .skin-image { height: 94px; } .steam-setup { align-items: flex-start; flex-direction: column; padding: 24px; } .profile-link { width: 100%; justify-content: center; } .requirements { flex-wrap: wrap; } }
             `}</style>
         </section>
     );

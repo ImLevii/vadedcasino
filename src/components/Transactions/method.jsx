@@ -16,7 +16,7 @@ function Method(props) {
                 props?.click()
             }} aria-disabled={!!props?.disabled}>
                 <div class='icon'>
-                    <img src={props?.img} alt={props?.display || props?.name}/>
+                    <img classList={{wide: props?.wideImg}} src={props?.img} alt={props?.display || props?.name}/>
                 </div>
 
                 <div class='info'>
@@ -95,6 +95,13 @@ function Method(props) {
                 max-height: 34px;
                 object-fit: contain;
                 transition: transform .25s ease;
+              }
+
+              .icon img.wide {
+                width: 48px;
+                max-width: 48px;
+                max-height: 36px;
+                border-radius: 3px;
               }
 
               .method-container:not(.disabled):hover .icon img {

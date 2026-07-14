@@ -22,7 +22,7 @@ const METHODS = [
   {name: 'DOGECOIN', display: 'DOGE', category: 'Cryptocurrency', img: '/assets/icons/dogecoin.png', tab: 'crypto'}
 ]
 
-const SKINDECK_METHOD = {name: 'SKINDECK', display: 'CS2 Skins', category: 'CS2 Skins', img: '/assets/icons/cube.svg', tab: 'skins', badge: 'Skin Deposit', badgeType: 'good'}
+const SKINDECK_METHOD = {name: 'SKINDECK', display: 'CS2 Skins', category: 'CS2 Skins', img: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/730/942c04efaa5bc87afb6f2a97dbf17ac614c8a84d/capsule_184x69.jpg', wideImg: true, tab: 'skins', badge: 'Skin Deposit', badgeType: 'good'}
 
 const CATEGORY_ORDER = ['CS2 Skins', 'Other Methods', 'Real Money', 'Cryptocurrency']
 
@@ -201,18 +201,25 @@ function Deposits(props) {
                             click={() => changeType(method.name)}/>
                   )}</For>
                 </div>
+                <Show when={category === 'CS2 Skins' && searchParams?.type === 'skindeck'}>
+                  <div className='selected-method category-method'>
+                    <SkinDeckDeposit/>
+                  </div>
+                </Show>
               </div>
             </Show>
           )}</For>
 
-          <Show when={depositComponent[searchParams?.type]} fallback={
-            <div className='empty'>
-              <p>{searchParams?.type ? 'This payment method will be supported soon' : 'Please select a payment method above.'}</p>
-            </div>
-          }>
-            <div className='selected-method'>
-              {depositComponent[searchParams?.type]()}
-            </div>
+          <Show when={searchParams?.type !== 'skindeck'}>
+            <Show when={depositComponent[searchParams?.type]} fallback={
+              <div className='empty'>
+                <p>{searchParams?.type ? 'This payment method will be supported soon' : 'Please select a payment method above.'}</p>
+              </div>
+            }>
+              <div className='selected-method'>
+                {depositComponent[searchParams?.type]()}
+              </div>
+            </Show>
           </Show>
 
           <div className='support-row'>
@@ -402,6 +409,10 @@ function Deposits(props) {
 
         .selected-method {
           margin: 4px 0 30px 0;
+        }
+
+        .category-method {
+          margin: 16px 0 0;
         }
 
         .empty {
