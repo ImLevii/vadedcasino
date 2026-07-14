@@ -31,7 +31,36 @@ Your app is ready to be deployed!
 
 ## Deployment
 
-You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+The production service is a single Node process that serves the Express API, Socket.IO, and the built SolidJS SPA. Do not deploy only the `dist` directory.
+
+### Dokploy with Nixpacks
+
+Use these application settings exactly:
+
+- Build type: `Nixpacks`
+- Container port: `3000`
+- Health check path: `/healthz`
+- Publish directory: leave empty
+- Build command: leave empty; `nixpacks.toml` runs `pnpm build`
+- Start command: leave empty; `nixpacks.toml` runs `pnpm start`
+
+Remove legacy command values before redeploying. In particular, never place build and start commands in the same field; doing so passes `pnpm start` to Vite as an entry path and causes the container to exit before Traefik can route to it.
+
+Configure the external MySQL connection in Dokploy:
+
+```bash
+SQL_HOST=mysql.example.internal
+SQL_PORT=3306
+SQL_USER=cosmicluck
+SQL_PASS=replace-with-a-secret
+SQL_DB=cosmicluck
+SQL_CONNECT_TIMEOUT_MS=10000
+STARTUP_CACHE_TIMEOUT_MS=15000
+```
+
+`/healthz` reports process liveness and must be used by Dokploy. `/readyz` reports cache/database readiness and returns `503` when startup cache warming is degraded. Database failures do not prevent the server from opening port 3000, so Traefik no longer returns `502` solely because MySQL is slow or temporarily unavailable.
+
+After saving the settings, perform one Dokploy redeploy. The deployment log should show `Listening on 0.0.0.0:3000` before cache completion messages.
 
 ### Vercel notes (important)
 

@@ -160,12 +160,23 @@ async function sqliteQuery(sql, params = []) {
 
 function initMySql() {
     const mysql = require('mysql2/promise');
+    const isProduction = process.env.NODE_ENV === 'production';
+    const requiredVariables = ['SQL_HOST', 'SQL_USER', 'SQL_DB', 'SQL_PASS'];
+    const missingVariables = requiredVariables.filter((name) => !process.env[name]);
+
+    if (isProduction && missingVariables.length) {
+        console.error(`[database] Missing required environment variables: ${missingVariables.join(', ')}`);
+    }
 
     const connection = {
-        host: process.env.SQL_HOST || 'localhost',
+        host: process.env.SQL_HOST || (isProduction ? 'missing-sql-host.invalid' : 'localhost'),
+        port: Number(process.env.SQL_PORT) || 3306,
         user: process.env.SQL_USER,
         database: process.env.SQL_DB,
         password: process.env.SQL_PASS,
+        connectTimeout: Math.max(1000, Number(process.env.SQL_CONNECT_TIMEOUT_MS) || 10000),
+        enableKeepAlive: true,
+        keepAliveInitialDelay: 0,
         waitForConnections: true,
         connectionLimit: 10,
         queueLimit: 0,

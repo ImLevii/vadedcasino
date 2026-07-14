@@ -2,6 +2,10 @@
   "name": "vite-template-solid",
   "version": "0.0.0",
   "description": "",
+  "packageManager": "pnpm@8.15.9",
+  "engines": {
+    "node": ">=20 <21"
+  },
   "scripts": {
     "start": "node app.js",
     "dev": "vite",

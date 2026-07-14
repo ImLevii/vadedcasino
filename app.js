@@ -21,6 +21,13 @@ const cookieParser = require('cookie-parser');
 const app = express();
 app.disable('x-powered-by');
 
+const startupState = {
+    status: 'starting',
+    startedAt: new Date().toISOString(),
+    completedAt: null,
+    failures: []
+};
+
 if (process.env.NODE_ENV == 'development') {
 
     app.use((req, res, next) => {
@@ -97,6 +104,15 @@ app.use(bodyParser.urlencoded({
 
 app.use(nocache());
 app.use(cookieParser());
+
+app.get('/healthz', (req, res) => {
+    res.status(200).json({ status: 'ok' });
+});
+
+app.get('/readyz', (req, res) => {
+    const ready = startupState.status === 'ready';
+    res.status(ready ? 200 : 503).json(startupState);
+});
 
 const authRoute = require('./routes/auth/core');
 const userRoute = require('./routes/user');
@@ -185,14 +201,6 @@ const { cacheLeaderboards } = require('./routes/leaderboard/functions');
 const { cacheGameConfig } = require('./routes/admin/gameConfig');
 
 async function start() {
-
-    // Removed: Roblox-specific item caching
-    // try {
-    //     await cacheItems();
-    // } catch (err) {
-    //     console.warn('[startup] cacheItems failed (Rolimons unreachable?), continuing:', err.message);
-    // }
-
     const promises = [
         cacheBets,
         cacheRains,
@@ -213,29 +221,48 @@ async function start() {
         cacheGameConfig
     ];
 
-    await Promise.all(promises.map((p) => timedPromise(p(), p.name)));
-    // console.log(results.map(e => `${e.name} completed in ${e.timeTaken}ms`));
-
     const port = process.env.PORT || 3000;
-
-    const serverInstance = app.listen(port, () => {
-        console.log('Listening on port ' + port);
+    startupState.status = 'warming';
+    const serverInstance = app.listen(port, '0.0.0.0', () => {
+        console.log(`Listening on 0.0.0.0:${port}`);
     });
-    
+
     require('./socketio');
     io.attach(serverInstance, { cors: { origin: '*' } });
 
+    const timeoutMs = Math.max(100, Number(process.env.STARTUP_CACHE_TIMEOUT_MS) || 15000);
+    const results = await Promise.all(promises.map((promise) => timedPromise(promise, promise.name, timeoutMs)));
+    startupState.failures = results.filter((result) => result.error).map((result) => ({
+        name: result.name,
+        error: result.error
+    }));
+    startupState.status = startupState.failures.length ? 'degraded' : 'ready';
+    startupState.completedAt = new Date().toISOString();
+
+    if (startupState.failures.length) {
+        console.error(`[startup] Cache warm-up completed with ${startupState.failures.length} failure(s).`);
+    } else {
+        console.log('[startup] Cache warm-up completed successfully.');
+    }
+
 }
 
-function timedPromise(promise, name) {
+function timedPromise(task, name, timeoutMs) {
     const startTime = Date.now();
-    return promise.then(result => {
+    let timeout;
+    const timeoutPromise = new Promise((resolve, reject) => {
+        timeout = setTimeout(() => reject(new Error(`timed out after ${timeoutMs}ms`)), timeoutMs);
+    });
+
+    return Promise.race([Promise.resolve().then(task), timeoutPromise]).then(result => {
         const endTime = Date.now();
         console.log(`${name} completed in ${endTime - startTime}ms`);
         return { name, result, timeTaken: endTime - startTime };
     }).catch(err => {
         console.error(`[startup] ${name} failed:`, err.message);
         return { name, error: err.message };
+    }).finally(() => {
+        clearTimeout(timeout);
     });
 }
 
