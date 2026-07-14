@@ -32,6 +32,36 @@ function cleanupAndExit() {
     process.exit(0);
 }
 
+async function getChatEmojis() {
+    try {
+        const guild = discordClient.guilds.cache.get(discordIds.guild);
+        if (!guild) return [];
+
+        const emojis = await guild.emojis.fetch();
+        return emojis.map(emoji => ({
+            name: emoji.name,
+            url: emoji.imageURL({
+                extension: emoji.animated ? 'gif' : 'webp',
+                size: 64
+            }),
+            animated: Boolean(emoji.animated)
+        }));
+    } catch (error) {
+        console.error('[chat] Failed to load Discord emojis:', error.message);
+        return [];
+    }
+}
+
+discordClient.once('ready', async () => {
+    io.emit('chat:emojis', await getChatEmojis());
+});
+
+discordClient.on('guildEmojisUpdate', async (oldEmojis, newEmojis) => {
+    const guildId = newEmojis.first()?.guild?.id || oldEmojis.first()?.guild?.id;
+    if (guildId !== discordIds.guild) return;
+    io.emit('chat:emojis', await getChatEmojis());
+});
+
 async function newSocket(socket) {
    
     sendOnlineUsers(socket);
@@ -50,13 +80,7 @@ async function newSocket(socket) {
         socket.emit('rain:user', rains.user.amount, endsIn, rains.user.host, joined);
     }
 
-    socket.emit('chat:emojis', discordClient.guilds.cache.get(discordIds.guild)?.emojis?.cache.map(e => {
-        return {
-            name: e.name,
-            url: e.url,
-            animated: Boolean(e.animated)
-        }
-    }) || []);
+    socket.emit('chat:emojis', await getChatEmojis());
 
     // Send active announcements to newly connected client
     try {
@@ -91,6 +115,10 @@ function socketLogin(socket, token) {
 }
 
 io.on('connection', function(socket) {
+
+    socket.on('chat:requestEmojis', async () => {
+        socket.emit('chat:emojis', await getChatEmojis());
+    });
 
     socket.on('auth', function(token) {
         

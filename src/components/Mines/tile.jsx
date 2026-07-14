@@ -1,21 +1,15 @@
 import {createEffect, createSignal} from "solid-js";
 import {authedAPI} from "../../util/api";
+import {playGameSFX} from "../../util/sound";
 
 function Tile(props) {
 
     const [isProcessing, setIsProcessing] = createSignal(false)
     const [animate, setAnimate] = createSignal(null)
-    const [pending, setPending] = createSignal(null)
-
-    let mine = new Audio('/assets/sfx/mine.mp3')
-    let tile0 = new Audio('/assets/sfx/tile0.mp3')
-    let tile1 = new Audio('/assets/sfx/tile1.mp3')
-    let tile2 = new Audio('/assets/sfx/tile2.mp3')
 
     createEffect(() => {
-        if ((pending() || animate()) && !props?.game?.active) {
+      if (animate() && !props?.game?.active) {
             setAnimate(false)
-            setPending(false)
         }
 
         if (props?.game?.active && props?.random === props?.index && !isProcessing()) {
@@ -27,11 +21,20 @@ function Tile(props) {
         if (!props?.game || !props?.game.active || isProcessing() || props?.revealed.includes(tile)) return
         setIsProcessing(true)
         setAnimate(true)
+        const animationStartedAt = Date.now()
 
         let res = await authedAPI('/mines/reveal', 'POST', JSON.stringify({ field: tile }) , true)
-        if (!res.success) return setIsProcessing(false)
+        if (!res.success) {
+          setAnimate(false)
+          return setIsProcessing(false)
+        }
 
-        setPending(res)
+        const remainingAnimation = Math.max(0, 220 - (Date.now() - animationStartedAt))
+        if (remainingAnimation) {
+          await new Promise(resolve => setTimeout(resolve, remainingAnimation))
+        }
+
+        handleMineClick(res)
     }
 
     function handleMineClick(res) {
@@ -51,11 +54,17 @@ function Tile(props) {
                 })
 
                 if (props?.revealed.length < 8) {
-                    tile0.play()
+                  playGameSFX('mines-tile-early', '/assets/sfx/tile0.mp3', {
+                    channel: 'mines-reveal', volume: 0.48, minIntervalMs: 50
+                  })
                 } else if (props?.revealed.length < 16) {
-                    tile1.play()
+                  playGameSFX('mines-tile-mid', '/assets/sfx/tile1.mp3', {
+                    channel: 'mines-reveal', volume: 0.5, minIntervalMs: 50
+                  })
                 } else {
-                    tile2.play()
+                  playGameSFX('mines-tile-late', '/assets/sfx/tile2.mp3', {
+                    channel: 'mines-reveal', volume: 0.52, minIntervalMs: 50
+                  })
                 }
             } else {
                 props?.setGame({
@@ -66,11 +75,12 @@ function Tile(props) {
                 props?.setBombs(res.minePositions || [])
                 props?.setRevealed(res.revealedTiles || [])
 
-                mine.play()
+                playGameSFX('mines-bomb', '/assets/sfx/mine.mp3', {
+                  channel: 'result-loss', volume: 0.62, fadeInMs: 30
+                })
             }
 
             setAnimate(null)
-            setPending(null)
             setIsProcessing(false)
         } catch (e) {
             console.error('ERROR WITH MINES ', e)
@@ -96,33 +106,35 @@ function Tile(props) {
 
     return (
         <>
-            <div
+            <button type='button'
                 className={'mine' + getTileState(props?.index) + (animate() ? ' animate' : '')}
+              style={{ '--tile-index': props?.index }}
+              aria-label={props?.revealed.includes(props?.index) ? 'Revealed safe tile' : props?.bombs.includes(props?.index) ? 'Mine' : `Reveal tile ${props?.index + 1}`}
+              disabled={!props?.game?.active || props?.revealed.includes(props?.index) || isProcessing()}
                 onClick={() => clickTile(props?.index)}
-                onAnimationIteration={(e) => {
-                    if (!pending()) return
-                    handleMineClick(pending())
-                }}
             >
                 <img src='/assets/icons/minesgem.png' className='popin gem-img' alt=''/>
                 <img src='/assets/icons/greensparkles.png' className='popin green-sparkles' alt=''/>
 
                 <img src='/assets/icons/bomb.png' className='popin bomb-img' alt=''/>
                 <img src='/assets/icons/purplesparkles.png' className='popin purple-sparkles' alt=''/>
-            </div>
+            </button>
 
             <style jsx>{`
               .mine {
                 aspect-ratio: 1;
                 width: 100%;
-                background: #232a36;
-                
-                border-top: 4px solid #323b4a;
-                border-left: 4px solid #323b4a;
-                border-right: 4px solid #12151c;
-                border-bottom: 4px solid #12151c;
-                
-                transition: background .3s, border .3s;
+                padding: 0;
+                overflow: hidden;
+                border: 1px solid rgba(255,255,255,.075);
+                border-radius: 8px;
+                background:
+                  linear-gradient(145deg, rgba(45,55,70,.82), rgba(21,27,36,.96));
+                box-shadow:
+                  inset 2px 2px 0 rgba(255,255,255,.055),
+                  inset -3px -3px 0 rgba(0,0,0,.28),
+                  0 8px 18px rgba(0,0,0,.2);
+                transition: background .2s, border-color .2s, transform .18s, box-shadow .2s;
                 cursor: pointer;
                 
                 display: flex;
@@ -131,13 +143,39 @@ function Tile(props) {
                 
                 position: relative;
               }
+
+              .mine::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                opacity: 0;
+                background: radial-gradient(circle at 50% 40%, rgba(31,214,95,.12), transparent 68%);
+                transition: opacity .2s;
+              }
               
-              .mine:hover {
-                background: #2c3340;
+              .mine:not(:disabled):hover {
+                z-index: 1;
+                border-color: rgba(31,214,95,.28);
+                background: linear-gradient(145deg, rgba(53,65,80,.9), rgba(23,30,39,.98));
+                box-shadow: inset 2px 2px 0 rgba(255,255,255,.07), inset -3px -3px 0 rgba(0,0,0,.3), 0 12px 24px rgba(0,0,0,.3), 0 0 16px rgba(31,214,95,.045);
+                transform: translateY(-2px);
+              }
+
+              .mine:not(:disabled):hover::before {
+                opacity: 1;
+              }
+
+              .mine:focus-visible {
+                outline: 2px solid var(--gold);
+                outline-offset: 2px;
+              }
+
+              .mine:disabled {
+                cursor: default;
               }
               
               .mine.animate {
-                animation: infinite pulse .5s;
+                animation: tile-press .42s ease-in-out infinite;
               }
               
               .mine.gem:not(.active), .mine.bomb:not(.active) {
@@ -145,17 +183,15 @@ function Tile(props) {
               }
               
               .mine.gem {
-                border-radius: 5px;
                 border: 1px solid #1fd65f;
-                background: radial-gradient(139.03% 139.03% at 50% 50%, rgba(0, 255, 26, 0.45) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(0deg, rgba(11, 12, 11, 0.25) 0%, rgba(11, 12, 11, 0.25) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
-                box-shadow: 0px 2px 7px 0px rgba(0, 0, 0, 0.15) inset, 0px 0px 31px 0px rgba(10, 182, 47, 0.56) inset;
+                background: radial-gradient(120% 120% at 50% 45%, rgba(0,255,73,.32), transparent 62%), linear-gradient(145deg, rgba(11,57,31,.94), rgba(7,25,17,.98));
+                box-shadow: inset 0 1px 0 rgba(135,255,173,.12), inset 0 0 28px rgba(10,182,47,.34), 0 8px 20px rgba(0,0,0,.22);
               }
 
               .mine.bomb {
-                border-radius: 5px;
                 border: 1px solid rgba(255, 81, 65, 0.35);
-                background: radial-gradient(139.03% 139.03% at 50% 50%, rgba(255, 81, 65, 0.35) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(0deg, rgba(11, 12, 11, 0.25) 0%, rgba(11, 12, 11, 0.25) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
-                box-shadow: 0px 2px 7px 0px rgba(0, 0, 0, 0.15) inset, 0px 0px 31px 0px rgba(255, 81, 65, 0.45) inset;
+                background: radial-gradient(120% 120% at 50% 45%, rgba(255,81,65,.3), transparent 62%), linear-gradient(145deg, rgba(61,28,31,.94), rgba(25,13,18,.98));
+                box-shadow: inset 0 1px 0 rgba(255,171,163,.1), inset 0 0 28px rgba(255,81,65,.28), 0 8px 20px rgba(0,0,0,.22);
               }
               
               .popin {
@@ -185,17 +221,24 @@ function Tile(props) {
               .gem .gem-img.popin, .gem .green-sparkles.popin, .bomb .bomb-img, .bomb .purple-sparkles.popin {
                 opacity: 1;
                 transform: scale(1);
+                animation: reveal-pop .42s cubic-bezier(.2,.9,.25,1.2) both;
+                animation-delay: calc(var(--tile-index) * 12ms);
               }
 
-              @keyframes pulse {
-                0% {
-                  transform: scale(1);
-                }
-                50% {
-                  transform: scale(1.05);
-                }
-                100% {
-                  transform: scale(1);
+              @keyframes tile-press {
+                0%, 100% { transform: scale(1); filter: brightness(1); }
+                50% { transform: scale(.94); filter: brightness(1.16); }
+              }
+
+              @keyframes reveal-pop {
+                from { opacity: 0; transform: scale(.55) rotate(-6deg); }
+                to { opacity: 1; transform: scale(1) rotate(0); }
+              }
+
+              @media (prefers-reduced-motion: reduce) {
+                .mine, .popin {
+                  animation: none !important;
+                  transition: none !important;
                 }
               }
             `}</style>

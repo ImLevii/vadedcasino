@@ -209,15 +209,23 @@ function Chat(props) {
 
                             <div class='emoji-content'>
                               <Show when={emojiTab() !== 'unicode'}>
-                                <div class='emojis'>
-                                  <For each={customEmojis()}>{(emoji) =>
-                                    <button class='emoji-tile' title={`:${emoji.name}:`} onClick={() => insertEmoji(`:${emoji.name}:`)}>
-                                      <img src={emoji.url} class='emoji-image' alt={`:${emoji.name}:`} loading='lazy'/>
-                                      <Show when={emoji.animated}><span class='gif-badge'>GIF</span></Show>
-                                    </button>
-                                  }</For>
-                                </div>
-                                <Show when={customEmojis().length === 0}>
+                                <Show when={props?.emojis !== null} fallback={
+                                  <div class='emoji-empty loading'>
+                                    <span class='emoji-loader'/>
+                                    <p>Loading server emojis</p>
+                                  </div>
+                                }>
+                                  <div class='emojis'>
+                                    <For each={customEmojis()}>{(emoji) =>
+                                      <button class='emoji-tile' title={`:${emoji.name}:`} onClick={() => insertEmoji(`:${emoji.name}:`)}>
+                                        <img src={emoji.url} class='emoji-image' alt={`:${emoji.name}:`}
+                                             loading={emoji.animated ? 'eager' : 'lazy'}/>
+                                        <Show when={emoji.animated}><span class='gif-badge'>GIF</span></Show>
+                                      </button>
+                                    }</For>
+                                  </div>
+                                </Show>
+                                <Show when={props?.emojis !== null && customEmojis().length === 0}>
                                   <div class='emoji-empty'>
                                     <span>{emojiTab() === 'gif' ? 'GIF' : 'Aa'}</span>
                                     <p>{emojiTab() === 'gif' ? 'No animated emojis found' : 'No custom emojis found'}</p>
@@ -395,8 +403,10 @@ function Chat(props) {
               }
 
               .emojis-wrapper {
-                width: 270px;
-                height: min(340px, calc(100vh - 170px));
+                box-sizing: border-box;
+                width: min(276px, calc(100vw - 24px));
+                height: min(390px, calc(100vh - 170px));
+                min-height: 260px;
 
                 position: absolute;
                 bottom: calc(100% + 8px);
@@ -416,8 +426,8 @@ function Chat(props) {
                 gap: 10px;
                 overflow: hidden;
 
-                right: 0;
-                z-index: 10;
+                right: -41px;
+                z-index: 20;
                 cursor: initial;
               }
 
@@ -535,13 +545,14 @@ function Chat(props) {
 
               .emojis {
                 display: grid;
-                grid-template-columns: repeat(7, 1fr);
+                grid-template-columns: repeat(auto-fill, minmax(31px, 1fr));
                 gap: 4px;
               }
 
               .emoji-tile {
-                width: 31px;
-                height: 31px;
+                width: 100%;
+                min-width: 0;
+                aspect-ratio: 1;
                 padding: 3px;
                 display: flex;
                 align-items: center;
@@ -561,8 +572,8 @@ function Chat(props) {
               }
 
               .emoji-image {
-                width: 24px;
-                height: 24px;
+                width: min(24px, 100%);
+                height: min(24px, 100%);
                 object-fit: contain;
               }
 
@@ -608,6 +619,43 @@ function Chat(props) {
                 color: #8c96a6;
                 font-size: 11px;
                 font-weight: 800;
+              }
+
+              .emoji-empty .emoji-loader {
+                width: 28px;
+                height: 28px;
+                border: 2px solid rgba(255,255,255,.08);
+                border-top-color: var(--gold);
+                border-radius: 50%;
+                background: transparent;
+                animation: emoji-spin .8s linear infinite;
+              }
+
+              @keyframes emoji-spin {
+                to { transform: rotate(360deg); }
+              }
+
+              @media only screen and (max-height: 560px) {
+                .emojis-wrapper {
+                  height: min(310px, calc(100vh - 130px));
+                  min-height: 220px;
+                }
+
+                .picker-subtitle {
+                  display: none;
+                }
+              }
+
+              @media only screen and (max-width: 340px) {
+                .emojis-wrapper {
+                  right: -39px;
+                  width: calc(100vw - 16px);
+                  padding: 10px;
+                }
+
+                .emoji-tabs button {
+                  font-size: 9px;
+                }
               }
             `}</style>
         </>

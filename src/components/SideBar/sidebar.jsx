@@ -40,7 +40,7 @@ function SideBar(props) {
       TR: 0
     }
   })
-  const [emojis, setEmojis] = createSignal([])
+  const [emojis, setEmojis] = createSignal(null)
   const [ws] = useWebsocket()
   const [roomDropdown, setRoomDropdown] = createSignal(false)
   const [rulesOpen, setRulesOpen] = createSignal(false)
@@ -89,7 +89,7 @@ function SideBar(props) {
         createNotification(type, content, config)
       });
 
-      ws().on('chat:emojis', (emojis) => setEmojis(emojis))
+      ws().on('chat:emojis', (emojis) => setEmojis(Array.isArray(emojis) ? emojis : []))
       ws().on('chat:clear', () => setMessages([]))
       ws().on('misc:onlineUsers', (data) => setOnline(data))
       ws().on('announcements', (list) => setAnnouncements(list))
@@ -106,6 +106,8 @@ function SideBar(props) {
           ...messages().slice(index + 1)
         ])
       })
+
+      ws().emit('chat:requestEmojis')
     }
 
     previousState = ws() && ws().connected
@@ -115,6 +117,7 @@ function SideBar(props) {
     if (!ws()) return
 
     ws().off('chat:pushMessage')
+    ws().off('chat:emojis')
     ws().off('chat:clear')
     ws().off('misc:onlineUsers')
     ws().off('chat:join')
