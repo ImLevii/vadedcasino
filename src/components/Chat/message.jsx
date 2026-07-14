@@ -3,6 +3,7 @@ import Avatar from "../Level/avatar";
 import {STAFF_ROLES} from "../../resources/users";
 import {useSearchParams} from "@solidjs/router";
 import {createSignal, For} from "solid-js";
+import {findChatEmoji} from "../../resources/chatEmojis";
 
 function Message(props) {
 
@@ -16,12 +17,15 @@ function Message(props) {
       if (word[0] === ':' && word[word.length - 1] === ':') {
 
             let emojiName = word.replaceAll(':', '').trim()
-        let emoji = (props?.emojis || []).find(emoji => emoji.name === emojiName)
+        let emoji = findChatEmoji(emojiName)
             if (!emoji) return <>{word + ' '}</>
 
         return <>
-          <img class={'inline-emoji ' + (emoji.animated ? 'animated' : '')}
-             src={emoji.url} alt={`:${emoji.name}:`} title={`:${emoji.name}:`} loading='lazy'/>&nbsp;
+          <span class='inline-emoji animated' title={`:${emoji.name}:`}>
+            <span class='inline-emoji-fallback'>{emoji.fallback}</span>
+            <img src={emoji.url} alt={emoji.fallback} loading='lazy'
+                 onError={(e) => e.currentTarget.style.display = 'none'}/>
+          </span>&nbsp;
         </>
         }
 
@@ -182,9 +186,26 @@ function Message(props) {
               .inline-emoji {
                 width: 24px;
                 height: 24px;
-                object-fit: contain;
-                vertical-align: bottom;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                vertical-align: middle;
                 border-radius: 4px;
+              }
+
+              .inline-emoji img {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+              }
+
+              .inline-emoji-fallback {
+                font-family: 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+                font-size: 20px;
+                line-height: 1;
               }
 
               .inline-emoji.animated {

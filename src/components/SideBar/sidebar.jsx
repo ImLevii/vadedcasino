@@ -40,7 +40,6 @@ function SideBar(props) {
       TR: 0
     }
   })
-  const [emojis, setEmojis] = createSignal(null)
   const [ws] = useWebsocket()
   const [roomDropdown, setRoomDropdown] = createSignal(false)
   const [rulesOpen, setRulesOpen] = createSignal(false)
@@ -65,7 +64,6 @@ function SideBar(props) {
       // Remove existing listeners before adding new ones to prevent duplicates
       ws().off('chat:pushMessage')
       ws().off('toast')
-      ws().off('chat:emojis')
       ws().off('chat:clear')
       ws().off('misc:onlineUsers')
       ws().off('chat:join')
@@ -89,7 +87,6 @@ function SideBar(props) {
         createNotification(type, content, config)
       });
 
-      ws().on('chat:emojis', (emojis) => setEmojis(Array.isArray(emojis) ? emojis : []))
       ws().on('chat:clear', () => setMessages([]))
       ws().on('misc:onlineUsers', (data) => setOnline(data))
       ws().on('announcements', (list) => setAnnouncements(list))
@@ -107,7 +104,6 @@ function SideBar(props) {
         ])
       })
 
-      ws().emit('chat:requestEmojis')
     }
 
     previousState = ws() && ws().connected
@@ -117,7 +113,6 @@ function SideBar(props) {
     if (!ws()) return
 
     ws().off('chat:pushMessage')
-    ws().off('chat:emojis')
     ws().off('chat:clear')
     ws().off('misc:onlineUsers')
     ws().off('chat:join')
@@ -164,7 +159,7 @@ function SideBar(props) {
           );
         }}</For>
 
-        <Chat messages={messages()} ws={ws()} emojis={emojis()}/>
+        <Chat messages={messages()} ws={ws()}/>
 
         <div class='bottom-toolbar' onClick={(e) => e.stopPropagation()}>
           <div class='toolbar-left'>
