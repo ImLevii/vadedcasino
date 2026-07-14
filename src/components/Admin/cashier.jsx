@@ -2,6 +2,7 @@ import {createSignal} from "solid-js";
 import {authedAPI, createNotification} from "../../util/api";
 // import AdminRobuxCashier from "../Cashier/robuxtxs";  // Removed: Robux-specific
 import AdminCryptoCashier from "../Cashier/cryptotxs";
+import AdminSkinDeckCashier from "../Cashier/skindecktxs";
 import {useSearchParams} from "@solidjs/router";
 
 function AdminCashier(props) {
@@ -26,6 +27,8 @@ function AdminCashier(props) {
             <div className='content'>
                 {params.type === 'crypto' ? (
                     <AdminCryptoCashier/>
+                ) : params.type === 'skindeck' ? (
+                  <AdminSkinDeckCashier/>
                 ) : (
                     <div style="padding: 40px; text-align: center; color: #8b92a0;">
                         <p>Coin transaction management coming soon</p>

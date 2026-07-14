@@ -32,18 +32,18 @@ async function cacheAdmin() {
 // lock account if balance is over 150k and deposited is less than balance - 150k
 
 const suspiciousAmount = 285715;
-async function checkAccountLock(user) {
+async function checkAccountLock(user, connection = sql) {
 
     if (user.accountLock) return true;
     if (user.verified || user.sponsorLock) return false;
 
     if (user.balance < suspiciousAmount) return false;
 
-    const [[{ deposited }]] = await sql.query('SELECT SUM(amount) AS deposited FROM transactions WHERE userId = ? AND type = "deposit"', [user.id]);
+    const [[{ deposited }]] = await connection.query('SELECT SUM(amount) AS deposited FROM transactions WHERE userId = ? AND type = "deposit"', [user.id]);
     if (deposited * 1.5 >= user.balance) return false;
 
     sendLog('admin', `Locking account ${user.username} for kyc (\`${user.id}\`)`);
-    sql.query('UPDATE users SET accountLock = 1 WHERE id = ?', [user.id]);
+    await connection.query('UPDATE users SET accountLock = 1 WHERE id = ?', [user.id]);
     
     return true;
 

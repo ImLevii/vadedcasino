@@ -3,7 +3,8 @@ import {createSignal, For, Show} from "solid-js";
 import Method from "../components/Transactions/method";
 import CryptoDeposit from "../components/Deposits/crypto";
 import GiftcardDeposit from "../components/Deposits/giftcard";
-import {authedAPI, createNotification} from "../util/api";
+import SkinDeckDeposit from "../components/Deposits/skindeck";
+import {api, authedAPI, createNotification} from "../util/api";
 import CreditCardDeposit from "../components/Deposits/creditcard";
 import {openSupport} from "../util/support";
 import {Title} from "@solidjs/meta";
@@ -21,11 +22,15 @@ const METHODS = [
   {name: 'DOGECOIN', display: 'DOGE', category: 'Cryptocurrency', img: '/assets/icons/dogecoin.png', tab: 'crypto'}
 ]
 
-const CATEGORY_ORDER = ['Other Methods', 'Real Money', 'Cryptocurrency']
+const SKINDECK_METHOD = {name: 'SKINDECK', display: 'CS2 Skins', category: 'CS2 Skins', img: '/assets/icons/cube.svg', tab: 'skins', badge: 'Skin Deposit', badgeType: 'good'}
+
+const CATEGORY_ORDER = ['CS2 Skins', 'Other Methods', 'Real Money', 'Cryptocurrency']
 
 const COUNTRIES = ['United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France', 'Netherlands', 'Other']
 
 function Deposits(props) {
+
+  const [skinDeckCapabilities] = createResource(async () => api('/trading/skindeck/capabilities', 'GET'))
 
   const [tab, setTab] = createSignal('all')
   const [searchParams, setSearchParams] = useSearchParams()
@@ -137,11 +142,13 @@ function Deposits(props) {
     'usdc': () => <CryptoDeposit currency='USDC' img='/assets/icons/usdc.png'/>,
     'usdt': () => <CryptoDeposit currency='USDT.ERC20' img='/assets/icons/usdt.png'/>,
     'dogecoin': () => <CryptoDeposit currency='DOGE' img='/assets/icons/dogecoin.png'/>,
+    'skindeck': () => <SkinDeckDeposit/>,
     // 'busd': () => <CryptoDeposit currency='BUSD.' img='/assets/icons/busd.png'/>,
   }
 
   function methodsForCategory(category) {
-    return METHODS.filter(method => method.category === category)
+    const methods = skinDeckCapabilities()?.enabled ? [SKINDECK_METHOD, ...METHODS] : METHODS
+    return methods.filter(method => method.category === category)
   }
 
   async function redeemCode() {

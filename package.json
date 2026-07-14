@@ -21,7 +21,9 @@
     "csgo:import": "node scripts/import-csgo-market-items.js",
     "csgo:replace-cases": "node scripts/replace-cases-with-cs.js",
     "thumbnails:download": "node scripts/download-thumbnails.js",
-    "gem:build": "npm --prefix scripts/render-emerald run build"
+    "gem:build": "npm --prefix scripts/render-emerald run build",
+    "test": "node --test",
+    "test:skindeck": "node --test tests/skindeck/core.test.js"
   },
   "license": "MIT",
   "devDependencies": {

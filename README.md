@@ -106,3 +106,31 @@ Legacy helpers are still available:
 npm run db:create-admin
 npm run db:fix-schema
 ```
+
+## SkinDeck payments
+
+SkinDeck deposits and CS2-skin withdrawals are protected by a server-side feature flag and an idempotent provider ledger. New SkinDeck sessions and orders remain disabled unless both the environment flag and the database `skindeck` feature are enabled.
+
+```bash
+SKINDECK_ENABLED=false
+SKINDECK_API_KEY=
+SKINDECK_WEBHOOK_SECRET=
+SKINDECK_MODE=sandbox
+```
+
+- `SKINDECK_ENABLED` must be exactly `true` to allow new activity. It defaults to disabled.
+- `SKINDECK_API_KEY` and `SKINDECK_WEBHOOK_SECRET` are server-only secrets. Never prefix them with `VITE_` or expose them to browser code.
+- `SKINDECK_MODE` accepts `sandbox` or `live`. Start in sandbox.
+- Register the webhook URL as `https://<cosmic-luck-host>/trading/skindeck/webhook` after confirming the required event subscriptions in SkinDeck's current merchant documentation.
+
+The repository currently fails closed at the provider boundary because SkinDeck's live merchant documentation is protected by a Vercel security checkpoint. The API base URLs, endpoint paths, authentication header, webhook signature algorithm, payload schemas, and provider status map must be filled from a current official docs export before `contractReady` can be enabled. Do not infer those values.
+
+The local ledger uses a unique provider reference and row-locked terminal transitions. Deposit value comes only from the provider-confirmed USD value, using the existing Cosmic Luck conversion rate. Withdrawals move coins into `heldBalance` before any provider order and consume or refund that hold exactly once.
+
+Run the focused foundation tests with:
+
+```bash
+pnpm test:skindeck
+```
+
+Before enabling live mode, obtain compliance approval covering gambling licensing, KYC and age gating, allowed jurisdictions, skin-based deposits, and Valve's Terms of Service.

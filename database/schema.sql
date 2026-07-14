@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS `users` (
     `ip`                    VARCHAR(64)     DEFAULT NULL,
     `country`               VARCHAR(8)      DEFAULT NULL,
     `balance`               DECIMAL(20,2)   NOT NULL DEFAULT 0,
+    `heldBalance`           DECIMAL(20,2)   NOT NULL DEFAULT 0,
     `xp`                    DECIMAL(20,2)   NOT NULL DEFAULT 0,
     `role`                  ENUM('USER','MOD','DEV','ADMIN','OWNER','BOT') NOT NULL DEFAULT 'USER',
     `perms`                 TINYINT UNSIGNED NOT NULL DEFAULT 0,
@@ -135,6 +136,30 @@ CREATE TABLE IF NOT EXISTS `transactions` (
     PRIMARY KEY (`id`),
     KEY `idx_tx_userId` (`userId`),
     KEY `idx_tx_type_method` (`type`,`method`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `paymentTransactions` (
+    `id`             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `internalRef`    VARCHAR(36)     NOT NULL,
+    `userId`         BIGINT UNSIGNED NOT NULL,
+    `type`           ENUM('deposit','withdrawal') NOT NULL,
+    `provider`       VARCHAR(32)     NOT NULL DEFAULT 'skindeck',
+    `providerRef`    VARCHAR(255)    DEFAULT NULL,
+    `status`         VARCHAR(64)     NOT NULL DEFAULT 'initiating',
+    `providerStatus` VARCHAR(64)     DEFAULT NULL,
+    `skinItems`      JSON            DEFAULT NULL,
+    `value`          DECIMAL(20,2)   NOT NULL DEFAULT 0,
+    `providerValue`  DECIMAL(20,8)   DEFAULT NULL,
+    `providerCurrency` VARCHAR(16)   DEFAULT NULL,
+    `lastError`      VARCHAR(512)    DEFAULT NULL,
+    `finalizedAt`    DATETIME        DEFAULT NULL,
+    `createdAt`      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updatedAt`      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_paymentTransactions_internalRef` (`internalRef`),
+    UNIQUE KEY `uq_paymentTransactions_providerRef` (`providerRef`),
+    KEY `idx_paymentTransactions_user_created` (`userId`, `createdAt`),
+    KEY `idx_paymentTransactions_provider_status` (`provider`, `status`, `updatedAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
@@ -505,7 +530,8 @@ INSERT IGNORE INTO `features` (`id`, `enabled`) VALUES
     ('affiliates', 1),
     ('surveys', 1),
     ('cryptoDeposits', 1),
-    ('cryptoWithdrawals', 1);
+    ('cryptoWithdrawals', 1),
+    ('skindeck', 0);
 
 -- ============================================================
 -- Notifications

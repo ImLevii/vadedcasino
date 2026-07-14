@@ -55,6 +55,7 @@ function Admin(props) {
                                 <div className='pages-dropdown' onClick={(e) => e.stopPropagation()}>
                                     <p onClick={() => setParams({ type: null })}>COINS</p>
                                     <p onClick={() => setParams({ type: 'crypto' })}>CRYPTO</p>
+                                    <p onClick={() => setParams({ type: 'skindeck' })}>SKINDECK</p>
                                 </div>
                             </div>
                         )}

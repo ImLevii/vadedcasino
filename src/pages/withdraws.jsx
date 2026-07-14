@@ -4,6 +4,7 @@ import Method from "../components/Transactions/method";
 import {api, authedAPI, createNotification} from "../util/api";
 import {openSupport} from "../util/support";
 import CryptoWithdraw from "../components/Withdraws/crypto";
+import SkinDeckWithdraw from "../components/Withdraws/skindeck";
 import KYCModal from "../components/KYC/kyc";
 import {Title} from "@solidjs/meta";
 
@@ -11,11 +12,15 @@ const METHODS = [
   {name: 'CRYPTO', display: 'Cryptocurrency', category: 'Withdraw Method', img: '/assets/icons/crypto.svg', tab: 'crypto', badge: 'Instant', badgeType: 'good'},
 ]
 
+const SKINDECK_METHOD = {name: 'SKINDECK', display: 'CS2 Skins', category: 'Withdraw Method', img: '/assets/icons/cube.svg', tab: 'skins', badge: 'Live Inventory', badgeType: 'good'}
+
 const CATEGORY_ORDER = ['Withdraw Method']
 
 const COUNTRIES = ['United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France', 'Netherlands', 'Other']
 
 function Withdraws(props) {
+
+  const [skinDeckCapabilities] = createResource(async () => api('/trading/skindeck/capabilities', 'GET'))
 
   const [tab, setTab] = createSignal('all')
   const [searchParams, setSearchParams] = useSearchParams()
@@ -55,10 +60,12 @@ function Withdraws(props) {
 
   const withdrawComponents = {
     'crypto': () => <CryptoWithdraw setKYC={setKYC}/>,
+    'skindeck': () => <SkinDeckWithdraw/>,
   }
 
   function methodsForCategory(category) {
-    return METHODS.filter(method => method.category === category)
+    const methods = skinDeckCapabilities()?.enabled ? [SKINDECK_METHOD, ...METHODS] : METHODS
+    return methods.filter(method => method.category === category)
   }
 
   return (

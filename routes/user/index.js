@@ -25,7 +25,7 @@ router.use('/', securityRoute);
 
 router.get('/', isAuthed, async (req, res) => {
 
-    const [[user]] = await sql.query('SELECT id, role, username, balance, xp, anon, verified, `2fa`, steamTradeUrl, steamApiKey, selfLockUntil, soundEnabled, visualEffects, notificationsEnabled FROM users WHERE id = ?', [req.userId]);
+    const [[user]] = await sql.query('SELECT id, role, username, balance, heldBalance, xp, anon, verified, `2fa`, steamTradeUrl, steamApiKey, selfLockUntil, soundEnabled, visualEffects, notificationsEnabled FROM users WHERE id = ?', [req.userId]);
     if (!user) return res.status(404).json({ error: 'USER_NOT_FOUND' });
 
     const [[{ notifications }]] = await sql.query('SELECT COUNT(*) as notifications FROM notifications WHERE userId = ? AND seen = 0', [req.userId]);
@@ -119,7 +119,7 @@ router.get('/inventory', [isAuthed, apiLimiter], async (req, res) => {
 
 const resultsPerPage = 10;
 const allowedTypes = ['deposit', 'withdraw', 'in', 'out'];
-const allowedMethods = ['rakeback', 'robux', 'tip', 'promo', 'affiliate', 'giftcard', 'crypto', 'rain', 'daily-case', 'deposit-case', 'supercharge'];
+const allowedMethods = ['rakeback', 'robux', 'tip', 'promo', 'affiliate', 'giftcard', 'crypto', 'skindeck', 'skindeck-hold', 'skindeck-refund', 'rain', 'daily-case', 'deposit-case', 'supercharge'];
 
 router.get('/transactions', isAuthed, async (req, res) => {
 

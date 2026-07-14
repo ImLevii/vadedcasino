@@ -9,6 +9,9 @@ const io = require('../../../socketio/server');
 const cryptoRoute = require('./crypto');
 router.use('/crypto', cryptoRoute);
 
+const skinDeckRoute = require('./skindeck');
+router.use('/skindeck', skinDeckRoute);
+
 const resultsPerPage = 10;
 
 router.get('/', async (req, res) => {

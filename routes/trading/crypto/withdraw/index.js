@@ -96,7 +96,7 @@ router.post('/', isAuthed, apiLimiter, async (req, res) => {
             const [[user]] = await connection.query('SELECT id, xp, username, balance, accountLock, sponsorLock, verified, perms, cryptoAllowance FROM users WHERE id = ? FOR UPDATE', [req.userId]);
             if (user.balance < coinAmount) return res.status(400).json({ error: 'INSUFFICIENT_BALANCE' });
     
-            user.accountLock = await checkAccountLock(user);
+            user.accountLock = await checkAccountLock(user, connection);
             if (user.accountLock) return res.status(400).json({ error: 'ACCOUNT_LOCKED' });
             if (user.sponsorLock && user.cryptoAllowance == null) return res.status(400).json({ error: 'SPONSOR_LOCK' });
     
