@@ -246,8 +246,13 @@ function SideBar(props) {
           display: flex;
           flex-direction: column;
 
-          background: #0e1116;
-          border-right: 1px solid rgba(255, 255, 255, 0.05);
+          background:
+            radial-gradient(100% 55% at 50% 0%, rgba(31, 214, 95, 0.055), transparent 62%),
+            linear-gradient(180deg, rgba(12, 17, 24, 0.92), rgba(8, 12, 18, 0.9));
+          border-right: 1px solid var(--glass-border);
+          box-shadow: inset -1px 0 0 rgba(255,255,255,0.025), 10px 0 30px rgba(0,0,0,0.18);
+          backdrop-filter: blur(14px) saturate(120%);
+          -webkit-backdrop-filter: blur(14px) saturate(120%);
           overflow: hidden;
           transition: left .3s;
         }
@@ -268,8 +273,9 @@ function SideBar(props) {
           padding: 0 16px;
           box-sizing: border-box;
 
-          background: #12151c;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          background: linear-gradient(180deg, rgba(25, 32, 43, 0.76), rgba(13, 18, 26, 0.62));
+          border-bottom: 1px solid var(--glass-border);
+          box-shadow: inset 0 1px 0 var(--glass-highlight);
         }
 
         .room-title {
@@ -355,8 +361,9 @@ function SideBar(props) {
           gap: 6px;
           padding: 0 10px;
 
-          background: #0e1116;
-          border-top: 1px solid rgba(255, 255, 255, 0.06);
+          background: linear-gradient(180deg, rgba(17, 22, 31, 0.74), rgba(9, 13, 19, 0.88));
+          border-top: 1px solid var(--glass-border);
+          box-shadow: 0 -10px 28px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.03);
 
           position: relative;
         }
@@ -377,8 +384,9 @@ function SideBar(props) {
           border-radius: 6px;
 
           outline: unset;
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          background: #1a1f29;
+          border: 1px solid var(--glass-border);
+          background: linear-gradient(180deg, rgba(45, 54, 68, 0.5), rgba(21, 27, 37, 0.62));
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
           color: #8b92a0;
           text-decoration: none;
 
@@ -401,9 +409,10 @@ function SideBar(props) {
           gap: 7px;
           padding: 0 8px;
 
-          background: #1a1f29;
+          background: linear-gradient(180deg, rgba(45, 54, 68, 0.5), rgba(21, 27, 37, 0.66));
           border-radius: 6px;
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          border: 1px solid var(--glass-border);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
 
           font-family: 'Geogrotesque Wide', sans-serif;
           font-size: 12px;
@@ -479,15 +488,17 @@ function SideBar(props) {
           left: 0;
           width: 100%;
 
-          background: #1a1f29;
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: linear-gradient(180deg, rgba(30, 38, 50, 0.96), rgba(13, 18, 26, 0.97));
+          border: 1px solid var(--glass-border);
           border-radius: 6px;
           overflow: hidden;
 
           display: flex;
           flex-direction: column;
           z-index: 10;
-          box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.4);
+          box-shadow: inset 0 1px 0 var(--glass-highlight), 0 -12px 30px rgba(0, 0, 0, 0.42);
+          backdrop-filter: blur(16px) saturate(125%);
+          -webkit-backdrop-filter: blur(16px) saturate(125%);
         }
 
         .room-option {
@@ -526,12 +537,14 @@ function SideBar(props) {
           left: 0;
           width: 230px;
 
-          background: #1a1f29;
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: linear-gradient(180deg, rgba(30, 38, 50, 0.96), rgba(13, 18, 26, 0.97));
+          border: 1px solid var(--glass-border);
           border-radius: 8px;
           padding: 12px 14px;
           z-index: 20;
-          box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5);
+          box-shadow: inset 0 1px 0 var(--glass-highlight), 0 -12px 30px rgba(0, 0, 0, 0.46);
+          backdrop-filter: blur(16px) saturate(125%);
+          -webkit-backdrop-filter: blur(16px) saturate(125%);
           cursor: default;
         }
 

@@ -101,8 +101,11 @@ function Footer(props) {
                 flex-direction: column;
                 align-items: center;
                 
-                background: #0c0e13;
-                border-top: 1px solid rgba(255, 255, 255, 0.05);
+                                background:
+                                    radial-gradient(70% 100% at 12% 0%, rgba(31,214,95,0.055), transparent 58%),
+                                    linear-gradient(180deg, rgba(13, 18, 25, 0.88), rgba(7, 10, 15, 0.96));
+                                border-top: 1px solid var(--glass-border);
+                                box-shadow: inset 0 1px 0 rgba(255,255,255,0.025), 0 -16px 36px rgba(0,0,0,0.16);
               }
               
               .links-section, .disclaimer {
@@ -117,8 +120,9 @@ function Footer(props) {
                 margin-top: 45px;
                 
                 border-radius: 7px;
-                background: rgba(255, 255, 255, 0.02);
-                border: 1px solid rgba(255, 255, 255, 0.05);
+                background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.012));
+                border: 1px solid var(--glass-border);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.035), 0 12px 30px rgba(0,0,0,0.16);
                 
                 padding: 15px 20px;
                 

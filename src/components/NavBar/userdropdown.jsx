@@ -98,7 +98,7 @@ function UserDropdown(props) {
                 height: 9px;
 
                 top: 1px;
-                background: #1a1f29;
+                background: rgba(27, 35, 47, 0.96);
                 position: absolute;
                 right: 0;
 
@@ -119,9 +119,12 @@ function UserDropdown(props) {
                 gap: 4px;
                 padding: 8px;
 
-                border: 1px solid rgba(255,255,255,0.08);
-                background: #1a1f29;
+                border: 1px solid var(--glass-border);
+                background: linear-gradient(180deg, rgba(29, 37, 49, 0.96), rgba(12, 17, 24, 0.97));
                 border-radius: 0 0 8px 8px;
+                box-shadow: inset 0 1px 0 var(--glass-highlight), 0 16px 40px rgba(0,0,0,0.42);
+                backdrop-filter: blur(18px) saturate(125%);
+                -webkit-backdrop-filter: blur(18px) saturate(125%);
 
                 margin-top: 9px;
               }

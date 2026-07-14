@@ -134,8 +134,12 @@ function NavBar(props) {
                 justify-content: space-between;
                 gap: 20px;
 
-                background: #12151c;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+                background:
+                  linear-gradient(180deg, rgba(20, 26, 36, 0.88), rgba(11, 15, 22, 0.78));
+                border-bottom: 1px solid var(--glass-border);
+                box-shadow: inset 0 1px 0 var(--glass-highlight), 0 10px 30px rgba(0, 0, 0, 0.24);
+                backdrop-filter: blur(16px) saturate(130%);
+                -webkit-backdrop-filter: blur(16px) saturate(130%);
               }
 
               .left, .right {
@@ -192,8 +196,9 @@ function NavBar(props) {
                 border-radius: 8px;
 
                 outline: unset;
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                background: #1a1f29;
+                border: 1px solid var(--glass-border);
+                background: linear-gradient(180deg, rgba(42, 50, 64, 0.58), rgba(21, 27, 37, 0.66));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 18px rgba(0,0,0,0.18);
 
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-weight: 700;
@@ -205,7 +210,7 @@ function NavBar(props) {
               }
 
               .withdraw:hover {
-                background: #222a36;
+                background: linear-gradient(180deg, rgba(52, 62, 78, 0.68), rgba(25, 32, 43, 0.76));
                 color: #fff;
               }
 
@@ -244,7 +249,10 @@ function NavBar(props) {
                 border-radius: 8px;
 
                 border: 1px solid rgba(31, 214, 95, 0.4);
-                background: radial-gradient(60% 60% at 50% 50%, rgba(31, 214, 95, 0.12) 0%, rgba(24, 184, 83, 0.12) 100%), #11141b;
+                background:
+                  radial-gradient(90% 120% at 50% 0%, rgba(31, 214, 95, 0.2), transparent 58%),
+                  linear-gradient(180deg, rgba(17, 27, 26, 0.84), rgba(10, 17, 18, 0.88));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 8px 22px rgba(0,0,0,0.22), 0 0 20px rgba(31,214,95,0.06);
 
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-weight: 700;
@@ -291,16 +299,19 @@ function NavBar(props) {
                 padding: 0 10px 0 6px;
                 position: relative;
 
-                background: #1a1f29;
-                border: 1px solid rgba(255,255,255,0.08);
+                background: linear-gradient(180deg, rgba(39, 47, 60, 0.58), rgba(18, 23, 32, 0.72));
+                border: 1px solid var(--glass-border);
                 border-radius: 8px;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 8px 22px rgba(0,0,0,0.2);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
 
                 cursor: pointer;
                 transition: background .2s;
               }
 
               .user-dropdown-wrapper:hover {
-                background: #222831;
+                background: linear-gradient(180deg, rgba(49, 58, 73, 0.68), rgba(23, 29, 40, 0.82));
               }
 
               .user-dropdown-wrapper.active .arrow {

@@ -98,7 +98,10 @@ function Notifications(props) {
 
           border-radius: 6px;
           border: 1px solid rgba(31,214,95,0.3);
-          background: rgba(31,214,95,0.08);
+          background:
+            radial-gradient(80% 80% at 50% 0%, rgba(31,214,95,0.16), transparent 70%),
+            linear-gradient(180deg, rgba(29, 43, 40, 0.68), rgba(13, 21, 23, 0.78));
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 20px rgba(0,0,0,0.2);
 
           position: relative;
           display: flex;
@@ -176,7 +179,7 @@ function Notifications(props) {
           height: 9px;
 
           top: 1px;
-          background: #1a1f29;
+          background: rgba(27, 35, 47, 0.96);
           position: absolute;
           right: 0;
 
@@ -195,9 +198,12 @@ function Notifications(props) {
         .notis-wrapper {
           padding: 8px;
 
-          border: 1px solid rgba(255,255,255,0.08);
-          background: #1a1f29;
+          border: 1px solid var(--glass-border);
+          background: linear-gradient(180deg, rgba(28, 36, 48, 0.96), rgba(12, 17, 24, 0.97));
           border-radius: 0 0 8px 8px;
+          box-shadow: inset 0 1px 0 var(--glass-highlight), 0 16px 40px rgba(0,0,0,0.42);
+          backdrop-filter: blur(18px) saturate(125%);
+          -webkit-backdrop-filter: blur(18px) saturate(125%);
 
           margin-top: 8px;
           height: 100%;

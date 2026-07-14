@@ -85,8 +85,11 @@ function Notification(props) {
           height: fit-content;
 
           border-radius: 6px;
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          background: #12151c;
+          border: 1px solid var(--glass-border);
+          background:
+            radial-gradient(100% 80% at 0% 0%, rgba(31,214,95,0.055), transparent 68%),
+            linear-gradient(145deg, rgba(24, 31, 42, 0.84), rgba(11, 16, 23, 0.9));
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.045), 0 8px 24px rgba(0,0,0,0.2);
 
           display: flex;
           flex-direction: column;
@@ -120,11 +123,11 @@ function Notification(props) {
           height: 25px;
           width: 36px;
           
-          background: #2c3340;
+          background: linear-gradient(180deg, rgba(61,70,86,0.72), rgba(34,41,53,0.78));
           border-radius: 6px;
           
           outline: unset;
-          border: unset;
+          border: 1px solid rgba(255,255,255,0.06);
           
           position: absolute;
           top: 4px;
@@ -134,7 +137,8 @@ function Notification(props) {
         }
 
         .trash:hover {
-          background: rgba(220, 38, 38, 0.3);
+          background: linear-gradient(180deg, rgba(220, 38, 38, 0.38), rgba(120, 25, 32, 0.42));
+          border-color: rgba(255, 90, 90, 0.22);
         }
 
         .content {
@@ -158,7 +162,8 @@ function Notification(props) {
         .fancyamt {
           border-radius: 4px;
           border: 1px solid rgba(31, 214, 95, 0.4);
-          background: rgba(31, 214, 95, 0.08);
+          background: linear-gradient(180deg, rgba(31, 214, 95, 0.12), rgba(16, 79, 43, 0.1));
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
 
           height: 30px;
           padding: 0 8px;
