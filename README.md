@@ -33,18 +33,18 @@ Your app is ready to be deployed!
 
 The production service is a single Node process that serves the Express API, Socket.IO, and the built SolidJS SPA. Do not deploy only the `dist` directory.
 
-### Dokploy with Nixpacks
+### Dokploy with Railpack
 
 Use these application settings exactly:
 
-- Build type: `Nixpacks`
+- Build type: `Railpack`
 - Container port: `3000`
 - Health check path: `/healthz`
 - Publish directory: leave empty
-- Build command: leave empty; `nixpacks.toml` runs `pnpm build`
-- Start command: leave empty; `nixpacks.toml` runs `pnpm start`
+- Build command: leave empty; Railpack detects `pnpm build` from `package.json`
+- Start command: leave empty; Railpack detects `pnpm start` from `package.json`
 
-Remove legacy command values before redeploying. In particular, never place build and start commands in the same field; doing so passes `pnpm start` to Vite as an entry path and causes the container to exit before Traefik can route to it.
+Remove legacy command values before redeploying. In particular, never place build and start commands in the same field; doing so passes `pnpm start` to Vite as an entry path and causes the container to exit before Traefik can route to it. The root `packageManager` field pins pnpm 9.15.9 because the committed lockfile uses format 9.0; pnpm 8 will reject it as incompatible.
 
 Configure the external MySQL connection in Dokploy:
 

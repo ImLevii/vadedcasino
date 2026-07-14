@@ -6,7 +6,7 @@ NIXPACKS_NODE_VERSION = "20"
 nixPkgs = ["...", "python3", "gcc", "gnumake"]
 
 [phases.install]
-cmds = ["corepack enable", "corepack prepare pnpm@8.15.9 --activate", "pnpm install --frozen-lockfile"]
+cmds = ["corepack enable", "corepack prepare pnpm@9.15.9 --activate", "pnpm install --frozen-lockfile"]
 
 [phases.build]
 cmds = ["pnpm build"]

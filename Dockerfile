@@ -16,8 +16,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# pnpm without relying on corepack prompts.
-RUN npm install -g pnpm@8
+# Match the package manager version used to generate pnpm-lock.yaml.
+RUN npm install -g pnpm@9.15.9
 
 # Install ALL dependencies (dev included) so the frontend can be built.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -35,7 +35,7 @@ ENV NODE_ENV=production
 ENV PORT=3000
 WORKDIR /app
 
-RUN npm install -g pnpm@8
+RUN npm install -g pnpm@9.15.9
 
 # Carry over the already-built app, including compiled native modules and dist.
 COPY --from=build /app ./
