@@ -22,7 +22,7 @@ const METHODS = [
   {name: 'DOGECOIN', display: 'DOGE', category: 'Cryptocurrency', img: '/assets/icons/dogecoin.png', tab: 'crypto'}
 ]
 
-const SKINDECK_METHOD = {name: 'SKINDECK', display: 'CS2 Skins', category: 'CS2 Skins', img: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/730/942c04efaa5bc87afb6f2a97dbf17ac614c8a84d/capsule_184x69.jpg', wideImg: true, tab: 'skins', badge: 'Skin Deposit', badgeType: 'good'}
+const SKINDECK_METHOD = {name: 'SKINDECK', display: 'CS2 Skins', category: 'CS2 Skins', img: '/assets/icons/cs2-logo.svg', wideImg: true, tab: 'skins', badge: 'Skin Deposit', badgeType: 'good'}
 
 const CATEGORY_ORDER = ['CS2 Skins', 'Other Methods', 'Real Money', 'Cryptocurrency']
 

@@ -66,7 +66,7 @@ function SkinDeckDeposit() {
         <section class='skindeck-market'>
             <Show when={steamReady()} fallback={
                 <div class='steam-setup'>
-                    <div class='setup-icon'><img src='/assets/icons/cube.svg' alt=''/></div>
+                    <div class='setup-icon'><img src='/assets/icons/cs2-logo.svg' alt=''/></div>
                     <div class='setup-copy'>
                         <span class='eyebrow'>STEAM CONNECTION REQUIRED</span>
                         <h2>Connect your inventory</h2>
@@ -81,7 +81,7 @@ function SkinDeckDeposit() {
             }>
                 <div class='market-head'>
                     <div class='market-brand'>
-                        <img src='https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/730/942c04efaa5bc87afb6f2a97dbf17ac614c8a84d/capsule_184x69.jpg' alt='Counter-Strike 2'/>
+                        <img src='/assets/icons/cs2-logo.svg' alt='Counter-Strike 2'/>
                         <div><span>COUNTER-STRIKE 2</span><strong>Inventory Deposit</strong></div>
                     </div>
                     <div class='market-state'><i></i><span>SKINDECK ONLINE</span></div>
@@ -176,7 +176,7 @@ function SkinDeckDeposit() {
                 button, input, select, a { font-family: inherit; letter-spacing: 0; }
                 .market-head { height: 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border-bottom: 1px solid #242c38; background: linear-gradient(90deg, rgba(31,214,95,.055), transparent 35%), #111720; }
                 .market-brand { display: flex; align-items: center; gap: 11px; }
-                .market-brand > img { width: 54px; height: 30px; border: 1px solid rgba(255,255,255,.09); border-radius: 4px; object-fit: cover; }
+                .market-brand > img { width: 60px; height: 30px; object-fit: contain; }
                 .market-brand > div { display: flex; flex-direction: column; gap: 2px; }
                 .market-brand span { color: #717c8b; font-size: 8px; font-weight: 800; }
                 .market-brand strong { color: #f4f7fb; font-size: 12px; }
@@ -244,7 +244,7 @@ function SkinDeckDeposit() {
                 .deposit-button:disabled { border-color: #264f34; background: #214e2e; color: #7d9785; cursor: not-allowed; opacity: .7; }
                 .steam-setup { min-height: 300px; display: flex; align-items: center; gap: 20px; padding: 34px; background: radial-gradient(circle at 0 0, rgba(31,214,95,.08), transparent 45%), #11161e; }
                 .setup-icon { width: 64px; height: 64px; flex: 0 0 64px; display: grid; place-items: center; border: 1px solid rgba(31,214,95,.25); border-radius: 8px; background: rgba(31,214,95,.06); }
-                .setup-icon img { width: 30px; filter: brightness(0) saturate(100%) invert(72%) sepia(77%) saturate(580%) hue-rotate(83deg); }
+                .setup-icon img { width: 46px; }
                 .setup-copy { flex: 1; }
                 .eyebrow { color: #1fd65f; font-size: 9px; font-weight: 800; }
                 .setup-copy h2 { margin: 5px 0 7px; color: #fff; font-size: 20px; letter-spacing: 0; }

@@ -56,13 +56,13 @@ function SkinDeckWithdraw() {
     return (
         <section class='skindeck-panel'>
             <header>
-                <div class='brand'><img src='https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/730/942c04efaa5bc87afb6f2a97dbf17ac614c8a84d/capsule_184x69.jpg' alt='Counter-Strike 2'/><div><span class='eyebrow'>SKINDECK INVENTORY</span><h2>Withdraw a CS2 skin</h2></div></div>
+                <div class='brand'><img src='/assets/icons/cs2-logo.svg' alt='Counter-Strike 2'/><div><span class='eyebrow'>SKINDECK INVENTORY</span><h2>Withdraw a CS2 skin</h2></div></div>
                 <span class='provider'><i></i>LIVE PRICES</span>
             </header>
 
             <Show when={steamReady()} fallback={
                 <div class='steam-setup'>
-                    <img src='/assets/icons/cube.svg' alt=''/>
+                    <img src='/assets/icons/cs2-logo.svg' alt=''/>
                     <div><strong>Steam connection required</strong><span>Add both your Steam Trade URL and Steam API Key before using SkinDeck.</span></div>
                     <a href='/profile'>OPEN PROFILE</a>
                 </div>
@@ -113,7 +113,7 @@ function SkinDeckWithdraw() {
                 header, .checkout, .history-row { display: flex; align-items: center; }
                 header { height: 68px; justify-content: space-between; margin: 0 -20px 18px; padding: 0 20px; border-bottom: 1px solid #242c38; background: linear-gradient(90deg, rgba(31,214,95,.055), transparent 35%), #111720; }
                 .brand { display: flex; align-items: center; gap: 12px; }
-                .brand > img { width: 58px; height: 32px; border: 1px solid rgba(255,255,255,.09); border-radius: 4px; object-fit: cover; }
+                .brand > img { width: 64px; height: 32px; object-fit: contain; }
                 h2, h3, strong, span, p, button { font-family: Geogrotesque Wide, sans-serif; letter-spacing: 0; }
                 h2 { margin: 3px 0 0; color: #fff; font-size: 17px; }
                 h3 { margin: 0 0 10px; color: #fff; font-size: 14px; }
@@ -164,7 +164,7 @@ function SkinDeckWithdraw() {
                 .status.failed, .status.cancelled, .status.expired { color: #ff5141; }
                 .empty { padding: 26px 0; color: #727b89; font-size: 12px; text-align: center; }
                 .steam-setup { min-height: 110px; display: flex; align-items: center; gap: 14px; padding: 18px; border: 1px solid rgba(31,214,95,.18); background: rgba(4,8,13,.54); }
-                .steam-setup > img { width: 32px; filter: brightness(0) saturate(100%) invert(72%) sepia(77%) saturate(580%) hue-rotate(83deg); }
+                .steam-setup > img { width: 52px; }
                 .steam-setup > div { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 5px; }
                 .steam-setup strong { color: #fff; font-size: 12px; }
                 .steam-setup span { color: #7d8795; font-size: 10px; line-height: 1.45; }

@@ -12,7 +12,7 @@ const METHODS = [
   {name: 'CRYPTO', display: 'Cryptocurrency', category: 'Withdraw Method', img: '/assets/icons/crypto.svg', tab: 'crypto', badge: 'Instant', badgeType: 'good'},
 ]
 
-const SKINDECK_METHOD = {name: 'SKINDECK', display: 'CS2 Skins', category: 'Withdraw Method', img: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/730/942c04efaa5bc87afb6f2a97dbf17ac614c8a84d/capsule_184x69.jpg', wideImg: true, tab: 'skins', badge: 'Live Inventory', badgeType: 'good'}
+const SKINDECK_METHOD = {name: 'SKINDECK', display: 'CS2 Skins', category: 'Withdraw Method', img: '/assets/icons/cs2-logo.svg', wideImg: true, tab: 'skins', badge: 'Live Inventory', badgeType: 'good'}
 
 const CATEGORY_ORDER = ['Withdraw Method']
 
