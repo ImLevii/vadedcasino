@@ -12,6 +12,11 @@ function LoadingScreen(props) {
                     </div>
                 </div>
 
+                <div class='status'>
+                  <p>Initializing secure session</p>
+                  <span class='dots'>...</span>
+                </div>
+
                 <div className='background'/>
                 <div class='vignette'/>
             </div>
@@ -114,6 +119,30 @@ function LoadingScreen(props) {
                   radial-gradient(circle at 54% 62%, rgba(31, 214, 95, 0.14) 0%, rgba(31, 214, 95, 0) 45%);
               }
 
+              .status {
+                position: relative;
+                z-index: 2;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                color: rgba(182, 203, 198, 0.84);
+                font-family: Geogrotesque Wide, sans-serif;
+                font-size: 12px;
+                font-weight: 600;
+                letter-spacing: 0.03em;
+                text-transform: uppercase;
+              }
+
+              .status p {
+                margin: 0;
+              }
+
+              .dots {
+                width: 14px;
+                text-align: left;
+                animation: dots 1.2s steps(4, end) infinite;
+              }
+
               @keyframes logo-in {
                 0% {
                   opacity: 0;
@@ -158,6 +187,38 @@ function LoadingScreen(props) {
                 50% {
                   opacity: 0.38;
                   transform: translateX(-50%) scale(1.03);
+                }
+              }
+
+              @keyframes dots {
+                0% {
+                  width: 0;
+                }
+                100% {
+                  width: 14px;
+                }
+              }
+
+              @media (max-width: 640px) {
+                .loader-container {
+                  gap: 24px;
+                  padding: 22px;
+                }
+
+                .logo {
+                  height: 72px;
+                }
+
+                .logo-wrap {
+                  padding: 14px 18px;
+                }
+
+                .progress-track {
+                  height: 12px;
+                }
+
+                .status {
+                  font-size: 11px;
                 }
               }
             `}</style>

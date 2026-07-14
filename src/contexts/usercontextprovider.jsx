@@ -1,11 +1,20 @@
 import {api, authedAPI, createNotification, fetchUser, getJWT} from "../util/api";
-import {createContext, createResource, createSignal, useContext} from "solid-js";
+import {createContext, createResource, createSignal, onCleanup, useContext} from "solid-js";
 
 const UserContext = createContext();
 
 export function UserProvider(props) {
 
     const [fetched, setFetched] = createSignal(false)
+    const failSafe = setTimeout(() => {
+        if (!fetched()) {
+            console.warn('Startup auth timed out, releasing loading screen.')
+            setFetched(true)
+        }
+    }, 12000)
+
+    onCleanup(() => clearTimeout(failSafe))
+
     const [user, { mutate }] = createResource(getUser), userData = [user, {
         mutateUser(newUser) {
             mutate(newUser)
@@ -50,6 +59,7 @@ export function UserProvider(props) {
             let data = await fetchUser()
             mutate(data)
             setFetched(true)
+            clearTimeout(failSafe)
 
             if (data) {
                 // CRISP LIVE CHAT
@@ -64,6 +74,7 @@ export function UserProvider(props) {
         } catch (e) {
             mutate(null)
             setFetched(true)
+            clearTimeout(failSafe)
             console.log(e)
             return null
         }

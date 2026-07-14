@@ -10,8 +10,11 @@ export function WebsocketProvider(props) {
 
     async function connectSocket() {
 
+        const configured = (import.meta.env.VITE_SOCKET_URL || '').trim()
+        const socketUrl = (!configured || configured === 'undefined') ? window.location.origin : configured
+
         function createSocket() {
-            const tempWs = io(import.meta.env.VITE_SOCKET_URL + '', { transports: ['websocket', 'polling'], reconnection: true, reconnectionDelay: 1000, reconnectionAttempts: 10})
+            const tempWs = io(socketUrl, { transports: ['websocket', 'polling'], reconnection: true, reconnectionDelay: 1000, reconnectionAttempts: 10})
 
             tempWs.on('connect', () => {
                 console.log('Connected to WS')

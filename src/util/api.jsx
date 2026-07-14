@@ -81,14 +81,40 @@ export function createNotification(type, message, options) {
     return showToast(type, message, options)
 }
 
+function normalizePath(path) {
+    return path.startsWith('/') ? path : `/${path}`
+}
+
+function resolveBaseUrl() {
+    const configured = (import.meta.env.VITE_SERVER_URL || '').trim()
+    if (!configured || configured === 'undefined') return window.location.origin
+    return configured.endsWith('/') ? configured.slice(0, -1) : configured
+}
+
 export async function api(path, method, body, notification = false, headers =  { 'Content-Type': 'application/json' }) {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 10000)
+
     try {
-        let res = await fetch(`${import.meta.env.VITE_SERVER_URL}${path}`, {
+        const res = await fetch(`${resolveBaseUrl()}${normalizePath(path)}`, {
             method,
             headers,
             body,
+            signal: controller.signal
         })
-        let data = await res.json()
+
+        clearTimeout(timeoutId)
+
+        let data = null
+        try {
+            data = await res.json()
+        } catch (_) {
+            data = { error: 'SERVER_ERROR' }
+        }
+
+        if (!res.ok && !data?.error) {
+            data = { error: 'SERVER_ERROR' }
+        }
 
         if (data.error && notification) {
             showToast('error', errors[data.error] || data.error)
@@ -98,6 +124,7 @@ export async function api(path, method, body, notification = false, headers =  {
 
         return data
     } catch (e) {
+        clearTimeout(timeoutId)
         console.log('There was an error when trying to fetch ' + path, e)
         return null
     }

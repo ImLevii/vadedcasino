@@ -33,6 +33,14 @@ Your app is ready to be deployed!
 
 You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
 
+### Vercel notes (important)
+
+This project runs through `app.js` in production and serves both API routes and the SPA from the same Node runtime.
+
+- Keep `VITE_SERVER_URL` and `VITE_SOCKET_URL` set to your public origin (for example `https://cosmicluck.gg`) in Vercel project environment variables.
+- If either variable is missing, the app now falls back to same-origin at runtime.
+- Startup auth requests are timed out defensively so the loading screen cannot hang forever on a bad upstream response.
+
 ## Local MySQL Bootstrap
 
 You can bootstrap a local database (create DB, apply schema, and create/update an admin user) with one command:
