@@ -32,9 +32,6 @@ importers:
       chance:
         specifier: ^1.1.11
         version: 1.1.13
-      cheerio:
-        specifier: ^1.0.0-rc.12
-        version: 1.2.0
       coinpayments:
         specifier: ^1.0.11
         version: 1.1.8

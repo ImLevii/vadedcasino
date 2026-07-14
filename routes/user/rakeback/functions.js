@@ -47,12 +47,19 @@ async function getUserRakebacks(userId) {
         claimsMap[claim.type] = claim.lastClaimDate;
     });
 
-    for (const type in rakebackTypes) {
+    const types = Object.keys(rakebackTypes);
+    const claimDates = types.map(type => claimsMap[type] || startDate);
+    const [[unclaimed]] = await sql.query(`
+        SELECT ${types.map(() => 'SUM(CASE WHEN createdAt > ? THEN edge ELSE 0 END)').map((sum, index) => `${sum} AS total${index}`).join(', ')}
+        FROM bets
+        WHERE userId = ? AND completed = 1
+    `, [...claimDates, userId]);
 
-        const lastClaimDate = claimsMap[type] || startDate;
-        const [[unclaimed]] = await sql.query('SELECT SUM(edge) as total FROM bets WHERE userId = ? AND createdAt > ? AND completed = 1', [userId, lastClaimDate]);
+    for (const [index, type] of types.entries()) {
 
-        const houseEdge = unclaimed.total || 0;
+        const lastClaimDate = claimDates[index];
+
+        const houseEdge = unclaimed[`total${index}`] || 0;
         const rakeback = roundDecimal(houseEdge * (rakebackTypes[type].percentage / 100));
 
         const canClaimAt = new Date(new Date(lastClaimDate).valueOf() + rakebackTypes[type].cooldown);

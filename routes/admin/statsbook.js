@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 
 const { sql } = require('../../database');
-const { cryptoData } = require('../trading/crypto/deposit/functions');
 const { roundDecimal } = require('../../utils');
 
 const resultsPerPage = 10;
@@ -45,25 +44,15 @@ router.get('/', async (req, res) => {
     const newUsersMap = {};
     newUsers.forEach(e => newUsersMap[toDateString(e.date)] = e.total);
 
-    const [robuxDeposits] = await sql.query(`
+    const [skinDeposits] = await sql.query(`
         SELECT DATE(createdAt) as date, SUM(amount) as total
         FROM transactions
-        WHERE type = 'deposit' AND method = 'robux' AND DATE(createdAt) >= ? AND DATE(createdAt) <= ?
+        WHERE type = 'deposit' AND method = 'skindeck' AND DATE(createdAt) >= ? AND DATE(createdAt) <= ?
         GROUP BY date ORDER BY date DESC
     `, [dayFrom, dayTo]);
 
-    const robuxDepositsMap = {};
-    robuxDeposits.forEach(e => robuxDepositsMap[toDateString(e.date)] = e.total);
-
-    const [limitedsDeposits] = await sql.query(`
-        SELECT DATE(createdAt) as date, SUM(amount) as total
-        FROM transactions
-        WHERE type = 'deposit' AND method = 'limiteds' AND DATE(createdAt) >= ? AND DATE(createdAt) <= ?
-        GROUP BY date ORDER BY date DESC
-    `, [dayFrom, dayTo]);
-
-    const limitedsDepositsMap = {};
-    limitedsDeposits.forEach(e => limitedsDepositsMap[toDateString(e.date)] = e.total);
+    const skinDepositsMap = {};
+    skinDeposits.forEach(e => skinDepositsMap[toDateString(e.date)] = e.total);
 
     const [cryptoDeposits] = await sql.query(`
         SELECT DATE(createdAt) as date, SUM(fiatAmount) as total
@@ -119,11 +108,9 @@ router.get('/', async (req, res) => {
 
         const newUsersCount = newUsersMap[day] || 0;
 
-        const robuxDepositsCount = robuxDepositsMap[day] || 0;
-        const limitedsDepositsCount = limitedsDepositsMap[day] || 0;
-        const coinDepositsCount = Number(robuxDepositsCount) + Number(limitedsDepositsCount);
+        const skinDepositsCount = skinDepositsMap[day] || 0;
 
-        const giftCardDepositsCount = giftCardDepositsMap[day] || 0; // roundDecimal((giftCardDepositsMap[day] || 0) / cryptoData.robuxRate.robux * cryptoData.robuxRate.usd);
+        const giftCardDepositsCount = giftCardDepositsMap[day] || 0;
         const cryptoDepositsCount = (cryptoDepositsMap[day] || 0);
         const cryptoWithdrawsCount = (cryptoWithdrawsMap[day] || 0);
         const creditCardDepositsCount = creditCardDepositsMap[day] || 0;
@@ -132,9 +119,7 @@ router.get('/', async (req, res) => {
         days.push({
             date: day,
             npc: newUsersCount,
-            coinDeposits: coinDepositsCount,
-            robuxDeposits: robuxDepositsCount,
-            limitedsDeposits: limitedsDepositsCount,
+            skinDeposits: skinDepositsCount,
             cryptoDeposits: cryptoDepositsCount,
             cryptoWithdraws: cryptoWithdrawsCount,
             giftCardDeposits: giftCardDepositsCount,

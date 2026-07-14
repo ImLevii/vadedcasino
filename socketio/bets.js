@@ -139,7 +139,7 @@ async function newBets(bets) {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": `*New bet*\n*User*: <https://www.roblox.com/users/${user.id}|${user.username}> - \`${user.id}\`\n*Game*: \`${gamesNames[bet.game]}\`\n*Amount*: :robux: R$${bet.amount}\n*Payout*: :robux: R$${bet.payout} \`(${roundDecimal(bet.payout / bet.amount, 3)}x)\``
+                "text": `*New bet*\n*User*: *${user.username}* - \`${user.id}\`\n*Game*: \`${gamesNames[bet.game]}\`\n*Amount*: ${bet.amount} coins\n*Payout*: ${bet.payout} coins \`(${roundDecimal(bet.payout / bet.amount, 3)}x)\``
             },
             "accessory": {
                 "type": "image",

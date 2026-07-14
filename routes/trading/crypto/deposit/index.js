@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
             price: currency.price,
             confirmations: currency.confirmations
         })),
-        robuxRate: cryptoData.robuxRate
+        coinRate: cryptoData.coinRate
     });
 });
 
@@ -81,7 +81,7 @@ router.post('/wallet', isAuthed, apiLimiter, async (req, res) => {
         }
 
         res.json({
-            robuxRate: cryptoData.robuxRate,
+            coinRate: cryptoData.coinRate,
             currency,
             address
         });
@@ -126,11 +126,11 @@ router.post('/ipn', async (req, res) => {
 
     const status = event.status < 0 ? 'failed' : event.status < 100 ? 'pending' : 'completed';
 
-    // turn the crypto amount into usd and then robux
+    // Convert the crypto amount to USD, then to site coins.
     const usd = event.amount * currency.price;
-    let robux = Math.floor(usd * cryptoData.robuxRate.robux / cryptoData.robuxRate.usd);
+    let coins = Math.floor(usd * cryptoData.coinRate.coins / cryptoData.coinRate.usd);
     
-    if (robux < 0.01) {
+    if (coins < 0.01) {
         console.log('Invalid event amount received');
         return res.sendStatus(200);
     }
@@ -154,16 +154,16 @@ router.post('/ipn', async (req, res) => {
 
                 userId = wallet.userId;
 
-                const [result] = await connection.query('INSERT INTO cryptoDeposits (userId, currency, cryptoAmount, fiatAmount, coinAmount, txId, status) VALUES (?, ?, ?, ?, ?, ?, ?)', [userId, currency.id, event.amount, usd, robux, event.txn_id, status]);
+                const [result] = await connection.query('INSERT INTO cryptoDeposits (userId, currency, cryptoAmount, fiatAmount, coinAmount, txId, status) VALUES (?, ?, ?, ?, ?, ?, ?)', [userId, currency.id, event.amount, usd, coins, event.txn_id, status]);
                 depositId = result.insertId;
 
                 if (status != 'completed') {
-                    io.to(userId).emit('toast', 'success', `Your crypto deposit for ${robux} coins has been detected and it\'s awaiting confirmation.`, { duration: 30000 });
-                    sendLog('cryptoDeposits', `New pending crypto deposit from *${userId}* - :robux: R$${robux} (#${depositId})`);
+                    io.to(userId).emit('toast', 'success', `Your crypto deposit for ${coins} coins has been detected and it\'s awaiting confirmation.`, { duration: 30000 });
+                    sendLog('cryptoDeposits', `New pending crypto deposit from *${userId}* - ${coins} coins (#${depositId})`);
                 }
 
             } else {
-                await connection.query('UPDATE cryptoDeposits SET status = ?, coinAmount = ?, fiatAmount = ? WHERE id = ?', [status, robux, usd, depositId]);
+                await connection.query('UPDATE cryptoDeposits SET status = ?, coinAmount = ?, fiatAmount = ? WHERE id = ?', [status, coins, usd, depositId]);
             }
 
             if (status != 'completed') {
@@ -172,25 +172,25 @@ router.post('/ipn', async (req, res) => {
             }
             
             // if (!exists) [[exists]] = await connection.query('SELECT id, userId FROM cryptoDeposits WHERE txId = ? AND currency = ?', [event.txn_id, currency.id]);
-            const [txResult] = await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [userId, robux, 'deposit', 'crypto', depositId]);
-            await activateDepositRewards(connection, userId, robux);
+            const [txResult] = await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [userId, coins, 'deposit', 'crypto', depositId]);
+            await activateDepositRewards(connection, userId, coins);
 
             if (depositBonus) {
-                const bonus = roundDecimal(robux * depositBonus);
+                const bonus = roundDecimal(coins * depositBonus);
                 await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [userId, bonus, 'in', 'deposit-bonus', txResult.insertId]);
-                robux = roundDecimal(robux + bonus);
+                coins = roundDecimal(coins + bonus);
             }
 
-            await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [robux, userId]);        
-            await newNotification(userId, 'deposit-completed', { txId: txResult.insertId, amount: robux }, connection);
+            await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [coins, userId]);        
+            await newNotification(userId, 'deposit-completed', { txId: txResult.insertId, amount: coins }, connection);
 
             await commit();
             res.sendStatus(200);
 
-            io.to(userId).emit('balance', 'add', robux);
-            io.to(userId).emit('toast', 'success', `Your deposit of ${robux} coins has been completed.`);
+            io.to(userId).emit('balance', 'add', coins);
+            io.to(userId).emit('toast', 'success', `Your deposit of ${coins} coins has been completed.`);
 
-            sendLog('cryptoDeposits', `Crypto deposit from *${userId}* confirmed - :robux: R$${robux} (#${depositId}). \`$${roundDecimal(usd)}usd\`${currency.explorer ? `\n${currency.explorer.replace('%txid%', event.txn_id)}` : ''}`);
+            sendLog('cryptoDeposits', `Crypto deposit from *${userId}* confirmed - ${coins} coins (#${depositId}). \`$${roundDecimal(usd)}usd\`${currency.explorer ? `\n${currency.explorer.replace('%txid%', event.txn_id)}` : ''}`);
 
         });
 

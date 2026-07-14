@@ -64,7 +64,7 @@ function NavBar(props) {
                                 <div class='balance'>
                                     <img class='coin' src='/assets/icons/coin.svg' height='18'/>
                                     <div class='balance-hover'>
-                                        <p class='robux'><Countup end={props?.user?.balance} gray={true}/></p>
+                                        <p class='coins'><Countup end={props?.user?.balance} gray={true}/></p>
                                         <p class='fiat'><span class='gold'>$ </span><Countup
                                             end={(props?.user?.balance || 0) * USD_PER_COIN} gray={true}/></p>
                                     </div>
@@ -268,7 +268,7 @@ function NavBar(props) {
                 cursor: pointer;
               }
 
-              .balance-hover:hover .robux {
+              .balance-hover:hover .coins {
                 opacity: 0;
               }
 
@@ -276,7 +276,7 @@ function NavBar(props) {
                 opacity: 1;
               }
 
-              .robux, .fiat {
+              .coins, .fiat {
                 transition: opacity .3s;
               }
 

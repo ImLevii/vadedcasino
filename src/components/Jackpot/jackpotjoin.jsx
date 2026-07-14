@@ -6,13 +6,13 @@ import {authedAPI} from "../../util/api";
 function JackpotJoin(props) {
 
   let slider
-  let robuxInput
+  let coinInput
 
   const MIN_BET = 1
   const MAX_BET = 100000
 
   const [coin, setCoin] = createSignal('fire')
-  const [robux, setRobux] = createSignal(MIN_BET, {equals: false})
+  const [amount, setAmount] = createSignal(MIN_BET, {equals: false})
   const [user] = useUser()
 
   function createTrail() {
@@ -23,9 +23,9 @@ function JackpotJoin(props) {
   }
 
   function resizeInput() {
-    let length = (robuxInput.value + '').length
+    let length = (coinInput.value + '').length
     let width = Math.max(12, Math.min(70, length * 10))
-    robuxInput.style.width = width + 'px'
+    coinInput.style.width = width + 'px'
   }
 
   return (
@@ -54,29 +54,29 @@ function JackpotJoin(props) {
           </div>
 
           <div class='items'>
-            <div class='robux-container'>
+            <div class='coin-amount-container'>
               <div class='coin-container'>
                 <img class='spiral' src='/assets/icons/goldspiral.png' height='90' width='90'/>
                 <img src='/assets/icons/coin.svg' height='64' width='71'/>
               </div>
 
-              <div class='robux-slider-container'>
-                <input ref={slider} type='range' class='range' value={robux()} min={0}
+              <div class='coin-slider-container'>
+                <input ref={slider} type='range' class='range' value={amount()} min={0}
                        max={Math.min(user()?.balance || MIN_BET, MAX_BET)}
                        onInput={(e) => {
                          let num = Math.max(0, Math.min(e.target.valueAsNumber, MAX_BET))
-                         setRobux(num)
+                         setAmount(num)
                          createTrail()
                        }}
                 />
               </div>
 
-              <div class='cost selected-robux'>
+              <div class='cost selected-coins'>
                 <img src='/assets/icons/coin.svg' height='16' alt=''/>
-                <input ref={robuxInput} class='robux-input' type='number' value={robux()} onInput={(e) => {
+                <input ref={coinInput} class='coin-input' type='number' value={amount()} onInput={(e) => {
                   resizeInput()
                   let num = Math.max(0, Math.min(e.target.valueAsNumber, MAX_BET))
-                  setRobux(num)
+                  setAmount(num)
                   createTrail()
                 }}/>
               </div>
@@ -91,8 +91,8 @@ function JackpotJoin(props) {
             <div class='cost'>
               <img src='/assets/icons/coin.svg' height='16' alt=''/>
               <p>
-                {Math.floor(robux())?.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}
-                <span class='gray'>.{getCents(robux())}</span>
+                {Math.floor(amount())?.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0})}
+                <span class='gray'>.{getCents(amount())}</span>
               </p>
             </div>
 
@@ -100,7 +100,7 @@ function JackpotJoin(props) {
 
             <button class='bevel-gold done' onClick={async () => {
               let res = await authedAPI('/jackpot/join', 'POST', JSON.stringify({
-                amount: robux()
+                amount: amount()
               }), true)
 
               if (res.success) {
@@ -189,12 +189,12 @@ function JackpotJoin(props) {
           padding: 0 12px;
         }
 
-        .selected-robux {
+        .selected-coins {
           width: 100%;
           height: 25px;
         }
 
-        .robux-input {
+        .coin-input {
           background: unset;
           border: unset;
           outline: unset;
@@ -339,7 +339,7 @@ function JackpotJoin(props) {
           background: unset;
         }
 
-        .robux-slider-container {
+        .coin-slider-container {
           margin-top: auto;
           border-radius: 3px;
           background: linear-gradient(0deg, rgba(31, 214, 95, 0.25) 0%, rgba(31, 214, 95, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
@@ -351,7 +351,7 @@ function JackpotJoin(props) {
           align-items: center;
         }
 
-        .robux-container {
+        .coin-amount-container {
           height: 170px;
 
           border-radius: 7px;

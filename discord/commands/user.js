@@ -6,7 +6,7 @@ const data = new SlashCommandBuilder()
 	.setDescription('Staff only. Get a Cosmic Luck user Discord linkage.')
     .addStringOption(option =>
 		option.setName('id')
-			.setDescription('Roblox username or ID, Discord mention or ID.')
+            .setDescription('Cosmic Luck username or ID, Discord mention or ID.')
             .setRequired(true)
     );
 

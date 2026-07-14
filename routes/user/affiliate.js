@@ -4,13 +4,9 @@ const router = express.Router();
 const { sql, doTransaction } = require('../../database');
 
 const { isAuthed, apiLimiter } = require('../auth/functions');
-const { roundDecimal, getRobloxApiInstance, sendLog, formatConsoleError } = require('../../utils');
+const { roundDecimal, sendLog } = require('../../utils');
 const io = require('../../socketio/server');
 const { enabledFeatures } = require('../admin/config');
-const { getAgent } = require('../../utils/proxies');
-// const { getCurrentUser } = require('../../utils/roblox');
-
-const cheerio = require('cheerio');
 
 const minClaim = 5;
 let cachedAffiliates = {};
@@ -105,7 +101,7 @@ router.post('/claim', [isAuthed, apiLimiter], async (req, res) => {
             io.to(user.id).emit('balance', 'set', roundDecimal(user.balance + unclaimedEarnings));
 
             res.json({ success: true });
-            sendLog('affiliate', `*${user.username}* (\`${user.id}\`) claimed :robux: *R$${unclaimedEarnings}* from affiliate earnings.`);
+            sendLog('affiliate', `*${user.username}* (\`${user.id}\`) claimed *${unclaimedEarnings} coins* from affiliate earnings.`);
 
         });
 
@@ -116,71 +112,10 @@ router.post('/claim', [isAuthed, apiLimiter], async (req, res) => {
 
 });
 
-const creationDates = {};
-
 router.post('/', [isAuthed, apiLimiter], async (req, res) => {
     
     const code = req.body.code?.toLowerCase().trim();
     if (!code || typeof code != 'string' || code.length < 2 || code.length > 20 || !onlyLettersAndNumbers(code)) return res.status(400).json({ error: 'INVALID_CODE' });
-
-    const [[rbxUser]] = await sql.query('SELECT id, username, balance, robloxCookie, proxy FROM users WHERE id = ?', [req.userId]);
-
-    const agent = getAgent(rbxUser.proxy);
-    const instance = getRobloxApiInstance(agent, rbxUser.robloxCookie);
-
-    // const robloxUser = await getCurrentUser(user.robloxCookie, user.proxy);
-    // if (!robloxUser) return res.status(401).json({ error: 'INVALID_ROBLOX_COOKIE' });
-
-    // if (!robloxUser.IsPremium) return res.status(400).json({ error: 'NOT_PREMIUM' });
-
-    /*
-        <meta name="user-data"
-          data-userid="4155907350"
-          data-name="CosmicLuckTest"
-          data-displayName="CosmicLuckTest"
-          data-isunder13="false" 
-          data-created="12/20/2022 11:30:23 PM" 
-          data-ispremiumuser="true"
-          data-hasverifiedbadge="false"/>
-    */
-
-    // const isPremium = data.includes('data-ispremiumuser="true"');
-    // if (!isPremium) return res.status(400).json({ error: 'NOT_PREMIUM' });
-
-    let createdAt = creationDates[req.userId];
-    
-    if (!createdAt) {
-
-        let resp;
-
-        try {
-            resp = await instance(`https://www.roblox.com/users/${req.userId}/profile`);
-        } catch (e) {
-            console.error(formatConsoleError(e));
-            return res.status(400).json({ error: 'INVALID_ROBLOX_COOKIE' });
-        }
-
-        const $ = cheerio.load(resp.data);
-        const createdAtStr = $('meta[name="user-data"]').attr('data-created');
-        // console.log(createdAtStr)
-    
-        if (!createdAtStr) {
-            // console.log(data);
-            // console.error(`Failed to get creation date for user ${req.userId}, roblox cookie probably invalid`);
-            return res.status(400).json({ error: 'INVALID_ROBLOX_COOKIE' });
-        }
-    
-        createdAt = new Date(createdAtStr);
-        creationDates[req.userId] = createdAt;
-
-        setTimeout(() => {
-            delete creationDates[req.userId];
-        }, 60000 * 5);
-    }
-
-    if (createdAt.getTime() > Date.now() - 1000 * 60 * 60 * 24 * 90) {
-        return res.status(400).json({ error: 'ROBLOX_ACCOUNT_AGE_AFFILIATE' });
-    }
 
     try {
 
@@ -230,7 +165,7 @@ router.get('/usedCode', isAuthed, async (req, res) => {
 
 });
 
-const blacklistedCodes = ['free', 'clash', '123', '1234', 'blox', 'rblxwild', 'bloxflip', 'rbxgold', 'betbux', 'freebux', 'bux'];
+const blacklistedCodes = ['free', 'clash', '123', '1234'];
 
 router.post('/code', [isAuthed, apiLimiter], async (req, res) => {
 

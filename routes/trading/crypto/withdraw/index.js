@@ -25,7 +25,7 @@ router.get('/', async (req, res) => {
     res.json({
         currencies: Object.values(withdrawalCoins),
         explorers,
-        robuxRate: cryptoData.robuxRate
+        coinRate: cryptoData.coinRate
     });
 
 });
@@ -71,7 +71,7 @@ router.post('/', isAuthed, apiLimiter, async (req, res) => {
     if (typeof req.body.amount != 'number') return res.json({ error: 'INVALID_AMOUNT' });
     const coinAmount = roundDecimal(req.body.amount);
 
-    const fiatAmount = roundDecimal((coinAmount / cryptoData.robuxRate.robux) * cryptoData.robuxRate.usd);
+    const fiatAmount = roundDecimal((coinAmount / cryptoData.coinRate.coins) * cryptoData.coinRate.usd);
     const cryptoAmount = fiatAmount / currency.price;
 
     if (cryptoAmount < chain.min) return res.json({ error: 'MIN_CRYPTO_WITHDRAWAL' });
@@ -195,14 +195,14 @@ router.post('/cancel/:id', isAuthed, apiLimiter, async (req, res) => {
             if (!transaction) return res.status(404).json({ error: 'TRANSACTION_NOT_FOUND' });
             if (transaction.status != 'pending') return res.status(400).json({ error: 'TRANSACTION_NOT_PENDING' });
 
-            await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [transaction.robuxAmount, transaction.userId]);
-            await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [transaction.userId, transaction.robuxAmount, 'in', 'crypto-cancel', id]);
-            io.to(transaction.userId).emit('balance', 'add', transaction.robuxAmount);
+            await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [transaction.coinAmount, transaction.userId]);
+            await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [transaction.userId, transaction.coinAmount, 'in', 'crypto-cancel', id]);
+            io.to(transaction.userId).emit('balance', 'add', transaction.coinAmount);
 
             await connection.query('UPDATE cryptoWithdraws SET status = ? WHERE id = ?', ['cancelled', id]);
             await commit();
 
-            sendLog('cryptoWithdraws', `Crypto withdraw cancelled by *${transaction.username}* (\`${req.userId}\`) - :robux:R$${transaction.robuxAmount} (#${id})`);
+            sendLog('cryptoWithdraws', `Crypto withdraw cancelled by *${transaction.username}* (\`${req.userId}\`) - ${transaction.coinAmount} coins (#${id})`);
             res.json({ success: true });
 
         });

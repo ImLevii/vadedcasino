@@ -46,7 +46,7 @@ router.get('/', async (req, res) => {
         maxAmount: addFees(max),
         percentFee: fees.percent,
         fixedFee: fees.fixed, 
-        rate: cryptoData.robuxRate
+        rate: cryptoData.coinRate
     });
 
 });
@@ -58,13 +58,9 @@ router.post('/', apiLimiter, isAuthed, async (req, res) => {
     let amount = req.body.amount;
     if (typeof amount !== 'number' || isNaN(amount) || amount <= 0) return res.status(400).json({ error: 'INVALID_AMOUNT' });
 
-    amount = roundDecimal((amount / cryptoData.robuxRate.robux) * cryptoData.robuxRate.usd);
+    amount = roundDecimal((amount / cryptoData.coinRate.coins) * cryptoData.coinRate.usd);
     if (amount < min) return res.status(400).json({ error: 'MIN_DEPOSIT_CC' });
     if (amount > max) return res.status(400).json({ error: 'MAX_DEPOSIT_CC' });
-
-    // let robux = Math.floor(amount * cryptoData.robuxRate.robux / cryptoData.robuxRate.usd);
-    // console.log(amount, addFees(amount), robux);
-    // return res.json({ error: 'DISABLED' });
 
     const dataToEncrypt = {
         userId: crypto.randomUUID() // req.userId
@@ -154,25 +150,25 @@ async function incomingIpn(req, res) {
                 return res.status(400).json({ error: 'INVALID_AMOUNT' });
             }
     
-            let robux = Math.floor(deposit.fiatAmount * cryptoData.robuxRate.robux / cryptoData.robuxRate.usd);
+            let coins = Math.floor(deposit.fiatAmount * cryptoData.coinRate.coins / cryptoData.coinRate.usd);
     
-            await connection.query('UPDATE cardDeposits SET robuxAmount = ?, completed = 1 WHERE orderId = ?', [robux, orderId]);
-            const [txResult] = await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [deposit.userId, robux, 'deposit', 'card', orderId]);
-            await activateDepositRewards(connection, deposit.userId, robux);
+            await connection.query('UPDATE cardDeposits SET coinAmount = ?, completed = 1 WHERE orderId = ?', [coins, orderId]);
+            const [txResult] = await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [deposit.userId, coins, 'deposit', 'card', orderId]);
+            await activateDepositRewards(connection, deposit.userId, coins);
     
             if (depositBonus) {
-                const bonus = roundDecimal(robux * depositBonus);
+                const bonus = roundDecimal(coins * depositBonus);
                 await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [deposit.userId, bonus, 'in', 'deposit-bonus', txResult.insertId]);
-                robux = roundDecimal(robux + bonus);
+                coins = roundDecimal(coins + bonus);
             }
     
-            await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [robux, deposit.userId]);
-            await newNotification(deposit.userId, 'deposit-completed', { txId: txResult.insertId, amount: robux }, connection);
+            await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [coins, deposit.userId]);
+            await newNotification(deposit.userId, 'deposit-completed', { txId: txResult.insertId, amount: coins }, connection);
     
             await commit();
 
-            io.to(deposit.userId).emit('balance', 'add', robux);
-            sendLog('cardDeposits', `*${deposit.username}* (\`${deposit.userId}\`) deposited :robux: R$${robux} ($${deposit.fiatAmount}usd) with credit card.`);
+            io.to(deposit.userId).emit('balance', 'add', coins);
+            sendLog('cardDeposits', `*${deposit.username}* (\`${deposit.userId}\`) deposited ${coins} coins ($${deposit.fiatAmount}usd) with credit card.`);
             res.json({ success: true });
 
         })

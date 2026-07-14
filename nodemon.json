@@ -10,7 +10,6 @@
   ],
   "ignore": [
     "logs/*",
-    "utils/roblox/items.json",
     "utils/proxies/*.txt",
     "node_modules",
     "src",

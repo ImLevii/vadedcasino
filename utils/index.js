@@ -86,88 +86,6 @@ function roundDecimal(amount, dec = 2) {
 
 // updateCases();
 
-function getRobloxApiInstance(httpsAgent, robloxCookie, userAgent, throwOnErrors = true) {
-
-    const instanceConfig = {
-        timeout: 8000,
-        httpsAgent,
-        headers: {
-            'User-Agent': userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36',
-            // 'Origin': 'https://www.roblox.com',
-            // 'Referer': 'https://www.roblox.com/',
-            // 'sec-ch-ua': '"Not?A_Brand";v="8", "Chromium";v="108", "Google Chrome";v="108"',
-            // 'sec-ch-ua-platform': '"Windows"',
-            // 'sec-ch-ua-mobile': '?0',
-            // 'sec-fetch-site': 'cross-site',
-            // 'sec-fetch-mode': 'cors',
-            // 'sec-fetch-dest': 'empty'
-        }
-    }
-
-    if (robloxCookie) {
-        instanceConfig.headers['Cookie'] = `.ROBLOSECURITY=${robloxCookie}`;
-    }
-
-    if (!throwOnErrors) {
-        instanceConfig.validateStatus = () => {
-            return true;
-        }
-    }
-
-    const robloxApi = axios.create(instanceConfig);
-
-    robloxApi.interceptors.request.use(config => {
-
-        if (config.method != 'get') {
-            
-            if (!Object.keys(config.headers).some(h => h.toLowerCase() == 'content-type')) {
-                config.headers['Content-Type'] = 'application/json';
-            }
-
-            if (robloxApi.csrf) {
-                // console.log('Setting csrf')
-                config.headers['X-Csrf-Token'] = robloxApi.csrf;
-            }
-
-        }
-
-        return config;
-
-    }, error => {
-        return Promise.reject(error);
-    });
-
-    robloxApi.interceptors.response.use((response) => {
-        if (response.status == 403) {
-            const retryRequest = handleCsrfError(robloxApi, response.config, response.headers);
-            if (retryRequest) return retryRequest;
-        }
-        return response;
-    }, async function (error) {
-        if (error.response && error.response.status == 403) {
-            const retryRequest = handleCsrfError(robloxApi, error.config, error.response.headers);
-            if (retryRequest) return retryRequest;
-        }
-        return Promise.reject(error);
-    });
-
-    return robloxApi;
-
-}
-
-function handleCsrfError(robloxApi, originalRequest, headers) {
-    const csrf = headers['x-csrf-token'];
-
-    if (csrf && !originalRequest._retry) {
-        originalRequest._retry = true;
-        robloxApi.csrf = csrf;
-        // console.log(originalRequest.url, 'Fetched csrf')
-        return robloxApi(originalRequest);
-    }
-
-    return null;
-}
-
 function formatConsoleError(error) {
 
     let formattedError = 'An error occurred.';
@@ -222,7 +140,6 @@ function mapUser(user) {
 const slackWebhooks = {
 	bets: 'https://hooks.slack.com/services/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',
 	highBets: 'https://hooks.slack.com/services/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',
-	robuxExchange: 'https://hooks.slack.com/services/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',
 	cryptoDeposits: 'https://hooks.slack.com/services/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',
     cryptoWithdraws: 'https://hooks.slack.com/services/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',
     cardDeposits: 'https://hooks.slack.com/services/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',
@@ -305,7 +222,6 @@ module.exports = {
     formatConsoleError,
     roundDecimal,
     mapUser,
-    getRobloxApiInstance,
     cacheRes,
     sleep,
     sendLog,

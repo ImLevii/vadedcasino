@@ -1,5 +1,4 @@
 const { sql, doTransaction } = require('../../database');
-const { items } = require('../../utils/roblox/items');
 const io = require('../../socketio/server');
 const { enabledFeatures } = require('../admin/config');
 const { sendLog } = require('../../utils');
@@ -44,16 +43,7 @@ async function cacheLeaderboards() {
     const types = Object.keys(leaderboards);
 
     if (first) {
-        
-        const sorted = Object.values(items).sort((a, b) => b.price - a.price);
         for (let i = 0; i < types.length; i++) {
-
-            leaderboards[types[i]].items = {};
-
-            for (let j = 0; j < 3; j++) {
-                leaderboards[types[i]].items[j + 1] = sorted.find(item => item.price <= leaderboards[types[i]].rewards[j + 1])?.img;
-            }
-
             await cronLeaderboard(types[i]);
             if (!leaderboards[types[i]].cache) await cacheLeaderboard(types[i]);
 
@@ -94,10 +84,6 @@ async function cacheLeaderboard(type) {
             reward: leaderboards[type].rewards[i + 1]
         }))
     }
-
-    data.users.slice(0, 3).forEach(user => {
-        user.item = leaderboards[type].items[user.position];
-    });
 
     leaderboards[type].cache = data;
     return data;
@@ -168,7 +154,7 @@ async function cronLeaderboard(type) {
         });
 
         delete leaderboards[type].cache;
-        sendLog('leaderboard', `\`${type}\` leaderboard ended.\n\n${leaderboard.users.map((u) => `${u.position}. ${u.username} (\`${u.id}\`) - :robux: R$${u.reward}.`).join('\n')}`);
+        sendLog('leaderboard', `\`${type}\` leaderboard ended.\n\n${leaderboard.users.map((u) => `${u.position}. ${u.username} (\`${u.id}\`) - ${u.reward} coins.`).join('\n')}`);
 
     } catch (e) {
         console.error(e);

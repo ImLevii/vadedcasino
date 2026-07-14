@@ -4,7 +4,7 @@ import Loader from "../Loader/loader";
 
 function CryptoDeposit(props) {
 
-    const [robux, setRobux] = createSignal(0)
+    const [coins, setCoins] = createSignal(0)
     const [dollars, setDollars] = createSignal(0)
     const [crypto, setCrypto] = createSignal(0)
     const [confirmations, setConfirmations] = createSignal(0)
@@ -18,8 +18,8 @@ function CryptoDeposit(props) {
             let res = await authedAPI('/trading/crypto/deposit/wallet', 'POST', JSON.stringify({ currency: props.currency }))
             if (!res.address) return mutate(null)
             setRates({
-                robux: res?.robuxRate?.robux || 1,
-                usd: res?.robuxRate?.usd || 0.7,
+                coins: res?.coinRate?.coins || 1,
+                usd: res?.coinRate?.usd || 0.7,
                 crypto: res.currency.price || 0,
             })
             setName(res.currency.name)
@@ -35,32 +35,32 @@ function CryptoDeposit(props) {
         }
     }
 
-    function convertAmounts(robux, dollars, crypto) {
+    function convertAmounts(coins, dollars, crypto) {
         if (!rates()) return
 
-        if (robux) {
-            dollars = Math.floor(robux / rates().robux * rates().usd * 10000) / 10000 // Round to 4 decimals
+        if (coins) {
+          dollars = Math.floor(coins / rates().coins * rates().usd * 10000) / 10000 // Round to 4 decimals
             crypto = Math.floor(dollars / rates().crypto * 1000000000) / 1000000000 // 9 decimals max
-            setRobux(robux)
+            setCoins(coins)
             setDollars(dollars)
             setCrypto(crypto)
             return
         }
 
         if (dollars) {
-            robux = Math.round(dollars / rates().usd * rates().robux * 100) / 100 // 2 decimals max
+            coins = Math.round(dollars / rates().usd * rates().coins * 100) / 100 // 2 decimals max
             crypto = Math.floor(dollars / rates().crypto * 1000000000) / 1000000000 // 9 decimals max
             setDollars(dollars)
-            setRobux(robux)
+            setCoins(coins)
             setCrypto(crypto)
             return
         }
 
         if (crypto) {
             dollars = Math.floor(crypto * rates().crypto * 10000) / 10000 // Round to 4 decimals
-            robux = Math.round(dollars / rates().usd * rates().robux * 100) / 100 // 2 decimals max
+            coins = Math.round(dollars / rates().usd * rates().coins * 100) / 100 // 2 decimals max
             setCrypto(crypto)
-            setRobux(robux)
+            setCoins(coins)
             setDollars(dollars)
             return
         }
@@ -80,7 +80,7 @@ function CryptoDeposit(props) {
                         <span class='gold'>Deposit amount: </span>
                     </p>
                     <img class='amount-chip' src='/assets/chips/chip-green-clover.png' height='22' width='22' alt=''/>
-                    <p className='white'>{robux()?.toLocaleString(undefined, {
+                    <p className='white'>{coins()?.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2
                     })}</p>
@@ -127,7 +127,7 @@ function CryptoDeposit(props) {
                             <div className='conversions'>
                                 <div className='input'>
                                   <img src='/assets/chips/chip-green-clover.png' width='24' height='24' alt=''/>
-                                    <input type='number' value={robux()}
+                                    <input type='number' value={coins()}
                                            onInput={(e) => convertAmounts(e.target.valueAsNumber, 0, 0)}/>
                                 </div>
 

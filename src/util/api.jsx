@@ -91,9 +91,9 @@ function resolveBaseUrl() {
     return configured.endsWith('/') ? configured.slice(0, -1) : configured
 }
 
-export async function api(path, method, body, notification = false, headers =  { 'Content-Type': 'application/json' }) {
+export async function api(path, method, body, notification = false, headers =  { 'Content-Type': 'application/json' }, timeout = 10000) {
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 10000)
+    const timeoutId = setTimeout(() => controller.abort(), timeout)
 
     try {
         const res = await fetch(`${resolveBaseUrl()}${normalizePath(path)}`, {
@@ -139,7 +139,7 @@ export async function authedAPI(path, method, body, notification = false) {
 }
 
 export async function fetchUser() {
-    let user = await api('/user', 'GET', null, false, { 'Authorization': getJWT() })
+    let user = await api('/user', 'GET', null, false, { 'Authorization': getJWT() }, 3000)
     return user?.error ? null : user
 }
 

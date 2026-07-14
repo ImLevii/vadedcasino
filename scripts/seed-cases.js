@@ -1,7 +1,7 @@
 /**
  * Seeds missing feature flags.
  *
- * Legacy Roblox case seeding has been disabled. Use `npm run csgo:replace-cases`
+ * Legacy case seeding has been disabled. Use `npm run csgo:replace-cases`
  * for a dry run or `npm run csgo:replace-cases -- --apply` to seed CS cases.
  */
 require('dotenv').config();
@@ -24,7 +24,7 @@ async function main() {
     console.log('=== Seeding features ===');
     await seedFeatures();
 
-    console.log('\nLegacy Roblox case seeding is disabled.');
+    console.log('\nLegacy case seeding is disabled.');
     console.log('Run `npm run csgo:replace-cases` to preview CS cases.');
     console.log('Run `npm run csgo:replace-cases -- --apply` to replace cases with CS skins.');
 

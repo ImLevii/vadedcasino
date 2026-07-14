@@ -56,8 +56,6 @@ CREATE TABLE IF NOT EXISTS `homeSlideSeedState` (
 CREATE TABLE IF NOT EXISTS `users` (
     `id`                    BIGINT UNSIGNED NOT NULL,
     `username`              VARCHAR(255)    NOT NULL DEFAULT '',
-    `robloxCookie`          TEXT            DEFAULT NULL,
-    `proxy`                 VARCHAR(512)    DEFAULT NULL,
     `passwordHash`          VARCHAR(255)    DEFAULT NULL,
     `ip`                    VARCHAR(64)     DEFAULT NULL,
     `country`               VARCHAR(8)      DEFAULT NULL,

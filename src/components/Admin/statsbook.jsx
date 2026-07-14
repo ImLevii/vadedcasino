@@ -81,7 +81,7 @@ function AdminStatsbook(props) {
                             <div className='table-header'>
                                 <div className='table-column'><p>DATE</p></div>
                                 <div className='table-column'><p>NPC</p></div>
-                                <div className='table-column'><p>COINS</p></div>
+                                <div className='table-column'><p>SKINS</p></div>
                                 <div className='table-column'><p>GIFTCARDS</p></div>
                                 <div className='table-column'><p>CRYPTO</p></div>
                                 <div className='table-column'><p>CC</p></div>
@@ -101,9 +101,9 @@ function AdminStatsbook(props) {
                                         </div>
 
                                         <div className='table-column coin-column'>
-                                            <NumberPrefix amount={stat?.coinDeposits}/>
+                                            <NumberPrefix amount={stat?.skinDeposits}/>
                                             <img src='/assets/icons/coin.svg' height='15' width='16' alt=''/>
-                                            <p className='white'>{(stat?.coinDeposits || 0)?.toLocaleString(undefined, {
+                                            <p className='white'>{(stat?.skinDeposits || 0)?.toLocaleString(undefined, {
                                                 minimumFractionDigits: 2,
                                                 maximumFractionDigits: 2
                                             })}</p>

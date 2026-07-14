@@ -29,7 +29,7 @@ router.post('/redeem', [isAuthed, apiLimiter], async (req, res) => {
             const [[user]] = await connection.query('SELECT id, username, balance FROM users WHERE id = ? FOR UPDATE', [req.userId]);
             await connection.query('UPDATE giftCards SET redeemedAt = NOW(), redeemedBy = ? WHERE id = ?', [user.id, giftCard.id]);
         
-            let amount = giftCard.usd ? roundDecimal((giftCard.amount / cryptoData.robuxRate.usd) * cryptoData.robuxRate.robux) : giftCard.amount;
+            let amount = giftCard.usd ? roundDecimal((giftCard.amount / cryptoData.coinRate.usd) * cryptoData.coinRate.coins) : giftCard.amount;
             const [txResult] = await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [user.id, amount, 'deposit', 'giftcard', giftCard.id]);
             await activateDepositRewards(connection, user.id, amount);
             
@@ -45,7 +45,7 @@ router.post('/redeem', [isAuthed, apiLimiter], async (req, res) => {
             await commit();
             io.to(user.id).emit('balance', 'set', roundDecimal(user.balance + amount));
         
-            sendLog('giftCards', `*${user.username}* (\`${user.id}\`) redeemed a :robux: R$${amount}${giftCard.usd ? ` ($${giftCard.amount}usd)` : ''} gift card: \`${code}\``);
+            sendLog('giftCards', `*${user.username}* (\`${user.id}\`) redeemed ${amount} coins${giftCard.usd ? ` ($${giftCard.amount}usd)` : ''} from gift card \`${code}\``);
             res.json({ success: true });
 
         });

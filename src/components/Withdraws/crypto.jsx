@@ -6,7 +6,7 @@ import {formatNumber} from "../../util/numbers";
 
 function CryptoWithdraw(props) {
 
-  const [robux, setRobux] = createSignal(0)
+  const [coins, setCoins] = createSignal(0)
   const [dollars, setDollars] = createSignal(0)
   const [crypto, setCrypto] = createSignal(0)
   const [rates, setRates] = createSignal({})
@@ -33,8 +33,8 @@ function CryptoWithdraw(props) {
 
       let defaultCurrency = res.currencies.find(e => e.id == 'USDT') || res.currencies[0]
       setRates({
-        robux: res?.robuxRate?.robux || 1,
-        usd: res?.robuxRate?.usd || 0.7,
+        coins: res?.coinRate?.coins || 1,
+        usd: res?.coinRate?.usd || 0.7,
       })
       setPrice(defaultCurrency.price)
       setSymbol(defaultCurrency.id)
@@ -63,32 +63,32 @@ function CryptoWithdraw(props) {
     }
   }
 
-  function convertAmounts(robux, dollars, crypto) {
+  function convertAmounts(coins, dollars, crypto) {
     if (!rates()) return
 
-    if (robux) {
-      dollars = Math.floor(robux / rates().robux * rates().usd * 10000) / 10000 // Round to 4 decimals
+    if (coins) {
+      dollars = Math.floor(coins / rates().coins * rates().usd * 10000) / 10000 // Round to 4 decimals
       crypto = Math.floor(dollars / price() * 1000000000) / 1000000000 // 9 decimals max
-      setRobux(robux)
+      setCoins(coins)
       setDollars(dollars)
       setCrypto(crypto)
       return
     }
 
     if (dollars) {
-      robux = Math.round(dollars / rates().usd * rates().robux * 100) / 100 // 2 decimals max
+      coins = Math.round(dollars / rates().usd * rates().coins * 100) / 100 // 2 decimals max
       crypto = Math.floor(dollars / price() * 1000000000) / 1000000000 // 9 decimals max
       setDollars(dollars)
-      setRobux(robux)
+      setCoins(coins)
       setCrypto(crypto)
       return
     }
 
     if (crypto) {
       dollars = Math.floor(crypto * price() * 10000) / 10000 // Round to 4 decimals
-      robux = Math.round(dollars / rates().usd * rates().robux * 100) / 100 // 2 decimals max
+      coins = Math.round(dollars / rates().usd * rates().coins * 100) / 100 // 2 decimals max
       setCrypto(crypto)
-      setRobux(robux)
+      setCoins(coins)
       setDollars(dollars)
       return
     }
@@ -108,7 +108,7 @@ function CryptoWithdraw(props) {
     setSymbol(symbol)
     setChain(coinInfo.chains[0])
     setPrice(coinInfo.price)
-    convertAmounts(robux(), 0, 0)
+    convertAmounts(coins(), 0, 0)
   }
 
   function cancelCryptoTX(id) {
@@ -137,7 +137,7 @@ function CryptoWithdraw(props) {
             <span class='gold'>Withdraw amount: </span>
           </p>
           <img src='/assets/icons/coin.svg' height='18' width='18' alt=''/>
-          <p className='white'>{robux()?.toLocaleString(undefined, {
+          <p className='white'>{coins()?.toLocaleString(undefined, {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
           })}</p>

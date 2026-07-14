@@ -4,7 +4,7 @@ import Loader from "../Loader/loader";
 
 function CreditCardDeposit(props) {
 
-  const [robux, setRobux] = createSignal(0)
+  const [coins, setCoins] = createSignal(0)
   const [dollars, setDollars] = createSignal(0)
   const [rates, setRates] = createSignal({})
   const [processing, setProcessing] = createSignal(false)
@@ -15,7 +15,7 @@ function CreditCardDeposit(props) {
       let res = await authedAPI('/trading/deposit/cc', 'GET')
 
       setRates({
-        robux: res?.rate?.robux || 1,
+        coins: res?.rate?.coins || 1,
         usd: res?.rate?.usd || 0.7,
       })
 
@@ -28,22 +28,22 @@ function CreditCardDeposit(props) {
     }
   }
 
-  function convertAmounts(robux, dollars, preFees) {
+  function convertAmounts(coins, dollars) {
     if (!rates()) return
 
-    if (robux) {
-      dollars = Math.ceil((robux / rates().robux * rates().usd * 1.035 + 0.35) * 100) / 100
+    if (coins) {
+      dollars = Math.ceil((coins / rates().coins * rates().usd * 1.035 + 0.35) * 100) / 100
 
-      setRobux(robux)
+      setCoins(coins)
       setDollars(dollars)
       return
     }
 
     if (dollars) {
-      robux = Math.ceil(((dollars / 1.035 - 0.35) / rates().usd * rates().robux) * 100) / 100;
+      coins = Math.ceil(((dollars / 1.035 - 0.35) / rates().usd * rates().coins) * 100) / 100;
 
       setDollars(dollars)
-      setRobux(robux)
+      setCoins(coins)
       return
     }
   }
@@ -58,7 +58,7 @@ function CreditCardDeposit(props) {
             <span class='gold'>Deposit amount: </span>
           </p>
           <img class='amount-chip' src='/assets/chips/chip-green-clover.png' height='22' width='22' alt=''/>
-          <p className='white'>{robux()?.toLocaleString(undefined, {
+          <p className='white'>{coins()?.toLocaleString(undefined, {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
           })}</p>
@@ -69,16 +69,16 @@ function CreditCardDeposit(props) {
         <Show when={!info.loading} fallback={<Loader/>}>
           <>
             <div className='inputs'>
-              <div className='robux-input'>
+              <div className='coin-input'>
                 <img src='/assets/chips/chip-green-clover.png' width='24' height='24' alt=''/>
-                <input type='number' value={robux()}
+                <input type='number' value={coins()}
                        onInput={(e) => convertAmounts(e.target.valueAsNumber, 0) }/>
               </div>
             </div>
 
             <div className='conversions-container'>
               <div className='rate'>
-                <p>{rates().robux} <span className='gold'>COINS</span></p>
+                <p>{rates().coins} <span className='gold'>COINS</span></p>
                 <p>=</p>
                 <p>${rates().usd?.toFixed(2)}</p>
                 <img className='coin' src='/assets/chips/chip-green.png' height='58' width='58' alt=''/>
@@ -87,7 +87,7 @@ function CreditCardDeposit(props) {
               <div className='conversions'>
                 <div className='input'>
                   <img src='/assets/chips/chip-green-clover.png' width='24' height='24' alt=''/>
-                  <input type='number' value={robux()}
+                  <input type='number' value={coins()}
                          onInput={(e) => convertAmounts(e.target.valueAsNumber, 0)}/>
                 </div>
 
@@ -105,7 +105,7 @@ function CreditCardDeposit(props) {
                 setProcessing(true)
 
                 let res = await authedAPI('/trading/deposit/cc', 'POST', JSON.stringify({
-                  amount: robux()
+                  amount: coins()
                 }), true)
 
                 if (res.url) {
@@ -202,7 +202,7 @@ function CreditCardDeposit(props) {
           justify-content: space-between;
         }
 
-        .robux-input {
+        .coin-input {
           border: unset;
           outline: unset;
           white-space: nowrap;

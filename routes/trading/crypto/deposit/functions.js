@@ -59,8 +59,8 @@ const cryptoData = {
             confirmations: 3
         }
     },
-    robuxRate: {
-        robux: 1,
+    coinRate: {
+        coins: 1,
         usd: 0.7
     }
 }

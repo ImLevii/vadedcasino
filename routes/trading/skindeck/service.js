@@ -12,7 +12,7 @@ function usdToCoins(value) {
         throw new Error('Provider value must be a positive number.');
     }
 
-    return Math.floor(value * cryptoData.robuxRate.robux / cryptoData.robuxRate.usd);
+    return Math.floor(value * cryptoData.coinRate.coins / cryptoData.coinRate.usd);
 }
 
 function serializeItems(items) {

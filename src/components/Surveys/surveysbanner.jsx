@@ -4,7 +4,6 @@ function SurveysBanner(props) {
     return (
         <>
             <div class='surveys-banner'>
-                <img src='/assets/art/robloxguy.png' width='125' height='207' alt='' class='roblox'/>
                 <img src='/assets/icons/coin.svg' height='62' width='67' class='coin one'/>
                 <img src='/assets/icons/coin2.svg' height='57' width='63' class='coin two'/>
                 <img src='/assets/icons/coin.svg' height='66' width='61' class='coin three'/>
@@ -48,11 +47,6 @@ function SurveysBanner(props) {
                 
                 padding: 30px 16px;
                 position: relative;
-              }
-              
-              .roblox {
-                position: absolute;
-                left: -20px;
               }
               
               .coin {
@@ -133,7 +127,7 @@ function SurveysBanner(props) {
               }
 
               @media only screen and (max-width: 850px) {
-                .mascot, .roblox {
+                .mascot {
                   display: none;
                 }
               }

@@ -102,7 +102,7 @@ function CoinflipModal(props) {
 
           <div class='user-items'>
             <div class='items' style={{background: 'rgba(0,0,0,0.21)'}}>
-              <div class={'robux-container ' + (isLoser(props?.cf?.ownerSide) ? 'loser' : '')}>
+              <div class={'coin-amount-container ' + (isLoser(props?.cf?.ownerSide) ? 'loser' : '')}>
                 <p>Coins</p>
 
                 <div class='coin-container'>
@@ -121,7 +121,7 @@ function CoinflipModal(props) {
 
             {opponent() ? (
               <div class='items'>
-                <div class={'robux-container ' + (isLoser(opponentCoin) ? 'loser' : '') }>
+                <div class={'coin-amount-container ' + (isLoser(opponentCoin) ? 'loser' : '') }>
                   <p>Coins</p>
 
                   <div class='coin-container'>
@@ -382,7 +382,7 @@ function CoinflipModal(props) {
           height: 35px;
         }
 
-        .robux-container {
+        .coin-amount-container {
           height: 170px;
 
           border-radius: 7px;

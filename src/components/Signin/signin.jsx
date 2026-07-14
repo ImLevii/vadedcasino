@@ -1,65 +1,26 @@
-import {createSignal, onCleanup} from "solid-js";
-import {A, useSearchParams} from "@solidjs/router";
-import {api, authedAPI, createNotification, fetchUser, getJWT} from "../../util/api";
+import {createSignal} from "solid-js";
+import {useSearchParams} from "@solidjs/router";
+import {api, authedAPI, createNotification, fetchUser} from "../../util/api";
 import {useUser} from "../../contexts/usercontextprovider";
 import Toggle from "../Toggle/toggle";
-import RobloxMFA from "../MFA/robloxmfa";
 
 function SignIn(props) {
 
-    const [searchParams, setSearchParams] = useSearchParams()
+    const [, setSearchParams] = useSearchParams()
     const [agree, setAgree] = createSignal(false)
-    const [mode, setMode] = createSignal(0)
 
     const [username, setUsername] = createSignal('')
     const [password, setPassword] = createSignal('')
 
-    const [user, { mutateUser }] = useUser()
+    const [, { mutateUser }] = useUser()
 
     const [isLoggingIn, setIsLoggingIn] = createSignal(false)
-    const [twoFactorOpen, setTwoFactorOpen] = createSignal(false)
-    const [captchaOpen, setCaptchaOpen] = createSignal(false)
 
-    const [loginId, setLoginId] = createSignal(null)
-    const [blob, setBlob] = createSignal(null)
-
-    window.addEventListener('message', handleIFrameMessage)
-
-    async function handleIFrameMessage(event) {
-        let data = event.data
-        if (!data || data.type !== 'captcha') return
-
-        let loginRes = await api('/auth/login/captcha', 'POST', JSON.stringify({
-            loginId: loginId(),
-            captchaToken: data.token
-        }), true)
-        handleLoginData(loginRes)
-
-        setCaptchaOpen(false)
-    }
-
-    async function handleLoginData(data, stayOpenOnFail) {
+    async function handleLoginData(data) {
       if (!data || data.error) {
-        cancelLogin(stayOpenOnFail)
+        cancelLogin()
         return false
       }
-
-        if (data.phase && data.phase === 'CAPTCHA') {
-            setLoginId(data.loginId)
-            setBlob(data.captcha.dxBlob)
-            setCaptchaOpen(true)
-            setTwoFactorOpen(false)
-            setIsLoggingIn(true)
-            return false
-        }
-
-        if (data.phase && data.phase === '2FA') {
-          setLoginId(data.loginId)
-            setIsLoggingIn(true)
-            setTwoFactorOpen(true)
-            setCaptchaOpen(false)
-            return false
-        }
 
         if (data.token) {
           try {
@@ -98,21 +59,13 @@ function SignIn(props) {
         return false
     }
 
-    function cancelLogin(stayOpenOnFail) {
-        if (stayOpenOnFail) return
-
-        setCaptchaOpen(false)
-        setTwoFactorOpen(false)
+    function cancelLogin() {
         setIsLoggingIn(false)
-        setLoginId(null)
-        setBlob(null)
     }
 
     function close() {
       setSearchParams({ modal: null }, { replace: true })
     }
-
-    onCleanup(() => window.removeEventListener('message', handleIFrameMessage))
 
     return (
         <>
@@ -152,7 +105,7 @@ function SignIn(props) {
                             <span class='divider-line'/>
                         </div>
 
-                        <p class='label'>ROBLOX USERNAME</p>
+                        <p class='label'>USERNAME</p>
                         <div class='input-wrap'>
                             <svg class='input-icon' width='14' height='16' viewBox='0 0 14 16' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M7 8C9.20914 8 11 6.20914 11 4C11 1.79086 9.20914 0 7 0C4.79086 0 3 1.79086 3 4C3 6.20914 4.79086 8 7 8Z' fill='currentColor'/><path d='M0 16C0 12.134 3.13401 9 7 9C10.866 9 14 12.134 14 16H0Z' fill='currentColor'/></svg>
                             <input type='text' placeholder='Enter your username' class='credentials' value={username()} onChange={(e) => setUsername(e.target.value)}/>
@@ -193,8 +146,7 @@ function SignIn(props) {
                         </button>
 
                         <div class='disclaimer'>
-                            In order for <span class='green bold'>CosmicLuck.gg</span> to operate correctly, we require access to your Roblox account login cookie.
-                            We assure you that <span class='bold white'>Cosmic Luck</span> will protect your security and never use it without your permission.
+                          Local credentials are reserved for authorized staff accounts. Players should continue with Steam or Google.
                         </div>
                     </div>
 
@@ -213,26 +165,6 @@ function SignIn(props) {
                     </div>
                 </div>
             </div>
-
-            {twoFactorOpen() && (
-                <RobloxMFA close={cancelLogin} complete={async (code) => {
-                    let loginRes = await api('/auth/login/2fa', 'POST', JSON.stringify({
-                        loginId: loginId(),
-                        code
-                    }), true)
-                    let response = handleLoginData(loginRes, true)
-                }}/>
-            )}
-
-            {captchaOpen() && (
-                <div class='modal' onClick={cancelLogin}>
-                    <div class='captcha-container' onClick={(e) => e.stopPropagation()}>
-                        <p>Solve the Captcha</p>
-                        <iframe src={`${import.meta.env.VITE_SERVER_URL}/auth/iframe?blob=${encodeURIComponent(blob())}`} width='310px' height='295px'/>
-                        <div id='captcha-div'/>
-                    </div>
-                </div>
-            )}
 
             <style jsx>{`
                 .modal {
@@ -257,23 +189,6 @@ function SignIn(props) {
                   box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(31,214,95,0.04);
                   border-radius: 18px;
                   display: flex;
-                  position: relative;
-                  overflow: hidden;
-                }
-
-                .captcha-container {
-                  max-width: 450px;
-                  color: white;
-                  width: 100%;
-                  background: #0e1116;
-                  border: 1px solid rgba(255,255,255,0.07);
-                  border-radius: 18px;
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  font-weight: 700;
-                  padding: 28px 0;
-                  gap: 24px;
                   position: relative;
                   overflow: hidden;
                 }

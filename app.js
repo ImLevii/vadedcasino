@@ -98,7 +98,7 @@ app.use(bodyParser.urlencoded({
 app.use(nocache());
 app.use(cookieParser());
 
-const authRoute = require('./routes/auth');
+const authRoute = require('./routes/auth/core');
 const userRoute = require('./routes/user');
 const itemsRoute = require('./routes/items');
 const tradingRoute = require('./routes/trading');
@@ -178,8 +178,6 @@ const { cacheJackpot } = require('./routes/games/jackpot/functions');
 const { cacheRoulette } = require('./routes/games/roulette/functions');
 const { cacheCoinflips } = require('./routes/games/coinflip/functions');
 const { cacheChannels } = require('./socketio/chat/functions');
-// const { cacheItems } = require('./utils/roblox/items');  // Removed: Roblox-specific
-// const { cacheListings } = require('./routes/trading/limiteds/functions');  // Removed: Roblox-specific
 const { cacheAdmin } = require('./routes/admin/config');
 const { cacheSlots } = require('./routes/games/slots/functions');
 const { cacheSurveys } = require('./routes/surveys/functions');
@@ -208,7 +206,6 @@ async function start() {
         cacheRoulette,
         cacheCoinflips,
         cacheChannels,
-        // cacheListings,  // Removed: Roblox-specific
         cacheAdmin,
         cacheSlots,
         cacheSurveys,

@@ -47,7 +47,7 @@ function loadServiceWithFakeDatabase(state) {
         })
     });
     replaceModule('routes/trading/crypto/deposit/functions.js', {
-        cryptoData: {robuxRate: {robux: 1, usd: 0.7}}
+        cryptoData: {coinRate: {coins: 1, usd: 0.7}}
     });
     replaceModule('routes/admin/config.js', {depositBonus: 0});
     replaceModule('routes/user/rewards/functions.js', {activateDepositRewards: async () => {}});

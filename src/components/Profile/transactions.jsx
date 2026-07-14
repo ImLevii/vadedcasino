@@ -48,9 +48,6 @@ function Transactions(props) {
             case 'site':
                 params += `&methods=${SITE_TYPES.join(',')}`
                 break
-            case 'roblox':
-                params += '&methods=robux'
-                break
             case 'crypto':
                 params += '&methods=crypto'
                 break
@@ -92,9 +89,6 @@ function Transactions(props) {
                 <div class='tabs'>
                     <button class={'bevel-light tab ' + (isActive('') ? 'active' : '')}
                             onClick={() => setSearchParams({filter: '', page: 1})}>ALL
-                    </button>
-                    <button class={'bevel-light tab ' + (isActive('roblox') ? 'active' : '')}
-                            onClick={() => setSearchParams({filter: 'roblox', page: 1})}>ROBLOX
                     </button>
                     <button class={'bevel-light tab ' + (isActive('crypto') ? 'active' : '')}
                             onClick={() => setSearchParams({filter: 'crypto', page: 1})}>CRYPTO

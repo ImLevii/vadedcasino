@@ -3,10 +3,8 @@ const router = express.Router();
 
 const { sql, doTransaction } = require('../../database');
 
-const { isAuthed, apiLimiter } = require('../auth/functions');
-const { roundDecimal, getUserLevel, sendLog, getRobloxApiInstance } = require('../../utils');
-const { getCurrentUser, getInventory, getThumbnails } = require('../../utils/roblox');
-const { getAgent } = require('../../utils/proxies');
+const { isAuthed } = require('../auth/functions');
+const { roundDecimal, getUserLevel, sendLog } = require('../../utils');
 const io = require('../../socketio/server');
 const { enabledFeatures, checkAccountLock } = require('../admin/config');
 const { getUserRakebacks } = require('./rakeback/functions');
@@ -17,6 +15,27 @@ const notificationsRoute = require('./notifications');
 const rewardsRoute = require('./rewards');
 const securityRoute = require('./security');
 
+async function getBootstrapUser(userId) {
+    try {
+        const [[user]] = await sql.query('SELECT id, role, username, balance, heldBalance, xp, anon, verified, `2fa`, steamTradeUrl, steamApiKey, selfLockUntil, soundEnabled, visualEffects, notificationsEnabled FROM users WHERE id = ?', [userId]);
+        return user;
+    } catch (error) {
+        if (error.code !== 'ER_BAD_FIELD_ERROR' && error.code !== 'SQLITE_ERROR') throw error;
+
+        const [[user]] = await sql.query('SELECT id, role, username, balance, heldBalance, xp, anon, verified, `2fa` FROM users WHERE id = ?', [userId]);
+        if (!user) return user;
+        return {
+            ...user,
+            steamTradeUrl: null,
+            steamApiKey: null,
+            selfLockUntil: null,
+            soundEnabled: 1,
+            visualEffects: 1,
+            notificationsEnabled: 1
+        };
+    }
+}
+
 router.use('/affiliate', affiliateRoute);
 router.use('/rakeback', rakebackRoute);
 router.use('/notifications', notificationsRoute);
@@ -24,26 +43,33 @@ router.use('/rewards', rewardsRoute);
 router.use('/', securityRoute);
 
 router.get('/', isAuthed, async (req, res) => {
+    try {
+        const user = await getBootstrapUser(req.userId);
+        if (!user) return res.status(404).json({ error: 'USER_NOT_FOUND' });
 
-    const [[user]] = await sql.query('SELECT id, role, username, balance, heldBalance, xp, anon, verified, `2fa`, steamTradeUrl, steamApiKey, selfLockUntil, soundEnabled, visualEffects, notificationsEnabled FROM users WHERE id = ?', [req.userId]);
-    if (!user) return res.status(404).json({ error: 'USER_NOT_FOUND' });
+        const [notifications, rakebacks] = await Promise.all([
+            sql.query('SELECT COUNT(*) as notifications FROM notifications WHERE userId = ? AND seen = 0', [req.userId])
+                .then(([[result]]) => result.notifications)
+                .catch(() => 0),
+            getUserRakebacks(req.userId).catch(() => ({}))
+        ]);
 
-    const [[{ notifications }]] = await sql.query('SELECT COUNT(*) as notifications FROM notifications WHERE userId = ? AND seen = 0', [req.userId]);
-    user.notifications = notifications;
+        user.notifications = notifications;
+        user.rewards = Object.values(rakebacks).filter(entry => entry?.canClaim).length;
+        user.has2fa = !!user['2fa'];
+        delete user['2fa'];
 
-    user.has2fa = !!user['2fa'];
-    delete user['2fa'];
+        user.hasTradeUrl = !!user.steamTradeUrl;
+        delete user.steamTradeUrl;
 
-    user.hasTradeUrl = !!user.steamTradeUrl;
-    delete user.steamTradeUrl;
+        user.hasApiKey = !!user.steamApiKey;
+        delete user.steamApiKey;
 
-    user.hasApiKey = !!user.steamApiKey;
-    delete user.steamApiKey;
-
-    const rakebacks = await getUserRakebacks(req.userId);
-    user.rewards = Object.values(rakebacks).filter(e => e.canClaim).length;
-
-    res.json(user);
+        return res.json(user);
+    } catch (error) {
+        console.error('User bootstrap failed:', error.code || 'UNKNOWN', error.message);
+        return res.status(500).json({ error: 'INTERNAL_ERROR' });
+    }
 
 });
 
@@ -86,40 +112,9 @@ router.post('/settings', isAuthed, async (req, res) => {
 
 });
 
-router.get('/roblox', [isAuthed, apiLimiter], async (req, res) => {
-
-    const [[user]] = await sql.query('SELECT id, robloxCookie, proxy FROM users WHERE id = ?', [req.userId]);
-    const robloxUser = await getCurrentUser(user.robloxCookie, user.proxy);
-    if (!robloxUser) return res.status(401).json({ error: 'INVALID_ROBLOX_COOKIE' });
-
-    res.json(robloxUser);
-
-});
-
-router.get('/inventory', [isAuthed, apiLimiter], async (req, res) => {
-
-    const [[user]] = await sql.query('SELECT id, robloxCookie, proxy FROM users WHERE id = ?', [req.userId]);
-
-    const agent = getAgent(user.proxy);
-    const instance = getRobloxApiInstance(agent, user.robloxCookie);
-    
-    let inventory = await getInventory(user.id, instance);
-    if (!inventory) return res.status(401).json({ error: 'INVALID_ROBLOX_COOKIE' });
-
-    const [userListings] = await sql.query('SELECT id FROM marketplaceListings WHERE sellerId = ? AND status = ?', [user.id, 'active']);
-
-    if (userListings.length) {
-        const [listedItems] = await sql.query('SELECT userAssetId FROM marketplaceListingItems WHERE marketplaceListingId IN(?)', [userListings.map(e => e.id)]);
-        inventory = inventory.filter(item => !listedItems.some(e => e.userAssetId == item.userAssetId));
-    }
-
-    res.json(inventory);
-
-});
-
 const resultsPerPage = 10;
 const allowedTypes = ['deposit', 'withdraw', 'in', 'out'];
-const allowedMethods = ['rakeback', 'robux', 'tip', 'promo', 'affiliate', 'giftcard', 'crypto', 'skindeck', 'skindeck-hold', 'skindeck-refund', 'rain', 'daily-case', 'deposit-case', 'supercharge'];
+const allowedMethods = ['rakeback', 'tip', 'promo', 'affiliate', 'giftcard', 'crypto', 'skindeck', 'skindeck-hold', 'skindeck-refund', 'rain', 'daily-case', 'deposit-case', 'supercharge'];
 
 router.get('/transactions', isAuthed, async (req, res) => {
 

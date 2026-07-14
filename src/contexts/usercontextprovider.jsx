@@ -12,7 +12,7 @@ export function UserProvider(props) {
             console.warn('Startup auth timed out, releasing loading screen.')
             setFetched(true)
         }
-    }, 12000)
+    }, 3000)
 
     onCleanup(() => clearTimeout(failSafe))
 
