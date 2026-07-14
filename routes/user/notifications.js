@@ -17,6 +17,14 @@ router.get('/', [isAuthed, apiLimiter], async (req, res) => {
 
 });
 
+router.delete('/', [isAuthed, apiLimiter], async (req, res) => {
+
+    const [result] = await sql.query('UPDATE notifications SET deleted = 1 WHERE userId = ? AND deleted = 0', [req.userId]);
+    io.to(req.userId).emit('notifications', 'set', 0);
+    res.json({ success: true, cleared: result.affectedRows });
+
+});
+
 router.delete('/:id', [isAuthed], async (req, res) => {
 
     const [[notification]] = await sql.query('SELECT id FROM notifications WHERE id = ? AND userId = ? AND deleted = 0', [req.params.id, req.userId]);
