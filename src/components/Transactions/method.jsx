@@ -39,8 +39,13 @@ function Method(props) {
                 padding: 12px 14px;
 
                 border-radius: 8px;
-                background: #16181f;
-                border: 1px solid rgba(255, 255, 255, 0.05);
+                background:
+                  radial-gradient(100% 120% at 0 0, rgba(255,255,255,.035), transparent 58%),
+                  linear-gradient(145deg, rgba(24,31,42,.74), rgba(10,14,20,.82));
+                border: 1px solid var(--glass-border);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 8px 24px rgba(0,0,0,.16);
+                backdrop-filter: blur(10px) saturate(115%);
+                -webkit-backdrop-filter: blur(10px) saturate(115%);
 
                 cursor: pointer;
                 position: relative;
@@ -49,15 +54,19 @@ function Method(props) {
 
               .method-container:not(.disabled):hover {
                 border-color: rgba(31, 214, 95, 0.45);
-                background: #1a1d25;
+                background:
+                  radial-gradient(100% 130% at 0 0, rgba(31,214,95,.09), transparent 60%),
+                  linear-gradient(145deg, rgba(27,36,46,.88), rgba(11,16,22,.92));
                 transform: translateY(-2px);
                 box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
               }
 
               .method-container.active {
                 border-color: var(--gold);
-                background: #1a1d25;
-                box-shadow: 0 0 0 1px rgba(31, 214, 95, 0.35), 0 6px 18px rgba(0, 0, 0, 0.35);
+                background:
+                  radial-gradient(100% 130% at 0 0, rgba(31,214,95,.12), transparent 62%),
+                  linear-gradient(145deg, rgba(25,34,43,.92), rgba(9,14,19,.95));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 0 0 1px rgba(31, 214, 95, 0.16), 0 10px 26px rgba(0, 0, 0, 0.3), 0 0 20px rgba(31,214,95,.045);
               }
 
               .method-container.disabled {
@@ -72,8 +81,9 @@ function Method(props) {
                 min-width: 56px;
 
                 border-radius: 7px;
-                background: #0d0f13;
-                border: 1px solid rgba(255, 255, 255, 0.04);
+                background: rgba(3, 7, 11, .52);
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
 
                 display: flex;
                 align-items: center;
@@ -134,11 +144,13 @@ function Method(props) {
               .badge.good {
                 color: var(--gold);
                 background: rgba(31, 214, 95, 0.12);
+                border: 1px solid rgba(31,214,95,.11);
               }
 
               .badge.neutral {
                 color: #9aa3b2;
                 background: rgba(255, 255, 255, 0.06);
+                border: 1px solid rgba(255,255,255,.05);
               }
             `}</style>
         </>

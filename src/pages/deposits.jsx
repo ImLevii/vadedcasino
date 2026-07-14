@@ -239,7 +239,7 @@ function Deposits(props) {
           overflow-y: scroll;
 
           box-sizing: border-box;
-          padding: 30px 0 90px 0;
+          padding: 30px 18px 90px;
           margin: 0 auto;
           scrollbar-color: transparent transparent;
         }
@@ -256,6 +256,13 @@ function Deposits(props) {
           flex-wrap: wrap;
 
           margin-bottom: 34px;
+          padding: 16px;
+          border: 1px solid var(--glass-border);
+          border-radius: 9px;
+          background: linear-gradient(145deg, rgba(22,29,39,.72), rgba(8,12,18,.78));
+          box-shadow: inset 0 1px 0 var(--glass-highlight), 0 12px 30px rgba(0,0,0,.2);
+          backdrop-filter: blur(12px) saturate(120%);
+          -webkit-backdrop-filter: blur(12px) saturate(120%);
         }
 
         .code-wrapper, .country-wrapper {
@@ -285,19 +292,21 @@ function Deposits(props) {
           padding: 0 12px;
 
           border-radius: 6px;
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          background: #0d0f13;
+          border: 1px solid rgba(255, 255, 255, 0.09);
+          background: rgba(4, 8, 13, .58);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
 
           color: #fff;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 13px;
           font-weight: 600;
           outline: none;
-          transition: border-color .18s ease;
+          transition: border-color .18s ease, box-shadow .18s ease;
         }
 
         .code-input input:focus {
           border-color: rgba(31, 214, 95, 0.5);
+          box-shadow: 0 0 0 3px rgba(31,214,95,.06);
         }
 
         .code-input input::placeholder {
@@ -311,6 +320,7 @@ function Deposits(props) {
           border: unset;
           border-radius: 6px;
           background: var(--gold);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 2px 0 #0d8034;
 
           color: #0c2e18;
           font-family: Geogrotesque Wide, sans-serif;
@@ -333,8 +343,9 @@ function Deposits(props) {
           padding: 0 12px;
 
           border-radius: 6px;
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          background: #0d0f13;
+          border: 1px solid rgba(255, 255, 255, 0.09);
+          background: rgba(4, 8, 13, .82);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
 
           color: #fff;
           font-family: Geogrotesque Wide, sans-serif;
@@ -354,6 +365,16 @@ function Deposits(props) {
           font-size: 17px;
           font-weight: 700;
           margin: 0 0 14px 0;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        h2::after {
+          content: '';
+          flex: 1;
+          height: 1px;
+          background: linear-gradient(90deg, rgba(255,255,255,.09), transparent 85%);
         }
 
         .bar {
@@ -385,8 +406,9 @@ function Deposits(props) {
           justify-content: center;
 
           border-radius: 8px;
-          border: 1px dashed rgba(255, 255, 255, 0.06);
-          background: rgba(13, 15, 19, 0.4);
+          border: 1px solid var(--glass-border);
+          background: linear-gradient(145deg, rgba(20,27,36,.58), rgba(8,12,18,.68));
+          box-shadow: inset 0 1px 0 var(--glass-highlight);
 
           color: #8b92a0;
           font-family: Geogrotesque Wide, sans-serif;
@@ -406,6 +428,7 @@ function Deposits(props) {
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 13px;
           font-weight: 600;
+          padding: 12px;
         }
 
         .support {
@@ -416,9 +439,10 @@ function Deposits(props) {
           align-items: center;
           justify-content: center;
 
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.09);
           border-radius: 6px;
-          background: #16181f;
+          background: linear-gradient(145deg, rgba(29,37,49,.8), rgba(12,17,24,.86));
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
           cursor: pointer;
           transition: border-color .18s ease;
         }
@@ -508,6 +532,37 @@ function Deposits(props) {
 
           .deposits-container {
             padding-bottom: 90px;
+          }
+        }
+
+        @media only screen and (max-width: 600px) {
+          .deposits-container {
+            padding: 18px 12px 90px;
+          }
+
+          .top-bar {
+            align-items: stretch;
+            padding: 14px;
+          }
+
+          .code-wrapper, .country-wrapper {
+            width: 100%;
+          }
+
+          .code-input input, .country-wrapper select {
+            width: 100%;
+          }
+
+          .code-input input {
+            min-width: 0;
+          }
+
+          .section {
+            margin-bottom: 24px;
+          }
+
+          .methods {
+            grid-template-columns: 1fr;
           }
         }
       `}</style>
