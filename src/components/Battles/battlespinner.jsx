@@ -85,7 +85,7 @@ function BattleSpinner(props) {
 
     const center = viewport.clientHeight / 2
     const startPosition = Math.max(0, startItem.offsetTop + (startItem.offsetHeight / 2) - center)
-    const landingOffset = getRandomNumber(-36, 36, chanceObj)
+    const landingOffset = getRandomNumber(-20, 20, chanceObj)
     const endPosition = winnerItem.offsetTop + (winnerItem.offsetHeight / 2) - center + landingOffset
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const duration = reducedMotion ? 1 : 5000
@@ -97,11 +97,12 @@ function BattleSpinner(props) {
     spinner.animate(
       [
         { transform: `translateY(-${startPosition}px)` },
+        { transform: `translateY(-${endPosition + 10}px)`, offset: .94 },
         { transform: `translateY(-${endPosition}px)` }
       ],
       {
         duration,
-        easing: 'cubic-bezier(.08,.72,.16,1)',
+        easing: 'cubic-bezier(.08,.7,.14,1)',
         fill: 'forwards'
       }
     )
@@ -214,6 +215,7 @@ function BattleSpinner(props) {
               <Index each={items()}>{(item, index) => (
                 <BattleSpinnerItem
                   img={item()?.img}
+                  name={item()?.name}
                   price={item()?.price}
                   index={index}
                 />
@@ -445,7 +447,7 @@ function BattleSpinner(props) {
         }
 
         .spinner-column {
-          max-width: 260px;
+          max-width: none;
           width: 100%;
           height: 100%;
           position: relative;
@@ -457,7 +459,7 @@ function BattleSpinner(props) {
           align-items: center;
 
           overflow: hidden;
-          background: radial-gradient(90% 52% at 50% 50%, rgba(31, 214, 95, 0.045), rgba(31, 214, 95, 0) 62%);
+          background: radial-gradient(94% 48% at 50% 50%, rgba(31, 214, 95, 0.075), rgba(31, 214, 95, 0) 68%);
         }
 
         .spinner-column:before {
@@ -465,8 +467,8 @@ function BattleSpinner(props) {
           position: absolute;
           inset: 0;
           z-index: -1;
-          background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.045), rgba(255,255,255,0));
-          opacity: 0.45;
+          background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.04) 50%, rgba(255,255,255,0));
+          opacity: 0.55;
         }
 
         .center-band {
@@ -474,71 +476,70 @@ function BattleSpinner(props) {
           left: 0;
           right: 0;
           top: 50%;
-          height: 104px;
-          transform: translateY(-52px);
+          height: 122px;
+          transform: translateY(-61px);
           pointer-events: none;
           z-index: 1;
-          background: linear-gradient(180deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.11), rgba(31, 214, 95, 0));
-          box-shadow: inset 0 1px 0 rgba(31, 214, 95, 0.1), inset 0 -1px 0 rgba(31, 214, 95, 0.1), 0 0 52px rgba(31, 214, 95, 0.14);
+          border-top: 1px solid rgba(31,214,95,.22);
+          border-bottom: 1px solid rgba(31,214,95,.22);
+          background: linear-gradient(180deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.13) 48%, rgba(31, 214, 95, 0));
+          box-shadow: inset 0 1px 0 rgba(31, 214, 95, 0.08), inset 0 -1px 0 rgba(31, 214, 95, 0.08), 0 0 52px rgba(31, 214, 95, 0.16);
           animation: battleCenterGlow 2.8s ease-in-out infinite;
         }
 
         .center-line {
           position: absolute;
-          left: 12px;
-          right: 12px;
+          left: 22px;
+          right: 22px;
           top: 50%;
           height: 2px;
           transform: translateY(-1px);
           z-index: 4;
           pointer-events: none;
-          background: linear-gradient(90deg, transparent, rgba(31, 214, 95, 0.32) 12%, #1fd65f 42%, #1fd65f 58%, rgba(31, 214, 95, 0.32) 88%, transparent);
-          box-shadow: 0 0 14px rgba(31, 214, 95, 0.75), 0 0 30px rgba(31, 214, 95, 0.26);
+          background: linear-gradient(90deg, transparent, rgba(31, 214, 95, 0.22) 16%, #1fd65f 48%, #1fd65f 52%, rgba(31, 214, 95, 0.22) 84%, transparent);
+          box-shadow: 0 0 12px rgba(31, 214, 95, 0.6), 0 0 24px rgba(31, 214, 95, 0.2);
         }
 
         .battle-arrow {
           position: absolute;
           top: 50%;
-          width: 0;
-          height: 0;
-          z-index: 5;
+          width: 19px;
+          height: 38px;
+          z-index: 6;
           pointer-events: none;
-          filter: drop-shadow(0 0 12px rgba(31, 214, 95, 0.85));
+          background: #1fd65f;
+          box-shadow: 0 0 16px rgba(31, 214, 95, .55);
         }
 
         .battle-arrow-left {
           left: 7px;
           transform: translateY(-50%);
-          border-top: 8px solid transparent;
-          border-bottom: 8px solid transparent;
-          border-left: 11px solid #1fd65f;
+          clip-path: polygon(0 0, 58% 0, 100% 50%, 58% 100%, 0 100%);
         }
 
         .battle-arrow-right {
           right: 7px;
           transform: translateY(-50%);
-          border-top: 8px solid transparent;
-          border-bottom: 8px solid transparent;
-          border-right: 11px solid #1fd65f;
+          clip-path: polygon(42% 0, 100% 0, 100% 100%, 42% 100%, 0 50%);
         }
 
         .fade-top, .fade-bottom {
           position: absolute;
           left: 0;
           width: 100%;
-          height: 26%;
+          height: 20%;
           z-index: 3;
           pointer-events: none;
         }
 
         .fade-top {
           top: 0;
-          background: linear-gradient(180deg, #06080e 0%, rgba(6, 8, 14, 0.82) 38%, transparent 100%);
+          background: linear-gradient(180deg, #06080e 0%, rgba(6, 8, 14, 0.68) 42%, transparent 100%);
         }
 
         .fade-bottom {
           bottom: 0;
-          background: linear-gradient(0deg, #06080e 0%, rgba(6, 8, 14, 0.82) 38%, transparent 100%);
+          background: linear-gradient(0deg, #06080e 0%, rgba(6, 8, 14, 0.68) 42%, transparent 100%);
         }
 
         .bar {
@@ -556,7 +557,7 @@ function BattleSpinner(props) {
 
           display: flex;
           flex-direction: column;
-          gap: 24px;
+          gap: 18px;
 
           position: absolute;
           top: 0px;

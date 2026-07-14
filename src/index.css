@@ -384,6 +384,42 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 
+/* Native dropdown menus inherit the app palette instead of opening as white OS menus. */
+select {
+  color-scheme: dark;
+  color: #dce2e9;
+  background-color: #111720;
+  border-color: rgba(255, 255, 255, 0.08);
+  font-family: "Geogrotesque Wide", sans-serif;
+}
+
+select:hover {
+  border-color: rgba(31, 214, 95, 0.28);
+}
+
+select:focus-visible {
+  outline: 2px solid rgba(31, 214, 95, 0.2);
+  outline-offset: 1px;
+}
+
+select option,
+select optgroup {
+  color: #dce2e9;
+  background-color: #111720;
+  font-family: "Geogrotesque Wide", sans-serif;
+}
+
+select option:checked {
+  color: #07180d;
+  background: #1fd65f linear-gradient(0deg, #1fd65f, #1fd65f);
+}
+
+select:disabled {
+  color: #697382;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 /* ─── Global mobile responsiveness ────────────────────────────────────────── */
 @media only screen and (max-width: 768px) {
   /* Prevent iOS Safari from zooming into focused inputs (requires >=16px) */

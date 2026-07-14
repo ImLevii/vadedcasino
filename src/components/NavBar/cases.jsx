@@ -4,7 +4,7 @@ import {A} from "@solidjs/router";
 
 const CASE_LINKS = [
     {name: 'CASE OPENING', href: '/cases', img: '/assets/thumbnails/caseopening.jpeg'},
-    {name: 'CASE BATTLES', href: '/battles', img: '/assets/thumbnails/casebattle.jpeg'},
+  {name: 'CASE BATTLES', href: '/battles', img: '/assets/thumbnails/casebattles.jpeg'},
     {name: 'DAILY CASES', href: '/rewards/daily', img: '/assets/thumbnails/dailycases.jpeg'},
     {name: 'SUPERCHARGE CASES', href: '/rewards/supercharge', img: '/assets/thumbnails/superchargecases.jpeg'},
 ]

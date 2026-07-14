@@ -55,13 +55,19 @@ function SpinnerDecoration(props) {
           height: 100%;
           position: absolute;
           transform: rotate(180deg);
-          right: 10px;
+          right: 3px;
+          z-index: 1;
+          opacity: .3;
+          pointer-events: none;
         }
 
         .left-dec {
           height: 100%;
           position: absolute;
-          left: 10px;
+          left: 3px;
+          z-index: 1;
+          opacity: .3;
+          pointer-events: none;
         }
 
         @media only screen and (max-width: 1040px) {

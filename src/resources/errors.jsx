@@ -136,5 +136,6 @@ export const errors = {
     INVALID_MINES_COUNT: "The amount of mines you entered is invalid.",
     NO_MINES_GAME_ACTIVE: "You don't have an active game.",
     ALREADY_REVEALED: "This tile has already been revealed.",
-    NO_REVEALED_TILES: "You need to reveal at least one tile."
+    NO_REVEALED_TILES: "You need to reveal at least one tile.",
+    CASHOUT_IN_PROGRESS: "Your cashout is already being processed."
 }

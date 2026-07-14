@@ -20,7 +20,7 @@ router.use((req, res, next) => {
 router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
 
     if (crash.round.startedAt) return res.json({ error: 'ALREADY_STARTED' });
-    if (crash.bets.find(bet => bet.user.id === req.userId)) return res.json({ error: 'ALREADY_JOINED' });
+    if (crash.bets.find(bet => String(bet.user.id) === String(req.userId))) return res.json({ error: 'ALREADY_JOINED' });
 
     const amount = roundDecimal(req.body.amount);
 
@@ -93,16 +93,17 @@ router.post('/cashout', isAuthed, apiLimiter, async (req, res) => {
     if (!crash.round.startedAt) return res.json({ error: 'NOT_STARTED' });
     if (crash.round.endedAt) return res.json({ error: 'ALREADY_ENDED' });
 
-    const bet = crash.bets.find(bet => bet.user.id === req.userId);
+    const bet = crash.bets.find(bet => String(bet.user.id) === String(req.userId));
     if (!bet) return res.json({ error: 'NOT_JOINED' });
+    if (bet.processingCashout) return res.json({ error: 'CASHOUT_IN_PROGRESS' });
 
     const currentPoint = crash.round.currentMultiplier;
     
     if (!currentPoint || currentPoint < 1.01) return res.json({ error: 'INVALID_CASHOUT' });
     if (bet.cashoutPoint || (bet.autoCashoutPoint && (currentPoint >= bet.autoCashoutPoint))) return res.json({ error: 'ALREADY_CASHED_OUT' });
 
-    bet.cashoutPoint = currentPoint;
-    bet.winnings = capWinnings(bet.amount, currentPoint);
+    const winnings = capWinnings(bet.amount, currentPoint);
+    bet.processingCashout = true;
 
     try {
 
@@ -111,15 +112,19 @@ router.post('/cashout', isAuthed, apiLimiter, async (req, res) => {
             const [[user]] = await connection.query('SELECT id, username, balance, xp, anon FROM users WHERE id = ?', [req.userId]);
 
             await connection.query('UPDATE crashBets SET cashoutPoint = ? WHERE id = ?', [currentPoint, bet.id]);
-            await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [bet.winnings, user.id]);
-            await connection.query('UPDATE bets SET completed = 1, winnings = ? WHERE game = ? AND gameId = ?', [bet.winnings, 'crash', bet.id]);
+            await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [winnings, user.id]);
+            await connection.query('UPDATE bets SET completed = 1, winnings = ? WHERE game = ? AND gameId = ?', [winnings, 'crash', bet.id]);
 
             await commit();
             return user;
 
         });
 
-        io.to(user.id).emit('balance', 'set', roundDecimal(user.balance + bet.winnings));
+        bet.cashoutPoint = currentPoint;
+        bet.winnings = winnings;
+        bet.processingCashout = false;
+
+        io.to(user.id).emit('balance', 'set', roundDecimal(user.balance + winnings));
 
         io.to('crash').emit('crash:cashout', {
             id: bet.id,
@@ -138,6 +143,7 @@ router.post('/cashout', isAuthed, apiLimiter, async (req, res) => {
         res.json({ success: true });
 
     } catch (e) {
+        bet.processingCashout = false;
         console.error(e);
         return res.status(500).json({ error: 'INTERNAL_ERROR' });
     }

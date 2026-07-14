@@ -26,6 +26,8 @@ function Crash(props) {
   const [countdown, setCountdown] = createSignal(0);
   const [isFlying, setIsFlying] = createSignal(false);
   const [isCrashed, setIsCrashed] = createSignal(false);
+  const [betQueued, setBetQueued] = createSignal(false);
+  const [pendingAction, setPendingAction] = createSignal('');
 
   // Animation state
   let animationFrame = null;
@@ -119,6 +121,8 @@ function Crash(props) {
         setPot(data.pot || 0);
         setBets(data.bets || []);
         setRound(data.round);
+        setBetQueued((data.bets || []).some((bet) => String(bet.user?.id) === String(props.user?.id)));
+        setPendingAction('');
 
         if (data.round?.status === 'created') {
           // Waiting state
@@ -150,6 +154,8 @@ function Crash(props) {
       ws().on('crash:new', (data) => {
         setRound({ id: data.id, status: 'created', serverSeedHash: data.serverSeedHash });
         setBets([]);
+        setBetQueued(false);
+        setPendingAction('');
         setIsFlying(false);
         setIsCrashed(false);
         setMultiplier(1.00);
@@ -159,6 +165,10 @@ function Crash(props) {
 
       ws().on('crash:bets', (newBets) => {
         setBets(prev => [...newBets, ...prev]);
+        if (newBets.some((bet) => String(bet.user?.id) === String(props.user?.id))) {
+          setBetQueued(true);
+          setPendingAction('');
+        }
       });
 
       ws().on('crash:start', (data) => {
@@ -186,6 +196,7 @@ function Crash(props) {
           };
           setBets(updated);
         }
+        if (myBet()?.id === data.id) setPendingAction('');
       });
 
       ws().on('crash:end', (data) => {
@@ -234,7 +245,7 @@ function Crash(props) {
 
   // Find user's active bet
   function myBet() {
-    return bets().find(b => b.user?.id === props.user?.id);
+    return bets().find(b => String(b.user?.id) === String(props.user?.id));
   }
 
   function hasActiveBet() {
@@ -243,6 +254,8 @@ function Crash(props) {
   }
 
   async function placeBet() {
+    if (pendingAction() || isFlying() || isCrashed() || countdown() <= 0 || betQueued() || myBet()) return;
+
     const amount = parseFloat(betAmount());
     const autoCashoutPoint = autoCashout() ? parseFloat(autoCashout()) : null;
     
@@ -256,14 +269,32 @@ function Crash(props) {
       return;
     }
 
-    await authedAPI('/crash/bet', 'POST', JSON.stringify({ 
-      amount, 
-      autoCashoutPoint 
+    if (autoCashoutPoint !== null && (!Number.isFinite(autoCashoutPoint) || autoCashoutPoint < 1.01)) {
+      createNotification('error', 'Auto cashout must be at least 1.01x');
+      return;
+    }
+
+    setPendingAction('bet');
+    const response = await authedAPI('/crash/bet', 'POST', JSON.stringify({
+      amount,
+      autoCashoutPoint
     }), true);
+
+    if (response?.success) {
+      setBetQueued(true);
+      createNotification('success', `Bet queued for ${amount.toFixed(2)} coins`);
+    }
+    setPendingAction('');
   }
 
   async function cashout() {
-    await authedAPI('/crash/cashout', 'POST', null, true);
+    if (pendingAction() || !isFlying() || !hasActiveBet()) return;
+    setPendingAction('cashout');
+    const response = await authedAPI('/crash/cashout', 'POST', null, true);
+    if (response?.success) {
+      createNotification('success', `Cashed out at ${multiplier().toFixed(2)}x`);
+    }
+    setPendingAction('');
   }
 
   function adjustBet(type) {
@@ -292,6 +323,18 @@ function Crash(props) {
 
   function getButtonState() {
     const bet = myBet();
+
+    if (!props.user) {
+      return { text: 'Sign in to play', style: 'disabled', action: null };
+    }
+
+    if (pendingAction() === 'bet') {
+      return { text: 'Placing bet...', style: 'disabled', action: null };
+    }
+
+    if (pendingAction() === 'cashout') {
+      return { text: `Cashing out ${multiplier().toFixed(2)}x`, style: 'cashout pending', action: null };
+    }
     
     if (isFlying() && hasActiveBet()) {
       return { text: `Cashout ${multiplier().toFixed(2)}x`, style: 'cashout', action: cashout };
@@ -302,7 +345,15 @@ function Crash(props) {
     }
     
     if (isCrashed()) {
-      return { text: 'Play', style: 'play', action: placeBet };
+      return { text: 'Next round soon', style: 'disabled', action: null };
+    }
+
+    if (betQueued() || bet) {
+      return { text: 'Bet placed', style: 'queued', action: null };
+    }
+
+    if (countdown() <= 0) {
+      return { text: 'Starting round...', style: 'disabled', action: null };
     }
     
     // Waiting for round start
@@ -316,7 +367,26 @@ function Crash(props) {
       <Title>Cosmic Luck | Crash</Title>
 
       <div class='crash-container fadein'>
-        <CrashHistory history={history()} />
+        <header class='crash-header'>
+          <div class='header-copy'>
+            <span class='eyebrow'>Cosmic Luck original</span>
+            <h1>Crash</h1>
+            <p>Lock in a bet before launch and cash out before the flight ends.</p>
+          </div>
+
+          <div class={'round-status ' + (isFlying() ? 'live' : isCrashed() ? 'crashed' : 'waiting')}>
+            <span class='status-dot'/>
+            <div>
+              <span>Round {round()?.id ? `#${round().id}` : ''}</span>
+              <strong>{isFlying() ? 'In flight' : isCrashed() ? 'Round crashed' : 'Betting open'}</strong>
+            </div>
+          </div>
+        </header>
+
+        <section class='history-panel'>
+          <span class='section-label'>Recent rounds</span>
+          <CrashHistory history={history()} />
+        </section>
 
         <div class='crash-main'>
           <CrashPlayerList bets={bets()} isCrashed={isCrashed()} userId={props.user?.id} />
@@ -330,82 +400,240 @@ function Crash(props) {
           />
         </div>
 
-        <div class='crash-bet-bar'>
-          <div class='bet-input-wrapper'>
-            <img src='/assets/icons/coin.svg' height='14' width='14' alt='' />
-            <input
-              type='number'
-              placeholder='Play Amount'
-              value={betAmount()}
-              onInput={(e) => setBetAmount(e.target.value)}
-            />
+        <section class='crash-bet-bar'>
+          <div class='control-group amount-group'>
+            <label>Bet amount</label>
+            <div class='control-row'>
+              <div class='bet-input-wrapper'>
+                <img src='/assets/chips/chip-green.png' height='18' width='18' alt='' />
+                <input
+                  type='number'
+                  min={config().minBet}
+                  max={config().maxBet}
+                  step='0.01'
+                  placeholder={config().minBet.toFixed(2)}
+                  value={betAmount()}
+                  onInput={(e) => setBetAmount(e.target.value)}
+                  disabled={betQueued() || isFlying() || isCrashed()}
+                />
+              </div>
+
+              <div class='quick-bets' aria-label='Bet amount shortcuts'>
+                <button class='bet-btn' onClick={() => adjustBet('min')}>Min</button>
+                <button class='bet-btn' onClick={() => adjustBet('max')}>Max</button>
+                <button class='bet-btn' onClick={() => adjustBet('+1')}>+1</button>
+                <button class='bet-btn' onClick={() => adjustBet('+10')}>+10</button>
+                <button class='bet-btn' onClick={() => adjustBet('/2')}>1/2</button>
+                <button class='bet-btn' onClick={() => adjustBet('x2')}>x2</button>
+              </div>
+            </div>
           </div>
 
-          <button class='bevel-light bet-btn' onClick={() => adjustBet('min')}>Min</button>
-          <button class='bevel-light bet-btn' onClick={() => adjustBet('max')}>Max</button>
-          <button class='bevel-light bet-btn' onClick={() => adjustBet('+1')}>+1</button>
-          <button class='bevel-light bet-btn' onClick={() => adjustBet('+10')}>+10</button>
-          <button class='bevel-light bet-btn' onClick={() => adjustBet('/2')}>1/2</button>
-          <button class='bevel-light bet-btn' onClick={() => adjustBet('x2')}>x2</button>
-
-          <div class='bet-input-wrapper auto-cashout'>
-            <input
-              type='number'
-              placeholder='Auto Cashout'
-              value={autoCashout()}
-              onInput={(e) => setAutoCashout(e.target.value)}
-            />
+          <div class='control-group cashout-group'>
+            <label>Auto cashout</label>
+            <div class='bet-input-wrapper auto-cashout'>
+              <input
+                type='number'
+                min='1.01'
+                step='0.01'
+                placeholder='Optional'
+                value={autoCashout()}
+                onInput={(e) => setAutoCashout(e.target.value)}
+                disabled={betQueued() || isFlying() || isCrashed()}
+              />
+              <span class='input-suffix'>x</span>
+            </div>
           </div>
 
-          <div class='bonus-pot'>
-            <img src='/assets/icons/coin.svg' height='14' width='14' alt='' />
-            <span>{pot().toFixed(2)}</span>
+          <div class='control-group pot-group'>
+            <label>Flight bonus</label>
+            <div class='bonus-pot'>
+              <img src='/assets/chips/chip-green-clover.png' height='21' width='21' alt='' />
+              <div><span>Bonus pot</span><strong>{pot().toFixed(2)}</strong></div>
+            </div>
           </div>
 
           <button
             class={'play-button ' + buttonState().style}
             onClick={buttonState().action}
-            disabled={buttonState().style === 'disabled' || !props.user}
+            disabled={!buttonState().action}
           >
             {buttonState().text}
           </button>
-        </div>
+        </section>
       </div>
 
       <style jsx>{`
         .crash-container {
           width: 100%;
-          min-height: calc(100vh - 65px);
-          padding: 20px;
+          max-width: 1320px;
+          min-height: calc(100vh - 90px);
+          margin: 0 auto;
+          padding: 28px 18px 96px;
           display: flex;
           flex-direction: column;
-          gap: 12px;
-          background: radial-gradient(50% 50% at 50% 50%, #10151d 0%, #0b1017 100%);
+          gap: 14px;
+        }
+
+        .crash-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 24px;
+        }
+
+        .header-copy h1, .header-copy p {
+          margin: 0;
+        }
+
+        .eyebrow, .section-label, .control-group > label {
+          color: #6f7988;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 9px;
+          font-weight: 700;
+          text-transform: uppercase;
+        }
+
+        .eyebrow {
+          display: block;
+          margin-bottom: 5px;
+          color: #1fd65f;
+        }
+
+        .header-copy h1 {
+          color: #fff;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 28px;
+          line-height: 1.1;
+        }
+
+        .header-copy p {
+          margin-top: 7px;
+          color: #7d8796;
+          font-size: 12px;
+        }
+
+        .round-status {
+          min-width: 168px;
+          height: 52px;
+          padding: 0 14px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          border: 1px solid rgba(255,255,255,.065);
+          border-radius: 8px;
+          background: linear-gradient(180deg, rgba(19,24,33,.92), rgba(10,13,19,.96));
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+        }
+
+        .status-dot {
+          width: 8px;
+          height: 8px;
+          flex: 0 0 8px;
+          border-radius: 50%;
+          background: #1fd65f;
+          box-shadow: 0 0 12px rgba(31,214,95,.7);
+        }
+
+        .round-status.crashed .status-dot {
+          background: #ff5141;
+          box-shadow: 0 0 12px rgba(255,81,65,.65);
+        }
+
+        .round-status.waiting .status-dot {
+          animation: statusPulse 1.6s ease-in-out infinite;
+        }
+
+        .round-status > div {
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+        }
+
+        .round-status span {
+          color: #687281;
+          font-size: 9px;
+          font-weight: 700;
+          text-transform: uppercase;
+        }
+
+        .round-status strong {
+          color: #dce2e9;
+          font-size: 11px;
+        }
+
+        .history-panel {
+          min-height: 52px;
+          padding: 0 12px;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          overflow: hidden;
+          border: 1px solid rgba(255,255,255,.055);
+          border-radius: 8px;
+          background: rgba(12,16,23,.72);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+        }
+
+        .section-label {
+          flex: 0 0 auto;
         }
 
         .crash-main {
-          display: flex;
-          gap: 12px;
-          flex: 1;
+          min-height: 560px;
+          display: grid;
+          grid-template-columns: 270px minmax(0, 1fr);
+          gap: 14px;
         }
 
         .crash-bet-bar {
+          width: 100%;
+          padding: 14px;
+          display: grid;
+          grid-template-columns: minmax(390px, 1.6fr) minmax(150px, .55fr) minmax(140px, .5fr) minmax(180px, .65fr);
+          align-items: end;
+          gap: 12px;
+          border: 1px solid rgba(255,255,255,.065);
+          border-radius: 8px;
+          background: linear-gradient(180deg, rgba(18,23,31,.92), rgba(9,12,18,.97));
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 14px 35px rgba(0,0,0,.2);
+        }
+
+        .control-group {
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 7px;
+        }
+
+        .control-group > label {
+          margin-left: 2px;
+        }
+
+        .control-row, .quick-bets {
           display: flex;
           align-items: center;
-          gap: 8px;
-          width: 100%;
+          gap: 5px;
         }
 
         .bet-input-wrapper {
+          min-width: 0;
           display: flex;
           align-items: center;
           gap: 8px;
-          background: #14171f;
-          border-radius: 3px;
+          background: rgba(5,8,12,.68);
+          border: 1px solid rgba(255,255,255,.065);
+          border-radius: 7px;
           padding: 0 12px;
           height: 40px;
           flex: 1;
-          max-width: 200px;
+          transition: border-color .18s ease, box-shadow .18s ease;
+        }
+
+        .bet-input-wrapper:focus-within {
+          border-color: rgba(31,214,95,.4);
+          box-shadow: 0 0 0 2px rgba(31,214,95,.08);
         }
 
         .bet-input-wrapper input {
@@ -419,41 +647,87 @@ function Crash(props) {
           width: 100%;
         }
 
+        .bet-input-wrapper input:disabled {
+          cursor: not-allowed;
+          opacity: .52;
+        }
+
         .bet-input-wrapper input::placeholder {
           color: #8b92a0;
         }
 
         .auto-cashout {
-          max-width: 150px;
+          width: 100%;
+        }
+
+        .input-suffix {
+          color: #1fd65f;
+          font-size: 12px;
+          font-weight: 800;
         }
 
         .bet-btn {
           height: 40px;
-          padding: 0 14px;
-          font-size: 13px;
+          min-width: 42px;
+          padding: 0 9px;
+          border: 1px solid rgba(255,255,255,.06);
+          border-radius: 6px;
+          background: rgba(255,255,255,.035);
+          color: #8993a1;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 9px;
           font-weight: 700;
+          cursor: pointer;
+          transition: .18s ease;
+        }
+
+        .bet-btn:hover {
+          color: #fff;
+          border-color: rgba(31,214,95,.22);
+          background: rgba(31,214,95,.06);
         }
 
         .bonus-pot {
+          height: 40px;
+          padding: 0 11px;
           display: flex;
           align-items: center;
-          gap: 6px;
-          background: #1a1f29;
-          border-radius: 20px;
-          padding: 8px 14px;
-          color: #1fd65f;
-          font-size: 14px;
+          gap: 9px;
+          border: 1px solid rgba(31, 214, 95, 0.14);
+          border-radius: 7px;
+          background: rgba(31,214,95,.045);
+        }
+
+        .bonus-pot > div {
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 1px;
+        }
+
+        .bonus-pot span {
+          color: #6f7988;
+          font-size: 8px;
           font-weight: 700;
-          border: 1px solid rgba(31, 214, 95, 0.15);
+          text-transform: uppercase;
+        }
+
+        .bonus-pot strong {
+          overflow: hidden;
+          color: #1fd65f;
+          font-size: 11px;
+          font-variant-numeric: tabular-nums;
+          text-overflow: ellipsis;
         }
 
         .play-button {
           height: 40px;
-          padding: 0 40px;
-          font-size: 14px;
+          width: 100%;
+          padding: 0 18px;
+          font-size: 11px;
           font-weight: 700;
           border: none;
-          border-radius: 3px;
+          border-radius: 7px;
           cursor: pointer;
           transition: all 0.2s;
           font-family: 'Geogrotesque Wide', sans-serif;
@@ -463,7 +737,7 @@ function Crash(props) {
         .play-button.play {
           background: #1fd65f;
           color: #06210f;
-          box-shadow: 0px -2px 0px #45e57f, 0px 2px 0px #16a049;
+          box-shadow: 0 8px 22px rgba(31,214,95,.22), inset 0 1px 0 rgba(255,255,255,.28);
         }
 
         .play-button.play:hover {
@@ -471,9 +745,9 @@ function Crash(props) {
         }
 
         .play-button.cashout {
-          background: linear-gradient(180deg, #ff7a3d 0%, #ff5141 100%);
+          background: #ff5141;
           color: white;
-          box-shadow: 0px -2px 0px #ff9966, 0px 2px 0px #cc3d2f;
+          box-shadow: 0 8px 22px rgba(255,81,65,.22), inset 0 1px 0 rgba(255,255,255,.2);
         }
 
         .play-button.cashout:hover {
@@ -481,31 +755,61 @@ function Crash(props) {
         }
 
         .play-button.disabled {
-          background: #2c3340;
-          color: #5a5f6b;
+          background: rgba(255,255,255,.045);
+          color: #606a78;
           cursor: not-allowed;
           box-shadow: none;
         }
 
-        @media (max-width: 1000px) {
+        .play-button.queued {
+          background: rgba(31,214,95,.08);
+          color: #1fd65f;
+          border: 1px solid rgba(31,214,95,.2);
+          cursor: default;
+        }
+
+        .play-button.pending {
+          opacity: .72;
+          cursor: wait;
+        }
+
+        @keyframes statusPulse {
+          0%, 100% { opacity: .55; transform: scale(.85); }
+          50% { opacity: 1; transform: scale(1); }
+        }
+
+        @media (max-width: 1120px) {
+          .crash-bet-bar {
+            grid-template-columns: minmax(390px, 1fr) minmax(150px, .5fr);
+          }
+
           .crash-main {
-            flex-direction: column;
+            grid-template-columns: 1fr;
+            min-height: 0;
           }
         }
 
         @media (max-width: 800px) {
-          .crash-bet-bar {
-            flex-wrap: wrap;
-          }
+          .crash-container { padding: 20px 12px 90px; }
+          .crash-main { min-height: 650px; }
+          .crash-bet-bar { grid-template-columns: 1fr; }
 
-          .bet-input-wrapper,
-          .auto-cashout {
-            max-width: 100%;
-          }
+          .control-row { align-items: stretch; flex-direction: column; }
+          .quick-bets { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+          .bet-btn { min-width: 0; width: 100%; }
+        }
 
-          .play-button {
-            width: 100%;
-          }
+        @media (max-width: 560px) {
+          .crash-header { align-items: stretch; flex-direction: column; }
+          .round-status { min-width: 0; }
+          .history-panel { align-items: flex-start; flex-direction: column; gap: 0; padding-top: 10px; }
+          .header-copy h1 { font-size: 25px; }
+          .crash-main { min-height: 590px; }
+          .quick-bets { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .round-status.waiting .status-dot { animation: none; }
         }
       `}</style>
     </>

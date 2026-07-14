@@ -197,33 +197,40 @@ function capWinnings(amount, multiplier) {
     return Math.min(profitCapped, crash.config.maxPayout);
 }
 
-function processCashoutsBelow(multiplier) {
+async function processCashoutsBelow(multiplier) {
 
-    crash.bets.forEach(async bet => {
+    await Promise.all(crash.bets.map(async bet => {
         
         if (bet.cashoutPoint) return;
+        if (bet.processingCashout) return;
         if (!bet.autoCashoutPoint) return;
         if (bet.autoCashoutPoint > multiplier) return;
 
-        bet.cashoutPoint = bet.autoCashoutPoint;
-        bet.winnings = capWinnings(bet.amount, bet.cashoutPoint);
+        const cashoutPoint = bet.autoCashoutPoint;
+        const winnings = capWinnings(bet.amount, cashoutPoint);
+        bet.processingCashout = true;
 
         try {
 
             await doTransaction(async (connection, commit) => {
 
-                await connection.query('UPDATE crashBets SET cashoutPoint = ? WHERE id = ?', [bet.cashoutPoint, bet.id]);
-                await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [bet.winnings, bet.user.id]);
-                await connection.query('UPDATE bets SET completed = 1, winnings = ? WHERE game = ? AND gameId = ?', [bet.winnings, 'crash', bet.id]);
+                await connection.query('UPDATE crashBets SET cashoutPoint = ? WHERE id = ?', [cashoutPoint, bet.id]);
+                await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [winnings, bet.user.id]);
+                await connection.query('UPDATE bets SET completed = 1, winnings = ? WHERE game = ? AND gameId = ?', [winnings, 'crash', bet.id]);
         
                 await commit();
 
             });
 
         } catch (e) {
+            bet.processingCashout = false;
             console.error(e);
             return;
         }
+
+        bet.cashoutPoint = cashoutPoint;
+        bet.winnings = winnings;
+        bet.processingCashout = false;
 
         io.to(bet.user.id).emit('balance', 'add', bet.winnings);
     
@@ -243,7 +250,7 @@ function processCashoutsBelow(multiplier) {
         }]);
 
         
-    });
+    }));
 
 }
 
@@ -279,7 +286,7 @@ async function crashInterval() {
             currentMultiplier = crash.round.crashPoint;
         } 
 
-        processCashoutsBelow(currentMultiplier);
+        await processCashoutsBelow(currentMultiplier);
         io.to('crash').emit('crash:tick', currentMultiplier);
         crash.round.currentMultiplier = currentMultiplier;
 

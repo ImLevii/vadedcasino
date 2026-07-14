@@ -103,27 +103,33 @@ function SpinnerDiamond(props) {
         }
 
         .diamond {
-          width: 38px;
-          height: 38px;
+          width: 30px;
+          height: 30px;
 
           display: flex;
           align-items: center;
           justify-content: center;
 
-          border-radius: 3px;
+          border-radius: 5px;
           transform: rotate(45deg);
 
           position: absolute;
-          z-index: 0;
-          left: -25.5px;
+          z-index: 7;
+          left: -22px;
+          box-shadow: 0 7px 18px rgba(0,0,0,.35);
         }
 
         .diamond:before {
           position: absolute;
-          width: 36px;
-          height: 36px;
+          width: 28px;
+          height: 28px;
           content: '';
-          border-radius: 3px;
+          border-radius: 4px;
+        }
+
+        .diamond svg {
+          max-width: 17px;
+          max-height: 17px;
         }
 
         .blue {

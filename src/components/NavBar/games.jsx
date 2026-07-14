@@ -3,7 +3,7 @@ import {addDropdown, createNotification, closeDropdowns} from "../../util/api";
 import {A} from "@solidjs/router";
 
 const GAMEMODES = [
-    {name: 'CASE BATTLES', href: '/battles', img: '/assets/thumbnails/casebattle.jpeg'},
+  {name: 'CASE BATTLES', href: '/battles', img: '/assets/thumbnails/casebattles.jpeg'},
     {name: 'SLOTS', href: '/slots', img: '/assets/gamemodes/slots-green.svg'},
     {name: 'MINES', href: '/mines', img: '/assets/thumbnails/mines.jpeg'},
     {name: 'COINFLIP', href: '/coinflip', img: '/assets/gamemodes/coinflip-green.svg'},

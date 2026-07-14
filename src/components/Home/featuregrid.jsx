@@ -2,7 +2,7 @@ import {For} from "solid-js";
 import {A} from "@solidjs/router";
 
 const FEATURES = [
-    {name: 'CASE BATTLES',      href: '/battles',       accent: '#FF5141', img: '/assets/thumbnails/casebattle.jpeg'},
+  {name: 'CASE BATTLES',      href: '/battles',       accent: '#FF5141', img: '/assets/thumbnails/casebattles.jpeg'},
     {name: 'CASE OPENING',      href: '/cases',         accent: '#1fd65f', img: '/assets/thumbnails/caseopening.jpeg'},
     {name: 'DAILY CASES',       href: '/cases',         accent: '#1fd65f', img: '/assets/thumbnails/dailycases.jpeg'},
     {name: 'SUPERCHARGE CASES', href: '/cases',         accent: '#f0c040', img: '/assets/thumbnails/superchargecases.jpeg'},
