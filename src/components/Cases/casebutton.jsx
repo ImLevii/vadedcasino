@@ -129,18 +129,19 @@ function CaseButton(props) {
 
             <style jsx>{`
               .case-button {
-                height: 286px;
+                min-height: 316px;
+                box-sizing: border-box;
 
-                border-radius: 9px;
-                border: 1px solid rgba(255, 255, 255, 0.05);
-                background: linear-gradient(180deg, rgba(24, 30, 41, 0.88) 0%, rgba(15, 19, 28, 0.96) 60%, rgba(10, 13, 20, 1) 100%);
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045), 0 10px 30px rgba(0, 0, 0, 0.28);
+                border-radius: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                background: radial-gradient(circle at 50% 42%, rgba(31,214,95,.06), transparent 34%), linear-gradient(180deg, rgba(22, 28, 38, 0.94) 0%, rgba(12, 16, 24, 0.98) 64%, rgba(7, 10, 16, 1) 100%);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045), 0 14px 34px rgba(0, 0, 0, 0.26);
                 
                 display: flex;
                 align-items: center;
                 flex-direction: column;
 
-                padding: 16px 13px 18px;
+                padding: 17px 14px 15px;
                 position: relative;
                 overflow: hidden;
                 isolation: isolate;
@@ -148,9 +149,9 @@ function CaseButton(props) {
               }
 
               .case-button:hover {
-                border-color: rgba(31, 214, 95, 0.28);
-                transform: translateY(-4px);
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(31, 214, 95, 0.06), 0 0 24px rgba(31, 214, 95, 0.08);
+                border-color: rgba(31, 214, 95, 0.32);
+                transform: translateY(-3px);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 20px 44px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(31, 214, 95, 0.055), 0 0 26px rgba(31, 214, 95, 0.07);
               }
               
               .button:not(.creator) {
@@ -159,11 +160,11 @@ function CaseButton(props) {
               }
               
               .image {
-                width: 92%;
-                max-width: 178px;
-                height: 130px;
+                width: 94%;
+                max-width: 188px;
+                height: 142px;
                 object-fit: contain;
-                margin-top: 4px;
+                margin-top: 3px;
                 position: relative;
                 z-index: 1;
                 filter: drop-shadow(0 20px 16px rgba(0, 0, 0, 0.42));
@@ -176,18 +177,20 @@ function CaseButton(props) {
               }
               
               .cost {
-                min-width: 116px;
-                min-height: 29px;
-                padding: 0 15px;
-                margin: 9px 0 12px 0;
+                min-width: 112px;
+                min-height: 30px;
+                padding: 0 14px;
+                margin: 9px 0 8px;
                 
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 gap: 5px;
 
-                background: conic-gradient(from 180deg at 50% 50%, #FFDC18 -0.3deg, #B17818 72.1deg, rgba(156, 99, 15, 0.611382) 139.9deg, rgba(126, 80, 12, 0.492874) 180.52deg, rgba(102, 65, 10, 0.61) 215.31deg, #B17818 288.37deg, #FFDC18 359.62deg, #FFDC18 359.7deg, #B17818 432.1deg);
-                border-radius: 3px;
+                background: linear-gradient(180deg, rgba(18,84,49,.95), rgba(9,57,32,.98));
+                border: 1px solid rgba(31,214,95,.42);
+                border-radius: 6px;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 7px 18px rgba(0,0,0,.22);
                 position: relative;
                 z-index: 2;
                 
@@ -198,26 +201,17 @@ function CaseButton(props) {
               }
 
               .cost:before {
-                position: absolute;
-                left: 1px;
-                top: 1px;
-                z-index: -1;
-                content: '';
-                
-                height: calc(100% - 2px);
-                width: calc(100% - 2px);
-                border-radius: 3px;
-                
-                background: linear-gradient(0deg, rgba(31, 214, 95, 0.48), rgba(31, 214, 95, 0.48)), linear-gradient(252.77deg, #12151c -27.53%, #1f242e 175.86%);
+                content: none;
               }
 
               .open-case {
                 width: 100%;
-                height: 43px;
+                height: 40px;
                 margin-top: auto;
-                border-radius: 5px;
-                background: linear-gradient(180deg, #08d15a 0%, #05b94d 100%);
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 4px 0 rgba(0, 104, 45, 0.55), 0 10px 24px rgba(8, 209, 90, 0.12);
+                border-radius: 7px;
+                background: linear-gradient(180deg, #1bd861 0%, #0db950 100%);
+                border: 1px solid rgba(75,242,137,.35);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 22px rgba(8, 209, 90, 0.12);
 
                 display: flex;
                 align-items: center;
@@ -271,7 +265,7 @@ function CaseButton(props) {
               .rarity-track {
                 width: 100%;
                 height: 16px;
-                margin: 2px 0 13px;
+                margin: 4px 0 12px;
                 position: relative;
                 z-index: 1;
                 display: flex;
@@ -349,7 +343,7 @@ function CaseButton(props) {
 
               .preview-btn-case {
                 position: absolute;
-                bottom: 52px;
+                bottom: 61px;
                 right: 8px;
                 z-index: 5;
 
@@ -359,10 +353,10 @@ function CaseButton(props) {
                 height: 24px;
                 padding: 0 8px;
                 border-radius: 4px;
-                border: 1px solid rgba(255,214,88,0.3);
-                background: rgba(0,0,0,0.6);
+                border: 1px solid rgba(31,214,95,.28);
+                background: rgba(5,12,9,.76);
                 backdrop-filter: blur(4px);
-                color: #ffd658;
+                color: #55e98b;
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-size: 9px;
                 font-weight: 700;
@@ -381,8 +375,8 @@ function CaseButton(props) {
               }
 
               .preview-btn-case:hover {
-                background: rgba(255,214,88,0.2);
-                border-color: rgba(255,214,88,0.5);
+                background: rgba(31,214,95,.14);
+                border-color: rgba(31,214,95,.52);
               }
 
               .bg {

@@ -12,7 +12,6 @@ function Cases(props) {
     const [search, setSearch] = createSignal('')
     const [min, setMin] = createSignal(NaN)
     const [max, setMax] = createSignal(NaN)
-    const [option, setOption] = createSignal('ALL')
     const [sort, setSort] = createSignal('DESCENDING')
 
     async function fetchCases() {
@@ -32,9 +31,9 @@ function Cases(props) {
         let realMin = isNaN(min()) ? 0 : Math.max(0, min())
 
         if (sort() === "DESCENDING")
-            sorted = cases().sort((a, b) => b.price - a.price)
+            sorted = cases().slice().sort((a, b) => b.price - a.price)
         else
-            sorted = cases().sort((a, b) => a.price - b.price)
+            sorted = cases().slice().sort((a, b) => a.price - b.price)
 
         sorted = sorted.filter(c => {
             return c.price >= realMin && c.price <= realMax && c?.name?.toLowerCase()?.includes(search().toLowerCase())
@@ -47,49 +46,30 @@ function Cases(props) {
         <>
             <div class='cases-container fadein'>
                 <div class='filters'>
+                <div class='filter-heading'>
                   <div class='title-wrap'>
-                    <p class='title'><img src='/assets/icons/cases_explosion.svg' height='20' alt=''/>CASES</p>
+                    <span class='title-icon'><img src='/assets/icons/cases_explosion.svg' height='20' alt=''/></span>
+                    <div>
+                      <p class='eyebrow'>Case Library</p>
+                      <h1>Official Cases</h1>
+                    </div>
                   </div>
 
-                    <div class='options'>
-                        <button class={'option hide ' + (option() === 'ALL' ? 'active' : '')}
-                                onClick={() => setOption('ALL')}>
-                            ALL
-                        </button>
-
-                        <button class={'option hide ' + (option() === 'FEATURED' ? 'active' : '')}
-                                onClick={() => setOption('FEATURED')} disabled={true}>
-                            FEATURED
-                        </button>
-
-                        <button class={'option hide ' + (option() === 'NEW' ? 'active' : '')}
-                                onClick={() => setOption('NEW')} disabled={true}>
-                            NEW
-                        </button>
-
-                        <button class={'option hide ' + (option() === 'PARTNERS' ? 'active' : '')}
-                                onClick={() => setOption('PARTNERS')} disabled={true}>
-                            PARTNERS
-                        </button>
-
-                        <button class={'option hide ' + (option() === 'TRENDING' ? 'active' : '')}
-                                onClick={() => setOption('TRENDING')} disabled={true}>
-                            TRENDING
-                        </button>
-
-                        <button class='option community'
-                                onClick={() => navigate('/cases/community')}>
-                            COMMUNITY
-                        </button>
+                  <div class='options' aria-label='Case collection'>
+                    <button class='option active' type='button'>Official</button>
+                    <button class='option community' type='button' onClick={() => navigate('/cases/community')}>
+                      Community
+                    </button>
+                  </div>
                     </div>
 
                     <div class='inputs'>
                         <div class='search-container'>
-                          <input class='number' type='text' placeholder='SEARCH FOR CASES' value={search()} onInput={(e) => setSearch(e.target.value)}/>
+                    <input class='number' type='search' placeholder='Search official cases...' value={search()} onInput={(e) => setSearch(e.target.value)}/>
 
-                          <button class='search-button'>
+                    <span class='search-button' aria-hidden='true'>
                             <img src='/assets/icons/search.svg' alt=''/>
-                          </button>
+                    </span>
                         </div>
 
                         <div class='number-container small'>
@@ -113,12 +93,23 @@ function Cases(props) {
                                     fill="#8b92a0"/>
                             </svg>
                         </button>
+
+                          <span class='result-count'>{sortedCases().length} cases</span>
                     </div>
                 </div>
 
                 <Show when={!cases.loading} fallback={<Loader/>}>
                     <div class='cases'>
                         <For each={sortedCases()}>{(c, index) => <CaseButton creator={false} c={c}/>}</For>
+                          <Show when={!sortedCases().length}>
+                            <div class='empty-state'>
+                              <span class='empty-icon'><img src='/assets/icons/search.svg' height='18' alt=''/></span>
+                              <div>
+                                <strong>No cases found</strong>
+                                <p>Try changing your search or price range.</p>
+                              </div>
+                            </div>
+                          </Show>
                     </div>
                 </Show>
             </div>
@@ -126,26 +117,27 @@ function Cases(props) {
             <style jsx>{`
               .cases-container {
                 width: 100%;
+                max-width: 1440px;
                 height: fit-content;
-                padding-bottom: 30px;
+                padding: 10px 0 44px;
+                margin: 0 auto;
               }
 
               .filters {
                 width: 100%;
-                min-height: 66px;
-
+                min-height: 124px;
                 display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 18px;
+                flex-direction: column;
+                gap: 14px;
 
-                padding: 10px 12px 10px 18px;
-                margin: 0 0 28px 0;
+                padding: 17px 18px;
+                box-sizing: border-box;
+                margin: 0 0 22px;
 
-                border-radius: 9px;
-                border: 1px solid rgba(255, 255, 255, 0.05);
-                background: linear-gradient(180deg, rgba(18, 23, 32, 0.98), rgba(11, 15, 23, 0.98));
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 10px 32px rgba(0, 0, 0, 0.22);
+                border-radius: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.065);
+                background: radial-gradient(circle at 8% 0%, rgba(31,214,95,.08), transparent 28%), linear-gradient(145deg, rgba(18, 24, 34, 0.97), rgba(8, 12, 19, 0.98));
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045), 0 14px 38px rgba(0, 0, 0, 0.24);
                 position: relative;
                 overflow: hidden;
               }
@@ -155,92 +147,116 @@ function Cases(props) {
                 position: absolute;
                 inset: 0;
                 pointer-events: none;
-                background: linear-gradient(90deg, rgba(31, 214, 95, 0.045), rgba(255, 255, 255, 0.00) 34%, rgba(139, 146, 160, 0.04));
+                background: linear-gradient(110deg, rgba(255,255,255,.025), transparent 32%, rgba(31,214,95,.025));
               }
 
-              .title-wrap {
-                min-width: 220px;
+              .filter-heading {
                 display: flex;
                 align-items: center;
-                position: relative;
-                z-index: 1;
-              }
-
-              .title {
-                color: #FFF;
-                font-size: 22px;
-                font-weight: 800;
-
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                white-space: nowrap;
-              }
-
-              .title img {
-                filter: drop-shadow(0 0 8px rgba(31, 214, 95, 0.45));
-              }
-
-              .options {
-                height: 100%;
-                display: flex;
+                justify-content: space-between;
                 gap: 20px;
                 position: relative;
                 z-index: 1;
               }
 
-              .option {
-                line-height: 36px;
-                cursor: pointer;
-                height: 100%;
+              .title-wrap {
+                display: flex;
+                align-items: center;
+                gap: 11px;
+                position: relative;
+                z-index: 1;
+              }
 
-                background: unset;
+              .title-icon {
+                width: 38px;
+                height: 38px;
+                display: grid;
+                place-items: center;
+                border-radius: 8px;
+                border: 1px solid rgba(31,214,95,.25);
+                background: rgba(31,214,95,.08);
+              }
+
+              .title-wrap h1 {
+                margin: 1px 0 0;
+                color: #FFF;
+                font-size: 20px;
+                font-weight: 800;
+                white-space: nowrap;
+              }
+
+              .title-icon img {
+                filter: drop-shadow(0 0 8px rgba(31, 214, 95, 0.45));
+              }
+
+              .eyebrow {
+                color: #687284;
+                font-size: 9px;
+                font-weight: 800;
+                text-transform: uppercase;
+              }
+
+              .options {
+                height: 36px;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                padding: 3px;
+                border-radius: 8px;
+                border: 1px solid rgba(255,255,255,.06);
+                background: rgba(4,7,12,.48);
+                position: relative;
+                z-index: 1;
+              }
+
+              .option {
+                height: 30px;
+                padding: 0 13px;
+                cursor: pointer;
                 outline: unset;
-                border: unset;
+                border: 1px solid transparent;
+                border-radius: 6px;
+                background: transparent;
 
                 font-family: "Geogrotesque Wide";
                 color: #8b92a0;
-                font-size: 12px;
+                font-size: 10px;
                 font-weight: 800;
+                text-transform: uppercase;
 
-                transition: color .2s, opacity .2s;
+                transition: color .2s, background .2s, border-color .2s;
               }
 
               .option:hover:not(:disabled) {
                 color: #d6dde8;
               }
 
-              .option:disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
-              }
-
               .option.community {
-                color: #1fd65f;
-                text-shadow: 0 0 14px rgba(31, 214, 95, 0.22);
+                color: #9ea7b6;
               }
 
               .option.community:hover {
-                color: #45e57f;
+                color: #dce3ec;
+                background: rgba(255,255,255,.04);
               }
 
               .active {
                 color: #1fd65f;
-                border-bottom: 3px solid #1fd65f;
-                text-shadow: 0 0 14px rgba(31, 214, 95, 0.22);
+                border-color: rgba(31,214,95,.22);
+                background: rgba(31,214,95,.1);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
               }
 
               .cases {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
-                grid-gap: 16px;
+                grid-template-columns: repeat(auto-fill, minmax(205px, 1fr));
+                gap: 15px;
               }
 
               .inputs {
                 display: flex;
                 gap: 10px;
                 align-items: center;
-                margin-left: auto;
                 position: relative;
                 z-index: 1;
               }
@@ -288,8 +304,9 @@ function Cases(props) {
               }
 
               .search-container {
-                width: 250px;
-                height: 36px;
+                flex: 1;
+                min-width: 220px;
+                height: 38px;
 
                 border-radius: 5px;
                 border: 1px solid rgba(255, 255, 255, 0.05);
@@ -303,19 +320,11 @@ function Cases(props) {
               }
 
               .search-button {
-                outline: unset;
-                border: unset;
-                cursor: pointer;
-
                 width: 38px;
+                display: grid;
+                place-items: center;
                 border-radius: 0px 5px 5px 0px;
                 background: rgba(21, 26, 36, 0.9);
-                transition: filter .18s ease, background .18s ease;
-              }
-
-              .search-button:hover {
-                filter: brightness(1.2);
-                background: rgba(31, 214, 95, 0.08);
               }
 
               .sort-by {
@@ -353,6 +362,42 @@ function Cases(props) {
               .gold {
                 color: #1fd65f;
               }
+
+              .result-count {
+                min-width: 70px;
+                color: #697385;
+                font-size: 10px;
+                font-weight: 800;
+                text-align: right;
+                text-transform: uppercase;
+                white-space: nowrap;
+              }
+
+              .empty-state {
+                grid-column: 1 / -1;
+                min-height: 170px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
+                border: 1px dashed rgba(255,255,255,.09);
+                border-radius: 10px;
+                background: rgba(12,16,24,.52);
+                color: #dce3ec;
+              }
+
+              .empty-icon {
+                width: 38px;
+                height: 38px;
+                display: grid;
+                place-items: center;
+                border-radius: 8px;
+                background: rgba(255,255,255,.045);
+                border: 1px solid rgba(255,255,255,.07);
+              }
+
+              .empty-state strong { font-size: 13px; }
+              .empty-state p { margin-top: 3px; color: #707a8b; font-size: 11px; }
               
               .sort-by.flip svg {
                 transform: rotate(180deg);
@@ -362,25 +407,17 @@ function Cases(props) {
                 margin-top: -2px;
               }
 
-              @media only screen and (max-width: 1500px) {
-                .hide {
-                  display: none;
-                }
-              }
-
               @media only screen and (max-width: 830px) {
                 .small {
                   display: none;
                 }
 
                 .filters {
-                  flex-wrap: wrap;
                   padding: 12px;
                 }
 
                 .inputs {
                   width: 100%;
-                  margin-left: 0;
                 }
 
                 .search-container {
@@ -393,6 +430,13 @@ function Cases(props) {
                 .sort-by {
                   display: none;
                 }
+
+                .filter-heading { align-items: flex-start; }
+                .title-wrap h1 { font-size: 17px; }
+                .options { height: 34px; }
+                .option { padding: 0 9px; font-size: 9px; }
+                .result-count { display: none; }
+                .cases { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
               }
             `}</style>
         </>

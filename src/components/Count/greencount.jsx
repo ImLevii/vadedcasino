@@ -15,75 +15,55 @@ function GreenCount(props) {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 10px;
+                gap: 9px;
 
-                border-radius: 3px;
-                height: 35px;
+                border-radius: 7px;
+                height: 36px;
+                padding: 0 12px;
+                box-sizing: border-box;
 
-                font-weight: 700;
-                font-size: 14px;
-                color: #9296D6;
+                font-weight: 800;
+                font-size: 13px;
+                font-variant-numeric: tabular-nums;
+                color: #aeb6c5;
                 
                 position: relative;
                 z-index: 0;
 
-                border: 1px dashed #9296D6;
-                background: linear-gradient(0deg, rgba(146, 150, 214, 0.25) 0%, rgba(146, 150, 214, 0.25) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                background: linear-gradient(180deg, rgba(26, 32, 43, 0.94), rgba(12, 16, 24, 0.96));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 7px 18px rgba(0,0,0,.22);
                 
                 overflow: hidden;
               }
               
               .count.active {
                 color: #1fd65f;
-                border: unset;
-                background: unset;
+                border-color: rgba(31, 214, 95, 0.38);
+                background: linear-gradient(180deg, rgba(18, 55, 37, 0.82), rgba(10, 27, 21, 0.94));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.055), 0 0 0 1px rgba(31,214,95,.06), 0 8px 22px rgba(0,0,0,.24);
               }
               
               .count.active::before {
-                width: calc(100% - 2px);
-                height: calc(100% - 2px);
-                border-radius: 3px;
-                
-                top: 1px;
-                left: 1px;
-                
+                inset: 0;
+                border-radius: inherit;
                 content: '';
                 position: absolute;
-
-                background: linear-gradient(0deg, rgba(31, 214, 95, 0.25), rgba(31, 214, 95, 0.25)), linear-gradient(252.77deg, #12151c -27.53%, #1f242e 175.86%);
+                background: linear-gradient(110deg, transparent 20%, rgba(31,214,95,.08) 50%, transparent 80%);
                 z-index: -1;
               }
 
               .count.active::after {
-                width: calc(100% + 5px);
-                aspect-ratio: 1;
-                border-radius: 3px;
-                
-
-                content: '';
-                position: absolute;
-
-                background: conic-gradient(from 180deg at 50% 50%, #1fd65f -0.3deg, #459D7B 72.1deg, #407B64 139.9deg, #407C64 180.52deg, #37545C 215.31deg, #3B5964 288.37deg, #1fd65f 359.62deg, #1fd65f 359.7deg, #459D7B 432.1deg);
-                z-index: -2;
-
-                animation: rotate linear 3s infinite;
-              }
-              
-              @keyframes rotate {
-                from {
-                  transform: rotate(0deg);
-                }
-                to {
-                  transform: rotate(360deg);
-                }
+                content: none;
               }
               
               .dot {
-                height: 15px;
-                width: 15px;
+                height: 14px;
+                width: 14px;
 
-                background: #5E5898;
-                border-radius: 3px;
+                background: rgba(174, 182, 197, 0.12);
+                border: 1px solid rgba(174, 182, 197, 0.18);
+                border-radius: 4px;
                 
                 display: flex;
                 align-items: center;
@@ -93,23 +73,24 @@ function GreenCount(props) {
               }
               
               .dot:before {
-                height: 7px;
-                width: 7px;
+                height: 6px;
+                width: 6px;
                 
                 content: '';
                 position: absolute;
                 
-                background: #9296D6;
-                border-radius: 3px;
+                background: #8992a2;
+                border-radius: 2px;
               }
               
               .active .dot {
-                background: rgba(31, 214, 95, 0.25);
+                background: rgba(31, 214, 95, 0.12);
+                border-color: rgba(31, 214, 95, 0.3);
               }
               
               .active .dot:before {
                 background: #1fd65f;
-                box-shadow: 0px 0px 4px #1fd65f;
+                box-shadow: 0 0 7px rgba(31, 214, 95, 0.85);
               }
             `}</style>
         </>

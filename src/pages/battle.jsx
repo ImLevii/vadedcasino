@@ -261,7 +261,13 @@ function Battle(props) {
                                         <button class='emoji-btn' onClick={() => sendEmoji(emoji)}>{emoji}</button>
                                     )}</For>
                                 </div>
-                                <A href='/docs/provably' class='provably' style={{width: '130px'}}>PROVABLY FAIR</A>
+                                <A href='/docs/provably' class='provably'>
+                                  <svg width='15' height='15' viewBox='0 0 24 24' fill='none' aria-hidden='true'>
+                                    <path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z' stroke='currentColor' stroke-width='2'/>
+                                    <path d='m9 12 2 2 4-4' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+                                  </svg>
+                                  <span>Provably Fair</span>
+                                </A>
                             </div>
                         </div>
 
@@ -368,6 +374,43 @@ function Battle(props) {
                 justify-content: center;
                 gap: 8px;
                 flex: 0 0 auto;
+              }
+
+              .provably {
+                width: auto;
+                min-width: 142px;
+                height: 36px;
+                padding: 0 14px;
+                box-sizing: border-box;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                border-radius: 7px;
+                border: 1px solid rgba(31, 214, 95, 0.32);
+                background: linear-gradient(180deg, rgba(20, 65, 42, 0.82), rgba(9, 31, 21, 0.94));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.055), 0 8px 20px rgba(0,0,0,.22);
+                color: #42e77d;
+                font-family: "Geogrotesque Wide", sans-serif;
+                font-size: 11px;
+                font-weight: 800;
+                text-decoration: none;
+                text-transform: uppercase;
+                white-space: nowrap;
+                transition: border-color .18s ease, background .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease;
+              }
+
+              .provably:hover {
+                color: #72f2a3;
+                border-color: rgba(31, 214, 95, 0.58);
+                background: linear-gradient(180deg, rgba(24, 82, 51, 0.92), rgba(10, 40, 25, 0.98));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 9px 24px rgba(0,0,0,.25), 0 0 18px rgba(31,214,95,.09);
+                transform: translateY(-1px);
+              }
+
+              .provably:focus-visible {
+                outline: 2px solid rgba(31, 214, 95, 0.75);
+                outline-offset: 2px;
               }
 
               .emoji-bar {

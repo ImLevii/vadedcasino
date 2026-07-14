@@ -7,7 +7,6 @@ import Level from "../Level/level"
 import Countup from "../Countup/countup"
 import {useNavigate} from "@solidjs/router"
 import Chance from 'chance'
-import SpinnerDecoration from "./spinnerdecoration";
 import SpinnerDiamond from "./spinnerdiamond";
 
 function BattleSpinner(props) {
@@ -205,8 +204,6 @@ function BattleSpinner(props) {
           </div>
         ) : props?.player && props?.state === 'ROLLING' ? (
           <div class='spinner-column'>
-            <div class='battle-arrow battle-arrow-left'/>
-            <div class='battle-arrow battle-arrow-right'/>
             <div class='center-band'/>
             <div class='center-line'/>
             <div class='fade-top'/>
@@ -233,12 +230,6 @@ function BattleSpinner(props) {
             <p>WAITING</p>
             <button class='bevel-gold call' onClick={() => joinBattle()}>{props?.creator ? 'CALL BOT' : 'JOIN BATTLE'}</button>
           </div>
-        )}
-
-        <SpinnerDecoration type={props?.index === 0 ? 'right-dec' : 'left-dec'} color={color()}/>
-
-        {props?.index !== 0 && props?.index < props?.max && (
-          <SpinnerDecoration type='right-dec' color={color()}/>
         )}
 
         <SpinnerDiamond
@@ -498,29 +489,6 @@ function BattleSpinner(props) {
           pointer-events: none;
           background: linear-gradient(90deg, transparent, rgba(31, 214, 95, 0.22) 16%, #1fd65f 48%, #1fd65f 52%, rgba(31, 214, 95, 0.22) 84%, transparent);
           box-shadow: 0 0 12px rgba(31, 214, 95, 0.6), 0 0 24px rgba(31, 214, 95, 0.2);
-        }
-
-        .battle-arrow {
-          position: absolute;
-          top: 50%;
-          width: 19px;
-          height: 38px;
-          z-index: 6;
-          pointer-events: none;
-          background: #1fd65f;
-          box-shadow: 0 0 16px rgba(31, 214, 95, .55);
-        }
-
-        .battle-arrow-left {
-          left: 7px;
-          transform: translateY(-50%);
-          clip-path: polygon(0 0, 58% 0, 100% 50%, 58% 100%, 0 100%);
-        }
-
-        .battle-arrow-right {
-          right: 7px;
-          transform: translateY(-50%);
-          clip-path: polygon(42% 0, 100% 0, 100% 100%, 42% 100%, 0 50%);
         }
 
         .fade-top, .fade-bottom {

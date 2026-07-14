@@ -108,16 +108,27 @@ function CommunityCases(props) {
             <div class='community-container fadein'>
 
                 <div class='banner'>
-                    <p>Earn <span class='gold'>Commission</span> with your <span class='gold'>Custom Cases</span></p>
+                  <span class='banner-icon'><img src='/assets/icons/cases_explosion.svg' height='20' alt=''/></span>
+                  <div class='banner-copy'>
+                    <span>Creator earnings</span>
+                    <p>Earn <strong>commission</strong> from every opening of your custom cases.</p>
+                  </div>
+                  <span class='banner-tag'>7 day claim window</span>
                 </div>
 
                 <div class='top-bar'>
+                  <div class='page-identity'>
                     <button class='back-link' onClick={() => navigate('/cases')}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="5" height="8" viewBox="0 0 5 8" fill="none">
-                            <path d="M0.4976 4.00267C0.4976 3.87722 0.545618 3.75178 0.641454 3.65613L3.65872 0.646285C3.85066 0.454819 4.16185 0.454819 4.35371 0.646285C4.54556 0.837673 4.4976 1.00269 4.4976 1.33952L4.4976 4.00267L4.4976 6.50269C4.4976 7.00269 4.54547 7.16764 4.35361 7.35902C4.16175 7.55057 3.85056 7.55057 3.65863 7.35902L0.641361 4.34921C0.545509 4.25352 0.4976 4.12808 0.4976 4.00267Z" fill="currentColor"/>
-                        </svg>
-                        Official Cases
+                      <svg xmlns="http://www.w3.org/2000/svg" width="5" height="8" viewBox="0 0 5 8" fill="none">
+                        <path d="M0.4976 4.00267C0.4976 3.87722 0.545618 3.75178 0.641454 3.65613L3.65872 0.646285C3.85066 0.454819 4.16185 0.454819 4.35371 0.646285C4.54556 0.837673 4.4976 1.00269 4.4976 1.33952L4.4976 4.00267L4.4976 6.50269C4.4976 7.00269 4.54547 7.16764 4.35361 7.35902C4.16175 7.55057 3.85056 7.55057 3.65863 7.35902L0.641361 4.34921C0.545509 4.25352 0.4976 4.12808 0.4976 4.00267Z" fill="currentColor"/>
+                      </svg>
+                      Official Cases
                     </button>
+                    <div>
+                      <span>Creator marketplace</span>
+                      <h1>Community Cases</h1>
+                    </div>
+                  </div>
 
                     <div class='toolbar'>
                         <div class='search-wrap'>
@@ -135,6 +146,7 @@ function CommunityCases(props) {
                             <option value='price-desc'>Price: High to Low</option>
                             <option value='price-asc'>Price: Low to High</option>
                         </select>
+                          <span class='result-count'>{displayedCases().length} cases</span>
                     </div>
 
                     <div class='top-actions'>
@@ -294,25 +306,64 @@ function CommunityCases(props) {
             <style jsx>{`
               .community-container {
                 width: 100%;
-                max-width: 1400px;
+                max-width: 1480px;
                 margin: 0 auto;
-                padding: 10px 0 40px;
+                padding: 10px 0 48px;
                 display: flex;
                 flex-direction: column;
-                gap: 15px;
+                gap: 18px;
               }
 
               .banner {
                 width: 100%;
-                padding: 10px 0;
-                text-align: center;
-                border-radius: 6px;
-                background: linear-gradient(90deg, rgba(31, 214, 95, 0.02), rgba(31, 214, 95, 0.12), rgba(31, 214, 95, 0.02));
-                border: 1px solid rgba(31, 214, 95, 0.15);
+                min-height: 58px;
+                padding: 10px 14px;
+                box-sizing: border-box;
+                display: flex;
+                align-items: center;
+                gap: 11px;
+                border-radius: 10px;
+                background: radial-gradient(circle at 8% 0%, rgba(31,214,95,.15), transparent 28%), linear-gradient(135deg, rgba(17,36,27,.92), rgba(8,17,15,.98));
+                border: 1px solid rgba(31, 214, 95, 0.22);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 12px 28px rgba(0,0,0,.2);
                 color: #FFF;
                 font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 14px;
-                font-weight: 600;
+              }
+
+              .banner-icon {
+                width: 36px;
+                height: 36px;
+                display: grid;
+                place-items: center;
+                flex: 0 0 auto;
+                border-radius: 8px;
+                background: rgba(31,214,95,.1);
+                border: 1px solid rgba(31,214,95,.26);
+              }
+
+              .banner-icon img { filter: drop-shadow(0 0 8px rgba(31,214,95,.5)); }
+
+              .banner-copy { display: flex; flex-direction: column; gap: 2px; }
+              .banner-copy > span {
+                color: #5ce78e;
+                font-size: 9px;
+                font-weight: 800;
+                text-transform: uppercase;
+              }
+              .banner-copy p { color: #cfd7e2; font-size: 12px; font-weight: 600; }
+              .banner-copy strong { color: #fff; font-weight: 800; }
+
+              .banner-tag {
+                margin-left: auto;
+                padding: 7px 10px;
+                border-radius: 6px;
+                background: rgba(31,214,95,.08);
+                border: 1px solid rgba(31,214,95,.18);
+                color: #69da92;
+                font-size: 9px;
+                font-weight: 800;
+                text-transform: uppercase;
+                white-space: nowrap;
               }
 
               .gold {
@@ -325,10 +376,42 @@ function CommunityCases(props) {
               }
 
               .top-bar {
+                display: grid;
+                grid-template-columns: minmax(210px, auto) minmax(320px, 1fr) auto;
+                align-items: center;
+                gap: 16px;
+                padding: 14px;
+                border-radius: 10px;
+                border: 1px solid rgba(255,255,255,.06);
+                background: linear-gradient(145deg, rgba(17,22,32,.96), rgba(8,12,19,.98));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 14px 34px rgba(0,0,0,.22);
+              }
+
+              .page-identity {
                 display: flex;
                 align-items: center;
-                justify-content: space-between;
-                gap: 10px;
+                gap: 12px;
+                min-width: 0;
+              }
+
+              .page-identity > div {
+                padding-left: 12px;
+                border-left: 1px solid rgba(255,255,255,.08);
+              }
+
+              .page-identity span {
+                color: #687284;
+                font-size: 9px;
+                font-weight: 800;
+                text-transform: uppercase;
+              }
+
+              .page-identity h1 {
+                margin: 2px 0 0;
+                color: #fff;
+                font-size: 17px;
+                font-weight: 800;
+                white-space: nowrap;
               }
 
               .back-link {
@@ -360,6 +443,7 @@ function CommunityCases(props) {
                 display: flex;
                 gap: 8px;
                 justify-content: center;
+                align-items: center;
               }
 
               .search-wrap {
@@ -368,18 +452,21 @@ function CommunityCases(props) {
                 gap: 8px;
 
                 width: min(320px, 100%);
-                height: 38px;
+                height: 40px;
                 padding: 0 12px;
                 box-sizing: border-box;
 
-                border-radius: 5px;
-                background: #12151c;
-                border: 1px solid #2c3340;
-                transition: border-color .2s;
+                border-radius: 7px;
+                background: rgba(4,7,12,.58);
+                border: 1px solid rgba(255,255,255,.08);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+                transition: border-color .2s, background .2s, box-shadow .2s;
               }
 
               .search-wrap:focus-within {
                 border-color: rgba(31, 214, 95, 0.45);
+                background: rgba(7,14,11,.72);
+                box-shadow: 0 0 0 2px rgba(31,214,95,.08);
               }
 
               .search-wrap input {
@@ -399,12 +486,12 @@ function CommunityCases(props) {
               }
 
               .sort-select {
-                height: 38px;
-                padding: 0 10px;
+                height: 40px;
+                padding: 0 12px;
                 outline: unset;
-                border-radius: 5px;
-                background: #12151c;
-                border: 1px solid #2c3340;
+                border-radius: 7px;
+                background: rgba(4,7,12,.58);
+                border: 1px solid rgba(255,255,255,.08);
                 color: #8b92a0;
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 12px;
@@ -417,6 +504,14 @@ function CommunityCases(props) {
                 border-color: rgba(31, 214, 95, 0.45);
               }
 
+              .result-count {
+                color: #687284;
+                font-size: 9px;
+                font-weight: 800;
+                text-transform: uppercase;
+                white-space: nowrap;
+              }
+
               .top-actions {
                 display: flex;
                 gap: 8px;
@@ -427,12 +522,13 @@ function CommunityCases(props) {
                 align-items: center;
                 gap: 7px;
 
-                height: 38px;
+                height: 40px;
                 padding: 0 16px;
                 outline: unset;
                 border: unset;
-                border-radius: 5px;
-                background: #1fd65f;
+                border-radius: 7px;
+                background: linear-gradient(180deg, #24df68, #11b950);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 8px 20px rgba(31,214,95,.12);
                 color: #04240f;
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 13px;
@@ -448,10 +544,10 @@ function CommunityCases(props) {
               }
 
               .view-btn {
-                height: 38px;
+                height: 40px;
                 padding: 0 16px;
                 outline: unset;
-                border-radius: 5px;
+                border-radius: 7px;
                 background: rgba(31, 214, 95, 0.08);
                 border: 1px solid rgba(31, 214, 95, 0.45);
                 color: #1fd65f;
@@ -468,7 +564,7 @@ function CommunityCases(props) {
 
               .layout {
                 display: flex;
-                gap: 15px;
+                gap: 18px;
                 align-items: flex-start;
               }
 
@@ -476,8 +572,8 @@ function CommunityCases(props) {
                 flex: 1;
                 min-width: 0;
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-                gap: 12px;
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: 15px;
               }
 
               .empty {
@@ -502,11 +598,13 @@ function CommunityCases(props) {
                 align-items: center;
                 gap: 6px;
 
-                border-radius: 8px;
-                background: linear-gradient(180deg, rgba(31, 36, 47, 0.82) 0%, rgba(17, 20, 28, 0.98) 66%, rgba(10, 13, 20, 1) 100%);
-                border: 1px solid rgba(255, 255, 255, 0.045);
+                min-height: 344px;
+                box-sizing: border-box;
+                border-radius: 10px;
+                background: radial-gradient(circle at 50% 42%, rgba(31,214,95,.055), transparent 35%), linear-gradient(180deg, rgba(22, 28, 38, 0.94) 0%, rgba(12, 16, 24, 0.98) 66%, rgba(7, 10, 16, 1) 100%);
+                border: 1px solid rgba(255, 255, 255, 0.06);
                 box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035), 0 14px 34px rgba(0, 0, 0, 0.24);
-                padding: 14px;
+                padding: 16px 14px 14px;
                 position: relative;
                 overflow: hidden;
                 isolation: isolate;
@@ -531,8 +629,10 @@ function CommunityCases(props) {
                 justify-content: center;
                 gap: 5px;
 
-                background: conic-gradient(from 180deg at 50% 50%, #FFDC18 -0.3deg, #B17818 72.1deg, rgba(156, 99, 15, 0.611382) 139.9deg, rgba(126, 80, 12, 0.492874) 180.52deg, rgba(102, 65, 10, 0.61) 215.31deg, #B17818 288.37deg, #FFDC18 359.62deg, #FFDC18 359.7deg, #B17818 432.1deg);
-                border-radius: 3px;
+                background: linear-gradient(180deg, rgba(18,84,49,.95), rgba(9,57,32,.98));
+                border: 1px solid rgba(31,214,95,.42);
+                border-radius: 6px;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 7px 18px rgba(0,0,0,.22);
                 position: relative;
                 z-index: 2;
 
@@ -543,17 +643,7 @@ function CommunityCases(props) {
               }
 
               .cost:before {
-                position: absolute;
-                left: 1px;
-                top: 1px;
-                z-index: -1;
-                content: '';
-
-                height: calc(100% - 2px);
-                width: calc(100% - 2px);
-                border-radius: 3px;
-
-                background: linear-gradient(0deg, rgba(31, 214, 95, 0.48), rgba(31, 214, 95, 0.48)), linear-gradient(252.77deg, #12151c -27.53%, #1f242e 175.86%);
+                content: none;
               }
 
               .like-btn {
@@ -689,9 +779,10 @@ function CommunityCases(props) {
                 width: 100%;
                 height: 40px;
                 margin-top: 2px;
-                border-radius: 5px;
-                background: linear-gradient(180deg, #08d15a 0%, #05b94d 100%);
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 4px 0 rgba(0, 104, 45, 0.55), 0 10px 24px rgba(8, 209, 90, 0.12);
+                border-radius: 7px;
+                background: linear-gradient(180deg, #1bd861 0%, #0db950 100%);
+                border: 1px solid rgba(75,242,137,.35);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 22px rgba(8, 209, 90, 0.12);
 
                 display: flex;
                 align-items: center;
@@ -759,14 +850,17 @@ function CommunityCases(props) {
               .sidebar {
                 width: 280px;
                 min-width: 280px;
+                position: sticky;
+                top: 18px;
 
                 display: flex;
                 flex-direction: column;
                 gap: 12px;
 
-                border-radius: 8px;
-                background: #12151c;
-                border: 1px solid #2c3340;
+                border-radius: 10px;
+                background: linear-gradient(145deg, rgba(18,24,34,.96), rgba(8,12,19,.98));
+                border: 1px solid rgba(255,255,255,.07);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 16px 36px rgba(0,0,0,.25);
                 padding: 18px;
                 box-sizing: border-box;
               }
@@ -776,9 +870,9 @@ function CommunityCases(props) {
                 flex-direction: column;
                 gap: 4px;
                 padding: 12px;
-                border-radius: 6px;
-                background: #1a1f29;
-                border: 1px solid #2c3340;
+                border-radius: 7px;
+                background: rgba(255,255,255,.035);
+                border: 1px solid rgba(255,255,255,.07);
               }
 
               .stat-block.row {
@@ -877,6 +971,17 @@ function CommunityCases(props) {
                 line-height: 1.5;
               }
 
+              @media only screen and (max-width: 1180px) {
+                .top-bar {
+                  grid-template-columns: 1fr auto;
+                }
+
+                .toolbar {
+                  grid-column: 1 / -1;
+                  grid-row: 2;
+                }
+              }
+
               @media only screen and (max-width: 1000px) {
                 .layout {
                   flex-direction: column-reverse;
@@ -885,14 +990,10 @@ function CommunityCases(props) {
                 .sidebar {
                   width: 100%;
                   min-width: 0;
-                }
-
-                .top-bar {
-                  flex-wrap: wrap;
+                  position: static;
                 }
 
                 .toolbar {
-                  order: 3;
                   width: 100%;
                   justify-content: stretch;
                 }
@@ -900,6 +1001,22 @@ function CommunityCases(props) {
                 .search-wrap {
                   width: 100%;
                 }
+              }
+
+              @media only screen and (max-width: 680px) {
+                .community-container { gap: 12px; padding-bottom: 36px; }
+                .banner-tag, .result-count { display: none; }
+                .banner-copy p { font-size: 10px; line-height: 1.4; }
+                .top-bar { display: flex; flex-direction: column; align-items: stretch; padding: 12px; }
+                .page-identity, .top-actions { justify-content: space-between; }
+                .page-identity > div { margin-left: auto; }
+                .toolbar { order: 3; flex-wrap: wrap; }
+                .search-wrap { flex-basis: 100%; }
+                .sort-select { flex: 1; }
+                .top-actions > * { flex: 1; padding: 0 10px; justify-content: center; }
+                .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+                .case-card { min-height: 330px; padding-left: 10px; padding-right: 10px; }
+                .earned { width: calc(100% + 20px); margin-left: -10px; margin-right: -10px; }
               }
             `}</style>
         </>
