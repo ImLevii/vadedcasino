@@ -20,14 +20,16 @@ function isTerminalStatus(status) {
     return TERMINAL_STATUSES.has(status);
 }
 
-function assertProviderContract() {
+function assertProviderContract(mode = 'live') {
+    if (mode === 'sandbox') return mode;
+
     const error = new Error('SkinDeck merchant contract has not been verified.');
     error.code = 'SKINDECK_CONTRACT_UNAVAILABLE';
     throw error;
 }
 
-function isProviderContractReady() {
-    return false;
+function isProviderContractReady(mode = 'live') {
+    return mode === 'sandbox';
 }
 
 module.exports = {

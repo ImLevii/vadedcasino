@@ -91,9 +91,11 @@ test('redactor removes nested credentials and signatures', () => {
     });
 });
 
-test('provider contract fails closed until official details are verified', () => {
+test('provider contract supports sandbox and fails closed for unverified live mode', () => {
     const {assertProviderContract, isProviderContractReady} = require('../../routes/trading/skindeck/contract');
-    assert.equal(isProviderContractReady(), false);
+    assert.equal(isProviderContractReady('sandbox'), true);
+    assert.equal(assertProviderContract('sandbox'), 'sandbox');
+    assert.equal(isProviderContractReady('live'), false);
     assert.throws(assertProviderContract, error => error.code === 'SKINDECK_CONTRACT_UNAVAILABLE');
 });
 

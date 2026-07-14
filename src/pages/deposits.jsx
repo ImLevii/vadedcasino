@@ -1,5 +1,5 @@
 import {useSearchParams} from "@solidjs/router";
-import {createSignal, For, Show} from "solid-js";
+import {createResource, createSignal, For, Show} from "solid-js";
 import Method from "../components/Transactions/method";
 import CryptoDeposit from "../components/Deposits/crypto";
 import GiftcardDeposit from "../components/Deposits/giftcard";
