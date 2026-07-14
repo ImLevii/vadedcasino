@@ -8,11 +8,11 @@ import CaseItem from "../Cases/caseitem";
 function BattleUser(props) {
 
     function sumItemsWon() {
-        return getOwnPulls()?.reduce((pv, item) => pv + item?.price, 0)
+      return getOwnPulls().reduce((total, item) => total + (item?.price || 0), 0)
     }
 
     function getOwnPulls() {
-        if (!Array.isArray(props?.wonItems)) return
+      if (!Array.isArray(props?.wonItems)) return []
         return props?.wonItems?.filter(item => {
             if (props?.state !== 'WINNERS' && item.round >= props?.round) return false
             return item.userId === props?.player?.id
@@ -35,7 +35,7 @@ function BattleUser(props) {
                     {props?.player ? (
                         <>
                             <div class='balance'>
-                                <img src='/assets/icons/coin.svg' height='16px' width='16px' alt=''/>
+                              <img src='/assets/chips/chip-green.png' height='18' width='18' alt=''/>
                                 <p>
                                     {Math.floor(sumItemsWon())}
                                     <span class='gray'>.{getCents(sumItemsWon())}</span>
@@ -237,6 +237,7 @@ function BattleUser(props) {
               }
               
               .balance img {
+                object-fit: contain;
                 filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
               }
               

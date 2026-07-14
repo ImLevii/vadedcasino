@@ -1,9 +1,7 @@
-import {createEffect, createResource, createSignal, For, onCleanup, Show} from "solid-js";
-import {useWebsocket} from "../contexts/socketprovider";
-import {useUser} from "../contexts/usercontextprovider";
+import {createResource, createSignal, For, onCleanup, Show} from "solid-js";
 import Avatar from "../components/Level/avatar";
-import {getCents} from "../util/balance";
 import {api} from "../util/api";
+import {resolveImageSrc} from "../util/image";
 import Loader from "../components/Loader/loader";
 import {Meta, Title} from "@solidjs/meta";
 
@@ -11,7 +9,7 @@ function Leaderboard(props) {
 
     const [period, setPeriod] = createSignal('daily')
     const [placements, setPlacements] = createSignal([])
-    const [leaderboard, {mutate}] = createResource(() => period(), fetchLB)
+    const [leaderboard] = createResource(() => period(), fetchLB)
     const [time, setTime] = createSignal(0)
 
     async function fetchLB(period) {
@@ -23,10 +21,10 @@ function Leaderboard(props) {
                 setTime(lb.endsAt - Date.now())
             }
 
-            return mutate(lb)
+            return lb
         } catch (e) {
             console.log(e)
-            return mutate(null)
+            return null
         }
     }
 
@@ -37,7 +35,7 @@ function Leaderboard(props) {
     onCleanup(() => clearInterval(timer))
 
     function formatTimeLeft() {
-        const totalSeconds = Math.floor(time() / 1000)
+        const totalSeconds = Math.max(0, Math.floor(time() / 1000))
         const days = Math.floor(totalSeconds / 86400)
         const hours = Math.floor((totalSeconds % 86400) / 3600)
         const minutes = Math.floor((totalSeconds % 3600) / 60)
@@ -52,454 +50,500 @@ function Leaderboard(props) {
             <Meta name='title' content='Leaderboard'></Meta>
             <Meta name='description' content='Play On Cosmic Luck The Best Casino Platform To Win Coins And Prizes!'></Meta>
 
-            <div class='leaderboard-container fadein'>
-                <div class='leaderboard-banner'>
-                    <img class='art' src='/assets/art/goldswiggle.png' width='380' height='86'/>
-                    <img class='art right' src='/assets/art/goldswiggle.png' width='380' height='86'/>
-
-                    <img class='coin' src='/assets/icons/coin.svg' width='100' height='88'/>
-                    <img class='coin two' src='/assets/icons/coin2.svg' width='53' height='57'/>
-                    <img class='coin three' src='/assets/icons/coin.svg' width='96' height='86'/>
-                    <img class='coin four' src='/assets/icons/coin2.svg' width='63' height='68'/>
-
-                    <h1 class='title'>THE CLASH</h1>
-                    <p class='desc'>
-                        <span class='gold'>THE CLASH</span> IS A DAILY & WEEKLY LEADERBOARD BETWEEN ALL THE
-                        COMPETITIVE PLAYERS WHO WANT TO PARTICIPATE TO <span class='gold'>EARN AMAZING PRIZES!</span>
-                    </p>
-
-                    <div class='periods'>
-                        <button class={'period bevel-gold ' + (period() === 'daily' ? 'active' : '')} onClick={() => setPeriod('daily')}>DAILY</button>
-                        <button class={'period bevel-gold ' + (period() === 'weekly' ? 'active' : '')} onClick={() => setPeriod('weekly')}>WEEKLY</button>
-                    </div>
+            <main class='leaderboard-container fadein'>
+              <section class='leaderboard-banner'>
+                <div class='banner-copy'>
+                  <div class='eyebrow'>
+                    <img src='/assets/logo/cosmic-luck-logo.png' alt='' />
+                    <span>Cosmic Luck Rankings</span>
+                  </div>
+                  <h1>THE CLASH</h1>
+                  <p>Compete for the top daily and weekly positions. Every wager moves you closer to the prize pool.</p>
                 </div>
+
+                <div class='banner-actions'>
+                  <span class='period-label'>Ranking period</span>
+                  <div class='periods' role='group' aria-label='Leaderboard period'>
+                    <button class={'period ' + (period() === 'daily' ? 'active' : '')} onClick={() => setPeriod('daily')}>Daily</button>
+                    <button class={'period ' + (period() === 'weekly' ? 'active' : '')} onClick={() => setPeriod('weekly')}>Weekly</button>
+                  </div>
+                </div>
+
+                <img class='banner-chip chip-one' src='/assets/chips/chip-green-clover.png' alt='' />
+                <img class='banner-chip chip-two' src='/assets/chips/chip-white-clover.png' alt='' />
+              </section>
 
                 <Show when={!leaderboard.loading} fallback={<Loader/>}>
                     <>
-                        <div className='time'>
-                            <img src='/assets/icons/timer.svg' width='19' height='22' alt=''/>
-                            <p>{formatTimeLeft()}</p>
+                  <div class='leaderboard-status'>
+                    <div>
+                      <span class='status-dot'/>
+                      <span>{period() === 'daily' ? 'Daily' : 'Weekly'} competition live</span>
+                    </div>
+                    <div class='time'>
+                      <img src='/assets/icons/timer.svg' width='16' height='18' alt=''/>
+                      <span>Resets in</span>
+                      <strong>{formatTimeLeft()}</strong>
+                    </div>
                         </div>
 
-                        <div className='podium-container'>
-                            <div className='podium first'>
-                                <p className='tag'>1st PLACE</p>
-
-                                <Avatar id={placements()[0] ? placements()[0]?.id || 'Anonymous' : '?'} height='68'
-                                        xp='gold'/>
-                                <p>{placements()[0] ? placements()[0]?.username || 'Anonymous' : 'No User'}</p>
-                                <div className='cost'>
-                                    <img src='/assets/icons/coin.svg' height='14' width='15' alt=''/>
-                                    <p>{(placements()[0]?.wagered || 0)?.toLocaleString(undefined, {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    })}</p>
-                                </div>
-                                <div className='bar'/>
-                                <img className='item'
-                                     src={placements()[0]?.item} alt=''
-                                     height='56'/>
-                                <div className='cost'>
-                                    <img src='/assets/icons/coin.svg' height='14' width='15' alt=''/>
-                                    <p>{(placements()[0]?.reward || 0)?.toLocaleString(undefined, {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    })}</p>
-                                </div>
+                  <div class='podium-container'>
+                    <For each={[
+                      {placement: 1, class: 'second', label: '2nd'},
+                      {placement: 0, class: 'first', label: '1st'},
+                      {placement: 2, class: 'third', label: '3rd'}
+                    ]}>{(position) => {
+                      const player = () => placements()[position.placement]
+                      return (
+                        <article class={'podium ' + position.class}>
+                          <span class='tag'>{position.label}</span>
+                          <div class='avatar-wrap'>
+                            <Avatar id={player()?.id || '?'} height='68' xp={position.class === 'first' ? 'gold' : position.class === 'second' ? 'silver' : 'bronze'}/>
+                          </div>
+                          <strong class='username'>{player()?.username || 'Open position'}</strong>
+                          <div class='metric'>
+                            <span>Wagered</span>
+                            <strong>{(player()?.wagered || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
+                          </div>
+                          <div class='prize'>
+                            <div class='prize-art'>
+                              <Show when={player()?.item} fallback={<img src='/assets/chips/chip-green.png' alt=''/>}>
+                                <img src={resolveImageSrc(player()?.item)} alt='Prize'/>
+                              </Show>
                             </div>
-
-                            <div className='podium second'>
-                                <p className='tag'>2nd PLACE</p>
-
-                                <Avatar id={placements()[1] ? placements()[1]?.id || 'Anonymous' : '?'} height='68'
-                                        xp='silver'/>
-                                <p>{placements()[1] ? placements()[1]?.username || 'Anonymous' : 'No User'}</p>
-                                <div className='cost'>
-                                    <img src='/assets/icons/coin.svg' height='14' width='15' alt=''/>
-                                    <p>{(placements()[1]?.wagered || 0)?.toLocaleString(undefined, {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    })}</p>
-                                </div>
-                                <div className='bar'/>
-                                <img className='item' src={placements()[1]?.item} alt='' height='56'/>
-                                <div className='cost'>
-                                    <img src='/assets/icons/coin.svg' height='14' width='15' alt=''/>
-                                    <p>{(placements()[1]?.reward || 0)?.toLocaleString(undefined, {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    })}</p>
-                                </div>
+                            <div>
+                              <span>Prize</span>
+                              <strong>{(player()?.reward || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
                             </div>
-
-                            <div className='podium third'>
-                                <p className='tag'>3rd PLACE</p>
-
-                                <Avatar id={placements()[2] ? placements()[2]?.id || 'Anonymous' : '?'} height='68'
-                                        xp='bronze'/>
-                                <p>{placements()[2] ? placements()[2]?.username || 'Anonymous' : 'No User'}</p>
-                                <div className='cost'>
-                                    <img src='/assets/icons/coin.svg' height='14' width='15' alt=''/>
-                                    <p>{(placements()[2]?.wagered || 0)?.toLocaleString(undefined, {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    })}</p>
-                                </div>
-                                <div className='bar'/>
-                                <img className='item'
-                                     src={placements()[2]?.item} alt=''
-                                     height='56'/>
-                                <div className='cost'>
-                                    <img src='/assets/icons/coin.svg' height='14' width='15' alt=''/>
-                                    <p>{(placements()[2]?.reward || 0)?.toLocaleString(undefined, {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    })}</p>
-                                </div>
-                            </div>
+                          </div>
+                        </article>
+                      )
+                    }}</For>
                         </div>
 
-                        <div className='bar divider'/>
+                  <section class='rankings-table'>
+                    <div class='section-heading'>
+                      <div>
+                        <span>Standings</span>
+                        <h2>Top competitors</h2>
+                      </div>
+                      <span>{placements().length} ranked players</span>
+                    </div>
 
-                        <div className='table-header'>
-                            <div className='table-column'>
-                                <p>PLACE</p>
-                            </div>
+                    <div class='table-header'>
+                      <span>Place</span><span>Player</span><span>Wagered</span><span>Reward</span>
+                    </div>
 
-                            <div className='table-column'>
-                                <p>USER</p>
-                            </div>
-
-                            <div className='table-column'>
-                                <p>WAGERED</p>
-                            </div>
-
-                            <div className='table-column'>
-                                <p>REWARD</p>
-                            </div>
+                    <Show when={placements().length > 3} fallback={<div class='empty-state'>No additional rankings yet.</div>}>
+                      <For each={placements().slice(3)}>{(placement, index) => (
+                        <div class='table-data'>
+                          <strong class='place'>#{index() + 4}</strong>
+                          <div class='player'>
+                            <Avatar id={placement?.id} height='32'/>
+                            <strong>{placement?.username || 'Anonymous'}</strong>
+                          </div>
+                          <div class='value' data-label='Wagered'>
+                            <img src='/assets/chips/chip-green.png' alt=''/>
+                            <span>{(placement?.wagered || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                          </div>
+                          <div class='value reward' data-label='Reward'>
+                            <span>{(placement?.reward || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                          </div>
                         </div>
-
-                        <For each={placements().slice(3)}>{(placement, index) => (
-                            <div className='table-data'>
-                                <div className='table-column'>
-                                    <p>#{index() + 4}</p>
-                                </div>
-
-                                <div className='table-column'>
-                                    <Avatar id={placement?.id} height='30'/>
-                                    <p>{placement?.username || 'Anonymous'}</p>
-                                </div>
-
-                                <div className='table-column'>
-                                    <img src='/assets/icons/coin.svg' height='15' width='16' alt=''/>
-                                    <p>{(placement?.wagered || 0)?.toLocaleString(undefined, {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    })}</p>
-                                </div>
-
-                                <div className='table-column gold'>
-                                    <img src='/assets/icons/coin.svg' height='15' width='16' alt=''/>
-                                    <p>{(placement?.reward || 0).toLocaleString(undefined, {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
-                                    })}</p>
-                                </div>
-                            </div>
-                        )}</For>
+                      )}</For>
+                    </Show>
+                  </section>
                     </>
                 </Show>
-            </div>
+            </main>
 
             <style jsx>{`
               .leaderboard-container {
                 width: 100%;
                 max-width: 1175px;
-                height: fit-content;
-
                 box-sizing: border-box;
-                padding: 30px 0;
+                padding: 30px 18px 96px;
                 margin: 0 auto;
               }
-              
+
               .leaderboard-banner {
+                position: relative;
                 width: 100%;
-                height: 165px;
+                min-height: 210px;
+                padding: 34px 38px;
+                box-sizing: border-box;
+                overflow: hidden;
 
                 border-radius: 8px;
-                border: 1px dashed #1fd65f;
-                background: linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.30) 100%), radial-gradient(102.11% 102.11% at 50.00% 103.31%, rgba(255, 171, 46, 0.78) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(0deg, rgba(0, 0, 0, 0.30) 0%, rgba(0, 0, 0, 0.20) 100%), radial-gradient(4404.69% 184.13% at 1.21% 0.00%, rgba(245, 170, 56, 0.60) 0%, rgba(0, 0, 0, 0.00) 100%), radial-gradient(7956.17% 242.63% at 105.07% -21.99%, rgba(255, 168, 0, 0.74) 0%, rgba(0, 0, 0, 0.00) 100%), #F4AD59;
-
+                border: 1px solid rgba(255, 255, 255, .07);
+                background: radial-gradient(70% 140% at 100% 50%, rgba(31, 214, 95, .13), transparent 64%), linear-gradient(135deg, rgba(20, 25, 34, .96), rgba(9, 12, 18, .98));
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, .045), 0 18px 50px rgba(0, 0, 0, .24);
                 display: flex;
-                gap: 10px;
-                flex-direction: column;
                 align-items: center;
-                justify-content: center;
-                
+                justify-content: space-between;
+                gap: 30px;
+              }
+
+              .leaderboard-banner::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                background-image: linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+                background-size: 26px 26px;
+                mask-image: linear-gradient(90deg, #000, transparent 75%);
+              }
+
+              .banner-copy, .banner-actions {
                 position: relative;
-              }
-              
-              .coin {
-                position: absolute;
-                left: -30px;
-                bottom: 5px;
+                z-index: 2;
               }
 
-              .coin.two {
-                position: absolute;
-                left: 36px;
-                top: -10px;
+              .banner-copy {
+                max-width: 650px;
               }
 
-              .coin.three {
-                position: absolute;
-                left: unset;
-                right: 14px;
-                top: 5px;
+              .eyebrow {
+                display: flex;
+                align-items: center;
+                gap: 9px;
+                margin-bottom: 12px;
+                color: #8e98a8;
+                font-family: "Geogrotesque Wide", sans-serif;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
               }
 
-              .coin.four {
-                position: absolute;
-                left: unset;
-                right: -18px;
-                bottom: 5px;
-                transform: rotate(30deg);
+              .eyebrow img {
+                width: 24px;
+                height: 24px;
+                object-fit: contain;
               }
-              
-              .art {
-                position: absolute;
-                left: 0;
+
+              h1, h2, p {
+                margin: 0;
               }
-              
-              .art.right {
-                left: unset;
-                right: 0;
-                transform: rotate(180deg) scaleY(-1);
-              }
-              
-              .title {
-                background: linear-gradient(37deg, #F90 30.03%, #F9AC39 42.84%);
-                background-clip: text;
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                
-                text-align: center;
-                font-family: "Rubik", sans-serif;
-                font-size: 54px;
-                font-weight: 900;
-                filter: drop-shadow(0px 3px 0px rgba(0, 0, 0, 0.4));
-              }
-              
+
               h1 {
-                margin: unset;
+                color: #fff;
+                font-family: "Geogrotesque Wide", sans-serif;
+                font-size: 38px;
+                font-weight: 800;
+                line-height: 1;
               }
-              
-              .desc {
-                color: #FFF;
-                text-align: center;
-                font-family: "Rubik", sans-serif;
-                font-size: 16px;
-                font-weight: 700;
-                max-width: 625px;
-              }
-              
-              .periods {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                
-                position: absolute;
-                top: 18px;
-                margin-left: 550px;
-              }
-              
-              .period {
-                height: 30px;
-                padding: 0 15px;
-              }
-              
-              .period:disabled {
-                cursor: not-allowed;
-                opacity: 0.5;
-              }
-              
-              .period.active {
-                box-shadow: unset;
-                border-radius: 3px;
-                border: 1px solid #1fd65f;
-                background: rgba(31, 214, 95, 0.25);
-                color: #1fd65f;
-              }
-              
-              .time {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                
-                margin-top: 20px;
-                justify-content: flex-end;
 
-                color: #FFF;
-                font-size: 16px;
+              .banner-copy > p {
+                max-width: 580px;
+                margin-top: 14px;
+                color: #9099a8;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 1.55;
+              }
+
+              .banner-actions {
+                min-width: 220px;
+                padding: 14px;
+                border: 1px solid rgba(255,255,255,.065);
+                border-radius: 8px;
+                background: rgba(7, 10, 15, .62);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+              }
+
+              .period-label {
+                display: block;
+                margin: 0 0 9px 2px;
+                color: #737d8c;
+                font-size: 10px;
+                font-weight: 700;
+                text-transform: uppercase;
+              }
+
+              .periods {
+                height: 38px;
+                padding: 3px;
+                display: flex;
+                gap: 3px;
+                border-radius: 6px;
+                background: rgba(255,255,255,.04);
+              }
+
+              .period {
+                flex: 1;
+                border: 0;
+                border-radius: 5px;
+                outline: 0;
+                background: transparent;
+                color: #818a99;
+                font-family: "Geogrotesque Wide", sans-serif;
+                font-size: 11px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: .2s ease;
+              }
+
+              .period.active {
+                background: #1fd65f;
+                color: #06170c;
+                box-shadow: 0 5px 16px rgba(31,214,95,.22);
+              }
+
+              .banner-chip {
+                position: absolute;
+                z-index: 1;
+                width: 74px;
+                opacity: .33;
+                filter: drop-shadow(0 14px 20px rgba(0,0,0,.5));
+                pointer-events: none;
+              }
+
+              .chip-one { right: 292px; bottom: -28px; transform: rotate(20deg); }
+              .chip-two { right: 255px; top: -27px; transform: rotate(-22deg); }
+
+              .leaderboard-status {
+                min-height: 50px;
+                margin: 16px 0 26px;
+                padding: 0 16px;
+                border: 1px solid rgba(255,255,255,.055);
+                border-radius: 8px;
+                background: rgba(14, 18, 25, .72);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                color: #8a94a3;
+                font-size: 12px;
                 font-weight: 700;
               }
-              
+
+              .leaderboard-status > div, .time {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              }
+
+              .status-dot {
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                background: #1fd65f;
+                box-shadow: 0 0 12px rgba(31,214,95,.75);
+              }
+
+              .time strong {
+                color: #fff;
+                font-variant-numeric: tabular-nums;
+              }
+
               .podium-container {
                 width: 100%;
-                
-                display: flex;
-                align-items: flex-end;
-                gap: 50px;
-                padding: 0 60px;
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                align-items: end;
+                gap: 14px;
               }
-              
+
               .podium {
-                flex: 1 1 0;
-                height: 286px;
-                border: 1px solid transparent;
-                border-radius: 5px;
                 position: relative;
-                padding: 20px;
-                
+                min-height: 285px;
+                padding: 28px 22px 20px;
+                box-sizing: border-box;
                 display: flex;
                 flex-direction: column;
-                gap: 6px;
                 align-items: center;
-
-                color: #FFF;
+                gap: 12px;
+                overflow: hidden;
+                border: 1px solid rgba(255,255,255,.07);
+                border-radius: 8px;
+                background: radial-gradient(80% 55% at 50% 100%, var(--podium-glow), transparent), linear-gradient(180deg, rgba(22,27,36,.94), rgba(11,14,20,.98));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 12px 35px rgba(0,0,0,.2);
+                color: #fff;
                 font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 14px;
-                font-weight: 700;
               }
-              
-              .bar {
-                width: 100%;
-                min-height: 1px;
-                margin: 6px 0;
-                background: #3a4250;
-              }
-              
-              .bar.divider {
-                margin: 35px 0 0 0;
-              }
-              
-              .item {
-                margin: auto 0 auto 0;
-              }
-              
-              .cost {
-                border-radius: 3px;
-                background: rgba(31, 214, 95, 0.24);
-                min-height: 30px;
-                padding: 0 12px;
-              }
-              
-              .tag {
-                padding: 0 8px;
-                height: 25px;
-                position: absolute;
-                top: -6px;
-                left: -1px;
 
-                color: #FFF;
-                font-size: 12px;
-                font-weight: 700;
-                line-height: 25px;
-                
-                border-radius: 2px;
+              .podium.first {
+                min-height: 310px;
+                --podium-accent: #1fd65f;
+                --podium-glow: rgba(31,214,95,.17);
+                border-color: rgba(31,214,95,.32);
               }
-              
-              .first {
-                height: 312px;
-                background: radial-gradient(134.74% 103.27% at 50.00% 103.27%, rgba(31, 214, 95, 0.34) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(143deg, rgba(255, 153, 0, 0.15) 30.03%, rgba(249, 172, 57, 0.15) 42.84%);
-                border-color: rgb(249, 172, 57);
-                order: 2;
+
+              .podium.second { --podium-accent: #b9c2ce; --podium-glow: rgba(185,194,206,.11); }
+              .podium.third { --podium-accent: #bf8063; --podium-glow: rgba(191,128,99,.13); }
+
+              .podium::after {
+                content: '';
+                position: absolute;
+                left: 24px;
+                right: 24px;
+                bottom: 0;
+                height: 2px;
+                background: var(--podium-accent);
+                box-shadow: 0 0 18px var(--podium-accent);
               }
-              
-              .first .tag {
-                background: linear-gradient(37deg, #F90 30.03%, #F9AC39 42.84%);
+
+              .tag {
+                position: absolute;
+                top: 13px;
+                left: 13px;
+                min-width: 38px;
+                height: 24px;
+                display: grid;
+                place-items: center;
+                border: 1px solid color-mix(in srgb, var(--podium-accent) 42%, transparent);
+                border-radius: 5px;
+                background: color-mix(in srgb, var(--podium-accent) 10%, transparent);
+                color: var(--podium-accent);
+                font-size: 10px;
+                font-weight: 800;
               }
-              
-              .first .bar {
-                background: linear-gradient(270deg, rgba(252, 162, 27, 0.00) 0%, rgba(252, 162, 27, 0.65) 49.00%, rgba(252, 162, 27, 0.00) 100%);
-              }
-              
-              .second {
-                background: radial-gradient(134.74% 103.27% at 50.00% 103.27%,  rgba(189, 189, 189, 0.34) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(37deg, rgba(209, 209, 209, 0.15) 30.03%, rgba(251, 251, 251, 0.15) 42.84%);
-                border-color: rgb(193, 193, 193);
-                order: 1;
-              }
-              
-              .second .tag {
-                color: rgba(0, 0, 0, 0.53);
-                background: linear-gradient(37deg, #D1D1D1 30.03%, #FBFBFB 42.84%);
-              }
-              
-              .second .bar {
-                background: linear-gradient(270deg, rgba(137, 137, 137, 0.00) 0%, rgba(192, 192, 192, 0.33) 49.00%, rgba(137, 137, 137, 0.00) 100%);
-              }
-              
-              .third {
-                background: radial-gradient(134.74% 103.27% at 50.00% 103.27%, rgba(115, 85, 68, 0.34) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(37deg, rgba(115, 85, 68, 0.15) 30.03%, rgba(160, 121, 98, 0.15) 42.84%);
-                border-color: rgb(164, 124, 102);
-                order: 3;
-              }
-              
-              .third .tag {
-                color: rgba(0, 0, 0, 0.46);
-                background: linear-gradient(37deg, #735544 30.03%, #A07962 42.84%);
-              }
-              
-              .third .bar {
-                background: linear-gradient(270deg, rgba(252, 162, 27, 0.00) 0%, rgba(252, 162, 27, 0.33) 49.00%, rgba(252, 162, 27, 0.00) 100%);
-              }
-              
-              .table-header, .table-data {
+
+              .avatar-wrap { margin-top: 13px; }
+              .username { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+
+              .metric {
+                width: 100%;
+                padding: 10px 12px;
+                box-sizing: border-box;
                 display: flex;
                 justify-content: space-between;
-                margin: 20px 0;
+                gap: 10px;
+                border: 1px solid rgba(255,255,255,.05);
+                border-radius: 6px;
+                background: rgba(4,7,11,.42);
+                font-size: 11px;
               }
-              
-              .table-data {
-                height: 55px;
-                background: rgba(58, 66, 80, 0.45);
-                padding: 0 20px;
-                
-                display: flex;
-                align-items: center;
 
-                color: #8b92a0;
-                font-size: 14px;
-                font-weight: 700;
-              }
-              
-              .table-column {
+              .metric span, .prize span { color: #747e8d; }
+              .metric strong { color: #dce2e9; font-variant-numeric: tabular-nums; }
+
+              .prize {
+                width: 100%;
+                margin-top: auto;
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                flex: 1 1 0;
+                gap: 11px;
               }
-              
-              .table-column:nth-of-type(4n) {
-                justify-content: flex-end;
+
+              .prize-art {
+                width: 62px;
+                height: 50px;
+                flex: 0 0 62px;
+                display: grid;
+                place-items: center;
+                border-radius: 6px;
+                background: rgba(255,255,255,.035);
               }
-              
-              .table-header p {
-                background: rgba(58, 66, 80, 0.45);
-                height: 25px;
-                line-height: 25px;
+
+              .prize-art img { max-width: 56px; max-height: 44px; object-fit: contain; }
+              .prize > div:last-child { min-width: 0; display: flex; flex-direction: column; gap: 4px; font-size: 10px; }
+              .prize strong { color: #1fd65f; font-size: 13px; font-variant-numeric: tabular-nums; }
+
+              .rankings-table {
+                margin-top: 28px;
+                padding: 20px;
+                border: 1px solid rgba(255,255,255,.06);
+                border-radius: 8px;
+                background: linear-gradient(180deg, rgba(18,22,30,.88), rgba(10,13,18,.94));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+              }
+
+              .section-heading {
+                display: flex;
+                align-items: end;
+                justify-content: space-between;
+                gap: 15px;
+                margin-bottom: 18px;
+              }
+
+              .section-heading span { color: #6f7988; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+              .section-heading h2 { margin-top: 4px; color: #fff; font-family: "Geogrotesque Wide", sans-serif; font-size: 18px; }
+
+              .table-header, .table-data {
+                display: grid;
+                grid-template-columns: 90px minmax(180px, 1.4fr) minmax(140px, 1fr) minmax(120px, .8fr);
+                align-items: center;
+              }
+
+              .table-header {
+                min-height: 34px;
                 padding: 0 15px;
-                border-radius: 2px;
-
-                color: #8b92a0;
-                font-size: 12px;
+                color: #657080;
+                font-size: 10px;
                 font-weight: 700;
+                text-transform: uppercase;
               }
-              
-              @media only screen and (max-width: 1000px) {
-                .leaderboard-container {
-                  padding-bottom: 90px;
+
+              .table-header span:last-child { text-align: right; }
+
+              .table-data {
+                min-height: 58px;
+                margin-top: 7px;
+                padding: 0 15px;
+                border: 1px solid rgba(255,255,255,.045);
+                border-radius: 7px;
+                background: rgba(255,255,255,.025);
+                color: #a4adba;
+                font-size: 12px;
+                transition: .18s ease;
+              }
+
+              .table-data:hover {
+                transform: translateY(-1px);
+                border-color: rgba(31,214,95,.16);
+                background: rgba(31,214,95,.025);
+              }
+
+              .place { color: #727c8b; }
+
+              .player, .value {
+                min-width: 0;
+                display: flex;
+                align-items: center;
+                gap: 9px;
+              }
+
+              .player strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #d7dde5; }
+              .value img { width: 17px; height: 17px; object-fit: contain; }
+              .value span { font-variant-numeric: tabular-nums; }
+              .reward { justify-content: flex-end; color: #1fd65f; font-weight: 700; }
+
+              .empty-state {
+                min-height: 90px;
+                display: grid;
+                place-items: center;
+                border: 1px dashed rgba(255,255,255,.07);
+                border-radius: 7px;
+                color: #737d8c;
+                font-size: 12px;
+              }
+
+              @media only screen and (max-width: 820px) {
+                .leaderboard-banner { align-items: flex-start; flex-direction: column; padding: 28px; }
+                .banner-actions { width: 100%; box-sizing: border-box; }
+                .banner-chip { display: none; }
+                .podium-container { grid-template-columns: 1fr; align-items: stretch; }
+                .podium, .podium.first { min-height: 250px; }
+                .podium.first { order: -1; }
+              }
+
+              @media only screen and (max-width: 620px) {
+                .leaderboard-container { padding: 18px 12px 90px; }
+                .leaderboard-banner { min-height: 0; padding: 24px 20px; }
+                h1 { font-size: 30px; }
+                .leaderboard-status { align-items: flex-start; flex-direction: column; padding: 12px 14px; }
+                .rankings-table { padding: 14px; }
+                .section-heading { align-items: flex-start; flex-direction: column; }
+                .table-header { display: none; }
+                .table-data {
+                  grid-template-columns: 42px minmax(0, 1fr) auto;
+                  min-height: 76px;
+                  padding: 10px 12px;
                 }
+                .value { display: none; }
+                .reward { display: flex; }
+                .reward::before { content: attr(data-label); color: #667180; font-size: 9px; text-transform: uppercase; }
               }
             `}</style>
         </>

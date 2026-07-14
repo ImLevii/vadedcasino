@@ -36,7 +36,7 @@ function BattleHeader(props) {
         <>
             <div class='battle-header'>
                 <div class='header-section'>
-                    <button class='back' class='bevel-light'>
+                    <button class='back bevel-light'>
                         <svg xmlns="http://www.w3.org/2000/svg" width="5" height="8" viewBox="0 0 5 8" fill="none">
                             <path
                                 d="M0.4976 4.00267C0.4976 3.87722 0.545618 3.75178 0.641454 3.65613L3.65872 0.646285C3.85066 0.454819 4.16185 0.454819 4.35371 0.646285C4.54556 0.837673 4.4976 1.00269 4.4976 1.33952L4.4976 4.00267L4.4976 6.50269C4.4976 7.00269 4.54547 7.16764 4.35361 7.35902C4.16175 7.55057 3.85056 7.55057 3.65863 7.35902L0.641361 4.34921C0.545509 4.25352 0.4976 4.12808 0.4976 4.00267Z"
@@ -66,7 +66,7 @@ function BattleHeader(props) {
                             <p>{getActiveCase()?.name}</p>
 
                             <div class='cost'>
-                                <img src='/assets/icons/coin.svg' height='16' alt=''/>
+                                <img src='/assets/chips/chip-green.png' height='18' width='18' alt=''/>
                                 <p>{Math.floor(getActiveCase()?.price || 0)}<span class='gray'>.{getCents(getActiveCase()?.price || 0)}</span></p>
                             </div>
                         </div>
@@ -78,7 +78,7 @@ function BattleHeader(props) {
                 <div class='header-section'>
                     <p class='total'>TOTAL COST</p>
                     <div class='cost'>
-                        <img src='/assets/icons/coin.svg' height='16' alt=''/>
+                        <img src='/assets/chips/chip-green.png' height='18' width='18' alt=''/>
                         <p>{Math.floor(props?.battle?.entryPrice || 0)}<span class='gray'>.{getCents(props?.battle?.entryPrice || 0)}</span></p>
                     </div>
                 </div>
@@ -88,6 +88,14 @@ function BattleHeader(props) {
               .battle-header {
                 display: flex;
                 justify-content: space-between;
+                align-items: center;
+                min-height: 58px;
+                padding: 9px 12px;
+                box-sizing: border-box;
+                border: 1px solid rgba(255,255,255,.055);
+                border-radius: 8px;
+                background: linear-gradient(180deg, rgba(18,23,31,.8), rgba(9,12,18,.9));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
               }
 
               .header-section {
@@ -117,7 +125,7 @@ function BattleHeader(props) {
               }
               
               .back {
-                height: 30px;
+                height: 32px;
                 padding: 0 10px;
                 font-weight: 700;
                 font-family: Geogrotesque Wide;
@@ -153,6 +161,11 @@ function BattleHeader(props) {
                 padding: 0 10px;
                 min-width: 100px;
                 gap: 6px;
+              }
+
+              .cost img {
+                object-fit: contain;
+                filter: drop-shadow(0 0 6px rgba(31,214,95,.22));
               }
 
               .cost p {
@@ -193,12 +206,32 @@ function BattleHeader(props) {
                 border-color: rgba(232,161,74,0.25);
               }
 
-              @media only screen and (max-width: 540px) {
-                .battles-header {
-                  justify-content: center;
-                  flex-direction: column;
-                  align-items: center;
-                  gap: 25px;
+              @media only screen and (max-width: 720px) {
+                .battle-header {
+                  flex-wrap: wrap;
+                  gap: 9px;
+                }
+
+                .header-section {
+                  flex: 1 1 auto;
+                }
+
+                .header-section:nth-child(2) {
+                  order: 3;
+                  flex-basis: 100%;
+                  min-height: 32px;
+                  border-top: 1px solid rgba(255,255,255,.045);
+                  padding-top: 8px;
+                }
+
+                .total {
+                  display: none;
+                }
+
+                .case-info {
+                  width: 100%;
+                  justify-content: space-between;
+                  font-size: 12px;
                 }
               }
             `}</style>

@@ -205,7 +205,13 @@ function Battle(props) {
     }
 
     function isCreator() {
-        return props?.user?.id === battle()?.players[0].id
+      return props?.user?.id === battle()?.players?.[0]?.id
+    }
+
+    function useImageFallback(event) {
+      event.currentTarget.onerror = null
+      event.currentTarget.src = '/assets/logo/cosmic-luck-logo.png'
+      event.currentTarget.classList.add('fallback')
     }
 
     function sendEmoji(emoji) {
@@ -240,10 +246,12 @@ function Battle(props) {
                             </div>
 
                             <div class='cases-container'>
-                                <div class='cases' style={{'transform': `translateX(-${72 * (round() - 1) + 30}px)`}}>
+                              <div class='cases' style={{'transform': `translateX(-${74 * Math.max(0, round() - 1) + 30}px)`}}>
                                     <For each={battle()?.rounds}>{(c, index) => <img class={'case ' + (round() - 1 === index() ? 'active' : '')}
-                                                                                     src={resolveImageSrc(getCase(c?.caseId)?.img)}
-                                                                                     width='60' height='60' alt=''/>}</For>
+                                                         src={resolveImageSrc(getCase(c?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
+                                                         width='60' height='60'
+                                                         alt={getCase(c?.caseId)?.name || 'Battle case'}
+                                                         onError={useImageFallback}/>}</For>
                                 </div>
                             </div>
 
@@ -300,13 +308,14 @@ function Battle(props) {
                 gap: 30px;
 
                 box-sizing: border-box;
-                padding: 30px 0;
+                padding: 30px 18px 96px;
                 margin: 0 auto;
               }
 
               .round-info {
                 width: 100%;
-                height: 70px;
+                min-height: 74px;
+                box-sizing: border-box;
                 position: relative;
 
                 border-radius: 12px;
@@ -322,7 +331,7 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 0 20px;
+                padding: 8px 16px;
                 backdrop-filter: blur(12px);
                 transition: all 0.3s ease;
               }
@@ -349,29 +358,28 @@ function Battle(props) {
                   0 0 0 1px rgba(31, 214, 95, 0.06);
               }
 
-              .round-info > * {
-                flex: 1;
-              }
-
-              .provably-container {
-                display: flex;
-                justify-content: flex-end;
+              .round-info > div:first-child {
+                flex: 0 0 auto;
               }
 
               .round-info-right {
                 display: flex;
-                flex-direction: column;
-                align-items: flex-end;
+                align-items: center;
                 justify-content: center;
-                gap: 6px;
-                flex: 1;
+                gap: 8px;
+                flex: 0 0 auto;
               }
 
               .emoji-bar {
                 display: flex;
                 align-items: center;
                 gap: 4px;
+                max-width: 268px;
+                overflow-x: auto;
+                scrollbar-width: none;
               }
+
+              .emoji-bar::-webkit-scrollbar { display: none; }
 
               .emoji-btn {
                 background: rgba(255,255,255,0.045);
@@ -424,6 +432,7 @@ function Battle(props) {
               }
 
               .cases-container {
+                flex: 1;
                 overflow: hidden;
                 height: 100%;
                 width: 100%;
@@ -446,10 +455,10 @@ function Battle(props) {
               
               .case {
                 opacity: 0.4;
-                transition: all 0.35s ease;
+                transition: opacity 0.35s ease, filter 0.35s ease, transform 0.35s ease;
                 filter: grayscale(1) brightness(0.7);
                 transform: scale(0.92);
-                object-fit: cover;
+                object-fit: contain;
                 border-radius: 8px;
               }
               
@@ -460,13 +469,19 @@ function Battle(props) {
                 box-shadow: 0 0 20px rgba(31, 214, 95, 0.25);
               }
 
+              .case.fallback {
+                padding: 14px;
+                box-sizing: border-box;
+                opacity: .24;
+              }
+
               .columns {
                 width: 100%;
-                overflow: hidden;
-                
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                overflow: visible;
+                box-sizing: border-box;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+                align-items: start;
                 gap: 14px;
                 padding: 12px;
                 border-radius: 14px;
@@ -496,32 +511,28 @@ function Battle(props) {
               }
 
               @media only screen and (max-width: 1040px) {
-                .columns {
-                  flex-direction: column;
-                }
+                .round-info { flex-wrap: wrap; }
+                .round-info-right { width: 100%; justify-content: space-between; }
+                .cases-container { max-width: none; min-width: 220px; }
               }
 
-              @media only screen and (max-width: 540px) {
-                .battles-header {
-                  justify-content: center;
-                  flex-direction: column;
-                  align-items: center;
-                  gap: 25px;
-                }
-
-                .right {
-                  justify-content: center;
-                }
-                
+              @media only screen and (max-width: 620px) {
+                .battle-container { padding: 20px 12px 90px; gap: 18px; }
                 .round-info {
-                  height: 65px;
-                  padding: 0 15px;
+                  padding: 10px;
+                  gap: 8px;
                 }
+                .cases-container { order: 3; flex-basis: 100%; height: 64px; }
+                .round-info-right { width: auto; margin-left: auto; }
+                .round-info-right .provably { display: none; }
+                .emoji-bar { max-width: 178px; }
+                .columns { grid-template-columns: 1fr; padding: 8px; }
               }
 
-              @media only screen and (max-width: 1000px) {
-                .battles-container {
-                  padding-bottom: 90px;
+              @media (prefers-reduced-motion: reduce) {
+                .cases, .case, .float-emoji {
+                  transition: none;
+                  animation-duration: .01ms;
                 }
               }
             `}</style>

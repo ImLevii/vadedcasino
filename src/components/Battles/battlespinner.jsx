@@ -1,5 +1,5 @@
 import {authedAPI, getRandomNumber} from "../../util/api"
-import {createEffect, createSignal, For, Index} from "solid-js"
+import {createEffect, createSignal, Index, onCleanup} from "solid-js"
 import BattleSpinnerItem from "./battlespinneritem"
 import {generateRandomItems, generateRareItems, getRareItems, isRareItem, maskRareItems} from "../../resources/cases"
 import Avatar from "../Level/avatar"
@@ -16,9 +16,9 @@ function BattleSpinner(props) {
   let bar
 
   const [items, setItems] = createSignal([])
-  const [offset, setOffset] = createSignal(0)
   const [color, setColor] = createSignal('')
   const navigate = useNavigate()
+  let cosmicTimer
 
   function adjacentTeamIsWinner() {
     if (props?.state !== 'WINNERS') return
@@ -53,51 +53,61 @@ function BattleSpinner(props) {
       if (cosmic) spinnerItems = maskRareItems(spinnerItems, battleCase?.price)
 
       setItems([...spinnerItems])
-
-      animate()
+      scheduleAnimation()
 
       if (cosmic && isRareItem(winningItem, battleCase?.price)) {
         // Exclusive second spin featuring only rare items
-        setTimeout(() => {
+        clearTimeout(cosmicTimer)
+        cosmicTimer = setTimeout(() => {
           let rareReel = generateRareItems(caseItems, battleCase?.price, chanceObj)
           rareReel[50] = winningItem
           setItems([...rareReel])
-          animate(true)
+          scheduleAnimation(true)
         }, 5300)
       }
     }
   })
 
+  onCleanup(() => clearTimeout(cosmicTimer))
+
+  function scheduleAnimation(secondPhase = false) {
+    requestAnimationFrame(() => requestAnimationFrame(() => animate(secondPhase)))
+  }
+
   function animate(secondPhase = false) {
     if (!spinner) return
 
     let chanceObj = new Chance(props?.battle?.id + '-' + props?.round + (secondPhase ? '-cosmic' : ''))
-    const offset = getRandomNumber(-48, 48, chanceObj)
-    const itemsWidth = 100 // 130px + 50px gap
-    const itemsGap = 35
-    const firstItem = (itemsWidth + itemsGap)
-    const lastItem = 49 * (itemsWidth + itemsGap) // 50th item is 49
+    const winnerItem = spinner.children[50]
+    const startItem = spinner.children[1]
+    const viewport = spinner.parentElement
+    if (!winnerItem || !startItem || !viewport) return
+
+    const center = viewport.clientHeight / 2
+    const startPosition = Math.max(0, startItem.offsetTop + (startItem.offsetHeight / 2) - center)
+    const landingOffset = getRandomNumber(-36, 36, chanceObj)
+    const endPosition = winnerItem.offsetTop + (winnerItem.offsetHeight / 2) - center + landingOffset
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const duration = reducedMotion ? 1 : 5000
 
     spinner.getAnimations().forEach((anim) => {
-      anim.pause()
       anim.cancel()
     })
 
     spinner.animate(
+      [
+        { transform: `translateY(-${startPosition}px)` },
+        { transform: `translateY(-${endPosition}px)` }
+      ],
       {
-        transform: [`translatey(-${firstItem}px)`, `translatey(${-lastItem - offset}px)`, `translatey(${-lastItem - offset}px)`, `translatey(-${lastItem}px)`],
-        easing: ['cubic-bezier(.05,.85,.3,1)', 'cubic-bezier(.05,.85,.3,1)', 'cubic-bezier(.05,.85,.3,1)', 'cubic-bezier(.05,.85,.3,1)'],
-        offset: [0, 0.9, 0.95, 1]
-      },
-      {
-        duration: 5000,
+        duration,
+        easing: 'cubic-bezier(.08,.72,.16,1)',
         fill: 'forwards'
       }
     )
 
     if (!secondPhase) {
       bar.getAnimations().forEach((anim) => {
-        anim.pause()
         anim.cancel()
       })
 
@@ -113,13 +123,12 @@ function BattleSpinner(props) {
           offset: [0, 0.7, 1]
         },
         {
-          delay: props?.battle?.cosmicSpin ? 10500 : 5000,
-          duration: 1500,
+          delay: reducedMotion ? 0 : props?.battle?.cosmicSpin ? 10500 : 5000,
+          duration: reducedMotion ? 1 : 1200,
+          fill: 'forwards',
         }
       )
     }
-
-    setOffset(offset)
   }
 
   async function recreateBattle() {
@@ -183,7 +192,7 @@ function BattleSpinner(props) {
             </div>
 
             <div class='cost'>
-              <img src='/assets/icons/coin.svg' height='16px' width='16px' alt=''/>
+              <img src='/assets/chips/chip-green.png' height='18' width='18' alt=''/>
               <p>
                 <Countup end={color() === 'green' ? props?.total : 0} duration={1000} steps={30} gray={true}/>
               </p>
@@ -204,14 +213,9 @@ function BattleSpinner(props) {
             <div class='spinner-items' ref={spinner}>
               <Index each={items()}>{(item, index) => (
                 <BattleSpinnerItem
-                  offset={offset()}
-                  column={props?.index}
-                  round={props?.round}
-                  state={props?.state}
                   img={item()?.img}
                   price={item()?.price}
                   index={index}
-                  position={props?.index}
                 />
               )}</Index>
             </div>
@@ -324,11 +328,13 @@ function BattleSpinner(props) {
         }
 
         .waiting img {
-          animation: infinite spin 3s;
+          animation: infinite spin 3s ease-in-out;
+          filter: drop-shadow(0 0 14px rgba(31,214,95,.24));
         }
 
         .user-summary {
           gap: 12px;
+          animation: revealResult .48s cubic-bezier(.2,.8,.2,1) both;
         }
 
         .cost {
@@ -418,6 +424,24 @@ function BattleSpinner(props) {
         .call {
           width: 147px;
           height: 34px;
+        }
+
+        .call, .recreate {
+          border: 0;
+          border-radius: 7px;
+          background: #1fd65f;
+          color: #052310;
+          font-family: "Geogrotesque Wide", sans-serif;
+          font-size: 10px;
+          font-weight: 800;
+          cursor: pointer;
+          transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+        }
+
+        .call:hover, .recreate:hover {
+          transform: translateY(-1px);
+          background: #43e37b;
+          box-shadow: 0 8px 22px rgba(31,214,95,.25);
         }
 
         .spinner-column {
@@ -532,7 +556,7 @@ function BattleSpinner(props) {
 
           display: flex;
           flex-direction: column;
-          gap: 35px;
+          gap: 24px;
 
           position: absolute;
           top: 0px;
@@ -548,6 +572,11 @@ function BattleSpinner(props) {
             opacity: 1;
             box-shadow: inset 0 1px 0 rgba(31, 214, 95, 0.18), inset 0 -1px 0 rgba(31, 214, 95, 0.18), 0 0 60px rgba(31, 214, 95, 0.2);
           }
+        }
+
+        @keyframes revealResult {
+          from { opacity: 0; transform: translateY(12px) scale(.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .recreate {
@@ -573,6 +602,21 @@ function BattleSpinner(props) {
             width: 100%;
             min-height: 375px;
             height: 375px;
+          }
+        }
+
+        @media only screen and (max-width: 620px) {
+          .spinner, .spinner-column {
+            min-height: 340px;
+            height: 340px;
+          }
+
+          .spinner-column { max-width: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .center-band, .waiting img, .user-summary {
+            animation: none;
           }
         }
       `}</style>

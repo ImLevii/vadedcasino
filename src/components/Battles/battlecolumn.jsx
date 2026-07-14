@@ -1,6 +1,5 @@
 import BattleSpinner from "./battlespinner";
 import BattleUser from "./battleuser";
-import {createEffect, createSignal} from "solid-js";
 
 function BattleColumn(props) {
 
@@ -44,7 +43,7 @@ function BattleColumn(props) {
                 flex: 1 0 0;
                 display: flex;
                 flex-direction: column;
-                gap: 35px;
+                gap: 14px;
                 min-width: 0;
               }
               

@@ -45,6 +45,12 @@ function BattlePreview(props) {
     return (index + 1) !== props?.battle?.winnerTeam && state() === 'finished'
   }
 
+  function useImageFallback(event) {
+    event.currentTarget.onerror = null
+    event.currentTarget.src = '/assets/logo/cosmic-luck-logo.png'
+    event.currentTarget.classList.add('fallback')
+  }
+
   return (
     <>
       {props?.battle && (
@@ -86,7 +92,7 @@ function BattlePreview(props) {
             <div class='bottom-row'>
               <div class='drops-box'>
                 <span class='drops-label'>{state() === 'finished' ? 'Drops' : 'Price'}</span>
-                <img src='/assets/icons/coin.svg' height='13' width='13' alt=''/>
+                <img class='price-chip' src='/assets/chips/chip-green.png' height='17' width='17' alt=''/>
                 <span class='drops-amount'>
                   {Math.floor(props?.battle?.entryPrice) || '0'}<span class='gray'>.{getCents(props?.battle?.entryPrice)}</span>
                 </span>
@@ -162,7 +168,11 @@ function BattlePreview(props) {
             <div class='cases'>
               <For each={props?.battle?.rounds}>{(c, index) => (
                 <div class='case-tile'>
-                  <img src={resolveImageSrc(getCase(c?.caseId)?.img)} alt=''/>
+                  <img
+                    src={resolveImageSrc(getCase(c?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
+                    alt={getCase(c?.caseId)?.name || 'Battle case'}
+                    onError={useImageFallback}
+                  />
                 </div>
               )}</For>
             </div>
@@ -224,7 +234,11 @@ function BattlePreview(props) {
           padding: 8px 12px;
           flex: 1;
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.025);
+          overflow-x: auto;
+          scrollbar-width: none;
         }
+
+        .slots-box::-webkit-scrollbar { display: none; }
 
         .slot {
           width: 40px;
@@ -310,6 +324,11 @@ function BattlePreview(props) {
 
         .gray {
           color: #8b92a0;
+        }
+
+        .price-chip {
+          object-fit: contain;
+          filter: drop-shadow(0 0 6px rgba(31,214,95,.25));
         }
 
         .action-btn {
@@ -484,6 +503,14 @@ function BattlePreview(props) {
           max-width: 86px;
           max-height: 86px;
           object-fit: contain;
+          filter: drop-shadow(0 8px 12px rgba(0,0,0,.35));
+        }
+
+        .case-tile img.fallback {
+          width: 42px;
+          height: 42px;
+          opacity: .34;
+          filter: grayscale(1);
         }
 
         .cases::-webkit-scrollbar {
@@ -507,6 +534,18 @@ function BattlePreview(props) {
           .left-col {
             min-width: 0;
           }
+        }
+
+        @media only screen and (max-width: 560px) {
+          .battle-preview-container { padding: 10px; gap: 10px; }
+          .bottom-row { align-items: stretch; }
+          .drops-box { min-width: 0; }
+          .cases-panel { flex-direction: column; }
+          .panel-side { flex-direction: row; align-items: center; }
+          .inspect { padding: 0 18px; }
+          .cases { width: 100%; }
+          .case-tile { width: 82px; height: 82px; }
+          .case-tile img { max-width: 72px; max-height: 72px; }
         }
       `}</style>
     </>
