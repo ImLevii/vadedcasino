@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/build.mjs",
     "serve": "vite preview",
     "server": "node app.js",
     "server:dev": "nodemon app.js",
