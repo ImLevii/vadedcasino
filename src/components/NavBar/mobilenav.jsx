@@ -65,28 +65,28 @@ function BottomNavBar(props) {
                             </div>
 
                             <div className='gamemode'
-                                 style={{'background-image': 'url("/assets/gamemodes/mines.png")'}}>
+                                 style={{'background-image': 'url("/assets/thumbnails/mines.jpeg")'}}>
                                 <A href='/mines' class='gamemode-link' onClick={() => setActive(false)}>
                                     <p className='name'>MINES</p>
                                 </A>
                             </div>
 
                             <div class='gamemode'
-                                 style={{'background-image': 'url("/assets/gamemodes/crash.png")'}}>
+                                 style={{'background-image': 'url("/assets/thumbnails/crash.jpeg")'}}>
                                 <A href='/crash' class='gamemode-link' onClick={() => setActive(false)}>
                                     <p class='name'>CRASH</p>
                                 </A>
                             </div>
 
                             <div class='gamemode'
-                                 style={{'background-image': 'url("/assets/gamemodes/cases.png")'}}>
+                                 style={{'background-image': 'url("/assets/thumbnails/caseopening.jpeg")'}}>
                                 <A href='/cases' class='gamemode-link' onClick={() => setActive(false)}>
                                     <p class='name'>CASES</p>
                                 </A>
                             </div>
 
                             <div class='gamemode'
-                                 style={{'background-image': 'url("/assets/gamemodes/battles.png")'}}>
+                                 style={{'background-image': 'url("/assets/thumbnails/casebattles.jpeg")'}}>
                                 <A href='/battles' class='gamemode-link' onClick={() => setActive(false)}>
                                     <p class='name'>CASE BATTLES</p>
                                 </A>
@@ -123,13 +123,16 @@ function BottomNavBar(props) {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                justify-content: center;
                 
                 position: relative;
                 
                 outline: unset;
                 border: unset;
                 background: unset;
-                padding: unset;
+                padding: 0;
+                width: 44px;
+                height: 44px;
 
                 gap: 5px;
 
@@ -160,14 +163,14 @@ function BottomNavBar(props) {
 
               .dropdown {
                 position: absolute;
-                width: 210px;
+                width: min(240px, calc(100vw - 20px));
 
-                bottom: 75px;
+                bottom: 62px;
                 left: 50%;
                 transform: translateX(-50%);
 
                 max-height: 0;
-                z-index: 1;
+                z-index: 30;
                 transition: max-height .3s;
                 overflow: hidden;
               }
@@ -223,13 +226,14 @@ function BottomNavBar(props) {
                 align-items: center;
 
                 position: relative;
-                background-size: 100% 100%;
+                background-size: cover;
                 background-position: center;
+                background-repeat: no-repeat;
                 transition: background .3s;
               }
 
               .gamemode:hover {
-                background-size: 110% 110%;
+                filter: brightness(1.08);
               }
 
               .gamemode img {
@@ -268,13 +272,14 @@ function BottomNavBar(props) {
                   
                   align-items: center;
                   justify-content: space-between;
-                  padding: 0 25px;
+                  padding: 0 clamp(18px, 8vw, 34px);
+                  z-index: 30;
                 }
               }
 
               @media only screen and (max-width: 375px) {
                 .dropdown {
-                  width: 180px;
+                  width: calc(100vw - 16px);
                 }
               }
             `}</style>

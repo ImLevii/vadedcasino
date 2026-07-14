@@ -518,6 +518,7 @@ function App() {
         .center {
           height: 100vh;
           width: 100%;
+          min-width: 0;
           position: relative;
           overflow: auto;
           scrollbar-color: transparent transparent;
@@ -529,10 +530,12 @@ function App() {
 
         .content {
           width: 100%;
+          min-width: 0;
           min-height: calc(100% - 130px);
+          box-sizing: border-box;
 
           position: relative;
-          padding: 0 25px;
+          padding-inline: clamp(12px, 1.75vw, 30px);
           background:
             radial-gradient(140% 70% at 50% -8%, rgba(31, 214, 95, 0.06), transparent 45%),
             linear-gradient(180deg, rgba(10, 13, 19, 0.64), rgba(8, 11, 17, 0.66));
@@ -578,14 +581,17 @@ function App() {
           }
 
           .content {
-            padding: 0 16px;
+            padding-inline: clamp(10px, 2.2vw, 16px);
             border-radius: 12px;
           }
         }
 
         @media only screen and (max-width: 600px) {
           .content {
-            padding: 0 10px;
+            padding-inline: 10px;
+            border-left: 0;
+            border-right: 0;
+            border-radius: 0;
           }
         }
       `}</style>

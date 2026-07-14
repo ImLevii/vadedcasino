@@ -32,7 +32,9 @@ function FeatureGrid() {
                         {/* Subtle corner glow */}
                         <div class='feature-glow'/>
 
-                        <div class='feature-image-container' style={`background-image: url('${f.img}');`}/>
+                        <div class='feature-image-container'>
+                          <img src={f.img} alt='' loading='lazy' decoding='async'/>
+                        </div>
 
                         <div class='feature-label-bar'>
                             <div class='feature-dot'/>
@@ -59,7 +61,7 @@ function FeatureGrid() {
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-weight: 700;
                 font-size: 11px;
-                letter-spacing: 1.5px;
+                letter-spacing: 0;
                 color: #6b7280;
                 white-space: nowrap;
                 text-transform: uppercase;
@@ -76,7 +78,7 @@ function FeatureGrid() {
 
                 display: grid;
                 grid-template-columns: repeat(4, 1fr);
-                gap: 10px;
+                gap: clamp(10px, 1vw, 14px);
               }
 
               .feature {
@@ -84,7 +86,7 @@ function FeatureGrid() {
                 display: flex;
                 flex-direction: column;
 
-                height: 160px;
+                height: clamp(168px, 12.5vw, 202px);
                 border-radius: 10px;
                 overflow: hidden;
 
@@ -121,16 +123,23 @@ function FeatureGrid() {
 
               .feature-image-container {
                 flex: 1;
-                background-size: cover;
-                background-position: center;
-                background-repeat: no-repeat;
+                min-height: 0;
                 position: relative;
                 z-index: 1;
+                overflow: hidden;
+              }
+
+              .feature-image-container img {
+                width: 100%;
+                height: 100%;
+                display: block;
+                object-fit: cover;
+                object-position: center;
                 transition: transform .3s ease;
                 transform-origin: center;
               }
 
-              .feature:hover .feature-image-container {
+              .feature:hover .feature-image-container img {
                 transform: scale(1.06);
               }
 
@@ -189,10 +198,6 @@ function FeatureGrid() {
                   0 0 24px color-mix(in srgb, var(--accent) 15%, transparent);
               }
 
-              .feature:hover .feature-image {
-                transform: scale(1.08) translateY(-2px);
-              }
-
               .feature:hover .feature-label-bar {
                 background: rgba(0,0,0,0.6);
               }
@@ -206,13 +211,15 @@ function FeatureGrid() {
                 box-shadow: 0 0 10px var(--accent);
               }
 
-              @media only screen and (max-width: 1000px) {
+              @media only screen and (max-width: 1160px) {
                 .feature-grid {
                   grid-template-columns: repeat(3, 1fr);
                 }
+
+                .feature { height: 174px; }
               }
 
-              @media only screen and (max-width: 700px) {
+              @media only screen and (max-width: 760px) {
                 .feature-grid {
                   grid-template-columns: repeat(2, 1fr);
                 }
@@ -220,19 +227,32 @@ function FeatureGrid() {
                 .feature.wide {
                   grid-column: span 2;
                 }
+
+                .feature { height: 158px; }
+
+                .feature-image-container img {
+                  object-position: center;
+                }
               }
 
-              @media only screen and (max-width: 480px) {
+              @media only screen and (max-width: 520px) {
                 .feature-grid {
-                  grid-template-columns: 1fr 1fr;
-                  gap: 8px;
+                  grid-template-columns: minmax(0, 1fr);
+                  gap: 10px;
                 }
 
-                .feature { height: 110px; }
+                .feature {
+                  height: clamp(170px, 46vw, 196px);
+                  border-radius: 8px;
+                }
 
                 .feature.wide {
-                  grid-column: span 2;
+                  grid-column: span 1;
                 }
+
+                .feature-image-container img { object-fit: cover; }
+                .feature-label-bar { height: 38px; padding: 0 11px; }
+                .feature-name { font-size: 10px; }
               }
             `}</style>
         </>

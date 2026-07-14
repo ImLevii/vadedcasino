@@ -111,7 +111,7 @@ function Carousel() {
               .carousel {
                 position: relative;
                 width: 100%;
-                height: 240px;
+                height: clamp(230px, 18vw, 286px);
 
                 border-radius: 14px;
                 overflow: hidden;
@@ -359,11 +359,11 @@ function Carousel() {
               }
 
               @media only screen and (max-width: 700px) {
-                .carousel { height: 180px; }
+                .carousel { height: 192px; border-radius: 10px; }
 
                 .slide-content {
-                  padding: 0 24px;
-                  max-width: 78%;
+                  padding: 0 20px;
+                  max-width: 88%;
                 }
 
                 .slide-content h1 { font-size: 22px; }
@@ -377,6 +377,18 @@ function Carousel() {
                   font-size: 11px;
                   padding: 9px 16px;
                 }
+
+                .dots { bottom: 11px; }
+                .dot { width: 18px; }
+                .dot.active { width: 28px; }
+              }
+
+              @media only screen and (max-width: 420px) {
+                .carousel { height: 180px; }
+                .slide-content { padding: 0 16px; max-width: 100%; gap: 8px; }
+                .slide-content h1 { font-size: 19px; }
+                .slide-content p { font-size: 10px; }
+                .cta { padding: 8px 13px; font-size: 10px; }
               }
             `}</style>
         </>

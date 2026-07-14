@@ -110,7 +110,7 @@ function NavBar(props) {
                     </div>
                 </div>
 
-                <BottomNavBar chat={props.chat} setChat={props.setChat}/>
+                <BottomNavBar user={props.user} chat={props.chat} setChat={props.setChat}/>
             </div>
 
             <style jsx>{`

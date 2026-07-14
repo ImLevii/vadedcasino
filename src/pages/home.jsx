@@ -18,16 +18,16 @@ function Home(props) {
             <style jsx>{`
               .home-container {
                 width: 100%;
-                max-width: 1175px;
+                max-width: 1480px;
                 height: fit-content;
 
                 box-sizing: border-box;
-                padding: 24px 0;
+                padding: clamp(16px, 1.7vw, 26px) 0;
                 margin: 0 auto;
 
                 display: flex;
                 flex-direction: column;
-                gap: 24px;
+                gap: clamp(16px, 1.5vw, 24px);
               }
 
               @media only screen and (max-width: 1000px) {

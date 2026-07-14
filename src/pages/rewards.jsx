@@ -728,6 +728,45 @@ function Rewards(props) {
                   min-height: 0;
                 }
               }
+
+              @media only screen and (max-width: 600px) {
+                .rewards-container {
+                  padding: 18px 0 90px;
+                  gap: 12px;
+                }
+
+                .pages {
+                  width: 100%;
+                  overflow-x: auto;
+                  scrollbar-width: none;
+                }
+
+                .pages::-webkit-scrollbar { display: none; }
+                .page-tab { flex: 0 0 auto; height: 38px; padding: 0 13px; }
+
+                .info-banner {
+                  align-items: flex-start;
+                  font-size: 11px;
+                  line-height: 1.45;
+                }
+
+                .grid {
+                  grid-template-columns: repeat(2, minmax(0, 1fr));
+                  gap: 10px;
+                }
+
+                .case-card { padding: 10px; min-width: 0; }
+                .case-img-wrap { height: 105px; }
+                .case-img-wrap img { max-height: 105px; }
+                .case-bottom { align-items: flex-start; gap: 6px; flex-direction: column; }
+                .pill { max-width: 100%; }
+              }
+
+              @media only screen and (max-width: 390px) {
+                .grid { grid-template-columns: minmax(0, 1fr); }
+                .case-img-wrap { height: 125px; }
+                .case-img-wrap img { max-height: 125px; }
+              }
             `}</style>
         </>
     );
