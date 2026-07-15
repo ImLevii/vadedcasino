@@ -129,14 +129,128 @@ function createSandboxClient(config) {
     };
 }
 
+function createLiveClient(config) {
+    const baseUrl = config.apiUrl.replace(/\/$/, '');
+    const headers = {
+        'Authorization': `Bearer ${config.apiKey}`,
+        'Content-Type': 'application/json'
+    };
+
+    async function request(path, options = {}) {
+        const url = `${baseUrl}${path}`;
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                ...headers,
+                ...options.headers
+            }
+        });
+
+        if (!response.ok) {
+            const error = new Error(`SkinDeck API error: ${response.status} ${response.statusText}`);
+            error.code = 'SKINDECK_API_ERROR';
+            error.status = response.status;
+            throw error;
+        }
+
+        return response.json();
+    }
+
+    return {
+        mode: 'live',
+        listInventory: async (profile) => {
+            assertSteamProfile(profile);
+            return request(`/inventory/${profile.steamId}?trade_url=${encodeURIComponent(profile.tradeUrl)}`);
+        },
+        listSkins: async (profile) => {
+            assertSteamProfile(profile);
+            return request(`/inventory/${profile.steamId}?trade_url=${encodeURIComponent(profile.tradeUrl)}`);
+        },
+        quoteItems: async (itemIds) => {
+            if (!Array.isArray(itemIds) || itemIds.length < 1 || itemIds.length > 20) {
+                const error = new Error('Select between one and twenty items.');
+                error.code = 'INVALID_ITEMS';
+                throw error;
+            }
+
+            const response = await request('/quote', {
+                method: 'POST',
+                body: JSON.stringify({ itemIds })
+            });
+
+            return {
+                items: response.items,
+                providerValue: response.totalValue,
+                providerCurrency: response.currency || 'USD'
+            };
+        },
+        createDeposit: async ({ internalRef, origin, itemIds, profile }) => {
+            assertSteamProfile(profile);
+            const quote = await request('/deposits', {
+                method: 'POST',
+                body: JSON.stringify({
+                    internalRef,
+                    itemIds,
+                    steamId: profile.steamId,
+                    tradeUrl: profile.tradeUrl,
+                    origin
+                })
+            });
+
+            return {
+                ...quote,
+                providerRef: quote.providerRef,
+                providerStatus: quote.status,
+                status: quote.status,
+                redirectUrl: quote.redirectUrl
+            };
+        },
+        createWithdrawal: async ({ internalRef, itemIds, profile }) => {
+            assertSteamProfile(profile);
+            const response = await request('/withdrawals', {
+                method: 'POST',
+                body: JSON.stringify({
+                    internalRef,
+                    itemIds,
+                    steamId: profile.steamId,
+                    tradeUrl: profile.tradeUrl
+                })
+            });
+
+            return {
+                ...response,
+                providerRef: response.providerRef,
+                providerStatus: response.status,
+                status: response.status
+            };
+        },
+        verifyCheckout: () => true,
+        parseWebhook: (rawBody, signature) => {
+            const expectedSignature = crypto
+                .createHmac('sha256', config.webhookSecret)
+                .update(rawBody)
+                .digest('hex');
+
+            if (!safeEqual(signature, expectedSignature)) {
+                const error = new Error('Invalid webhook signature.');
+                error.code = 'INVALID_WEBHOOK_SIGNATURE';
+                throw error;
+            }
+
+            return JSON.parse(rawBody.toString('utf8'));
+        }
+    };
+}
+
 function createSkinDeckClient() {
     const config = validateSkinDeckConfig();
     assertProviderContract(config.mode);
 
     if (config.mode === 'sandbox') return createSandboxClient(config);
+    if (config.mode === 'live') return createLiveClient(config);
 
-    const error = new Error('SkinDeck live merchant contract has not been configured.');
-    error.code = 'SKINDECK_CONTRACT_UNAVAILABLE';
+    const error = new Error('SkinDeck mode not supported.');
+    error.code = 'SKINDECK_MODE_UNSUPPORTED';
     throw error;
 }
 

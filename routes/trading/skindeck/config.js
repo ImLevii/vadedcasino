@@ -12,7 +12,8 @@ function getSkinDeckConfig() {
         enabled: parseEnabled(process.env.SKINDECK_ENABLED),
         mode,
         apiKey: process.env.SKINDECK_API_KEY || '',
-        webhookSecret: process.env.SKINDECK_WEBHOOK_SECRET || ''
+        webhookSecret: process.env.SKINDECK_WEBHOOK_SECRET || '',
+        apiUrl: process.env.SKINDECK_API_URL || 'https://api.skindeck.com/v1'
     };
 }
 
