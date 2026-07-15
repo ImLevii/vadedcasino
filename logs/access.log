@@ -2664,3 +2664,23 @@
 [09/Jul/2026:16:51:30 +0000] - GET /slides 500 5.819 ms - Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.8655
 [09/Jul/2026:16:51:31 +0000] - GET /announcements/active 200 1.948 ms - Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.8655
 [09/Jul/2026:16:58:00 +0000] - GET /announcements/active 200 4.712 ms - Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.26100.8655
+[14/Jul/2026:23:45:22 +0000] - GET /cases/americans-dream.png 404 204.031 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[14/Jul/2026:23:45:22 +0000] - GET /cases/blingbling-case.png 404 201.290 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[14/Jul/2026:23:45:22 +0000] - GET /cases/alien-case.png 404 201.082 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[14/Jul/2026:23:45:22 +0000] - GET /cases/beast-bonanza.png 404 102.193 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[14/Jul/2026:23:45:22 +0000] - GET /cases/bloodmoon-case.png 404 61.544 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[14/Jul/2026:23:45:23 +0000] - GET /cases/blingbling-case.png 404 0.420 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[14/Jul/2026:23:45:23 +0000] - GET /cases/alien-case.png 404 0.450 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[14/Jul/2026:23:45:23 +0000] - GET /cases/beast-bonanza.png 404 0.331 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[14/Jul/2026:23:45:23 +0000] - GET /cases/bloodmoon-case.png 404 0.371 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[15/Jul/2026:01:15:21 +0000] - GET /cases/americans-dream.png 404 203.110 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[15/Jul/2026:01:15:21 +0000] - GET /cases/blingbling-case.png 404 197.494 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[15/Jul/2026:01:15:21 +0000] - GET /cases/alien-case.png 404 0.201 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[15/Jul/2026:01:15:21 +0000] - GET /cases/beast-bonanza.png 404 0.132 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[15/Jul/2026:01:15:21 +0000] - GET /cases/bloodmoon-case.png 404 0.252 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[15/Jul/2026:01:15:21 +0000] - GET /cases/blingbling-case.png 404 0.423 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[15/Jul/2026:01:15:21 +0000] - GET /cases/alien-case.png 404 0.275 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[15/Jul/2026:01:15:22 +0000] - GET /cases/blingbling-case.png 404 0.183 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[15/Jul/2026:01:15:22 +0000] - GET /cases/alien-case.png 404 0.164 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[15/Jul/2026:01:15:22 +0000] - GET /cases/beast-bonanza.png 404 0.117 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[15/Jul/2026:01:15:22 +0000] - GET /cases/bloodmoon-case.png 404 0.099 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36

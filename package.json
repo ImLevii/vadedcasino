@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node app.js",
-    "dev": "vite",
+    "dev": "concurrently \"node app.js\" \"vite\"",
     "build": "node scripts/build.mjs",
     "serve": "vite preview",
     "server": "node app.js",
@@ -33,6 +33,7 @@
   "devDependencies": {
     "browserslist": "^4.28.5",
     "caniuse-lite": "^1.0.30001803",
+    "concurrently": "^10.0.3",
     "nodemon": "^3.0.1",
     "solid-devtools": "^0.27.3",
     "vite": "^4.3.9",
