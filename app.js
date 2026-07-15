@@ -180,7 +180,8 @@ if (process.env.NODE_ENV !== 'development') {
     });
 } else {
     app.get('/', (req, res) => {
-        res.redirect('http://localhost:3001');
+        const frontendUrl = process.env.VITE_SERVER_URL || 'http://localhost:3001';
+        res.redirect(frontendUrl);
     });
 }
 
