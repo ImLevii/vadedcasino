@@ -1,0 +1,41 @@
+<svg width="800" height="450" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dailyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a8a;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="glowDaily">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#1e40af;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#dailyGradient)"/>
+  
+  <!-- Glow effects -->
+  <circle cx="250" cy="225" r="150" fill="url(#glowDaily)" opacity="0.6"/>
+  <circle cx="550" cy="225" r="120" fill="url(#glowDaily)" opacity="0.5"/>
+  
+  <!-- Clock/Calendar representation -->
+  <g transform="translate(250, 225)">
+    <circle cx="0" cy="0" r="80" fill="#1e293b" stroke="#3b82f6" stroke-width="4"/>
+    <circle cx="0" cy="0" r="5" fill="#3b82f6"/>
+    <line x1="0" y1="0" x2="0" y2="-50" stroke="#3b82f6" stroke-width="4" stroke-linecap="round"/>
+    <line x1="0" y1="0" x2="35" y2="0" stroke="#60a5fa" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Calendar icon -->
+  <g transform="translate(550, 225)">
+    <rect x="-50" y="-50" width="100" height="100" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="3"/>
+    <rect x="-50" y="-50" width="100" height="25" rx="8" fill="#3b82f6"/>
+    <text x="0" y="10" font-family="Arial, sans-serif" font-size="40" font-weight="bold" fill="#3b82f6" text-anchor="middle">24</text>
+  </g>
+  
+  <!-- Sparkles -->
+  <circle cx="150" cy="100" r="3" fill="#60a5fa" opacity="0.8"/>
+  <circle cx="650" cy="350" r="3" fill="#60a5fa" opacity="0.8"/>
+  <circle cx="700" cy="150" r="2" fill="#93c5fd" opacity="0.7"/>
+  <circle cx="100" cy="350" r="2" fill="#93c5fd" opacity="0.7"/>
+</svg>

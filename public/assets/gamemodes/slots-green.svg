@@ -1,0 +1,44 @@
+<svg width="800" height="450" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="slotsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#065f46;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#34d399;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="glowSlots">
+      <stop offset="0%" style="stop-color:#6ee7b7;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#047857;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#slotsGradient)"/>
+  
+  <!-- Glow effects -->
+  <circle cx="400" cy="225" r="250" fill="url(#glowSlots)" opacity="0.4"/>
+  
+  <!-- Slot machine frame -->
+  <rect x="250" y="100" width="300" height="250" rx="20" fill="#064e3b" stroke="#10b981" stroke-width="4"/>
+  
+  <!-- Slot reels -->
+  <rect x="280" y="140" width="70" height="170" rx="8" fill="#1e293b" stroke="#34d399" stroke-width="2"/>
+  <rect x="365" y="140" width="70" height="170" rx="8" fill="#1e293b" stroke="#34d399" stroke-width="2"/>
+  <rect x="450" y="140" width="70" height="170" rx="8" fill="#1e293b" stroke="#34d399" stroke-width="2"/>
+  
+  <!-- Lucky 7s -->
+  <text x="315" y="235" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="#10b981" text-anchor="middle">7</text>
+  <text x="400" y="235" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="#10b981" text-anchor="middle">7</text>
+  <text x="485" y="235" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="#10b981" text-anchor="middle">7</text>
+  
+  <!-- Sparkles -->
+  <circle cx="200" cy="150" r="4" fill="#6ee7b7"/>
+  <circle cx="600" cy="300" r="4" fill="#6ee7b7"/>
+  <circle cx="150" cy="300" r="3" fill="#34d399"/>
+  <circle cx="650" cy="150" r="3" fill="#34d399"/>
+  
+  <!-- Win rays -->
+  <line x1="400" y1="225" x2="200" y2="100" stroke="#10b981" stroke-width="2" opacity="0.3"/>
+  <line x1="400" y1="225" x2="600" y2="100" stroke="#10b981" stroke-width="2" opacity="0.3"/>
+  <line x1="400" y1="225" x2="200" y2="350" stroke="#10b981" stroke-width="2" opacity="0.3"/>
+  <line x1="400" y1="225" x2="600" y2="350" stroke="#10b981" stroke-width="2" opacity="0.3"/>
+</svg>

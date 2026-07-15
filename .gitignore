@@ -9,4 +9,19 @@ Thumbs.db
 
 # Logs
 *.log
+logs/*.log
+
+# Dependencies
 node_modules/
+
+# Build output
+dist
+
+# Environment files
+.env
+.env.local
+
+# Database
+database/local.sqlite
+database/local.sqlite-shm
+database/local.sqlite-wal

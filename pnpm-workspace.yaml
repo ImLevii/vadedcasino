@@ -1,0 +1,8 @@
+packages:
+  - .
+  - scripts/render-emerald
+
+onlyBuiltDependencies:
+  - bcrypt
+  - esbuild
+  - sharp

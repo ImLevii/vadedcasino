@@ -1,0 +1,406 @@
+function FAQ(props) {
+
+    function toggleDropdown(e) {
+        e.currentTarget.parentElement.classList.toggle('active')
+    }
+
+    return (
+        <>
+            <div class='tos-container'>
+                <div class='dropdown-wrapper'>
+                    <button onClick={toggleDropdown}>
+                        How does Cosmic Luck keep my account and balance secure?
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
+                            <path
+                                d="M3.50001 1.12732e-05C3.62547 1.12623e-05 3.7509 0.0480295 3.84655 0.143865L6.8564 3.16113C7.04787 3.35307 7.04787 3.66426 6.8564 3.85612C6.66501 4.04797 6.5 4.00001 6.16316 4.00001L3.50001 4.00001L1 4.00001C0.5 4.00001 0.335042 4.04788 0.14367 3.85602C-0.0478893 3.66417 -0.0478893 3.35298 0.14367 3.16104L3.15347 0.143772C3.24916 0.0479206 3.3746 1.12842e-05 3.50001 1.12732e-05Z"
+                                fill="#8b92a0"/>
+                        </svg>
+                    </button>
+
+                    <div class='dropdown'>
+                        <p>
+                            Your account balance is stored securely on-site as Coins. We use industry-standard
+                            authentication and encryption to protect your account, and your deposits and withdrawals
+                            are processed through our secured cashier system. We never share your personal information
+                            with third parties.
+                        </p>
+                    </div>
+                </div>
+
+                <div className='dropdown-wrapper'>
+                    <button onClick={toggleDropdown}>
+                        How do I deposit to play on the site?
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
+                            <path
+                                d="M3.50001 1.12732e-05C3.62547 1.12623e-05 3.7509 0.0480295 3.84655 0.143865L6.8564 3.16113C7.04787 3.35307 7.04787 3.66426 6.8564 3.85612C6.66501 4.04797 6.5 4.00001 6.16316 4.00001L3.50001 4.00001L1 4.00001C0.5 4.00001 0.335042 4.04788 0.14367 3.85602C-0.0478893 3.66417 -0.0478893 3.35298 0.14367 3.16104L3.15347 0.143772C3.24916 0.0479206 3.3746 1.12842e-05 3.50001 1.12732e-05Z"
+                                fill="#8b92a0"/>
+                        </svg>
+                    </button>
+
+                    <div className='dropdown'>
+                        <p>
+                            You can deposit by clicking the Deposit tab at the top of the screen. Select the deposit
+                            method you'd like to use, such as cryptocurrency, credit card or gift card, and then enter
+                            the required information into the boxes shown. Your balance will be credited in Coins.
+                        </p>
+                    </div>
+                </div>
+
+                <div className='dropdown-wrapper'>
+                    <button onClick={toggleDropdown}>
+                        Why have I been restricted from tipping users and raining Coins?
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
+                            <path
+                                d="M3.50001 1.12732e-05C3.62547 1.12623e-05 3.7509 0.0480295 3.84655 0.143865L6.8564 3.16113C7.04787 3.35307 7.04787 3.66426 6.8564 3.85612C6.66501 4.04797 6.5 4.00001 6.16316 4.00001L3.50001 4.00001L1 4.00001C0.5 4.00001 0.335042 4.04788 0.14367 3.85602C-0.0478893 3.66417 -0.0478893 3.35298 0.14367 3.16104L3.15347 0.143772C3.24916 0.0479206 3.3746 1.12842e-05 3.50001 1.12732e-05Z"
+                                fill="#8b92a0"/>
+                        </svg>
+                    </button>
+
+                    <div className='dropdown'>
+                        <p>
+                            Cosmic Luck uses a system to ensure users are not exploiting the site's balance system in any
+                            way.This could be by mass- joining the site rains that we provide on multiple accounts, or
+                            stealing user's accounts to tip the balance to your own. Ultimately, we have the final
+                            decision when it comes to restricting you from creating & joining rains as well as receiving
+                            & sending tips.
+                        </p>
+                    </div>
+                </div>
+
+                <div className='dropdown-wrapper'>
+                    <button onClick={toggleDropdown}>
+                        Do I make any money when my affiliate wagers?
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
+                            <path
+                                d="M3.50001 1.12732e-05C3.62547 1.12623e-05 3.7509 0.0480295 3.84655 0.143865L6.8564 3.16113C7.04787 3.35307 7.04787 3.66426 6.8564 3.85612C6.66501 4.04797 6.5 4.00001 6.16316 4.00001L3.50001 4.00001L1 4.00001C0.5 4.00001 0.335042 4.04788 0.14367 3.85602C-0.0478893 3.66417 -0.0478893 3.35298 0.14367 3.16104L3.15347 0.143772C3.24916 0.0479206 3.3746 1.12842e-05 3.50001 1.12732e-05Z"
+                                fill="#8b92a0"/>
+                        </svg>
+                    </button>
+
+                    <div className='dropdown'>
+                        <p>
+                            Cosmic Luck offers a 0.5% incentive to affiliate code holders. You may also receive additional
+                            perks & incentives if you have a large number of users under your affiliate code.
+                        </p>
+                    </div>
+                </div>
+
+                <div className='dropdown-wrapper'>
+                    <button onClick={toggleDropdown}>
+                        How do you become a partnered creator?
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
+                            <path
+                                d="M3.50001 1.12732e-05C3.62547 1.12623e-05 3.7509 0.0480295 3.84655 0.143865L6.8564 3.16113C7.04787 3.35307 7.04787 3.66426 6.8564 3.85612C6.66501 4.04797 6.5 4.00001 6.16316 4.00001L3.50001 4.00001L1 4.00001C0.5 4.00001 0.335042 4.04788 0.14367 3.85602C-0.0478893 3.66417 -0.0478893 3.35298 0.14367 3.16104L3.15347 0.143772C3.24916 0.0479206 3.3746 1.12842e-05 3.50001 1.12732e-05Z"
+                                fill="#8b92a0"/>
+                        </svg>
+                    </button>
+
+                    <div className='dropdown'>
+                        <p>
+                            We have a partnership channel in our discord that explains how to become partnered and what
+                            we look for in creators. You may also email marketing@cosmicluck.gg with your channel link &
+                            information and we will review your request.
+                        </p>
+                    </div>
+                </div>
+
+                <div className='dropdown-wrapper'>
+                    <button onClick={toggleDropdown}>
+                        How can I tip users on the site?
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
+                            <path
+                                d="M3.50001 1.12732e-05C3.62547 1.12623e-05 3.7509 0.0480295 3.84655 0.143865L6.8564 3.16113C7.04787 3.35307 7.04787 3.66426 6.8564 3.85612C6.66501 4.04797 6.5 4.00001 6.16316 4.00001L3.50001 4.00001L1 4.00001C0.5 4.00001 0.335042 4.04788 0.14367 3.85602C-0.0478893 3.66417 -0.0478893 3.35298 0.14367 3.16104L3.15347 0.143772C3.24916 0.0479206 3.3746 1.12842e-05 3.50001 1.12732e-05Z"
+                                fill="#8b92a0"/>
+                        </svg>
+                    </button>
+
+                    <div className='dropdown'>
+                        <p>
+                            You can click a user's profile in the chat by pressing on their profile image and then
+                            clicking the Tip button. This will bring up a pop-up that will allow you to enter in your
+                            desired tip amount. Otherwise, you can tip users by typing in the chat.
+                        </p>
+                    </div>
+                </div>
+
+                <div className='dropdown-wrapper'>
+                    <button onClick={toggleDropdown}>
+                        How do I start a rain on the site?
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
+                            <path
+                                d="M3.50001 1.12732e-05C3.62547 1.12623e-05 3.7509 0.0480295 3.84655 0.143865L6.8564 3.16113C7.04787 3.35307 7.04787 3.66426 6.8564 3.85612C6.66501 4.04797 6.5 4.00001 6.16316 4.00001L3.50001 4.00001L1 4.00001C0.5 4.00001 0.335042 4.04788 0.14367 3.85602C-0.0478893 3.66417 -0.0478893 3.35298 0.14367 3.16104L3.15347 0.143772C3.24916 0.0479206 3.3746 1.12842e-05 3.50001 1.12732e-05Z"
+                                fill="#8b92a0"/>
+                        </svg>
+                    </button>
+
+                    <div className='dropdown'>
+                        <p>
+                            You can create a rain for other site users to join by using the command "/rain (amount)",
+                            without the quotations. This will deduct from your balance so make sure to not input the
+                            incorrect amount!
+                        </p>
+                    </div>
+                </div>
+
+                <div className='dropdown-wrapper'>
+                    <button onClick={toggleDropdown}>
+                        I have an issue with the site and I cannot find where to contact support at.
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
+                            <path
+                                d="M3.50001 1.12732e-05C3.62547 1.12623e-05 3.7509 0.0480295 3.84655 0.143865L6.8564 3.16113C7.04787 3.35307 7.04787 3.66426 6.8564 3.85612C6.66501 4.04797 6.5 4.00001 6.16316 4.00001L3.50001 4.00001L1 4.00001C0.5 4.00001 0.335042 4.04788 0.14367 3.85602C-0.0478893 3.66417 -0.0478893 3.35298 0.14367 3.16104L3.15347 0.143772C3.24916 0.0479206 3.3746 1.12842e-05 3.50001 1.12732e-05Z"
+                                fill="#8b92a0"/>
+                        </svg>
+                    </button>
+
+                    <div className='dropdown'>
+                        <p>
+                            You can email us directly at support@cosmicluck.gg or you can alternatively join our discord
+                            server with the vanity URL being discord.gg/cosmicluck.
+                        </p>
+                    </div>
+                </div>
+
+                <div className='dropdown-wrapper'>
+                    <button onClick={toggleDropdown}>
+                        Do you rig the games provided on the site?
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
+                            <path
+                                d="M3.50001 1.12732e-05C3.62547 1.12623e-05 3.7509 0.0480295 3.84655 0.143865L6.8564 3.16113C7.04787 3.35307 7.04787 3.66426 6.8564 3.85612C6.66501 4.04797 6.5 4.00001 6.16316 4.00001L3.50001 4.00001L1 4.00001C0.5 4.00001 0.335042 4.04788 0.14367 3.85602C-0.0478893 3.66417 -0.0478893 3.35298 0.14367 3.16104L3.15347 0.143772C3.24916 0.0479206 3.3746 1.12842e-05 3.50001 1.12732e-05Z"
+                                fill="#8b92a0"/>
+                        </svg>
+                    </button>
+
+                    <div className='dropdown'>
+                        <p>
+                            Cosmic Luck has a state-of-the-art provably fair system to ensure all wagers that any users
+                            place are fair and free from third-party manipulation. You can verify this by clicking the
+                            Provably fair button at the top right of the site, or at the bottom of the site.
+                        </p>
+                    </div>
+                </div>
+
+                <div className='dropdown-wrapper'>
+                    <button onClick={toggleDropdown}>
+                        I've opened a case and I did not receive the item.
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
+                            <path
+                                d="M3.50001 1.12732e-05C3.62547 1.12623e-05 3.7509 0.0480295 3.84655 0.143865L6.8564 3.16113C7.04787 3.35307 7.04787 3.66426 6.8564 3.85612C6.66501 4.04797 6.5 4.00001 6.16316 4.00001L3.50001 4.00001L1 4.00001C0.5 4.00001 0.335042 4.04788 0.14367 3.85602C-0.0478893 3.66417 -0.0478893 3.35298 0.14367 3.16104L3.15347 0.143772C3.24916 0.0479206 3.3746 1.12842e-05 3.50001 1.12732e-05Z"
+                                fill="#8b92a0"/>
+                        </svg>
+                    </button>
+
+                    <div className='dropdown'>
+                        <p>
+                            Cosmic Luck uses a balance system to facilitate users withdrawals & deposits instead of an
+                            on-site inventory. Case rewards are credited directly to your Coins balance, which allows us
+                            to reward our players with more incentives.
+                        </p>
+                    </div>
+                </div>
+
+                <div className='dropdown-wrapper'>
+                    <button onClick={toggleDropdown}>
+                        I deposited and I still haven't recieved my balance.
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
+                            <path
+                                d="M3.50001 1.12732e-05C3.62547 1.12623e-05 3.7509 0.0480295 3.84655 0.143865L6.8564 3.16113C7.04787 3.35307 7.04787 3.66426 6.8564 3.85612C6.66501 4.04797 6.5 4.00001 6.16316 4.00001L3.50001 4.00001L1 4.00001C0.5 4.00001 0.335042 4.04788 0.14367 3.85602C-0.0478893 3.66417 -0.0478893 3.35298 0.14367 3.16104L3.15347 0.143772C3.24916 0.0479206 3.3746 1.12842e-05 3.50001 1.12732e-05Z"
+                                fill="#8b92a0"/>
+                        </svg>
+                    </button>
+
+                    <div className='dropdown'>
+                        <p>
+                            Most deposits are credited automatically. In the rare circumstance where you haven't
+                            received your balance after a completed deposit, please contact support with your
+                            transaction details and we will resolve it as quickly as possible.
+                        </p>
+                    </div>
+                </div>
+
+                <div className='dropdown-wrapper'>
+                    <button onClick={toggleDropdown}>
+                        I deposited via cryptocurrency and I haven't received my balance.
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
+                            <path
+                                d="M3.50001 1.12732e-05C3.62547 1.12623e-05 3.7509 0.0480295 3.84655 0.143865L6.8564 3.16113C7.04787 3.35307 7.04787 3.66426 6.8564 3.85612C6.66501 4.04797 6.5 4.00001 6.16316 4.00001L3.50001 4.00001L1 4.00001C0.5 4.00001 0.335042 4.04788 0.14367 3.85602C-0.0478893 3.66417 -0.0478893 3.35298 0.14367 3.16104L3.15347 0.143772C3.24916 0.0479206 3.3746 1.12842e-05 3.50001 1.12732e-05Z"
+                                fill="#8b92a0"/>
+                        </svg>
+                    </button>
+
+                    <div className='dropdown'>
+                        <p>
+                            We use CoinPayments to process our cryptocurrency deposits which requires multiple
+                            blockchain confirmations before we're able to credit your balance. You can check your
+                            transaction ID provided by the exchange platform you used to view the amount of
+                            confirmations.
+                        </p>
+                    </div>
+                </div>
+
+                <div className='dropdown-wrapper'>
+                    <button onClick={toggleDropdown}>
+                        I disconnected mid-round while playing.
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
+                            <path
+                                d="M3.50001 1.12732e-05C3.62547 1.12623e-05 3.7509 0.0480295 3.84655 0.143865L6.8564 3.16113C7.04787 3.35307 7.04787 3.66426 6.8564 3.85612C6.66501 4.04797 6.5 4.00001 6.16316 4.00001L3.50001 4.00001L1 4.00001C0.5 4.00001 0.335042 4.04788 0.14367 3.85602C-0.0478893 3.66417 -0.0478893 3.35298 0.14367 3.16104L3.15347 0.143772C3.24916 0.0479206 3.3746 1.12842e-05 3.50001 1.12732e-05Z"
+                                fill="#8b92a0"/>
+                        </svg>
+                    </button>
+
+                    <div className='dropdown'>
+                        <p>
+                            For specific games, latency is not a factor of the outcome of the game. We highly suggest
+                            you do not play the Crash game mode if you experience a laggy internet connection. On any
+                            other game mode, our provably fair system determines the outcome as soon as you place the
+                            wager. Therefore, you can check your History tab in the Profile section to see the result.
+                        </p>
+                    </div>
+                </div>
+
+                <div className='dropdown-wrapper'>
+                    <button onClick={toggleDropdown}>
+                        I've found an on-site vulnerability.
+
+                        <svg xmlns="http://www.w3.org/2000/svg" width="7" height="5" viewBox="0 0 7 5" fill="none">
+                            <path
+                                d="M3.50001 1.12732e-05C3.62547 1.12623e-05 3.7509 0.0480295 3.84655 0.143865L6.8564 3.16113C7.04787 3.35307 7.04787 3.66426 6.8564 3.85612C6.66501 4.04797 6.5 4.00001 6.16316 4.00001L3.50001 4.00001L1 4.00001C0.5 4.00001 0.335042 4.04788 0.14367 3.85602C-0.0478893 3.66417 -0.0478893 3.35298 0.14367 3.16104L3.15347 0.143772C3.24916 0.0479206 3.3746 1.12842e-05 3.50001 1.12732e-05Z"
+                                fill="#8b92a0"/>
+                        </svg>
+                    </button>
+
+                    <div className='dropdown'>
+                        <p>
+                            Create a ticket within our discord or contact a member of our administration team
+                            immediately. We will reward free on-site balance to those who report vulnerabilities.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <style jsx>{`
+              .tos-container {
+                width: 100%;
+                max-width: 1175px;
+                height: fit-content;
+
+                box-sizing: border-box;
+                padding: 30px 0;
+                margin: 0 auto;
+
+                color: #8b92a0;
+                font-family: "Geogrotesque Wide", sans-serif;
+                font-size: 13px;
+                font-weight: 400;
+
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+
+              }
+
+              button {
+                width: 100%;
+                max-width: 525px;
+                height: 40px;
+
+                border: unset;
+                outline: unset;
+                cursor: pointer;
+
+                color: #8b92a0;
+                font-family: Geogrotesque Wide, sans-serif;
+                font-size: 12px;
+                font-weight: 700;
+                text-align: left;
+
+                padding: 0 15px;
+
+                border-radius: 8px;
+                background: linear-gradient(145deg, rgba(50, 60, 76, 0.58) 0%, rgba(22, 28, 38, 0.78) 100%);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                
+                                border: 1px solid rgba(131, 147, 168, 0.24);
+                                transition: color .25s, border-color .25s, background-color .25s, box-shadow .25s;
+              }
+
+                            button:hover {
+                                color: #dbe5f4;
+                                border-color: rgba(31, 214, 95, 0.35);
+                            }
+
+                            button svg {
+                                transition: transform .25s;
+                            }
+
+                            button svg path {
+                                fill: currentColor;
+                            }
+              
+              .active button {
+                                border-radius: 8px;
+                                color: #edf7ff;
+                                border: 1px solid rgba(31, 214, 95, 0.55);
+                                background: linear-gradient(145deg, rgba(49, 69, 57, 0.56) 0%, rgba(19, 30, 26, 0.8) 100%);
+                                box-shadow: inset 0 1px 0 rgba(162, 237, 192, 0.3), 0 0 0 1px rgba(31, 214, 95, 0.12);
+              }
+              
+              .active button svg {
+                                transform: rotate(180deg);
+              }
+
+              .dropdown {
+                display: flex;
+                flex-direction: column;
+
+                max-height: 0;
+                opacity: 0;
+                overflow: hidden;
+
+                transition: max-height .25s, opacity .2s;
+              }
+
+              .code {
+                width: 100%;
+                height: auto;
+
+                background: #12151c;
+                color: #47C754;
+
+                padding: 15px;
+              }
+
+              pre {
+                margin: unset;
+              }
+
+              p {
+                margin: revert;
+              }
+
+              .active .dropdown {
+                max-height: 500px;
+                                opacity: 1;
+              }
+            `}</style>
+        </>
+    );
+}
+
+export default FAQ;

@@ -1,0 +1,54 @@
+<svg width="800" height="450" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="jackpotGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#14532d;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#15803d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16a34a;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="glowJackpot">
+      <stop offset="0%" style="stop-color:#4ade80;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#166534;stop-opacity:0" />
+    </radialGradient>
+    <linearGradient id="potGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#34d399;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#jackpotGradient)"/>
+  
+  <!-- Glow effects -->
+  <circle cx="400" cy="280" r="250" fill="url(#glowJackpot)" opacity="0.5"/>
+  
+  <!-- Pot/Trophy -->
+  <ellipse cx="400" cy="320" rx="120" ry="40" fill="url(#potGradient)" stroke="#064e3b" stroke-width="4"/>
+  <path d="M 280 320 Q 280 200 400 180 Q 520 200 520 320" fill="url(#potGradient)" stroke="#064e3b" stroke-width="4"/>
+  
+  <!-- Handles -->
+  <path d="M 280 250 Q 240 250 240 280 Q 240 300 260 300" fill="none" stroke="#10b981" stroke-width="6" stroke-linecap="round"/>
+  <path d="M 520 250 Q 560 250 560 280 Q 560 300 540 300" fill="none" stroke="#10b981" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Shine on pot -->
+  <ellipse cx="380" cy="240" rx="40" ry="60" fill="#6ee7b7" opacity="0.3"/>
+  
+  <!-- Coins overflowing -->
+  <circle cx="400" cy="170" r="20" fill="#fbbf24" stroke="#064e3b" stroke-width="2"/>
+  <circle cx="360" cy="185" r="18" fill="#fcd34d" stroke="#064e3b" stroke-width="2"/>
+  <circle cx="440" cy="185" r="18" fill="#fcd34d" stroke="#064e3b" stroke-width="2"/>
+  <circle cx="380" cy="160" r="16" fill="#fde047" stroke="#064e3b" stroke-width="2"/>
+  <circle cx="420" cy="160" r="16" fill="#fde047" stroke="#064e3b" stroke-width="2"/>
+  
+  <!-- Dollar signs on coins -->
+  <text x="400" y="180" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#064e3b" text-anchor="middle">$</text>
+  
+  <!-- Jackpot text -->
+  <text x="400" y="120" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#10b981" text-anchor="middle">JACKPOT</text>
+  <text x="400" y="120" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#6ee7b7" text-anchor="middle" opacity="0.5">JACKPOT</text>
+  
+  <!-- Sparkles and stars -->
+  <circle cx="150" cy="150" r="4" fill="#fde047"/>
+  <circle cx="650" cy="300" r="4" fill="#fde047"/>
+  <path d="M 200 100 L 205 110 L 215 110 L 207 116 L 210 126 L 200 120 L 190 126 L 193 116 L 185 110 L 195 110 Z" fill="#4ade80"/>
+  <path d="M 600 120 L 605 130 L 615 130 L 607 136 L 610 146 L 600 140 L 590 146 L 593 136 L 585 130 L 595 130 Z" fill="#4ade80"/>
+</svg>

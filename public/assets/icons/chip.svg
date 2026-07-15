@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <radialGradient id="chipBody" cx="50%" cy="38%" r="70%">
+      <stop offset="0%" stop-color="#232a36"/>
+      <stop offset="60%" stop-color="#181d26"/>
+      <stop offset="100%" stop-color="#0e1118"/>
+    </radialGradient>
+    <linearGradient id="edgeGreen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#45e57f"/>
+      <stop offset="50%" stop-color="#1fd65f"/>
+      <stop offset="100%" stop-color="#12a344"/>
+    </linearGradient>
+    <linearGradient id="cloverGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7dffab"/>
+      <stop offset="45%" stop-color="#1fd65f"/>
+      <stop offset="100%" stop-color="#0f8f3c"/>
+    </linearGradient>
+    <radialGradient id="innerFace" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#f2f7f4"/>
+      <stop offset="70%" stop-color="#dfe8e2"/>
+      <stop offset="100%" stop-color="#b8c6bd"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1fd65f" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#1fd65f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="topLight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="45%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ambient glow -->
+  <circle cx="256" cy="256" r="252" fill="url(#glow)"/>
+
+  <!-- chip body -->
+  <circle cx="256" cy="256" r="232" fill="url(#chipBody)" stroke="#0a0d13" stroke-width="6"/>
+
+  <!-- edge green segments (8) -->
+  <g fill="url(#edgeGreen)">
+    <path d="M256 26 A230 230 0 0 1 344 43.5 L322 96 A174 174 0 0 0 256 82 Z"/>
+    <path d="M418 94 A230 230 0 0 1 468.5 168 L416 190 A174 174 0 0 0 378 134 Z"/>
+    <path d="M486 256 A230 230 0 0 1 468.5 344 L416 322 A174 174 0 0 0 430 256 Z"/>
+    <path d="M418 418 A230 230 0 0 1 344 468.5 L322 416 A174 174 0 0 0 378 378 Z"/>
+    <path d="M256 486 A230 230 0 0 1 168 468.5 L190 416 A174 174 0 0 0 256 430 Z"/>
+    <path d="M94 418 A230 230 0 0 1 43.5 344 L96 322 A174 174 0 0 0 134 378 Z"/>
+    <path d="M26 256 A230 230 0 0 1 43.5 168 L96 190 A174 174 0 0 0 82 256 Z"/>
+    <path d="M94 94 A230 230 0 0 1 168 43.5 L190 96 A174 174 0 0 0 134 134 Z"/>
+  </g>
+
+  <!-- inner dark ring -->
+  <circle cx="256" cy="256" r="174" fill="none" stroke="#0a0d13" stroke-width="8"/>
+
+  <!-- inner face -->
+  <circle cx="256" cy="256" r="150" fill="url(#innerFace)" stroke="#0f8f3c" stroke-width="4"/>
+  <circle cx="256" cy="256" r="132" fill="none" stroke="#1fd65f" stroke-width="3" stroke-dasharray="10 8" opacity="0.55"/>
+
+  <!-- four leaf clover emblem -->
+  <g transform="translate(256 250)">
+    <path d="M0 -12 C -8 -58 -64 -58 -56 -18 C -52 4 -22 8 0 -12 Z" fill="url(#cloverGrad)" transform="rotate(45)"/>
+    <path d="M0 -12 C -8 -58 -64 -58 -56 -18 C -52 4 -22 8 0 -12 Z" fill="url(#cloverGrad)" transform="rotate(135)"/>
+    <path d="M0 -12 C -8 -58 -64 -58 -56 -18 C -52 4 -22 8 0 -12 Z" fill="url(#cloverGrad)" transform="rotate(225)"/>
+    <path d="M0 -12 C -8 -58 -64 -58 -56 -18 C -52 4 -22 8 0 -12 Z" fill="url(#cloverGrad)" transform="rotate(315)"/>
+    <path d="M2 6 C 10 34 18 48 30 62 C 14 56 2 44 -4 30 Z" fill="url(#cloverGrad)"/>
+    <circle cx="0" cy="0" r="9" fill="#0f8f3c"/>
+  </g>
+
+  <!-- 3D top light -->
+  <ellipse cx="256" cy="150" rx="200" ry="110" fill="url(#topLight)"/>
+</svg>

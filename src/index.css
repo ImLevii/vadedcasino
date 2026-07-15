@@ -1,0 +1,579 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500;600;700;800;900&display=swap');
+
+/* Toast progress bar shrink animation */
+@keyframes toast-shrink {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+:root {
+  --background: #232a36;
+  --secondary-bg: #1a1f29;
+  --third-bg: rgba(26, 31, 41, 0.9);
+  --fourth-bg: #12151c;
+  --fifth-bg: #14171f;
+
+  /* CSGO LUCK accent is neon green; kept in the --gold slot so it cascades app-wide */
+  --gold: #1fd65f;
+  --gradient-bg: linear-gradient(277.39deg, #161a22 -69.8%, #1b202a 144.89%);
+
+  --glass-bg: rgba(18, 24, 34, 0.58);
+  --glass-bg-strong: rgba(12, 16, 23, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-highlight: rgba(255, 255, 255, 0.06);
+  --morph-shadow: 0 14px 40px rgba(0, 0, 0, 0.34);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+img, video, canvas, svg {
+  max-width: 100%;
+}
+
+p {
+  margin: unset;
+}
+
+body {
+  margin: 0;
+  font-family: "Geogrotesque Wide", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(31, 214, 95, 0.12), transparent 48%),
+    radial-gradient(900px 500px at -10% 15%, rgba(65, 118, 255, 0.08), transparent 45%),
+    linear-gradient(252.77deg, #0e1116 -27.53%, #161a22 175.86%);
+  color: #c3cad6;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.2;
+  z-index: -1;
+}
+
+.glass-panel {
+  background: linear-gradient(180deg, var(--glass-bg), var(--glass-bg-strong));
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), var(--morph-shadow);
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+}
+
+.bevel {
+  outline: unset;
+  border: unset;
+
+  font-family: "Geogrotesque Wide", sans-serif;
+  color: #c3cad6;
+  cursor: pointer;
+
+  background: #232a36;
+  box-shadow: 0px -1px 0px #313a48, 0px 1px 0px #0e1116;
+  border-radius: 3px;
+  transition: background-color .3s;
+}
+
+.bevel-light {
+  outline: unset;
+  border: unset;
+
+  font-family: "Geogrotesque Wide", sans-serif;
+  color: #c3cad6;
+  cursor: pointer;
+
+  background: #2c3340;
+  box-shadow: 0px 1px 0px 0px #1a1f29, 0px -1px 0px 0px #3a4250;
+  border-radius: 3px;
+  transition: background-color .3s;
+}
+
+.bevel-gold {
+  outline: unset;
+  border: unset;
+
+  font-family: "Geogrotesque Wide", sans-serif;
+  color: #06210f;
+  font-weight: 700;
+  cursor: pointer;
+
+  background: #1fd65f;
+  box-shadow: 0px -2px 0px #45e57f, 0px 2px 0px #16a049;
+  border-radius: 3px;
+  transition: background-color .3s;
+}
+
+.bevel-gold:not(:disabled):hover {
+  background-color: #18b853;
+}
+
+.bevel-gold:not(:disabled):active {
+  background-color: #18b853;
+  box-shadow: unset;
+}
+
+.bevel-purple {
+  font-family: "Geogrotesque Wide", sans-serif;
+  color: #06210f;
+  font-weight: 700;
+  cursor: pointer;
+
+  border-radius: 5px;
+  border: 1px solid #45e57f;
+  background: radial-gradient(60% 60% at 50% 50%, #25e06b 0%, #18b853 100%);
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.10), 0px 0.5px 0px 0px #16a049, 0px -0.5px 0px 0px #5ceb90;
+}
+
+.gold {
+  color: var(--gold) !important;
+}
+
+.gold .gray {
+  color: #926A2F;
+}
+
+a:-webkit-any-link {
+  text-decoration: none;
+}
+
+.green {
+  color: #1fd65f;
+}
+
+.bevel:hover {
+  background: #2a323f;
+}
+
+.bevel-light:active {
+  box-shadow: 0px 1px 0px #0e1116;
+}
+
+.bevel:active, .user-dropdown-link:active {
+  box-shadow: 0px 1px 0px #0e1116;
+}
+
+.footer-link {
+  color: #8b92a0;
+  font-family: Geogrotesque Wide, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  cursor: pointer;
+}
+
+.purple {
+  color: #5865F2;
+}
+
+.admin-link {
+  font-family: "Geogrotesque Wide", sans-serif;
+  color: #8b92a0;
+  font-weight: 700;
+  text-decoration: none;
+
+  opacity: 0.5;
+  transition: opacity .3s;
+}
+
+.admin-link:hover {
+  opacity: 1;
+}
+
+.gamemode-link {
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+}
+
+.user-dropdown-link {
+  width: 100%;
+  height: 25px;
+  border-radius: 3px;
+  background: #1f242e;
+  box-shadow: 0px 1px 0px 0px #12151c, 0px -1px 0px 0px #2c3340;
+
+  color: #c3cad6;
+  font-family: "Geogrotesque Wide", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 8px;
+
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color .3s;
+  user-select: none;
+}
+
+.user-dropdown-link.gold {
+  border-radius: 3px;
+  background: linear-gradient(0deg, rgba(31, 214, 95, 0.20) 0%, rgba(31, 214, 95, 0.20) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
+  box-shadow: 0px 1px 0px 0px #0e1116, 0px -1px 0px 0px #2c3340;
+}
+
+.provably {
+  width: 100%;
+  height: 30px;
+  background: rgba(31, 214, 95, 0.15);
+
+  color: #1fd65f;
+  font-family: Geogrotesque Wide;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 30px;
+
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.user-dropdown-link:not(.gold):hover {
+  background: #2a323f;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Geogrotesque Wide", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #8b92a0;
+  text-decoration: none;
+  transition: color .2s;
+}
+
+.back-btn:hover {
+  color: #c3cad6;
+}
+
+/* Case page action buttons — global because <A> from router skips scoped CSS */
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-family: "Geogrotesque Wide", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+  outline: none;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.provably-btn {
+  color: #1fd65f;
+  border: 1px solid rgba(31, 214, 95, 0.3);
+  background: rgba(31, 214, 95, 0.08);
+}
+
+.provably-btn:hover {
+  background: rgba(31, 214, 95, 0.16);
+}
+
+.share-btn {
+  color: #8b92a0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.share-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #c3cad6;
+}
+
+.white {
+  color: white;
+}
+
+.gray {
+  color: #8b92a0;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.cost {
+  border-radius: 3px;
+  background: linear-gradient(0deg, rgba(31, 214, 95, 0.18) 0%, rgba(31, 214, 95, 0.18) 100%), linear-gradient(230deg, #12151c 0%, #1f242e 100%);
+
+  font-family: "Geogrotesque Wide", sans-serif;
+  color: #FFF;
+  font-size: 13px;
+  font-weight: 700;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  font-variant-numeric: tabular-nums;
+}
+
+.strip {
+  border: unset;
+  outline: unset;
+  text-decoration: none;
+}
+
+.fadein {
+  animation: .2s ease fadein;
+}
+
+.noto {
+  font-family: Noto Sans;
+}
+
+@keyframes fadein {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Native dropdown menus inherit the app palette instead of opening as white OS menus. */
+select {
+  color-scheme: dark;
+  color: #dce2e9;
+  background-color: #111720;
+  border-color: rgba(255, 255, 255, 0.08);
+  font-family: "Geogrotesque Wide", sans-serif;
+}
+
+select:hover {
+  border-color: rgba(31, 214, 95, 0.28);
+}
+
+select:focus-visible {
+  outline: 2px solid rgba(31, 214, 95, 0.2);
+  outline-offset: 1px;
+}
+
+select option,
+select optgroup {
+  color: #dce2e9;
+  background-color: #111720;
+  font-family: "Geogrotesque Wide", sans-serif;
+}
+
+select option:checked {
+  color: #07180d;
+  background: #1fd65f linear-gradient(0deg, #1fd65f, #1fd65f);
+}
+
+select:disabled {
+  color: #697382;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ─── Global mobile responsiveness ────────────────────────────────────────── */
+@media only screen and (max-width: 768px) {
+  /* Prevent iOS Safari from zooming into focused inputs (requires >=16px) */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* Toasts: keep inside the viewport on narrow screens */
+  .toast {
+    min-width: unset;
+    max-width: calc(100vw - 32px);
+  }
+
+  /* Larger tap targets for links/buttons rendered via global classes */
+  .user-dropdown-link {
+    height: 32px;
+  }
+
+  .action-btn {
+    height: 38px;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .footer-link {
+    font-size: 13px;
+  }
+}
+
+/* ─── Toast notifications ─────────────────────────────────────────────────── */
+.toast {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  background:
+    radial-gradient(120px 90px at 0% 50%, rgba(var(--toast-rgb), 0.1), transparent 72%),
+    linear-gradient(145deg, rgba(24, 31, 42, 0.97), rgba(9, 13, 20, 0.98));
+  border: 1px solid rgba(var(--toast-rgb), 0.18);
+  border-radius: 10px;
+  padding: 13px 14px 16px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.045), 0 12px 40px rgba(0, 0, 0, 0.58), 0 0 24px rgba(var(--toast-rgb), 0.055);
+
+  min-width: 270px;
+  max-width: 370px;
+  overflow: hidden;
+
+  font-family: "Geogrotesque Wide", "Rubik", sans-serif;
+  pointer-events: all;
+  user-select: none;
+
+  opacity: 0;
+  transform: translateX(28px) scale(0.96);
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+.toast-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 90px;
+  height: 90px;
+  background: radial-gradient(circle at 20% 30%, rgba(var(--toast-rgb), 0.14) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.toast-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(var(--toast-rgb), 0.1);
+  border: 1.5px solid rgba(var(--toast-rgb), 0.3);
+  box-shadow: 0 0 14px rgba(var(--toast-rgb), 0.18);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.toast-body {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.toast-label {
+  margin: 0 0 3px 0;
+  color: rgb(var(--toast-rgb));
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.toast-message {
+  margin: 0;
+  color: #c3cad6;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: 0.005em;
+  overflow-wrap: break-word;
+}
+
+.toast-dismiss {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  color: #4a5260;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  align-self: flex-start;
+
+  transition: color .15s ease, background .15s ease;
+}
+
+.toast-dismiss:hover {
+  color: #8b92a0;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(var(--toast-rgb), 0.1);
+  overflow: hidden;
+}
+
+.toast-progress-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, rgba(var(--toast-rgb), 0.5), rgb(var(--toast-rgb)));
+  transform-origin: left center;
+  animation: toast-shrink linear forwards;
+}
+

@@ -1,0 +1,341 @@
+import SpinnerItem from "./spinneritem";
+import {createEffect, For, Show} from "solid-js";
+
+function CaseSpinner(props) {
+
+    let spinner
+  let spinAnimation
+  const itemWidth = 130
+  const itemGap = 4
+  const itemStep = itemWidth + itemGap
+  const itemCenter = itemWidth / 2
+  const idleItemIndex = 6
+  const idleStart = idleItemIndex * itemStep + itemCenter
+  const idleEnd = idleStart + itemStep
+  const spinEasing = 'cubic-bezier(.08,.78,.16,1)'
+
+  const isIdle = () => props?.spinning === '' || props?.spinning === 'loading'
+  const loopWidth = () => (props?.items?.length || 0) * itemStep
+  const loopDuration = () => Math.max(20, (props?.items?.length || 0) * 1.4)
+
+    createEffect(() => {
+        if (props?.spinning === 'spinning') {
+      requestAnimationFrame(() => animate())
+    }
+
+    if (props?.spinning === '') {
+      resetTrack()
+        }
+    })
+
+    function animate() {
+
+      const currentPosition = getCurrentTranslateX()
+      const firstItem = Math.abs(currentPosition || -idleStart)
+      const lastItem = 50 * itemStep + itemCenter
+
+        spinAnimation?.cancel()
+        spinner?.getAnimations()?.forEach(animation => {
+          if (animation.animationName !== 'idleCarousel') animation.cancel()
+        })
+      spinner.style.transform = `translateX(-${firstItem}px)`
+
+        spinAnimation = spinner.animate(
+            [
+          {transform: `translateX(-${firstItem}px)`, offset: 0, easing: spinEasing},
+          {transform: `translateX(${-lastItem - props?.offset}px)`, offset: 0.88, easing: spinEasing},
+          {transform: `translateX(-${lastItem}px)`, offset: 1, easing: 'cubic-bezier(.18,.72,.22,1)'}
+            ],
+            {
+          duration: props?.spinTime || 4800,
+                fill: 'forwards'
+            })
+    }
+
+        function resetTrack() {
+          spinAnimation?.cancel()
+          spinAnimation = null
+          if (spinner) spinner.style.transform = ''
+        }
+
+    function getCurrentTranslateX() {
+      if (!spinner) return -idleStart
+
+      const transform = getComputedStyle(spinner).transform
+      if (!transform || transform === 'none') return -idleStart
+
+      const matrix = new DOMMatrixReadOnly(transform)
+      return matrix.m41 || -idleStart
+    }
+
+    return (
+        <>
+            <div class={'case-spinner-container ' + (props?.spinning === '' || props?.spinning === 'loading' ? 'idle ' : '') + (props?.layout === 'multi' ? 'multi ' : '') + (props?.sideArrows ? 'side-arrows' : '')}>
+                {/* Side fade masks */}
+                <div class='fade-left'/>
+                <div class='fade-right'/>
+                {/* Center indicator */}
+              <div class='lane-arrow lane-arrow-top'/>
+              <div class='lane-arrow lane-arrow-bottom'/>
+                <div class='center-indicator'/>
+                <div class='center-line-top'/>
+                <div class='center-line-bottom'/>
+                <div class={'spinner-items ' + (isIdle() ? 'idle-track' : '')} ref={spinner}
+                     style={{
+                       '--idle-from': `-${idleStart}px`,
+                       '--idle-to': `-${idleStart + loopWidth()}px`,
+                       '--idle-duration': `${loopDuration()}s`
+                     }}>
+                    <For each={props?.items || []}>{(item, index) => <SpinnerItem spinTime={props?.spinTime} offset={props.offset} img={item.img}
+                                                                                  name={item?.name}
+                                                                                  spinning={props?.spinning}
+                                                                                  price={item?.price}
+                                                                                  index={index()} position={props?.position}/>}</For>
+                    {/* duplicated strip for seamless infinite idle loop */}
+                    <Show when={isIdle()}>
+                        <For each={props?.items || []}>{(item, index) => <SpinnerItem spinTime={props?.spinTime} offset={props.offset} img={item.img}
+                                                                                      name={item?.name}
+                                                                                      spinning={props?.spinning}
+                                                                                      price={item?.price}
+                                                                                      index={index()} position={props?.position}/>}</For>
+                    </Show>
+                </div>
+            </div>
+
+            <style jsx>{`
+              .case-spinner-container {
+                flex: 1 0 320px;
+                min-width: 320px;
+
+                min-height: 130px;
+                height: 204px;
+
+                border-radius: 10px;
+                background: radial-gradient(72% 115% at 50% 50%, rgba(31, 214, 95, 0.045), rgba(8, 10, 16, 0) 48%), linear-gradient(180deg, #0a0d14, #06080e);
+                overflow: hidden;
+                position: relative;
+                border: 1px solid rgba(255,255,255,0.06);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 10px 28px rgba(0, 0, 0, 0.24);
+              }
+
+              .case-spinner-container.multi {
+                width: 100%;
+                min-width: 0;
+                flex: unset;
+                height: 252px;
+                border-radius: 0;
+                border-top: 0;
+                border-bottom: 0;
+                border-left: 1px solid rgba(255, 255, 255, 0.045);
+                border-right: 0;
+                background: radial-gradient(55% 80% at 50% 50%, rgba(31, 214, 95, 0.045), rgba(31, 214, 95, 0) 54%), linear-gradient(180deg, rgba(12, 16, 23, 0.96), rgba(8, 11, 17, 0.98));
+                box-shadow: inset 1px 0 0 rgba(255,255,255,0.018), inset -1px 0 0 rgba(0,0,0,0.24);
+              }
+
+              .case-spinner-container.multi:first-child {
+                border-left: 0;
+              }
+
+              .case-spinner-container.idle {
+                border-color: rgba(31, 214, 95, 0.08);
+              }
+
+              .lane-arrow {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 0;
+                height: 0;
+                z-index: 5;
+                pointer-events: none;
+                filter: drop-shadow(0 0 3px rgba(31, 214, 95, 0.4));
+              }
+
+              .lane-arrow-top {
+                top: 7px;
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-top: 7px solid #1fd65f;
+              }
+
+              .lane-arrow-bottom {
+                bottom: 7px;
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 7px solid #1fd65f;
+              }
+
+              .case-spinner-container.multi .lane-arrow-top {
+                top: 8px;
+                border-left-width: 5px;
+                border-right-width: 5px;
+                border-top-width: 7px;
+              }
+
+              .case-spinner-container.multi .lane-arrow-bottom {
+                bottom: 8px;
+                border-left-width: 5px;
+                border-right-width: 5px;
+                border-bottom-width: 7px;
+              }
+
+              .case-spinner-container.side-arrows .lane-arrow {
+                top: 50%;
+                bottom: auto;
+                left: auto;
+                transform: translateY(-50%);
+              }
+
+              .case-spinner-container.side-arrows .lane-arrow-top {
+                left: 8px;
+                border-top: 5px solid transparent;
+                border-bottom: 5px solid transparent;
+                border-left: 7px solid #1fd65f;
+                border-right: 0;
+              }
+
+              .case-spinner-container.side-arrows .lane-arrow-bottom {
+                right: 8px;
+                border-top: 5px solid transparent;
+                border-bottom: 5px solid transparent;
+                border-right: 7px solid #1fd65f;
+                border-left: 0;
+              }
+
+              .case-spinner-container.multi.side-arrows .lane-arrow-top {
+                top: 50%;
+                left: 7px;
+                border-top-width: 5px;
+                border-bottom-width: 5px;
+                border-left-width: 7px;
+                border-right-width: 0;
+              }
+
+              .case-spinner-container.multi.side-arrows .lane-arrow-bottom {
+                bottom: auto;
+                right: 7px;
+                border-top-width: 5px;
+                border-bottom-width: 5px;
+                border-right-width: 7px;
+                border-left-width: 0;
+              }
+
+              /* Side gradient fades */
+              .fade-left, .fade-right {
+                position: absolute;
+                top: 0;
+                width: 22%;
+                height: 100%;
+                z-index: 2;
+                pointer-events: none;
+              }
+
+              .fade-left {
+                left: 0;
+                background: linear-gradient(to right, #080a10 0%, rgba(8,10,16,0.85) 40%, transparent 100%);
+              }
+
+              .fade-right {
+                right: 0;
+                background: linear-gradient(to left, #080a10 0%, rgba(8,10,16,0.85) 40%, transparent 100%);
+              }
+
+              .case-spinner-container.multi .fade-left,
+              .case-spinner-container.multi .fade-right {
+                width: 28%;
+              }
+
+              /* Center column highlight */
+              .center-indicator {
+                position: absolute;
+                left: 50%;
+                top: 0;
+                transform: translateX(-65px);
+                width: 130px;
+                height: 100%;
+                background: linear-gradient(90deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.07), rgba(31, 214, 95, 0));
+                z-index: 1;
+                pointer-events: none;
+                box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.08), inset -1px 0 0 rgba(31, 214, 95, 0.08), 0 0 24px rgba(31, 214, 95, 0.08);
+                animation: centerGlow 2.8s ease-in-out infinite;
+              }
+
+              .case-spinner-container.multi .center-indicator {
+                background: linear-gradient(90deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.07), rgba(31, 214, 95, 0));
+                box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.08), inset -1px 0 0 rgba(31, 214, 95, 0.08), 0 0 18px rgba(31, 214, 95, 0.06);
+              }
+
+              /* Top and bottom tick lines */
+              .center-line-top, .center-line-bottom {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-65px);
+                width: 130px;
+                height: 2px;
+                background: linear-gradient(to right, transparent, rgba(31, 214, 95, 0.16) 12%, #1fd65f 38%, #1fd65f 62%, rgba(31, 214, 95, 0.16) 88%, transparent);
+                z-index: 3;
+                pointer-events: none;
+                box-shadow: 0 0 10px rgba(31, 214, 95, 0.5), 0 0 18px rgba(31, 214, 95, 0.22);
+              }
+
+              .center-line-top { top: 0; }
+              .center-line-bottom { bottom: 0; }
+
+              .case-spinner-container.multi .center-line-top,
+              .case-spinner-container.multi .center-line-bottom {
+                height: 1px;
+                box-shadow: 0 0 4px rgba(31, 214, 95, 0.25);
+              }
+
+              .spinner-items {
+                width: fit-content;
+                height: 100%;
+
+                display: flex;
+
+                gap: 4px;
+
+                position: absolute;
+                left: 50%;
+                transform: translateX(-869px);
+                transform: translateX(-${idleStart}px);
+                will-change: transform;
+              }
+
+              .spinner-items.idle-track {
+                animation: idleCarousel var(--idle-duration, 60s) linear infinite;
+              }
+
+              .case-spinner-container:hover .spinner-items.idle-track {
+                animation-play-state: paused;
+              }
+
+              @keyframes idleCarousel {
+                0% { transform: translateX(var(--idle-from, -${idleStart}px)); }
+                100% { transform: translateX(var(--idle-to, -${idleEnd}px)); }
+              }
+
+              @keyframes centerGlow {
+                0%, 100% {
+                  opacity: .75;
+                  box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.08), inset -1px 0 0 rgba(31, 214, 95, 0.08), 0 0 16px rgba(31, 214, 95, 0.06);
+                }
+                50% {
+                  opacity: 1;
+                  box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.14), inset -1px 0 0 rgba(31, 214, 95, 0.14), 0 0 28px rgba(31, 214, 95, 0.1);
+                }
+              }
+
+              @media only screen and (max-width: 560px) {
+                .case-spinner-container {
+                  width: 100%;
+                  min-width: 300px;
+                  flex-basis: 300px;
+                }
+              }
+            `}</style>
+        </>
+    );
+}
+
+export default CaseSpinner;

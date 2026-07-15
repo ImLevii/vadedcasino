@@ -1,0 +1,35 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="cc2Body" x1="14" y1="6" x2="50" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9bffc4"/>
+      <stop offset="1" stop-color="#1fd65f"/>
+    </linearGradient>
+    <linearGradient id="cc2Face" x1="18" y1="14" x2="46" y2="50" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#11331f"/>
+      <stop offset="1" stop-color="#0a1d12"/>
+    </linearGradient>
+    <linearGradient id="cc2Star" x1="24" y1="22" x2="40" y2="42" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eafff2"/>
+      <stop offset="1" stop-color="#56f592"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="32" cy="32" r="30" fill="url(#cc2Body)"/>
+
+  <g fill="#ffffff" opacity="0.85">
+    <rect x="29" y="1.5" width="6" height="9" rx="1.5"/>
+    <rect x="29" y="53.5" width="6" height="9" rx="1.5"/>
+    <rect x="53.5" y="29" width="9" height="6" rx="1.5"/>
+    <rect x="1.5" y="29" width="9" height="6" rx="1.5"/>
+    <rect x="29" y="1.5" width="6" height="9" rx="1.5" transform="rotate(45 32 32)"/>
+    <rect x="29" y="53.5" width="6" height="9" rx="1.5" transform="rotate(45 32 32)"/>
+    <rect x="53.5" y="29" width="9" height="6" rx="1.5" transform="rotate(45 32 32)"/>
+    <rect x="1.5" y="29" width="9" height="6" rx="1.5" transform="rotate(45 32 32)"/>
+  </g>
+
+  <circle cx="32" cy="32" r="23" fill="url(#cc2Face)" stroke="#eafff2" stroke-width="2"/>
+  <circle cx="32" cy="32" r="19" fill="none" stroke="#9bffc4" stroke-width="1" opacity="0.5"/>
+
+  <path d="M32 17 L35.4 28.6 L47 32 L35.4 35.4 L32 47 L28.6 35.4 L17 32 L28.6 28.6 Z" fill="url(#cc2Star)"/>
+  <circle cx="32" cy="32" r="3.2" fill="#0a1d12"/>
+</svg>

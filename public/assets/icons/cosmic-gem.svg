@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" fill="none">
+  <defs>
+    <radialGradient id="cgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1fd65f" stop-opacity="0.55"/>
+      <stop offset="45%" stop-color="#1fd65f" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#1fd65f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cgTopL" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#b8ffd4"/>
+      <stop offset="100%" stop-color="#3fe377"/>
+    </linearGradient>
+    <linearGradient id="cgTopR" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2ee06e"/>
+      <stop offset="100%" stop-color="#0f9440"/>
+    </linearGradient>
+    <linearGradient id="cgTopBack" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7dffab"/>
+      <stop offset="100%" stop-color="#1fd65f"/>
+    </linearGradient>
+    <linearGradient id="cgBotL" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#31e06e"/>
+      <stop offset="100%" stop-color="#0b6e2f"/>
+    </linearGradient>
+    <linearGradient id="cgBotR" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#12a848"/>
+      <stop offset="100%" stop-color="#064d1f"/>
+    </linearGradient>
+    <linearGradient id="cgBotBack" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#17bd54"/>
+      <stop offset="100%" stop-color="#0a7a34"/>
+    </linearGradient>
+  </defs>
+
+  <!-- pulsing aura -->
+  <circle cx="128" cy="128" r="120" fill="url(#cgGlow)">
+    <animate attributeName="opacity" values="0.55;1;0.55" dur="4s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- gentle float -->
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0;0 -6;0 0" dur="5.6s" repeatCount="indefinite"/>
+
+    <!-- slow looping spin (turntable illusion around the vertical axis) -->
+    <g transform-origin="128 128">
+      <animateTransform attributeName="transform" type="scale"
+        values="1 1;0.68 1;0.08 1;-0.68 1;-1 1;-0.68 1;-0.08 1;0.68 1;1 1"
+        keyTimes="0;0.125;0.25;0.375;0.5;0.625;0.75;0.875;1"
+        dur="8s" repeatCount="indefinite" additive="sum"/>
+
+      <!-- back faces peeking through on the edge-on pass -->
+      <g>
+        <animate attributeName="opacity"
+          values="1;0.9;0.62;0.9;1;0.9;0.62;0.9;1"
+          keyTimes="0;0.125;0.25;0.375;0.5;0.625;0.75;0.875;1"
+          dur="8s" repeatCount="indefinite"/>
+
+        <!-- elongated octahedron crystal (minesgem silhouette) -->
+        <!-- upper pyramid -->
+        <polygon points="128,34 66,120 128,104" fill="url(#cgTopL)"/>
+        <polygon points="128,34 190,120 128,104" fill="url(#cgTopR)"/>
+        <polygon points="66,120 128,104 190,120" fill="url(#cgTopBack)"/>
+
+        <!-- lower pyramid -->
+        <polygon points="66,120 128,222 128,138" fill="url(#cgBotL)"/>
+        <polygon points="190,120 128,222 128,138" fill="url(#cgBotR)"/>
+        <polygon points="66,120 128,138 190,120" fill="url(#cgBotBack)"/>
+
+        <!-- girdle band -->
+        <polygon points="66,120 128,104 190,120 128,138" fill="#9bffc4" opacity="0.35"/>
+
+        <!-- rim light on left edge -->
+        <polygon points="128,34 66,120 74,120 128,42" fill="#eafff2" opacity="0.75"/>
+        <polygon points="66,120 128,222 128,210 74,120" fill="#b8ffd4" opacity="0.45"/>
+
+        <!-- inner core shimmer -->
+        <polygon points="128,66 100,120 128,180 156,120" fill="#dcffe9" opacity="0.22">
+          <animate attributeName="opacity" values="0.22;0.5;0.22" dur="2.8s" repeatCount="indefinite"/>
+        </polygon>
+      </g>
+    </g>
+  </g>
+
+  <!-- sparkles -->
+  <g fill="#eafff2">
+    <path d="M52 62 l2.4 5.4 5.4 2.4 -5.4 2.4 -2.4 5.4 -2.4 -5.4 -5.4 -2.4 5.4 -2.4 Z">
+      <animate attributeName="opacity" values="0;1;0" dur="3.4s" repeatCount="indefinite"/>
+    </path>
+    <path d="M204 84 l1.8 4 4 1.8 -4 1.8 -1.8 4 -1.8 -4 -4 -1.8 4 -1.8 Z">
+      <animate attributeName="opacity" values="0;1;0" dur="4.4s" begin="1.2s" repeatCount="indefinite"/>
+    </path>
+    <path d="M188 190 l1.5 3.4 3.4 1.5 -3.4 1.5 -1.5 3.4 -1.5 -3.4 -3.4 -1.5 3.4 -1.5 Z">
+      <animate attributeName="opacity" values="0;0.9;0" dur="3.8s" begin="2.1s" repeatCount="indefinite"/>
+    </path>
+  </g>
+</svg>

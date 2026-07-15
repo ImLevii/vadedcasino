@@ -1,0 +1,11 @@
+<% if (locals.error) { %>
+    <p>This Discord account is already linked to another Cosmic Luck account.</p>
+<% } else { %>
+    <p>You successfully linked your Discord account <%= discordUser.username %> to Cosmic Luck.</p>
+
+    <script>
+        window.opener.postMessage({
+            type: "discord"
+        }, "*");
+    </script>
+<% } %>

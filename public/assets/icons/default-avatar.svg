@@ -1,0 +1,27 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="avatarBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e293b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="userGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="100" height="100" rx="8" fill="url(#avatarBg)"/>
+  
+  <!-- User silhouette -->
+  <g transform="translate(50, 50)">
+    <!-- Head -->
+    <circle cx="0" cy="-8" r="16" fill="url(#userGradient)"/>
+    
+    <!-- Body -->
+    <path d="M -22 42 Q -22 18 0 18 Q 22 18 22 42 L 22 50 L -22 50 Z" fill="url(#userGradient)"/>
+  </g>
+  
+  <!-- Subtle border -->
+  <rect width="100" height="100" rx="8" fill="none" stroke="#10b981" stroke-width="1" opacity="0.3"/>
+</svg>

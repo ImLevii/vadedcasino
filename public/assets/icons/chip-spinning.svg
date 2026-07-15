@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" fill="none">
+  <defs>
+    <radialGradient id="csGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7dffc2" stop-opacity="0.55"/>
+      <stop offset="45%" stop-color="#1fd65f" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#1fd65f" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="csBody" cx="42%" cy="28%" r="80%">
+      <stop offset="0%" stop-color="#39424f"/>
+      <stop offset="55%" stop-color="#1c222c"/>
+      <stop offset="100%" stop-color="#0a0e14"/>
+    </radialGradient>
+    <linearGradient id="csEdge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#98ffd0"/>
+      <stop offset="40%" stop-color="#3ee68a"/>
+      <stop offset="100%" stop-color="#0e8443"/>
+    </linearGradient>
+    <linearGradient id="csEdgeGloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="csFace" cx="43%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="55%" stop-color="#e6efe9"/>
+      <stop offset="85%" stop-color="#c0d0c6"/>
+      <stop offset="100%" stop-color="#9db3a6"/>
+    </radialGradient>
+    <radialGradient id="csHotspot" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="csMedallion" cx="44%" cy="28%" r="85%">
+      <stop offset="0%" stop-color="#33414d"/>
+      <stop offset="55%" stop-color="#1a232c"/>
+      <stop offset="100%" stop-color="#0a1016"/>
+    </radialGradient>
+    <linearGradient id="csMedRim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#63f2a3"/>
+      <stop offset="100%" stop-color="#0b5e30"/>
+    </linearGradient>
+    <linearGradient id="csClover" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c8ffe3"/>
+      <stop offset="35%" stop-color="#5cf0a4"/>
+      <stop offset="75%" stop-color="#1fbd66"/>
+      <stop offset="100%" stop-color="#0d7a3d"/>
+    </linearGradient>
+    <linearGradient id="csStreak" x1="1" y1="0" x2="0" y2="0">
+      <stop offset="0%" stop-color="#7dffc2" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#7dffc2" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="csBlur1" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1.2"/>
+    </filter>
+    <filter id="csBlur3" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+    <clipPath id="csCloverClip">
+      <g transform="translate(128 126.5)">
+        <path d="M0 -3.5 C -2.9 -22.5 -25 -22.5 -21.5 -6.9 C -19.8 2.5 -7.7 3.7 0 -3.5 Z" transform="rotate(45)"/>
+        <path d="M0 -3.5 C -2.9 -22.5 -25 -22.5 -21.5 -6.9 C -19.8 2.5 -7.7 3.7 0 -3.5 Z" transform="rotate(135)"/>
+        <path d="M0 -3.5 C -2.9 -22.5 -25 -22.5 -21.5 -6.9 C -19.8 2.5 -7.7 3.7 0 -3.5 Z" transform="rotate(225)"/>
+        <path d="M0 -3.5 C -2.9 -22.5 -25 -22.5 -21.5 -6.9 C -19.8 2.5 -7.7 3.7 0 -3.5 Z" transform="rotate(315)"/>
+      </g>
+    </clipPath>
+  </defs>
+
+  <!-- emerald glow halo -->
+  <circle cx="128" cy="128" r="124" fill="url(#csGlow)">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="1.8s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- speed streaks (logo-style, left side) -->
+  <g>
+    <polygon points="86,86 10,80 86,94" fill="url(#csStreak)">
+      <animate attributeName="opacity" values="0;0.9;0" keyTimes="0;0.4;1" dur="1.4s" begin="0s" repeatCount="indefinite"/>
+    </polygon>
+    <polygon points="78,128 2,122 78,136" fill="url(#csStreak)">
+      <animate attributeName="opacity" values="0;0.9;0" keyTimes="0;0.4;1" dur="1.4s" begin="0.45s" repeatCount="indefinite"/>
+    </polygon>
+    <polygon points="86,170 14,164 86,178" fill="url(#csStreak)">
+      <animate attributeName="opacity" values="0;0.9;0" keyTimes="0;0.4;1" dur="1.4s" begin="0.9s" repeatCount="indefinite"/>
+    </polygon>
+  </g>
+
+  <!-- spinning chip -->
+  <g transform-origin="128 128">
+    <animateTransform attributeName="transform" type="scale"
+      values="1 1;0.7 1;0.06 1;-0.7 1;-1 1;-0.7 1;-0.06 1;0.7 1;1 1"
+      keyTimes="0;0.125;0.25;0.375;0.5;0.625;0.75;0.875;1"
+      dur="2.8s" repeatCount="indefinite"/>
+    <animate attributeName="opacity"
+      values="1;0.94;0.72;0.94;1;0.94;0.72;0.94;1"
+      keyTimes="0;0.125;0.25;0.375;0.5;0.625;0.75;0.875;1"
+      dur="2.8s" repeatCount="indefinite"/>
+
+    <!-- body -->
+    <circle cx="128" cy="128" r="86" fill="url(#csBody)" stroke="#05070a" stroke-width="2.5"/>
+
+    <!-- edge mint segments (8) -->
+    <g fill="url(#csEdge)">
+      <path d="M128 45 A83 83 0 0 1 159.8 51.3 L152 70.4 A62.3 62.3 0 0 0 128 65.7 Z"/>
+      <path d="M186.7 69.3 A83 83 0 0 1 204.7 96.2 L185.6 104 A62.3 62.3 0 0 0 172.1 83.9 Z"/>
+      <path d="M211 128 A83 83 0 0 1 204.7 159.8 L185.6 152 A62.3 62.3 0 0 0 190.3 128 Z"/>
+      <path d="M186.7 186.7 A83 83 0 0 1 159.8 204.7 L152 185.6 A62.3 62.3 0 0 0 172.1 172.1 Z"/>
+      <path d="M128 211 A83 83 0 0 1 96.2 204.7 L104 185.6 A62.3 62.3 0 0 0 128 190.3 Z"/>
+      <path d="M69.3 186.7 A83 83 0 0 1 51.3 159.8 L70.4 152 A62.3 62.3 0 0 0 83.9 172.1 Z"/>
+      <path d="M45 128 A83 83 0 0 1 51.3 96.2 L70.4 104 A62.3 62.3 0 0 0 65.7 128 Z"/>
+      <path d="M69.3 69.3 A83 83 0 0 1 96.2 51.3 L104 70.4 A62.3 62.3 0 0 0 83.9 83.9 Z"/>
+    </g>
+
+    <!-- glossy light band on upper edge ring -->
+    <path d="M42 128 A86 86 0 0 1 214 128 L190.3 128 A62.3 62.3 0 0 0 65.7 128 Z" fill="url(#csEdgeGloss)" opacity="0.35"/>
+
+    <!-- bevel groove between edge and face -->
+    <circle cx="128" cy="128" r="63.5" fill="none" stroke="#04070a" stroke-width="2.6" opacity="0.85"/>
+    <circle cx="128" cy="126.8" r="63.5" fill="none" stroke="#ffffff" stroke-width="0.9" opacity="0.35"/>
+
+    <!-- inner face -->
+    <circle cx="128" cy="128" r="55" fill="url(#csFace)"/>
+    <!-- face specular hotspot -->
+    <ellipse cx="108" cy="104" rx="34" ry="18" fill="url(#csHotspot)" opacity="0.8" filter="url(#csBlur3)"/>
+    <!-- engraved accent ring -->
+    <circle cx="128" cy="128.8" r="47.5" fill="none" stroke="#7d9487" stroke-width="0.9" opacity="0.8"/>
+    <circle cx="128" cy="128" r="47.5" fill="none" stroke="#1fd65f" stroke-width="1" stroke-dasharray="5.5 4.4" opacity="0.55"/>
+
+    <!-- medallion recess -->
+    <circle cx="128" cy="129" r="37" fill="#000000" opacity="0.45" filter="url(#csBlur1)"/>
+    <circle cx="128" cy="128" r="36" fill="url(#csMedallion)"/>
+    <circle cx="128" cy="128" r="36" fill="none" stroke="url(#csMedRim)" stroke-width="1.2"/>
+    <path d="M92 128 A36 36 0 0 1 164 128 L158 128 A30 30 0 0 0 98 128 Z" fill="#000000" opacity="0.4" filter="url(#csBlur1)"/>
+
+    <!-- clover: shadow, body, highlight -->
+    <g transform="translate(128 129.5)" fill="#02160a" opacity="0.55" filter="url(#csBlur1)">
+      <path d="M0 -3.5 C -2.9 -22.5 -25 -22.5 -21.5 -6.9 C -19.8 2.5 -7.7 3.7 0 -3.5 Z" transform="rotate(45)"/>
+      <path d="M0 -3.5 C -2.9 -22.5 -25 -22.5 -21.5 -6.9 C -19.8 2.5 -7.7 3.7 0 -3.5 Z" transform="rotate(135)"/>
+      <path d="M0 -3.5 C -2.9 -22.5 -25 -22.5 -21.5 -6.9 C -19.8 2.5 -7.7 3.7 0 -3.5 Z" transform="rotate(225)"/>
+      <path d="M0 -3.5 C -2.9 -22.5 -25 -22.5 -21.5 -6.9 C -19.8 2.5 -7.7 3.7 0 -3.5 Z" transform="rotate(315)"/>
+    </g>
+    <g transform="translate(128 126.5)" fill="url(#csClover)" stroke="#0a5c2e" stroke-width="0.8">
+      <path d="M0 -3.5 C -2.9 -22.5 -25 -22.5 -21.5 -6.9 C -19.8 2.5 -7.7 3.7 0 -3.5 Z" transform="rotate(45)"/>
+      <path d="M0 -3.5 C -2.9 -22.5 -25 -22.5 -21.5 -6.9 C -19.8 2.5 -7.7 3.7 0 -3.5 Z" transform="rotate(135)"/>
+      <path d="M0 -3.5 C -2.9 -22.5 -25 -22.5 -21.5 -6.9 C -19.8 2.5 -7.7 3.7 0 -3.5 Z" transform="rotate(225)"/>
+      <path d="M0 -3.5 C -2.9 -22.5 -25 -22.5 -21.5 -6.9 C -19.8 2.5 -7.7 3.7 0 -3.5 Z" transform="rotate(315)"/>
+    </g>
+    <g clip-path="url(#csCloverClip)">
+      <ellipse cx="118" cy="114" rx="24" ry="9" fill="#ffffff" opacity="0.55" filter="url(#csBlur1)"/>
+    </g>
+    <circle cx="128" cy="126.5" r="2.6" fill="#0a5c2e"/>
+
+    <!-- broad top-light -->
+    <ellipse cx="110" cy="90" rx="58" ry="28" fill="#ffffff" opacity="0.12" filter="url(#csBlur3)"/>
+  </g>
+
+  <!-- glints synced to quarter turns -->
+  <g fill="#ffffff">
+    <path d="M60 60 L63 70 L73 73 L63 76 L60 86 L57 76 L47 73 L57 70 Z">
+      <animate attributeName="opacity" values="0;1;0;0;0" keyTimes="0;0.06;0.14;0.5;1" dur="2.8s" begin="0s" repeatCount="indefinite"/>
+    </path>
+    <path d="M198 92 L200.5 100 L208 102.5 L200.5 105 L198 113 L195.5 105 L188 102.5 L195.5 100 Z">
+      <animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.44;0.5;0.58;1" dur="2.8s" begin="0s" repeatCount="indefinite"/>
+    </path>
+    <path d="M172 186 L174 192 L180 194 L174 196 L172 202 L170 196 L164 194 L170 192 Z">
+      <animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.69;0.75;0.83;1" dur="2.8s" begin="0s" repeatCount="indefinite"/>
+    </path>
+    <path d="M78 190 L80 196 L86 198 L80 200 L78 206 L76 200 L70 198 L76 196 Z">
+      <animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.19;0.25;0.33;1" dur="2.8s" begin="0s" repeatCount="indefinite"/>
+    </path>
+  </g>
+</svg>
+

@@ -1,0 +1,174 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <radialGradient id="c3dGlow" cx="50%" cy="58%" r="50%">
+      <stop offset="0%" stop-color="#1fd65f" stop-opacity="0.4"/>
+      <stop offset="55%" stop-color="#1fd65f" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#1fd65f" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="c3dSideDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#232b36"/>
+      <stop offset="45%" stop-color="#131820"/>
+      <stop offset="100%" stop-color="#04060a"/>
+    </linearGradient>
+    <linearGradient id="c3dSideMint" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4deb92"/>
+      <stop offset="45%" stop-color="#1fbd66"/>
+      <stop offset="100%" stop-color="#06582b"/>
+    </linearGradient>
+    <linearGradient id="c3dSideAO" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.55"/>
+      <stop offset="40%" stop-color="#000000" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.35"/>
+    </linearGradient>
+
+    <radialGradient id="c3dEdgeDark" cx="42%" cy="28%" r="80%">
+      <stop offset="0%" stop-color="#39424f"/>
+      <stop offset="55%" stop-color="#1c222c"/>
+      <stop offset="100%" stop-color="#0a0e14"/>
+    </radialGradient>
+    <linearGradient id="c3dEdgeMint" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#98ffd0"/>
+      <stop offset="40%" stop-color="#3ee68a"/>
+      <stop offset="100%" stop-color="#0e8443"/>
+    </linearGradient>
+    <linearGradient id="c3dEdgeGloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <radialGradient id="c3dFace" cx="43%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="55%" stop-color="#e6efe9"/>
+      <stop offset="85%" stop-color="#c0d0c6"/>
+      <stop offset="100%" stop-color="#9db3a6"/>
+    </radialGradient>
+    <radialGradient id="c3dHotspot" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="c3dMedallion" cx="44%" cy="28%" r="85%">
+      <stop offset="0%" stop-color="#33414d"/>
+      <stop offset="55%" stop-color="#1a232c"/>
+      <stop offset="100%" stop-color="#0a1016"/>
+    </radialGradient>
+    <linearGradient id="c3dMedRim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#63f2a3"/>
+      <stop offset="100%" stop-color="#0b5e30"/>
+    </linearGradient>
+
+    <linearGradient id="c3dClover" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c8ffe3"/>
+      <stop offset="35%" stop-color="#5cf0a4"/>
+      <stop offset="75%" stop-color="#1fbd66"/>
+      <stop offset="100%" stop-color="#0d7a3d"/>
+    </linearGradient>
+    <linearGradient id="c3dSheen" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="45%" stop-color="#ffffff" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <filter id="c3dBlur2" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2"/>
+    </filter>
+    <filter id="c3dBlur6" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <filter id="c3dBlur12" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+
+    <clipPath id="c3dCloverClip">
+      <g transform="translate(256 297) scale(1 0.6)">
+        <path d="M0 -6 C -5 -46 -52 -46 -44 -12 C -40 8 -14 10 0 -6 Z" transform="rotate(45)"/>
+        <path d="M0 -6 C -5 -46 -52 -46 -44 -12 C -40 8 -14 10 0 -6 Z" transform="rotate(135)"/>
+        <path d="M0 -6 C -5 -46 -52 -46 -44 -12 C -40 8 -14 10 0 -6 Z" transform="rotate(225)"/>
+        <path d="M0 -6 C -5 -46 -52 -46 -44 -12 C -40 8 -14 10 0 -6 Z" transform="rotate(315)"/>
+      </g>
+    </clipPath>
+  </defs>
+
+  <!-- ambient glow + soft ground shadow -->
+  <ellipse cx="256" cy="330" rx="245" ry="155" fill="url(#c3dGlow)"/>
+  <ellipse cx="256" cy="452" rx="188" ry="26" fill="#000000" opacity="0.55" filter="url(#c3dBlur12)"/>
+
+  <!-- ===== side extrusion ===== -->
+  <path d="M46 300 A210 126 0 0 0 466 300 L466 340 A210 126 0 0 1 46 340 Z" fill="url(#c3dSideDark)"/>
+  <g fill="url(#c3dSideMint)">
+    <path d="M466 300 A210 126 0 0 1 461.4 326.2 L461.4 366.2 A210 126 0 0 0 466 340 Z"/>
+    <path d="M432.2 368.7 A210 126 0 0 1 370.5 405.7 L370.5 445.7 A210 126 0 0 0 432.2 408.7 Z"/>
+    <path d="M299.7 423.2 A210 126 0 0 1 212.3 423.2 L212.3 463.2 A210 126 0 0 0 299.7 463.2 Z"/>
+    <path d="M141.5 405.7 A210 126 0 0 1 79.8 368.7 L79.8 408.7 A210 126 0 0 0 141.5 445.7 Z"/>
+    <path d="M50.6 326.2 A210 126 0 0 1 46 300 L46 340 A210 126 0 0 0 50.6 366.2 Z"/>
+  </g>
+  <!-- side ambient occlusion + bottom rim shadow -->
+  <path d="M46 300 A210 126 0 0 0 466 300 L466 340 A210 126 0 0 1 46 340 Z" fill="url(#c3dSideAO)"/>
+
+  <!-- ===== top face ===== -->
+  <!-- contact shadow between face and side -->
+  <ellipse cx="256" cy="304" rx="211" ry="127" fill="#000000" opacity="0.5" filter="url(#c3dBlur2)"/>
+
+  <ellipse cx="256" cy="300" rx="210" ry="126" fill="url(#c3dEdgeDark)" stroke="#05070a" stroke-width="3"/>
+
+  <!-- edge mint segments (8) -->
+  <g fill="url(#c3dEdgeMint)">
+    <path d="M461.4 273.8 A210 126 0 0 1 461.4 326.2 L418.3 320.8 A166 100 0 0 0 418.3 279.2 Z"/>
+    <path d="M432.2 368.7 A210 126 0 0 1 370.5 405.7 L346.5 383.9 A166 100 0 0 0 395.3 354.5 Z"/>
+    <path d="M299.7 423.2 A210 126 0 0 1 212.3 423.2 L221.5 397.8 A166 100 0 0 0 290.5 397.8 Z"/>
+    <path d="M141.5 405.7 A210 126 0 0 1 79.8 368.7 L116.7 354.5 A166 100 0 0 0 165.5 383.9 Z"/>
+    <path d="M50.6 326.2 A210 126 0 0 1 50.6 273.8 L93.7 279.2 A166 100 0 0 0 93.7 320.8 Z"/>
+    <path d="M79.8 231.3 A210 126 0 0 1 141.5 194.3 L165.5 216.1 A166 100 0 0 0 116.7 245.5 Z"/>
+    <path d="M212.3 176.8 A210 126 0 0 1 299.7 176.8 L290.5 202.2 A166 100 0 0 0 221.5 202.2 Z"/>
+    <path d="M370.5 194.3 A210 126 0 0 1 432.2 231.3 L395.3 245.5 A166 100 0 0 0 346.5 216.1 Z"/>
+  </g>
+
+  <!-- glossy light band across upper edge ring -->
+  <path d="M46 300 A210 126 0 0 1 466 300 L422 300 A166 100 0 0 0 90 300 Z" fill="url(#c3dEdgeGloss)" opacity="0.4"/>
+
+  <!-- bevel groove between edge and face -->
+  <ellipse cx="256" cy="300" rx="168" ry="101.5" fill="none" stroke="#04070a" stroke-width="3.5" opacity="0.8"/>
+  <ellipse cx="256" cy="298" rx="168" ry="101.5" fill="none" stroke="#ffffff" stroke-width="1.2" opacity="0.35"/>
+
+  <!-- inner face -->
+  <ellipse cx="256" cy="300" rx="164" ry="98.5" fill="url(#c3dFace)"/>
+  <!-- face specular hotspot -->
+  <ellipse cx="196" cy="252" rx="98" ry="42" fill="url(#c3dHotspot)" opacity="0.75" filter="url(#c3dBlur6)"/>
+  <!-- engraved accent ring: dark groove + light lip -->
+  <ellipse cx="256" cy="301.5" rx="146" ry="87" fill="none" stroke="#7d9487" stroke-width="1.6" opacity="0.8"/>
+  <ellipse cx="256" cy="300" rx="146" ry="87" fill="none" stroke="#1fd65f" stroke-width="2" stroke-dasharray="12 9" opacity="0.55"/>
+
+  <!-- medallion recess: shadow lip then medallion -->
+  <ellipse cx="256" cy="302" rx="110" ry="65.5" fill="#000000" opacity="0.45" filter="url(#c3dBlur2)"/>
+  <ellipse cx="256" cy="300" rx="108" ry="64" fill="url(#c3dMedallion)"/>
+  <ellipse cx="256" cy="300" rx="108" ry="64" fill="none" stroke="url(#c3dMedRim)" stroke-width="2"/>
+  <!-- medallion inner top shadow (recessed feel) -->
+  <path d="M148 300 A108 64 0 0 1 364 300 L352 300 A96 56 0 0 0 160 300 Z" fill="#000000" opacity="0.4" filter="url(#c3dBlur2)"/>
+
+  <!-- clover: drop shadow, body, bevel highlight -->
+  <g transform="translate(0 5)" filter="url(#c3dBlur2)" opacity="0.55">
+    <g transform="translate(256 297) scale(1 0.6)" fill="#02160a">
+      <path d="M0 -6 C -5 -46 -52 -46 -44 -12 C -40 8 -14 10 0 -6 Z" transform="rotate(45)"/>
+      <path d="M0 -6 C -5 -46 -52 -46 -44 -12 C -40 8 -14 10 0 -6 Z" transform="rotate(135)"/>
+      <path d="M0 -6 C -5 -46 -52 -46 -44 -12 C -40 8 -14 10 0 -6 Z" transform="rotate(225)"/>
+      <path d="M0 -6 C -5 -46 -52 -46 -44 -12 C -40 8 -14 10 0 -6 Z" transform="rotate(315)"/>
+    </g>
+  </g>
+  <g transform="translate(256 297) scale(1 0.6)" fill="url(#c3dClover)" stroke="#0a5c2e" stroke-width="1.5">
+    <path d="M0 -6 C -5 -46 -52 -46 -44 -12 C -40 8 -14 10 0 -6 Z" transform="rotate(45)"/>
+    <path d="M0 -6 C -5 -46 -52 -46 -44 -12 C -40 8 -14 10 0 -6 Z" transform="rotate(135)"/>
+    <path d="M0 -6 C -5 -46 -52 -46 -44 -12 C -40 8 -14 10 0 -6 Z" transform="rotate(225)"/>
+    <path d="M0 -6 C -5 -46 -52 -46 -44 -12 C -40 8 -14 10 0 -6 Z" transform="rotate(315)"/>
+  </g>
+  <!-- clover glass highlight clipped to leaves -->
+  <g clip-path="url(#c3dCloverClip)">
+    <ellipse cx="232" cy="272" rx="60" ry="22" fill="#ffffff" opacity="0.5" filter="url(#c3dBlur2)"/>
+  </g>
+  <ellipse cx="256" cy="297" rx="7" ry="4.5" fill="#0a5c2e"/>
+
+  <!-- broad face sheen sweep -->
+  <path d="M60 268 A196 112 0 0 1 452 250 A260 150 0 0 0 60 268 Z" fill="url(#c3dSheen)" opacity="0.5" filter="url(#c3dBlur6)"/>
+  <ellipse cx="176" cy="232" rx="120" ry="44" fill="url(#c3dSheen)" opacity="0.55" filter="url(#c3dBlur6)"/>
+</svg>
+
