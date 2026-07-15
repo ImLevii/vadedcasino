@@ -180,7 +180,7 @@ if (process.env.NODE_ENV !== 'development') {
     });
 } else {
     app.get('/', (req, res) => {
-        res.send('Backend running. Start the Vite dev server on port 3001 for the frontend.');
+        res.redirect('http://localhost:3001');
     });
 }
 
