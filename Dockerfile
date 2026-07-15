@@ -1,5 +1,5 @@
 # Deterministic production image for Cosmic Luck (Express API + SolidJS SPA).
-# SkinDeck CS2 skin trading integration (routes/trading/skindeck/) - enabled by default.
+# SkinDeck CS2 skin trading integration - live mode with real Steam inventory.
 # This makes the build/start steps come from the repo instead of the
 # platform's build/start command fields, which were being concatenated into
 #   vite build 'pnpm start' 'npm run server '
