@@ -115,7 +115,12 @@ async function cacheRoulette() {
     roulette.last = last.map(bet => bet.result);
 
     await updateRoulette();
-    rouletteInterval();
+    
+    // Start the roulette interval loop
+    if (!roulette.intervalStarted) {
+        roulette.intervalStarted = true;
+        rouletteInterval();
+    }
 
 }
 
