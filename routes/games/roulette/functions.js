@@ -120,34 +120,31 @@ async function cacheRoulette() {
 }
 
 async function rouletteInterval() {
-
-    // Guard: if no active round (shouldn't happen after fix, but just in case)
-    if (!roulette.round || !roulette.round.id) {
-        await sleep(2000);
-        await updateRoulette();
-        return rouletteInterval();
-    }
-
-    if (!roulette.round.rolledAt) {
-
-        await sleep(roulette.config.betTime);
-
-        roulette.round.rolledAt = new Date();
-        await sql.query('UPDATE roulette SET rolledAt = ? WHERE id = ?', [roulette.round.rolledAt, roulette.round.id]);
-
-        io.to('roulette').emit('roulette:roll', {
-            id: roulette.round.id,
-            result: roulette.round.result,
-            color: roulette.round.color
-        });
-
-    }
-
-    await sleep(roulette.config.rollTime);
-
-    roulette.round.endedAt = new Date();
-
     try {
+        // Guard: if no active round (shouldn't happen after fix, but just in case)
+        if (!roulette.round || !roulette.round.id) {
+            await sleep(2000);
+            await updateRoulette();
+            return setTimeout(rouletteInterval, 0);
+        }
+
+        if (!roulette.round.rolledAt) {
+            await sleep(roulette.config.betTime);
+
+            roulette.round.rolledAt = new Date();
+            await sql.query('UPDATE roulette SET rolledAt = ? WHERE id = ?', [roulette.round.rolledAt, roulette.round.id]);
+
+            io.to('roulette').emit('roulette:roll', {
+                id: roulette.round.id,
+                result: roulette.round.result,
+                color: roulette.round.color
+            });
+
+        }
+
+        await sleep(roulette.config.rollTime);
+
+        roulette.round.endedAt = new Date();
 
         await doTransaction(async (connection, commit) => {
             
@@ -189,9 +186,14 @@ async function rouletteInterval() {
 
     await sleep(2500);
 
-    await updateRoulette();
-    rouletteInterval();
+    try {
+        await updateRoulette();
+    } catch (error) {
+        console.error("Roulette updateRoulette err:", error);
+    }
 
+    // Use setTimeout instead of recursive call to prevent stack overflow
+    setTimeout(rouletteInterval, 0);
 }
 
 module.exports = {
