@@ -529,7 +529,7 @@ INSERT IGNORE INTO `features` (`id`, `enabled`) VALUES
     ('surveys', 1),
     ('cryptoDeposits', 1),
     ('cryptoWithdrawals', 1),
-    ('skindeck', 0);
+    ('skindeck', 1);
 
 -- ============================================================
 -- Notifications

@@ -27,4 +27,6 @@ CREATE TABLE IF NOT EXISTS `paymentTransactions` (
     KEY `idx_paymentTransactions_provider_status` (`provider`, `status`, `updatedAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT IGNORE INTO `features` (`id`, `enabled`) VALUES ('skindeck', 0);
+INSERT IGNORE INTO `features` (`id`, `enabled`) VALUES ('skindeck', 1);
+-- Ensure the feature is enabled on existing deployments (idempotent).
+UPDATE `features` SET `enabled` = 1 WHERE `id` = 'skindeck';
