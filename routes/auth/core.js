@@ -206,10 +206,10 @@ router.post('/login', apiLimiter, async (req, res) => {
         }
 
         const user = await findCredentialUser(username);
-        if (!user?.passwordHash || !staffRoles.has(user.role) || bannedUsers.has(user.id)) {
+        if (!user?.passwordHash || bannedUsers.has(user.id)) {
             return res.status(401).json({ error: 'INVALID_CREDENTIALS' });
         }
-        if (user.perms < 1 && process.env.NODE_ENV !== 'production') {
+        if (user.perms < 1 && !staffRoles.has(user.role) && process.env.NODE_ENV !== 'production') {
             return res.status(401).json({ error: 'UNAUTHORIZED' });
         }
 
