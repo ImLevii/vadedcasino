@@ -15,6 +15,7 @@ const crash = {
     bets: [],
     last: [],
     pot: 0,
+    intervalStarted: false,
     config: {
         get betTime() { return getGameConfig('crash', 'betTime', 10000); },
         get tick() { return getGameConfig('crash', 'tickRate', 150); },
@@ -255,90 +256,100 @@ async function processCashoutsBelow(multiplier) {
 }
 
 async function crashInterval() {
-
-    // Guard: if no active round (shouldn't happen after fix, but just in case)
-    if (!crash.round || !crash.round.id) {
-        await sleep(2000);
-        await updateCrash();
-        return crashInterval();
-    }
-
-    if (!crash.round.startedAt) {
-
-        const msUntilStart = Math.max(0, crash.round.createdAt.valueOf() + crash.config.betTime - Date.now());
-        await sleep(msUntilStart);
-
-        crash.round.startedAt = new Date();
-        await sql.query('UPDATE crash SET startedAt = ? WHERE id = ?', [crash.round.startedAt, crash.round.id]);
-    
-        io.to('crash').emit('crash:start', {
-            id: crash.round.id
-        });
-    
-    }
-
-    while (!crash.round.endedAt) {
-    
-        const ms = new Date() - crash.round.startedAt;
-        let currentMultiplier = growthFunc(ms);
-
-        if (currentMultiplier > crash.round.crashPoint) {
-            currentMultiplier = crash.round.crashPoint;
-        } 
-
-        await processCashoutsBelow(currentMultiplier);
-        io.to('crash').emit('crash:tick', currentMultiplier);
-        crash.round.currentMultiplier = currentMultiplier;
-
-        if (currentMultiplier < crash.round.crashPoint) {
-            await sleep(crash.config.tick);
-            continue;
-        }    
-
-        crash.round.endedAt = new Date();
-
-    }
-
     try {
-        await doTransaction(async (connection, commit) => {
-            await connection.query('UPDATE crash SET endedAt = ? WHERE id = ?', [crash.round.endedAt, crash.round.id]);
-            if (crash.bets.length) await connection.query('UPDATE bets SET completed = 1 WHERE game = ? AND gameId IN (?)', ['crash', crash.bets.map(bet => bet.id)]);
-            await commit();
-        });
-    } catch (e) {
-        return console.error(e);
+        // Guard: if no active round (shouldn't happen after fix, but just in case)
+        if (!crash.round || !crash.round.id) {
+            await sleep(2000);
+            await updateCrash();
+            return setTimeout(crashInterval, 0);
+        }
+
+        if (!crash.round.startedAt) {
+
+            const msUntilStart = Math.max(0, crash.round.createdAt.valueOf() + crash.config.betTime - Date.now());
+            await sleep(msUntilStart);
+
+            crash.round.startedAt = new Date();
+            await sql.query('UPDATE crash SET startedAt = ? WHERE id = ?', [crash.round.startedAt, crash.round.id]);
+        
+            io.to('crash').emit('crash:start', {
+                id: crash.round.id
+            });
+        
+        }
+
+        while (!crash.round.endedAt) {
+        
+            const ms = new Date() - crash.round.startedAt;
+            let currentMultiplier = growthFunc(ms);
+
+            if (currentMultiplier > crash.round.crashPoint) {
+                currentMultiplier = crash.round.crashPoint;
+            } 
+
+            await processCashoutsBelow(currentMultiplier);
+            io.to('crash').emit('crash:tick', currentMultiplier);
+            crash.round.currentMultiplier = currentMultiplier;
+
+            if (currentMultiplier < crash.round.crashPoint) {
+                await sleep(crash.config.tick);
+                continue;
+            }    
+
+            crash.round.endedAt = new Date();
+
+        }
+
+        try {
+            await doTransaction(async (connection, commit) => {
+                await connection.query('UPDATE crash SET endedAt = ? WHERE id = ?', [crash.round.endedAt, crash.round.id]);
+                if (crash.bets.length) await connection.query('UPDATE bets SET completed = 1 WHERE game = ? AND gameId IN (?)', ['crash', crash.bets.map(bet => bet.id)]);
+                await commit();
+            });
+        } catch (e) {
+            console.error(e);
+        }
+
+        io.to('crash').emit('crash:end', {
+            id: crash.round.id,
+            crashPoint: crash.round.crashPoint,
+            serverSeed: crash.round.serverSeed
+        }); 
+
+        if (crash.bets.length) {
+
+            const crashEdge = getGameConfig('crash', 'houseEdge', 4);
+            const losers = crash.bets.map(bet => {
+             
+                if (bet.cashoutPoint) return;
+                return { user: bet.user, amount: bet.amount, edge: roundDecimal(bet.amount * (crashEdge / 100 + 0.035)), payout: 0, game: 'crash' };
+
+            }).filter(bet => bet);
+
+            if (losers.length) newBets(losers);
+
+            await awardPot();
+
+        }
+
+        crash.last.unshift(crash.round.crashPoint);
+        if (crash.last.length > LAST_RESULTS) crash.last.pop();
+
+        await sleep(ROUND_COOLDOWN);
+
+        try {
+            await updateCrash();
+        } catch (error) {
+            console.error("Crash updateCrash err:", error);
+        }
+
+        // Use setTimeout instead of recursive call to prevent stack overflow
+        setTimeout(crashInterval, 0);
+
+    } catch (error) {
+        console.error("Crash interval err:", error);
+        setTimeout(crashInterval, 0);
     }
-
-    io.to('crash').emit('crash:end', {
-        id: crash.round.id,
-        crashPoint: crash.round.crashPoint,
-        serverSeed: crash.round.serverSeed
-    }); 
-
-    if (crash.bets.length) {
-
-        const crashEdge = getGameConfig('crash', 'houseEdge', 4);
-        const losers = crash.bets.map(bet => {
-         
-            if (bet.cashoutPoint) return;
-            return { user: bet.user, amount: bet.amount, edge: roundDecimal(bet.amount * (crashEdge / 100 + 0.035)), payout: 0, game: 'crash' };
-
-        }).filter(bet => bet);
-
-        if (losers.length) newBets(losers);
-
-        await awardPot();
-
-    }
-
-    crash.last.unshift(crash.round.crashPoint);
-    if (crash.last.length > LAST_RESULTS) crash.last.pop();
-
-    await sleep(ROUND_COOLDOWN);
-
-    await updateCrash();
-    crashInterval();
-
 }
 
 async function cacheCrash() {
@@ -348,7 +359,12 @@ async function cacheCrash() {
 
     await loadPot();
     await updateCrash();
-    crashInterval();
+    
+    // Start the crash interval loop only once
+    if (!crash.intervalStarted) {
+        crash.intervalStarted = true;
+        crashInterval();
+    }
 
 }
 
