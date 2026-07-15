@@ -84,7 +84,7 @@ function SkinDeckDeposit() {
                         <img src='/assets/icons/cs2-logo.svg' alt='Counter-Strike 2'/>
                         <div><span>COUNTER-STRIKE 2</span><strong>Inventory Deposit</strong></div>
                     </div>
-                    <div class='market-state'><i></i><span>SKINDECK ONLINE</span></div>
+                    <div class='market-state'><i></i><span>LIVE PRICES</span></div>
                 </div>
                 <div class='market-layout'>
                     <div class='inventory-pane'>
