@@ -1,5 +1,4 @@
 import {Outlet} from "@solidjs/router";
-import Livedrops from "../components/LiveDrops/livedrops";
 import {Meta, Title} from "@solidjs/meta";
 
 function Cases(props) {
@@ -10,8 +9,6 @@ function Cases(props) {
             <Meta name='description' content='Win Coins on Cosmic Luck With The Loot Cases!'></Meta>
 
             <div class='cases-base-container'>
-                <Livedrops/>
-
                 <Outlet/>
             </div>
 

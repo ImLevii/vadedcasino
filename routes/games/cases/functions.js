@@ -1,6 +1,7 @@
 const io = require('../../../socketio/server');
 const { sql } = require('../../../database');
 const { getItemById } = require('../../../utils/csgo/items');
+const { newMessage } = require('../../../socketio/chat/functions');
 
 const topDropPrice = 25000;
 const limit = 15;
@@ -129,6 +130,8 @@ async function cacheDrops(top = false) {
 
 function newDrops(user, caseInfo, results) {
 
+    const topDrops = [];
+
     io.to('cases').except(user.id).emit('cases:drops', results.map(result => {
         
         const data = {
@@ -156,11 +159,24 @@ function newDrops(user, caseInfo, results) {
             if (drops.top.length > limit) {
                 drops.top.splice(-(drops.top.length - limit));
             }
+            topDrops.push(data);
         }
 
         return data;
 
     }));
+
+    // Emit high-ticket drops into chat as system messages
+    for (const drop of topDrops) {
+        const chatMessage = {
+            type: 'system',
+            content: `🎁 ${drop.user.username} won ${drop.item.name} ($${drop.item.price.toLocaleString()}) from ${drop.case.name}!`,
+            createdAt: Date.now(),
+            replyTo: null,
+            user: null
+        };
+        newMessage(chatMessage);
+    }
 
 }
 

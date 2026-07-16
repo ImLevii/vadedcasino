@@ -1,17 +1,22 @@
 function SystemMessage(props) {
+    const isDrop = props?.content?.includes('🎁');
     return (
         <>
             <div class='chatmessage-container'>
                 <div class='user'>
                     <div class='avatar'>
-                        <img src='/assets/icons/coin.svg' alt='' height='25'/>
+                        {isDrop ? (
+                            <span class='drop-gift-icon'>🎁</span>
+                        ) : (
+                            <img src='/assets/icons/coin.svg' alt='' height='25'/>
+                        )}
                     </div>
 
-                    <p class='username'>BOT</p>
+                    <p class='username' classList={{'drop-username': isDrop}}>{isDrop ? 'HIGH TICKET DROP' : 'BOT'}</p>
                     <p class='time'>{new Date(props?.createdAt)?.toLocaleTimeString()}</p>
                 </div>
 
-                <p class='message'>{props?.content}</p>
+                <p class='message' classList={{'drop-message': isDrop}}>{props?.content}</p>
             </div>
 
             <style jsx>{`
@@ -38,6 +43,18 @@ function SystemMessage(props) {
                 box-sizing: content-box;
               }
               
+              .drop-gift-icon {
+                font-size: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 27px;
+                height: 27px;
+                border-radius: 4px;
+                background: rgba(31, 214, 95, 0.1);
+                border: 1px solid rgba(31, 214, 95, 0.2);
+              }
+              
               .username {
                 font-weight: 600;
                 font-size: 14px;
@@ -45,6 +62,12 @@ function SystemMessage(props) {
                 font-style: normal;
                 color: #F97339;
                 margin-top: -2px;
+              }
+              
+              .drop-username {
+                color: #1fd65f;
+                font-size: 11px;
+                letter-spacing: 0.4px;
               }
               
               .message {
@@ -55,6 +78,13 @@ function SystemMessage(props) {
                 border-radius: 3px;
 
                 padding: 12px;
+              }
+              
+              .drop-message {
+                color: #dce3ec;
+                background: rgba(31, 214, 95, 0.08);
+                border: 1px solid rgba(31, 214, 95, 0.12);
+                font-weight: 600;
               }
               
               .time {

@@ -40,8 +40,10 @@ function NavBar(props) {
                                 setSearchParams({modal: 'rakeback'})
                             }}>
                                 <svg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                                    <path d='M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z' fill='#1fd65f'/>
-                                    <path d='M12 6v6l4 2' stroke='#0a5e2a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+                                    <path d='M20 6h-2.18A3 3 0 0 0 15 2a3 3 0 0 0-2.18 1A3 3 0 0 0 12 3a3 3 0 0 0-.82-1A3 3 0 0 0 6.18 6H4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2z' stroke='#1fd65f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/>
+                                    <path d='M12 6v14' stroke='#1fd65f' stroke-width='2' stroke-linecap='round'/>
+                                    <path d='M8 10v2' stroke='#1fd65f' stroke-width='2' stroke-linecap='round'/>
+                                    <path d='M16 10v2' stroke='#1fd65f' stroke-width='2' stroke-linecap='round'/>
                                 </svg>
                                 REWARDS
                             </button>
