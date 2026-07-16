@@ -330,7 +330,7 @@ function CasePage(props) {
         <CasePreview case={caseObj()} onClose={() => setShowPreview(false)}/>
       </Show>
 
-      <style jsx>{`
+            <style jsx>{`
         .case-page {
           width: 100%;
           height: fit-content;
@@ -352,17 +352,22 @@ function CasePage(props) {
         .back-btn {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 10px;
           font-family: 'Geogrotesque Wide', sans-serif;
           font-size: 13px;
           font-weight: 700;
           color: #8b92a0;
           text-decoration: none;
-          transition: color .2s;
+          padding: 6px 12px 6px 8px;
+          border-radius: 8px;
+          border: 1px solid transparent;
+          transition: all .2s ease;
         }
 
         .back-btn:hover {
           color: #c3cad6;
+          background: rgba(255,255,255,0.03);
+          border-color: rgba(255,255,255,0.06);
         }
 
         .header-actions {
@@ -376,9 +381,9 @@ function CasePage(props) {
           align-items: center;
           gap: 6px;
 
-          height: 32px;
-          padding: 0 12px;
-          border-radius: 6px;
+          height: 34px;
+          padding: 0 14px;
+          border-radius: 7px;
 
           font-family: 'Geogrotesque Wide', sans-serif;
           font-size: 11px;
@@ -387,39 +392,56 @@ function CasePage(props) {
 
           outline: none;
           cursor: pointer;
-          transition: background .2s;
+          transition: all .2s;
         }
 
         .provably-btn {
           color: #1fd65f;
-          border: 1px solid rgba(31, 214, 95, 0.3);
-          background: rgba(31, 214, 95, 0.08);
+          border: 1px solid rgba(31, 214, 95, 0.25);
+          background: rgba(31, 214, 95, 0.07);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
         }
 
         .provably-btn:hover {
-          background: rgba(31, 214, 95, 0.16);
+          background: rgba(31, 214, 95, 0.14);
+          border-color: rgba(31, 214, 95, 0.4);
+          transform: translateY(-1px);
         }
 
         .share-btn {
           color: #8b92a0;
-          border: 1px solid rgba(255,255,255,0.08);
-          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.07);
+          background: rgba(255,255,255,0.03);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
         }
 
         .share-btn:hover {
-          background: rgba(255,255,255,0.08);
+          background: rgba(255,255,255,0.07);
+          border-color: rgba(255,255,255,0.14);
           color: #c3cad6;
+          transform: translateY(-1px);
         }
 
         /* ── Spinner ── */
         .spinner-section {
           width: 100%;
-          border-radius: 12px;
-          background: linear-gradient(180deg, rgba(5, 7, 12, 0.96), rgba(3, 5, 9, 0.98));
-          border: 1px solid rgba(255,255,255,0.055);
+          border-radius: 14px;
+          background: linear-gradient(180deg, rgba(4, 6, 11, 0.96), rgba(2, 4, 8, 0.98));
+          border: 1px solid rgba(255,255,255,0.05);
           overflow: hidden;
           position: relative;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 8px 40px rgba(0,0,0,0.55);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 10px 48px rgba(0,0,0,0.6);
+        }
+
+        .spinner-section::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 5%;
+          right: 5%;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(31, 214, 95, 0.08), transparent);
+          z-index: 1;
         }
 
         .spinner-track {
@@ -428,38 +450,41 @@ function CasePage(props) {
           flex-wrap: nowrap;
           align-items: stretch;
           gap: 12px;
-          padding: 14px 20px 20px;
+          padding: 16px 20px 22px;
           overflow-x: auto;
           overflow-y: hidden;
           scrollbar-width: thin;
-          scrollbar-color: rgba(31, 214, 95, 0.22) transparent;
+          scrollbar-color: rgba(31, 214, 95, 0.18) transparent;
+          position: relative;
         }
 
         .spinner-track.amount-3,
         .spinner-track.amount-4 {
-          min-height: 282px;
+          min-height: 290px;
           display: grid;
-          grid-auto-rows: 252px;
+          grid-auto-rows: 258px;
           align-items: stretch;
           gap: 0;
-          padding: 10px;
+          padding: 12px;
           overflow-x: hidden;
           overflow-y: hidden;
-          background: linear-gradient(180deg, rgba(13, 17, 24, 0.96), rgba(8, 11, 17, 0.98));
-          border-top: 1px solid rgba(255, 255, 255, 0.035);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.025), inset 0 0 60px rgba(0, 0, 0, 0.32);
+          background: linear-gradient(180deg, rgba(10, 14, 22, 0.96), rgba(5, 8, 14, 0.98));
+          border-top: 1px solid rgba(255, 255, 255, 0.03);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), inset 0 0 80px rgba(0, 0, 0, 0.35);
         }
 
         .spinner-track.amount-3 {
           grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 10px;
         }
 
         .spinner-track.amount-4 {
           grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 8px;
         }
 
         .spinner-track::-webkit-scrollbar {
-          height: 6px;
+          height: 5px;
         }
 
         .spinner-track::-webkit-scrollbar-track {
@@ -467,7 +492,7 @@ function CasePage(props) {
         }
 
         .spinner-track::-webkit-scrollbar-thumb {
-          background: rgba(31, 214, 95, 0.22);
+          background: rgba(31, 214, 95, 0.18);
           border-radius: 999px;
         }
 
@@ -475,7 +500,7 @@ function CasePage(props) {
           display: flex;
           align-items: center;
           justify-content: center;
-          min-height: 160px;
+          min-height: 180px;
           width: 100%;
         }
 
@@ -483,27 +508,32 @@ function CasePage(props) {
         .controls-bar {
           display: flex;
           align-items: center;
-          gap: 16px;
-          padding: 16px 0 14px;
+          gap: 18px;
+          padding: 18px 0 16px;
           flex-wrap: wrap;
+          border-bottom: 1px solid rgba(255,255,255,0.04);
+          margin-bottom: 10px;
         }
 
         .case-info-mini {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 14px;
           flex-shrink: 0;
+          padding-right: 18px;
+          border-right: 1px solid rgba(255,255,255,0.06);
         }
 
         .case-img-mini {
-          width: 64px;
-          height: 64px;
+          width: 58px;
+          height: 58px;
           object-fit: contain;
+          filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
         }
 
         .case-name-mini {
           font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 18px;
+          font-size: 17px;
           font-weight: 700;
           color: #fff;
         }
@@ -518,44 +548,48 @@ function CasePage(props) {
         .controls-right {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 14px;
           margin-left: auto;
         }
 
         .amount-group {
           display: flex;
-          gap: 6px;
+          gap: 5px;
+          padding: 3px;
+          border-radius: 8px;
+          background: rgba(0,0,0,0.2);
+          border: 1px solid rgba(255,255,255,0.04);
         }
 
         .amt-btn {
           width: 36px;
-          height: 36px;
+          height: 32px;
           border-radius: 6px;
-          border: 1px solid rgba(255,255,255,0.065);
-          background: linear-gradient(180deg, rgba(22, 27, 37, 0.92), rgba(18, 23, 33, 0.96));
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+          border: 1px solid transparent;
+          background: transparent;
+          box-shadow: none;
 
           font-family: 'Geogrotesque Wide', sans-serif;
           font-size: 13px;
           font-weight: 700;
-          color: #8b92a0;
+          color: #6b7280;
 
           cursor: pointer;
           transition: all .2s;
         }
 
         .amt-btn:hover {
-          border-color: rgba(31, 214, 95, 0.45);
+          border-color: rgba(31, 214, 95, 0.35);
           color: #fff;
           background: rgba(31, 214, 95, 0.06);
           transform: translateY(-1px);
         }
 
         .amt-btn.active {
-          border-color: #1fd65f;
-          background: rgba(31, 214, 95, 0.2);
+          border-color: rgba(31, 214, 95, 0.5);
+          background: rgba(31, 214, 95, 0.15);
           color: #fff;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 18px rgba(31, 214, 95, 0.18);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 14px rgba(31, 214, 95, 0.12);
         }
 
         .open-btn {
@@ -563,32 +597,48 @@ function CasePage(props) {
           align-items: center;
           gap: 8px;
 
-          height: 36px;
-          padding: 0 20px;
-          border-radius: 6px;
+          height: 38px;
+          padding: 0 22px;
+          border-radius: 8px;
           border: none;
           outline: none;
 
           background: linear-gradient(135deg, #1fd65f 0%, #14b04a 100%);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 20px rgba(31, 214, 95, 0.42), 0 2px 0 #0f8a36;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 0 22px rgba(31, 214, 95, 0.4), 0 2px 0 #0f8a36;
 
           font-family: 'Geogrotesque Wide', sans-serif;
           font-size: 13px;
           font-weight: 700;
           color: #fff;
+          letter-spacing: .2px;
 
           cursor: pointer;
-          transition: filter .2s, box-shadow .2s, transform .2s;
+          transition: all .2s ease;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .open-btn::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent 50%);
+          pointer-events: none;
         }
 
         .open-btn:hover {
           filter: brightness(1.1);
           transform: translateY(-1px);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.24), 0 0 28px rgba(31, 214, 95, 0.55), 0 2px 0 #0f8a36;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.26), 0 0 32px rgba(31, 214, 95, 0.55), 0 2px 0 #0f8a36;
+        }
+
+        .open-btn:active {
+          transform: translateY(0);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 0 18px rgba(31, 214, 95, 0.3);
         }
 
         .open-btn.loading {
-          background: linear-gradient(135deg, rgba(31,214,95,0.4) 0%, rgba(20,176,74,0.4) 100%);
+          background: linear-gradient(135deg, rgba(31,214,95,0.35) 0%, rgba(20,176,74,0.35) 100%);
           box-shadow: none;
           color: #1fd65f;
           cursor: not-allowed;
@@ -615,9 +665,9 @@ function CasePage(props) {
           gap: 7px;
 
           font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 12px;
+          font-size: 11px;
           font-weight: 700;
-          color: #8b92a0;
+          color: #6b7280;
 
           cursor: pointer;
           user-select: none;
@@ -629,12 +679,12 @@ function CasePage(props) {
         }
 
         .demo-btn {
-          height: 36px;
-          padding: 0 16px;
-          border-radius: 6px;
+          height: 38px;
+          padding: 0 18px;
+          border-radius: 8px;
           border: 1px solid rgba(255,255,255,0.065);
-          background: linear-gradient(180deg, rgba(22, 27, 37, 0.92), rgba(18, 23, 33, 0.96));
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+          background: linear-gradient(180deg, rgba(20, 25, 35, 0.92), rgba(14, 18, 28, 0.96));
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
 
           font-family: 'Geogrotesque Wide', sans-serif;
           font-size: 13px;
@@ -646,7 +696,7 @@ function CasePage(props) {
         }
 
         .demo-btn:hover {
-          background: rgba(31, 214, 95, 0.06);
+          background: rgba(31, 214, 95, 0.07);
           border-color: rgba(31, 214, 95, 0.3);
           color: #fff;
           transform: translateY(-1px);
@@ -656,15 +706,15 @@ function CasePage(props) {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 32px;
-          height: 32px;
+          width: 34px;
+          height: 34px;
           padding: 0;
-          border-radius: 7px;
-          border: 1px solid rgba(255, 255, 255, 0.09);
-          background: rgba(14, 18, 26, 0.72);
-          backdrop-filter: blur(10px) saturate(130%);
-          -webkit-backdrop-filter: blur(10px) saturate(130%);
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 6px 18px rgba(0, 0, 0, 0.3);
+          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(12, 16, 24, 0.75);
+          backdrop-filter: blur(12px) saturate(130%);
+          -webkit-backdrop-filter: blur(12px) saturate(130%);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 6px 18px rgba(0, 0, 0, 0.35);
           color: #8b92a0;
           cursor: pointer;
           outline: none;
@@ -673,21 +723,43 @@ function CasePage(props) {
 
         .preview-btn:hover {
           background: rgba(255, 255, 255, 0.08);
-          border-color: rgba(255, 255, 255, 0.18);
+          border-color: rgba(255, 255, 255, 0.16);
           color: #fff;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 8px 22px rgba(0, 0, 0, 0.35);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 8px 22px rgba(0, 0, 0, 0.4);
           transform: translateY(-1px);
         }
 
-        /* ── Items grid ── */
+        .preview-btn svg {
+          width: 14px;
+          height: 14px;
+        }
+
+        /* ── Items section ── */
         .items-section {
-          margin-top: 6px;
+          margin-top: 8px;
+        }
+
+        .items-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 14px;
+          font-weight: 700;
+          color: #8b92a0;
+          margin-bottom: 12px;
+          padding-bottom: 10px;
+          border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .items-label img {
+          opacity: 0.6;
         }
 
         .items-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          gap: 8px;
+          gap: 10px;
         }
 
         @keyframes spin {
@@ -703,6 +775,7 @@ function CasePage(props) {
         @media only screen and (max-width: 750px) {
           .items-grid {
             grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
           }
 
           .header-actions {
@@ -712,12 +785,25 @@ function CasePage(props) {
           .controls-bar {
             flex-direction: column;
             align-items: flex-start;
+            gap: 12px;
+          }
+
+          .case-info-mini {
+            border-right: none;
+            padding-right: 0;
           }
         }
 
         @media only screen and (max-width: 480px) {
           .items-grid {
             grid-template-columns: 1fr;
+          }
+
+          .controls-right {
+            margin-left: 0;
+            width: 100%;
+            justify-content: flex-start;
+            flex-wrap: wrap;
           }
         }
       `}</style>

@@ -128,29 +128,45 @@ function CaseButton(props) {
 
             <style jsx>{`
               .case-button {
-                min-height: 316px;
+                min-height: 330px;
                 box-sizing: border-box;
 
-                border-radius: 10px;
-                border: 1px solid rgba(255, 255, 255, 0.06);
-                background: radial-gradient(circle at 50% 42%, rgba(31,214,95,.06), transparent 34%), linear-gradient(180deg, rgba(22, 28, 38, 0.94) 0%, rgba(12, 16, 24, 0.98) 64%, rgba(7, 10, 16, 1) 100%);
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045), 0 14px 34px rgba(0, 0, 0, 0.26);
+                border-radius: 12px;
+                border: 1px solid rgba(255, 255, 255, 0.07);
+                background: radial-gradient(circle at 50% 38%, rgba(31,214,95,.08), transparent 40%), linear-gradient(180deg, rgba(18, 24, 34, 0.95) 0%, rgba(9, 13, 19, 0.98) 60%, rgba(5, 8, 13, 1) 100%);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 14px 38px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(31, 214, 95, 0.03);
                 
                 display: flex;
                 align-items: center;
                 flex-direction: column;
 
-                padding: 17px 14px 15px;
+                padding: 20px 16px 16px;
                 position: relative;
                 overflow: hidden;
                 isolation: isolate;
-                transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease, filter .2s ease;
+                transition: border-color .25s ease, transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease;
               }
 
               .case-button:hover {
-                border-color: rgba(31, 214, 95, 0.32);
-                transform: translateY(-3px);
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 20px 44px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(31, 214, 95, 0.055), 0 0 26px rgba(31, 214, 95, 0.07);
+                border-color: rgba(31, 214, 95, 0.35);
+                transform: translateY(-4px) scale(1.01);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 22px 48px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(31, 214, 95, 0.08), 0 0 30px rgba(31, 214, 95, 0.06);
+              }
+
+              .case-button::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 1px;
+                background: linear-gradient(90deg, transparent, rgba(31, 214, 95, 0.15), transparent);
+                opacity: 0;
+                transition: opacity .25s ease;
+              }
+
+              .case-button:hover::before {
+                opacity: 1;
               }
               
               .button:not(.creator) {
@@ -159,37 +175,37 @@ function CaseButton(props) {
               }
               
               .image {
-                width: 94%;
-                max-width: 188px;
+                width: 92%;
+                max-width: 182px;
                 height: 142px;
                 object-fit: contain;
-                margin-top: 3px;
+                margin-top: 6px;
                 position: relative;
                 z-index: 1;
-                filter: drop-shadow(0 20px 16px rgba(0, 0, 0, 0.42));
-                transition: transform .22s ease, filter .22s ease;
+                filter: drop-shadow(0 20px 18px rgba(0, 0, 0, 0.5));
+                transition: transform .25s cubic-bezier(.34,1.56,.64,1), filter .25s ease;
               }
 
               .button:hover .image {
-                transform: translateY(-5px) scale(1.04);
-                filter: drop-shadow(0 24px 20px rgba(31, 214, 95, 0.16)) drop-shadow(0 18px 20px rgba(0, 0, 0, 0.48));
+                transform: translateY(-6px) scale(1.06);
+                filter: drop-shadow(0 28px 24px rgba(31, 214, 95, 0.18)) drop-shadow(0 18px 22px rgba(0, 0, 0, 0.5));
               }
               
               .cost {
-                min-width: 112px;
-                min-height: 30px;
-                padding: 0 14px;
-                margin: 9px 0 8px;
+                min-width: 118px;
+                min-height: 32px;
+                padding: 0 16px;
+                margin: 10px 0 8px;
                 
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 5px;
+                gap: 6px;
 
                 background: linear-gradient(180deg, rgba(18,84,49,.95), rgba(9,57,32,.98));
-                border: 1px solid rgba(31,214,95,.42);
-                border-radius: 6px;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 7px 18px rgba(0,0,0,.22);
+                border: 1px solid rgba(31,214,95,.5);
+                border-radius: 7px;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 8px 20px rgba(0,0,0,.25), 0 0 12px rgba(31,214,95,.06);
                 position: relative;
                 z-index: 2;
                 
@@ -197,20 +213,22 @@ function CaseButton(props) {
                 font-weight: 700;
                 font-size: 13px;
                 text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+                transition: border-color .2s ease, box-shadow .2s ease;
               }
 
-              .cost:before {
-                content: none;
+              .case-button:hover .cost {
+                border-color: rgba(31,214,95,.65);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 8px 22px rgba(0,0,0,.3), 0 0 18px rgba(31,214,95,.1);
               }
 
               .open-case {
                 width: 100%;
-                height: 40px;
+                height: 42px;
                 margin-top: auto;
-                border-radius: 7px;
-                background: linear-gradient(180deg, #1bd861 0%, #0db950 100%);
-                border: 1px solid rgba(75,242,137,.35);
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 22px rgba(8, 209, 90, 0.12);
+                border-radius: 8px;
+                background: linear-gradient(180deg, #1fd65f 0%, #0db950 100%);
+                border: 1px solid rgba(75,242,137,.4);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 8px 22px rgba(8, 209, 90, 0.15), 0 2px 0 rgba(0,0,0,0.2);
 
                 display: flex;
                 align-items: center;
@@ -221,28 +239,40 @@ function CaseButton(props) {
                 color: #fff;
                 font-size: 12px;
                 font-weight: 800;
-                letter-spacing: .2px;
+                letter-spacing: .3px;
+                transition: filter .2s ease, transform .2s ease;
+              }
+
+              .case-button:hover .open-case {
+                filter: brightness(1.12);
+                transform: translateY(-1px);
               }
 
               .favorite {
                 position: absolute;
                 top: 10px;
                 right: 10px;
-                width: 22px;
-                height: 22px;
+                width: 26px;
+                height: 26px;
                 padding: 0;
                 border: 0;
                 outline: 0;
-                background: transparent;
+                border-radius: 6px;
+                background: rgba(0,0,0,0.3);
+                backdrop-filter: blur(6px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 color: rgba(139, 146, 160, 0.72);
                 cursor: pointer;
                 z-index: 3;
-                transition: color .18s ease, transform .18s ease;
+                transition: color .18s ease, transform .18s ease, background .18s ease;
               }
 
               .favorite:hover {
                 color: #1fd65f;
-                transform: translateY(-1px);
+                background: rgba(31, 214, 95, 0.15);
+                transform: translateY(-1px) scale(1.05);
               }
 
               .community-badge {
@@ -251,20 +281,21 @@ function CaseButton(props) {
                 left: 10px;
                 z-index: 3;
 
-                padding: 3px 7px;
-                border-radius: 3px;
-                background: rgba(31, 214, 95, 0.1);
+                padding: 4px 8px;
+                border-radius: 4px;
+                background: rgba(31, 214, 95, 0.12);
                 border: 1px solid rgba(31, 214, 95, 0.5);
                 color: #1fd65f;
                 font-size: 9px;
                 font-weight: 800;
-                letter-spacing: .4px;
+                letter-spacing: .5px;
+                backdrop-filter: blur(4px);
               }
 
               .rarity-track {
                 width: 100%;
-                height: 16px;
-                margin: 4px 0 12px;
+                height: 18px;
+                margin: 5px 0 14px;
                 position: relative;
                 z-index: 1;
                 display: flex;
@@ -277,6 +308,7 @@ function CaseButton(props) {
                 height: 4px;
                 border-radius: 99px;
                 background: rgba(48, 59, 49, 0.75);
+                box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
               }
 
               .track-fill {
@@ -285,25 +317,26 @@ function CaseButton(props) {
                 right: 0;
                 height: 4px;
                 border-radius: 99px;
-                background: linear-gradient(90deg, rgba(31, 214, 95, 0.3), rgba(234, 207, 79, 0.6), rgba(255, 85, 113, 0.95));
-                opacity: .88;
-                box-shadow: 0 0 6px rgba(31, 214, 95, 0.45), 0 0 12px rgba(234, 207, 79, 0.22);
+                background: linear-gradient(90deg, rgba(31, 214, 95, 0.4), rgba(234, 207, 79, 0.7), rgba(255, 85, 113, 0.95));
+                opacity: .92;
+                box-shadow: 0 0 8px rgba(31, 214, 95, 0.5), 0 0 16px rgba(234, 207, 79, 0.25);
               }
 
               .track-marker {
                 position: absolute;
                 right: 12%;
-                top: 0;
+                top: -1px;
                 width: 0;
                 height: 0;
                 border-left: 5px solid transparent;
                 border-right: 5px solid transparent;
                 border-top: 6px solid #dce2ec;
                 filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
+                transition: right .3s ease;
               }
 
-              .button:hover .open-case {
-                filter: brightness(1.12);
+              .case-button:hover .track-marker {
+                right: 10%;
               }
               
               .controls {
@@ -342,19 +375,19 @@ function CaseButton(props) {
 
               .preview-btn-case {
                 position: absolute;
-                bottom: 61px;
-                right: 10px;
+                bottom: 64px;
+                right: 12px;
                 z-index: 5;
 
-                width: 30px;
-                height: 30px;
+                width: 32px;
+                height: 32px;
                 padding: 0;
-                border-radius: 7px;
-                border: 1px solid rgba(255, 255, 255, 0.09);
-                background: rgba(14, 18, 26, 0.72);
-                backdrop-filter: blur(10px) saturate(130%);
-                -webkit-backdrop-filter: blur(10px) saturate(130%);
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 6px 18px rgba(0, 0, 0, 0.3);
+                border-radius: 8px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                background: rgba(10, 14, 22, 0.8);
+                backdrop-filter: blur(12px) saturate(130%);
+                -webkit-backdrop-filter: blur(12px) saturate(130%);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 6px 18px rgba(0, 0, 0, 0.35);
                 color: #8b92a0;
                 cursor: pointer;
                 outline: none;
@@ -373,11 +406,16 @@ function CaseButton(props) {
               }
 
               .preview-btn-case:hover {
-                background: rgba(255, 255, 255, 0.08);
-                border-color: rgba(255, 255, 255, 0.18);
+                background: rgba(255, 255, 255, 0.1);
+                border-color: rgba(255, 255, 255, 0.2);
                 color: #fff;
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 8px 22px rgba(0, 0, 0, 0.35);
+                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 8px 22px rgba(0, 0, 0, 0.4);
                 transform: translateY(-1px);
+              }
+
+              .preview-btn-case svg {
+                width: 12px;
+                height: 12px;
               }
 
               .bg {
@@ -387,21 +425,26 @@ function CaseButton(props) {
                 top: 0;
                 left: 0;
 
-                opacity: 0.12;
+                opacity: 0.1;
                 background-size: cover;
                 background-image: url("/assets/art/casebg.png");
+                transition: opacity .25s ease;
+              }
+
+              .case-button:hover .bg {
+                opacity: 0.15;
               }
 
               .bg:after {
                 content: '';
                 position: absolute;
-                inset: 38% 0 38px;
-                background: linear-gradient(90deg, rgba(31, 214, 95, 0.00), rgba(31, 214, 95, 0.14), rgba(255, 214, 88, 0.12), rgba(31, 214, 95, 0.00));
+                inset: 35% 0 38px;
+                background: linear-gradient(90deg, rgba(31, 214, 95, 0.00), rgba(31, 214, 95, 0.16), rgba(255, 214, 88, 0.14), rgba(31, 214, 95, 0.00));
                 opacity: 0;
-                transition: opacity .22s ease;
+                transition: opacity .25s ease;
               }
 
-              .button:hover .bg:after {
+              .case-button:hover .bg:after {
                 opacity: 1;
               }
             `}</style>
