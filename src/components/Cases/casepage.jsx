@@ -282,12 +282,11 @@ function CasePage(props) {
 
           <div class='controls-right'>
             {/* Preview button */}
-            <button class='preview-btn' onClick={() => setShowPreview(true)}>
-              <svg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+            <button class='preview-btn' onClick={() => setShowPreview(true)} aria-label='Preview'>
+              <svg width='13' height='13' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
                 <path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
                 <circle cx='12' cy='12' r='3' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
               </svg>
-              PREVIEW
             </button>
 
             {/* Cosmic Spin */}
@@ -656,25 +655,28 @@ function CasePage(props) {
         .preview-btn {
           display: flex;
           align-items: center;
-          gap: 6px;
+          justify-content: center;
+          width: 32px;
           height: 32px;
-          padding: 0 12px;
-          border-radius: 6px;
-          border: 1px solid rgba(255,214,88,0.3);
-          background: rgba(255,214,88,0.08);
-          color: #ffd658;
-          font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 11px;
-          font-weight: 700;
+          padding: 0;
+          border-radius: 7px;
+          border: 1px solid rgba(255, 255, 255, 0.09);
+          background: rgba(14, 18, 26, 0.72);
+          backdrop-filter: blur(10px) saturate(130%);
+          -webkit-backdrop-filter: blur(10px) saturate(130%);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 6px 18px rgba(0, 0, 0, 0.3);
+          color: #8b92a0;
           cursor: pointer;
           outline: none;
-          transition: background .2s, border-color .2s;
-          white-space: nowrap;
+          transition: all .2s ease;
         }
 
         .preview-btn:hover {
-          background: rgba(255,214,88,0.16);
-          border-color: rgba(255,214,88,0.5);
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.18);
+          color: #fff;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 8px 22px rgba(0, 0, 0, 0.35);
+          transform: translateY(-1px);
         }
 
         /* ── Items grid ── */
