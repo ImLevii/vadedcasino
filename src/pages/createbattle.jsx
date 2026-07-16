@@ -312,7 +312,7 @@ function CreateBattle(props) {
 
                     <button class={'setting ' + (cosmicSpin() ? 'active' : '')}
                             onClick={() => setCosmicSpin(!cosmicSpin())}>
-                        <img src='/assets/icons/cosmic-gem.svg' height='16' alt=''/>
+                        <img src='/assets/icons/cosmic-gem.png' height='16' alt=''/>
                         &nbsp;COSMIC SPIN
                     </button>
                 </div>
