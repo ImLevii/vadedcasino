@@ -53,20 +53,20 @@ function Method(props) {
               }
 
               .method-container:not(.disabled):hover {
-                border-color: rgba(31, 214, 95, 0.45);
+                border-color: rgba(255, 255, 255, 0.18);
                 background:
-                  radial-gradient(100% 130% at 0 0, rgba(31,214,95,.09), transparent 60%),
+                  radial-gradient(100% 130% at 0 0, rgba(255,255,255,.04), transparent 60%),
                   linear-gradient(145deg, rgba(27,36,46,.88), rgba(11,16,22,.92));
                 transform: translateY(-2px);
                 box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
               }
 
               .method-container.active {
-                border-color: var(--gold);
+                border-color: rgba(255, 255, 255, 0.2);
                 background:
-                  radial-gradient(100% 130% at 0 0, rgba(31,214,95,.12), transparent 62%),
+                  radial-gradient(100% 130% at 0 0, rgba(255,255,255,.04), transparent 62%),
                   linear-gradient(145deg, rgba(25,34,43,.92), rgba(9,14,19,.95));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 0 0 1px rgba(31, 214, 95, 0.16), 0 10px 26px rgba(0, 0, 0, 0.3), 0 0 20px rgba(31,214,95,.045);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 0 0 1px rgba(255, 255, 255, 0.08), 0 10px 26px rgba(0, 0, 0, 0.3);
               }
 
               .method-container.disabled {

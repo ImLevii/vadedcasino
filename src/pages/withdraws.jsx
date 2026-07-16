@@ -299,7 +299,7 @@ function Withdraws(props) {
         }
 
         .support:hover {
-          border-color: rgba(31, 214, 95, 0.45);
+          border-color: rgba(255, 255, 255, 0.18);
         }
 
         .tab.active:before {

@@ -120,6 +120,17 @@ function NavBar(props) {
                 z-index: 3;
                 position: sticky;
                 top: 0;
+
+                &::after {
+                  content: '';
+                  position: absolute;
+                  bottom: -1px;
+                  left: 10%;
+                  right: 10%;
+                  height: 1px;
+                  background: linear-gradient(90deg, transparent 5%, rgba(31, 214, 95, 0.12) 30%, rgba(31, 214, 95, 0.18) 50%, rgba(31, 214, 95, 0.12) 70%, transparent 95%);
+                  pointer-events: none;
+                }
               }
 
               .navbar {
@@ -135,11 +146,15 @@ function NavBar(props) {
                 gap: 20px;
 
                 background:
-                  linear-gradient(180deg, rgba(20, 26, 36, 0.88), rgba(11, 15, 22, 0.78));
-                border-bottom: 1px solid var(--glass-border);
-                box-shadow: inset 0 1px 0 var(--glass-highlight), 0 10px 30px rgba(0, 0, 0, 0.24);
-                backdrop-filter: blur(16px) saturate(130%);
-                -webkit-backdrop-filter: blur(16px) saturate(130%);
+                  radial-gradient(110% 100% at 50% -28%, rgba(31, 214, 95, 0.08) 0%, transparent 65%),
+                  linear-gradient(180deg, rgba(18, 24, 34, 0.82), rgba(9, 13, 19, 0.88));
+                border-bottom: 1px solid rgba(31, 214, 95, 0.07);
+                box-shadow:
+                  inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                  0 10px 30px rgba(0, 0, 0, 0.32),
+                  0 0 40px rgba(31, 214, 95, 0.03);
+                backdrop-filter: blur(20px) saturate(140%);
+                -webkit-backdrop-filter: blur(20px) saturate(140%);
               }
 
               .left, .right {
