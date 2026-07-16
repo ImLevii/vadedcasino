@@ -9,15 +9,48 @@ function CasePreview(props) {
         if (price < 10000) return '#4176FF'
         if (price < 50000) return '#DC5FDE'
         if (price < 250000) return '#FF5141'
-        return '#1fd65f'
+        return '#FFB84A'
     }
 
     function getRarityLabel(price) {
-        if (price < 1000) return 'Common'
-        if (price < 10000) return 'Uncommon'
-        if (price < 50000) return 'Rare'
-        if (price < 250000) return 'Epic'
-        return 'Legendary'
+        if (price < 1000) return 'Consumer'
+        if (price < 10000) return 'Mil-Spec'
+        if (price < 50000) return 'Restricted'
+        if (price < 250000) return 'Classified'
+        return 'Covert'
+    }
+
+    function getRarityAbbr(price) {
+        if (price < 1000) return 'CS'
+        if (price < 10000) return 'MS'
+        if (price < 50000) return 'RS'
+        if (price < 250000) return 'CL'
+        return 'CV'
+    }
+
+    // Extract exterior condition from item name
+    function getExterior(name) {
+        if (!name) return null
+        const n = name.toLowerCase()
+        if (n.includes('factory new') || n.includes('fn)')) return 'FN'
+        if (n.includes('minimal wear') || n.includes('mw)')) return 'MW'
+        if (n.includes('field-tested') || n.includes('field tested') || n.includes('ft)')) return 'FT'
+        if (n.includes('well-worn') || n.includes('well worn') || n.includes('ww)')) return 'WW'
+        if (n.includes('battle-scarred') || n.includes('battle scarred') || n.includes('bs)')) return 'BS'
+        if (n.includes('souvenir')) return 'SV'
+        if (n.includes('stattrak') || n.includes('stat trak')) return 'ST'
+        return null
+    }
+
+    function getExteriorColor(ext) {
+        if (ext === 'FN') return '#4DFFA0'
+        if (ext === 'MW') return '#7AB8FF'
+        if (ext === 'FT') return '#B8D4FF'
+        if (ext === 'WW') return '#FF9E7A'
+        if (ext === 'BS') return '#FF6B6B'
+        if (ext === 'SV') return '#FFD87A'
+        if (ext === 'ST') return '#FF9224'
+        return '#8b92a0'
     }
 
     function coins(amount) {
@@ -125,18 +158,34 @@ function CasePreview(props) {
                     <p class='breakdown-title'>All Items</p>
                     <div class='preview-items-grid'>
                         <For each={sortedItems()}>
-                            {(item) => (
-                                <div class='preview-item-card' style={`--rarity-color: ${getRarityColor(item.price)}`}>
-                                    <div class='preview-item-img-box'>
-                                        <img src={resolveImageSrc(item.img)} alt='' class='preview-item-img'/>
+                            {(item) => {
+                                const ext = getExterior(item.name)
+                                return (
+                                    <div class='preview-item-card' style={`--rarity-color: ${getRarityColor(item.price)}`}>
+                                        <div class='preview-item-badges'>
+                                            <span class='preview-item-rarity-badge' style={`color: ${getRarityColor(item.price)}; border-color: ${getRarityColor(item.price)}22; background: ${getRarityColor(item.price)}15`}>
+                                                {getRarityAbbr(item.price)}
+                                            </span>
+                                            {ext && (
+                                                <span class='preview-item-ext-badge' style={`color: ${getExteriorColor(ext)}`}>
+                                                    {ext}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div class='preview-item-img-box'>
+                                            <img src={resolveImageSrc(item.img)} alt='' class='preview-item-img'/>
+                                        </div>
+                                        <p class='preview-item-name'>{item.name}</p>
+                                        <div class='preview-item-bottom'>
+                                            <span class='preview-item-price'>
+                                                <img src='/assets/icons/coin.svg' height='9' alt=''/>
+                                                {coins(item.price)}
+                                            </span>
+                                            <span class='preview-item-chance'>{item.probability}%</span>
+                                        </div>
                                     </div>
-                                    <p class='preview-item-name'>{item.name}</p>
-                                    <div class='preview-item-bottom'>
-                                        <span class='preview-item-rarity'>{getRarityLabel(item.price)}</span>
-                                        <span class='preview-item-chance'>{item.probability}%</span>
-                                    </div>
-                                </div>
-                            )}
+                                )
+                            }}
                         </For>
                     </div>
                 </div>
@@ -393,16 +442,19 @@ function CasePreview(props) {
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    gap: 6px;
-                    padding: 10px 8px;
+                    gap: 5px;
+                    padding: 8px 8px 8px;
                     border-radius: 8px;
-                    background: rgba(255, 255, 255, 0.03);
+                    background: rgba(255, 255, 255, 0.02);
                     border: 1px solid rgba(255, 255, 255, 0.05);
-                    transition: border-color .2s;
+                    border-bottom: 2px solid var(--rarity-color);
+                    transition: border-color .2s, box-shadow .2s;
+                    position: relative;
                 }
 
                 .preview-item-card:hover {
                     border-color: var(--rarity-color);
+                    box-shadow: 0 0 14px -4px var(--rarity-color);
                 }
 
                 .preview-item-img-box {
@@ -439,13 +491,41 @@ function CasePreview(props) {
                     width: 100%;
                 }
 
-                .preview-item-rarity {
-                    color: #5c6474;
+                .preview-item-badges {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    align-self: flex-start;
+                    flex-wrap: wrap;
+                }
+
+                .preview-item-rarity-badge {
+                    font-family: 'Geogrotesque Wide', sans-serif;
+                    font-size: 8px;
+                    font-weight: 800;
+                    letter-spacing: 0.4px;
+                    padding: 1px 5px;
+                    border-radius: 3px;
+                    border: 1px solid;
+                    line-height: 1.5;
+                }
+
+                .preview-item-ext-badge {
                     font-family: 'Geogrotesque Wide', sans-serif;
                     font-size: 8px;
                     font-weight: 700;
-                    text-transform: uppercase;
                     letter-spacing: 0.3px;
+                    line-height: 1.5;
+                }
+
+                .preview-item-price {
+                    display: flex;
+                    align-items: center;
+                    gap: 3px;
+                    color: #1fd65f;
+                    font-family: 'Geogrotesque Wide', sans-serif;
+                    font-size: 9px;
+                    font-weight: 700;
                 }
 
                 .preview-item-chance {
