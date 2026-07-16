@@ -129,7 +129,7 @@ function Battle(props) {
                 // if (battleId !== battle()?.id) return ws().emit('battles:unsubscribe', battleId)
                 setRounds(rounds)
                 setWonItems(getWonItems(rounds, battle()?.cases))
-                setWon(calculateWinnings(battle().cases, rounds, battle().playersPerTeam))
+                setWon(calculateWinnings(battle().cases, battle().rounds, battle().playersPerTeam))
             })
 
             ws().on('battle:round', (battleId, roundNum) => {
