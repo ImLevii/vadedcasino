@@ -92,10 +92,10 @@ function BattleHeader(props) {
                 min-height: 60px;
                 padding: 10px 14px;
                 box-sizing: border-box;
-                border: 1px solid rgba(255,255,255,.06);
+                border: 1px solid rgba(255,255,255,0.05);
                 border-radius: 10px;
                 background: linear-gradient(180deg, rgba(16, 21, 30, 0.82), rgba(7, 10, 17, 0.92));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 8px 28px rgba(0,0,0,.25);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 8px 24px rgba(0,0,0,0.22);
                 position: relative;
                 overflow: hidden;
               }
@@ -107,7 +107,7 @@ function BattleHeader(props) {
                 left: 8%;
                 right: 8%;
                 height: 1px;
-                background: linear-gradient(90deg, transparent, rgba(31, 214, 95, 0.06), transparent);
+                background: linear-gradient(90deg, transparent, rgba(31, 214, 95, 0.05), transparent);
                 pointer-events: none;
               }
 
@@ -120,15 +120,15 @@ function BattleHeader(props) {
                 position: relative;
                 z-index: 1;
               }
-              
+               
               .header-section:first-child {
                 justify-content: flex-start;
               }
-              
+               
               .header-section:last-child {
                 justify-content: flex-end;
               }
-              
+               
               .case-info {
                 display: flex;
                 align-items: center;
@@ -138,14 +138,14 @@ function BattleHeader(props) {
                 font-size: 15px;
                 font-weight: 700;
               }
-              
+               
               .back {
                 height: 34px;
                 padding: 0 12px;
                 font-weight: 700;
                 font-family: Geogrotesque Wide;
                 position: relative;
-                
+                 
                 display: flex;
                 align-items: center;
                 border-radius: 6px;
@@ -153,25 +153,25 @@ function BattleHeader(props) {
               }
 
               .back:hover {
-                background: rgba(255,255,255,0.04);
-                border-color: rgba(255,255,255,0.1);
+                background: rgba(255,255,255,0.03);
+                border-color: rgba(255,255,255,0.08);
               }
 
               .back p {
                 margin-top: -3px;
               }
-              
+               
               .back svg {
                 margin-right: 8px;
               }
-              
+               
               .state {
                 color: #FFF;
                 font-size: 16px;
                 font-weight: 600;
                 text-align: center;
               }
-              
+               
               .total {
                 color: #6b7280;
                 font-size: 11px;
@@ -202,7 +202,7 @@ function BattleHeader(props) {
                 height: 30px;
                 padding: 0 12px;
                 background: rgba(26, 31, 41, 0.5);
-                border: 1px solid rgba(255,255,255,0.07);
+                border: 1px solid rgba(255,255,255,0.06);
 
                 display: flex;
                 align-items: center;
@@ -220,8 +220,8 @@ function BattleHeader(props) {
               .mode.group {
                 color: #1fd65f;
                 background: rgba(31,214,95,0.08);
-                border-color: rgba(31,214,95,0.25);
-                box-shadow: 0 0 12px rgba(31,214,95,0.06);
+                border-color: rgba(31,214,95,0.22);
+                box-shadow: 0 0 10px rgba(31,214,95,0.05);
               }
 
               .mode p, .crazy p {
@@ -231,8 +231,8 @@ function BattleHeader(props) {
               .crazy {
                 color: #e8a14a;
                 background: rgba(232,161,74,0.08);
-                border-color: rgba(232,161,74,0.25);
-                box-shadow: 0 0 12px rgba(232,161,74,0.06);
+                border-color: rgba(232,161,74,0.22);
+                box-shadow: 0 0 10px rgba(232,161,74,0.05);
               }
 
               @media only screen and (max-width: 720px) {
@@ -250,7 +250,7 @@ function BattleHeader(props) {
                   order: 3;
                   flex-basis: 100%;
                   min-height: 32px;
-                  border-top: 1px solid rgba(255,255,255,.04);
+                  border-top: 1px solid rgba(255,255,255,0.04);
                   padding-top: 10px;
                 }
 

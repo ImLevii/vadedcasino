@@ -29,11 +29,11 @@ function Battle(props) {
     const [block, setBlock] = createSignal('')
 
     // Emojis
-    const BATTLE_EMOJIS = ['≡ƒöÑ', '≡ƒÿé', '≡ƒÆÇ', '≡ƒÖÅ', '≡ƒìÇ', '≡ƒÿñ', '≡ƒææ', '≡ƒÄ░']
+    const BATTLE_EMOJIS = ['🔥', '😂', '💀', '🙏', '🍀', '😤', '👑', '🎰']
     const [floatingEmojis, setFloatingEmojis] = createSignal([])
     let emojiLastSent = 0
 
-    // Spin sounds ΓÇö same linear-decel pattern as case opening
+    // Spin sounds — same linear-decel pattern as case opening
     let battleTickTimer = null
 
     function startBattleTicking(spinPhase) {
@@ -45,7 +45,7 @@ function Battle(props) {
             volume: 0.5,
             minIntervalMs: 45,
           })
-            // Linear decel: 75 ms ΓåÆ 300 ms ΓÇö identical to case opening
+            // Linear decel: 75 ms → 300 ms — identical to case opening
             const progress = Math.min(elapsed / spinPhase, 1)
             const delay = Math.round(75 + progress * 225)
             elapsed += delay
@@ -229,6 +229,18 @@ function Battle(props) {
         setTimeout(() => setFloatingEmojis(prev => prev.filter(e => e.id !== id)), 2800)
     }
 
+    // Calculate team totals
+    function getTeamTotal(teamIndex) {
+        if (!battle() || !wonItems()) return 0
+        const teamPlayerIds = battle()?.players
+            ?.filter((p, idx) => Math.floor(idx / battle()?.playersPerTeam) === teamIndex)
+            ?.map(p => p?.id)
+        
+        return wonItems()
+            .filter(item => teamPlayerIds?.includes(item.userId))
+            .reduce((sum, item) => sum + (item?.price || 0), 0)
+    }
+
     return (
         <>
             <Title>Cosmic Luck | Battle</Title>
@@ -248,10 +260,10 @@ function Battle(props) {
                             <div class='cases-container'>
                               <div class='cases' style={{'transform': `translateX(-${74 * Math.max(0, round() - 1) + 30}px)`}}>
                                     <For each={battle()?.rounds}>{(c, index) => <img class={'case ' + (round() - 1 === index() ? 'active' : '')}
-                                                         src={resolveImageSrc(getCase(c?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
-                                                         width='60' height='60'
-                                                         alt={getCase(c?.caseId)?.name || 'Battle case'}
-                                                         onError={useImageFallback}/>}</For>
+                                                 src={resolveImageSrc(getCase(c?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
+                                                 width='60' height='60'
+                                                 alt={getCase(c?.caseId)?.name || 'Battle case'}
+                                                 onError={useImageFallback}/>}</For>
                                 </div>
                             </div>
 
@@ -299,6 +311,40 @@ function Battle(props) {
                                 />
                             }</For>
                         </div>
+
+                        {/* Team Totals */}
+                        {battle() && battle().teams === 2 && (
+                            <div class='team-totals'>
+                                <div class='team-total'>
+                                    <div class='team-label'>
+                                        <span class='team-dot left'/>
+                                        <span>Left Team</span>
+                                    </div>
+                                    <div class='team-value'>
+                                        <img src='/assets/chips/chip-green.png' height='16' width='16' alt=''/>
+                                        <span>{getTeamTotal(0).toFixed(2)}</span>
+                                    </div>
+                                </div>
+                                <div class='total-drops'>
+                                    <span>Total Drops</span>
+                                    <span>{getTeamTotal(0).toFixed(2) + getTeamTotal(1).toFixed(2)}</span>
+                                </div>
+                                <div class='team-total'>
+                                    <div class='team-label'>
+                                        <span>Right Team</span>
+                                        <div class='team-bots'>
+                                            <img src='/assets/icons/bot.svg' height='16' width='16' alt=''/>
+                                            <img src='/assets/icons/bot.svg' height='16' width='16' alt=''/>
+                                            <img src='/assets/icons/bot.svg' height='16' width='16' alt=''/>
+                                        </div>
+                                    </div>
+                                    <div class='team-value'>
+                                        <img src='/assets/chips/chip-green.png' height='16' width='16' alt=''/>
+                                        <span>{getTeamTotal(1).toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </>
                 )}
             </div>
@@ -311,10 +357,10 @@ function Battle(props) {
 
                 display: flex;
                 flex-direction: column;
-                gap: 30px;
+                gap: 20px;
 
                 box-sizing: border-box;
-                padding: 30px 18px 96px;
+                padding: 20px 18px 96px;
                 margin: 0 auto;
               }
 
@@ -341,7 +387,7 @@ function Battle(props) {
                 backdrop-filter: blur(12px);
                 transition: all 0.3s ease;
               }
-              
+               
               .round-info::before {
                 content: '';
                 position: absolute;
@@ -354,7 +400,7 @@ function Battle(props) {
                   rgba(255,255,255,0.1), 
                   transparent);
               }
-              
+               
               .round-info:hover {
                 border-color: rgba(31, 214, 95, 0.12);
                 box-shadow: 
@@ -482,20 +528,20 @@ function Battle(props) {
                 max-width: 485px;
                 position: relative;
               }
-              
+               
               .cases {
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 height: 100%;
                 gap: 14px;
-                
+                 
                 position: absolute;
                 transform: translateX(-30px);
                 left: 50%;
                 transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
               }
-              
+               
               .case {
                 opacity: 0.4;
                 transition: opacity 0.35s ease, filter 0.35s ease, transform 0.35s ease;
@@ -504,7 +550,7 @@ function Battle(props) {
                 object-fit: contain;
                 border-radius: 8px;
               }
-              
+               
               .case.active {
                 opacity: 1;
                 filter: none;
@@ -538,7 +584,7 @@ function Battle(props) {
                   0 20px 56px rgba(0,0,0,0.2);
                 position: relative;
               }
-              
+               
               .columns::before {
                 content: '';
                 position: absolute;
@@ -553,10 +599,114 @@ function Battle(props) {
                 pointer-events: none;
               }
 
+              /* Team Totals Bar */
+              .team-totals {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 16px 20px;
+                border-radius: 12px;
+                border: 1px solid rgba(255,255,255,0.045);
+                background: linear-gradient(135deg, 
+                  rgba(14, 19, 28, 0.78), 
+                  rgba(8, 11, 18, 0.88));
+                box-shadow: 
+                  inset 0 1px 0 rgba(255,255,255,0.03), 
+                  0 10px 32px rgba(0,0,0,0.24),
+                  0 20px 56px rgba(0,0,0,0.2);
+              }
+
+              .team-total {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                flex: 1;
+              }
+
+              .team-label {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: #8b92a0;
+                font-size: 13px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+              }
+
+              .team-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #1fd65f;
+                box-shadow: 0 0 8px rgba(31, 214, 95, 0.5);
+              }
+
+              .team-dot.left {
+                background: #1fd65f;
+                box-shadow: 0 0 8px rgba(31, 214, 95, 0.5);
+              }
+
+              .team-bots {
+                display: flex;
+                gap: 4px;
+                margin-left: 4px;
+              }
+
+              .team-value {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                color: #FFFFFF;
+                font-size: 15px;
+                font-weight: 700;
+              }
+
+              .team-value img {
+                filter: drop-shadow(0 0 6px rgba(31,214,95,.3));
+              }
+
+              .total-drops {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+                padding: 0 24px;
+                border-left: 1px solid rgba(255,255,255,0.06);
+                border-right: 1px solid rgba(255,255,255,0.06);
+              }
+
+              .total-drops span:first-child {
+                color: #6b7280;
+                font-size: 11px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+              }
+
+              .total-drops span:last-child {
+                color: #FFFFFF;
+                font-size: 16px;
+                font-weight: 700;
+              }
+
               @media only screen and (max-width: 1040px) {
                 .round-info { flex-wrap: wrap; }
                 .round-info-right { width: 100%; justify-content: space-between; }
                 .cases-container { max-width: none; min-width: 220px; }
+                .team-totals {
+                  flex-wrap: wrap;
+                  gap: 12px;
+                }
+                .total-drops {
+                  border-left: none;
+                  border-right: none;
+                  padding: 12px 0;
+                  width: 100%;
+                  justify-content: center;
+                }
               }
 
               @media only screen and (max-width: 620px) {
@@ -570,6 +720,17 @@ function Battle(props) {
                 .round-info-right .provably { display: none; }
                 .emoji-bar { max-width: 178px; }
                 .columns { grid-template-columns: 1fr; padding: 8px; }
+                .team-totals {
+                  flex-direction: column;
+                  gap: 12px;
+                }
+                .total-drops {
+                  border-left: none;
+                  border-right: none;
+                  padding: 12px 0;
+                  width: 100%;
+                  justify-content: center;
+                }
               }
 
               @media (prefers-reduced-motion: reduce) {

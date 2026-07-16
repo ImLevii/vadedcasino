@@ -63,30 +63,30 @@ function BattleUser(props) {
                 
                 border-radius: 12px;
                 overflow: hidden;
-                border: 1px solid rgba(255,255,255,0.065);
+                border: 1px solid rgba(255,255,255,0.05);
                 background: linear-gradient(180deg, rgba(16, 21, 30, 0.96), rgba(9, 13, 20, 0.98));
                 box-shadow: 
-                  inset 0 1px 0 rgba(255,255,255,0.045), 
-                  0 4px 12px rgba(0,0,0,0.25),
-                  0 16px 40px rgba(0,0,0,0.28);
+                  inset 0 1px 0 rgba(255,255,255,0.03), 
+                  0 4px 12px rgba(0,0,0,0.22),
+                  0 16px 40px rgba(0,0,0,0.24);
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
               }
-              
+               
               .battle-user-container:hover {
                 transform: translateY(-2px);
-                border-color: rgba(31, 214, 95, 0.15);
+                border-color: rgba(31, 214, 95, 0.12);
                 box-shadow: 
-                  inset 0 1px 0 rgba(255,255,255,0.055), 
-                  0 6px 16px rgba(0,0,0,0.28),
-                  0 20px 48px rgba(0,0,0,0.32),
-                  0 0 0 1px rgba(31, 214, 95, 0.08);
+                  inset 0 1px 0 rgba(255,255,255,0.04), 
+                  0 6px 16px rgba(0,0,0,0.26),
+                  0 20px 48px rgba(0,0,0,0.28),
+                  0 0 0 1px rgba(31, 214, 95, 0.06);
               }
-              
+               
               .user-info {
                 width: 100%;
                 height: 70px;
-                background: linear-gradient(135deg, rgba(25, 33, 46, 0.94), rgba(15, 20, 31, 0.97));
-                border-bottom: 1px solid rgba(255,255,255,0.055);
+                background: linear-gradient(135deg, rgba(22, 28, 38, 0.94), rgba(14, 18, 26, 0.97));
+                border-bottom: 1px solid rgba(255,255,255,0.04);
                 padding: 0 18px;
                 display: flex;
                 align-items: center;
@@ -102,7 +102,7 @@ function BattleUser(props) {
                 backdrop-filter: blur(8px);
                 transition: all 0.3s ease;
               }
-              
+               
               .user-info::before {
                 content: '';
                 position: absolute;
@@ -112,45 +112,45 @@ function BattleUser(props) {
                 height: 1px;
                 background: linear-gradient(90deg, 
                   transparent, 
-                  rgba(255,255,255,0.08), 
+                  rgba(255,255,255,0.06), 
                   transparent);
               }
-              
+               
               .user-info.active {
                 color: #FFFFFF;
                 font-size: 15px;
                 font-weight: 700;
                 background: linear-gradient(135deg, 
-                  rgba(24, 42, 40, 0.96), 
-                  rgba(14, 23, 28, 0.98));
-                border-bottom: 1px solid rgba(31, 214, 95, 0.12);
+                  rgba(22, 38, 36, 0.94), 
+                  rgba(13, 22, 26, 0.97));
+                border-bottom: 1px solid rgba(31, 214, 95, 0.10);
               }
-              
+               
               .user-info.active::before {
                 background: linear-gradient(90deg, 
                   transparent, 
-                  rgba(31, 214, 95, 0.2), 
+                  rgba(31, 214, 95, 0.15), 
                   transparent);
               }
-              
+               
               .items {
                 width: 100%;
                 min-height: 340px;
                 background: 
                   radial-gradient(85% 60% at 50% 0%, 
-                    rgba(31, 214, 95, 0.042), 
+                    rgba(31, 214, 95, 0.035), 
                     rgba(31, 214, 95, 0)), 
                   linear-gradient(180deg, 
                     rgba(8, 11, 17, 0.85), 
                     rgba(6, 9, 14, 0.92));
                 padding: 18px;
-                
+                 
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
                 grid-gap: 12px;
                 position: relative;
               }
-              
+               
               .items::before {
                 content: '';
                 position: absolute;
@@ -159,11 +159,11 @@ function BattleUser(props) {
                 right: 0;
                 height: 60px;
                 background: linear-gradient(180deg, 
-                  rgba(31, 214, 95, 0.025), 
+                  rgba(31, 214, 95, 0.02), 
                   transparent);
                 pointer-events: none;
               }
-              
+               
               .username {
                 white-space: nowrap;
                 text-overflow: ellipsis;
@@ -171,7 +171,7 @@ function BattleUser(props) {
                 font-weight: 700;
                 text-shadow: 0 1px 2px rgba(0,0,0,0.4);
               }
-              
+               
               .name-container {
                 display: flex;
                 gap: 2px 8px;
@@ -179,7 +179,7 @@ function BattleUser(props) {
                 overflow: hidden;
                 align-items: center;
               }
-              
+               
               .call {
                 min-width: 95px;
                 height: 34px;
@@ -189,22 +189,22 @@ function BattleUser(props) {
                 letter-spacing: 0.5px;
                 transition: all 0.25s ease;
               }
-              
+               
               .call:hover {
                 transform: scale(1.02);
               }
-              
+               
               .balance {
                 min-width: 70px;
                 height: 34px;
                 background: 
                   linear-gradient(135deg, 
-                    rgba(31, 184, 91, 0.22), 
-                    rgba(18, 122, 68, 0.16)),
+                    rgba(31, 184, 91, 0.18), 
+                    rgba(18, 122, 68, 0.12)),
                   linear-gradient(180deg,
-                    rgba(31, 214, 95, 0.08),
-                    rgba(15, 111, 61, 0.08));
-                border: 1px solid rgba(31, 214, 95, 0.24);
+                    rgba(31, 214, 95, 0.06),
+                    rgba(15, 111, 61, 0.06));
+                border: 1px solid rgba(31, 214, 95, 0.20);
                 border-radius: 6px;
                 margin-left: auto;
 
@@ -213,34 +213,34 @@ function BattleUser(props) {
                 font-size: 14px;
                 font-weight: 700;
                 box-sizing: content-box;
-                
+                 
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 gap: 7px;
                 padding: 0 12px;
-                
+                 
                 box-shadow: 
-                  inset 0 1px 0 rgba(31, 214, 95, 0.15),
-                  0 2px 8px rgba(31, 214, 95, 0.12),
-                  0 4px 16px rgba(0,0,0,0.15);
+                  inset 0 1px 0 rgba(31, 214, 95, 0.12),
+                  0 2px 8px rgba(31, 214, 95, 0.08),
+                  0 4px 16px rgba(0,0,0,0.12);
                 transition: all 0.25s ease;
               }
-              
+               
               .balance:hover {
-                border-color: rgba(31, 214, 95, 0.32);
+                border-color: rgba(31, 214, 95, 0.28);
                 box-shadow: 
-                  inset 0 1px 0 rgba(31, 214, 95, 0.2),
-                  0 3px 12px rgba(31, 214, 95, 0.18),
-                  0 6px 20px rgba(0,0,0,0.2);
+                  inset 0 1px 0 rgba(31, 214, 95, 0.16),
+                  0 3px 12px rgba(31, 214, 95, 0.14),
+                  0 6px 20px rgba(0,0,0,0.16);
                 transform: translateY(-1px);
               }
-              
+               
               .balance img {
                 object-fit: contain;
                 filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
               }
-              
+               
               .gray {
                 opacity: 0.65;
               }
@@ -249,7 +249,7 @@ function BattleUser(props) {
                 .battle-user-container {
                   width: 100%;
                 }
-                
+                 
                 .user-info {
                   height: 65px;
                   padding: 0 15px;
