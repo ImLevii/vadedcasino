@@ -39,11 +39,14 @@ function NavBar(props) {
                                 if (!props?.user) return setSearchParams({modal: 'login'})
                                 setSearchParams({modal: 'rakeback'})
                             }}>
-                                <svg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                                    <path d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z' fill='#1fd65f' stroke='#1fd65f' stroke-width='1' stroke-linejoin='round'/>
+                                <svg width='16' height='16' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                                    <rect x='3' y='11' width='18' height='11' rx='1.5' fill='#7a8094' opacity='0.9'/>
+                                    <rect x='1' y='7' width='22' height='5' rx='1.5' fill='#8b92a0'/>
+                                    <path d='M12 7V22' stroke='#5c6474' stroke-width='1.5'/>
+                                    <path d='M12 7C12 7 9 5 8 3C7 1 9 1 10 2C11 3 12 7 12 7Z' fill='#7a8094'/>
+                                    <path d='M12 7C12 7 15 5 16 3C17 1 15 1 14 2C13 3 12 7 12 7Z' fill='#7a8094'/>
                                 </svg>
                                 <span>REWARDS</span>
-                                <div class='rewards-glow'/>
                             </button>
                         </div>
                     </div>
@@ -180,69 +183,53 @@ function NavBar(props) {
                 position: relative;
                 display: flex;
                 align-items: center;
-                gap: 8px;
+                gap: 7px;
 
                 height: 36px;
                 padding: 0 14px;
                 border-radius: 8px;
 
                 outline: unset;
-                border: 1px solid rgba(31, 214, 95, 0.15);
-                background: linear-gradient(180deg, rgba(31, 214, 95, 0.08), rgba(31, 214, 95, 0.03));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 16px rgba(31, 214, 95, 0.06);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                background: linear-gradient(180deg, rgba(38, 44, 57, 0.72), rgba(22, 27, 37, 0.82));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 12px rgba(0,0,0,0.18);
 
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-weight: 700;
-                font-size: 14px;
-                color: #1fd65f;
+                font-size: 13px;
+                color: #8b92a0;
 
                 cursor: pointer;
-                transition: all .25s ease;
+                transition: all .22s ease;
                 overflow: hidden;
-                isolation: isolate;
               }
 
               .rewards:hover {
-                color: #fff;
-                border-color: rgba(31, 214, 95, 0.35);
-                background: linear-gradient(180deg, rgba(31, 214, 95, 0.14), rgba(31, 214, 95, 0.06));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 20px rgba(31, 214, 95, 0.18), 0 0 30px rgba(31, 214, 95, 0.08);
+                color: #c6ccd8;
+                border-color: rgba(255, 255, 255, 0.14);
+                background: linear-gradient(180deg, rgba(48, 55, 70, 0.78), rgba(28, 34, 46, 0.88));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 6px 18px rgba(0,0,0,0.22);
                 transform: translateY(-1px);
               }
 
               .rewards:active {
                 transform: translateY(0px);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 12px rgba(31, 214, 95, 0.1);
               }
 
               .rewards span {
                 position: relative;
                 z-index: 1;
+                letter-spacing: 0.3px;
               }
 
               .rewards svg {
                 position: relative;
                 z-index: 1;
-                filter: drop-shadow(0 0 6px rgba(31, 214, 95, 0.4));
-                transition: filter .25s ease;
+                opacity: 0.75;
+                transition: opacity .22s ease;
               }
 
               .rewards:hover svg {
-                filter: drop-shadow(0 0 10px rgba(31, 214, 95, 0.6));
-              }
-
-              .rewards-glow {
-                position: absolute;
-                inset: -2px;
-                border-radius: 9px;
-                background: linear-gradient(135deg, rgba(31, 214, 95, 0.08), transparent 60%);
-                opacity: 0;
-                transition: opacity .3s ease;
-                pointer-events: none;
-                z-index: -1;
-              }
-
-              .rewards:hover .rewards-glow {
                 opacity: 1;
               }
 

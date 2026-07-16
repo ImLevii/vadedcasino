@@ -15,7 +15,31 @@ function CaseItem(props) {
         if (price < 10000) return '#4176FF'
         if (price < 50000) return '#DC5FDE'
         if (price < 250000) return '#FF5141'
-        return '#1fd65f'
+        return '#FFB84A'
+    }
+
+    function getExterior(name) {
+        if (!name) return null
+        const n = name.toLowerCase()
+        if (n.includes('factory new') || n.includes('fn)')) return 'FN'
+        if (n.includes('minimal wear') || n.includes('mw)')) return 'MW'
+        if (n.includes('field-tested') || n.includes('field tested') || n.includes('ft)')) return 'FT'
+        if (n.includes('well-worn') || n.includes('well worn') || n.includes('ww)')) return 'WW'
+        if (n.includes('battle-scarred') || n.includes('battle scarred') || n.includes('bs)')) return 'BS'
+        if (n.includes('souvenir')) return 'SV'
+        if (n.includes('stattrak') || n.includes('stat trak')) return 'ST'
+        return null
+    }
+
+    function getExteriorColor(ext) {
+        if (ext === 'FN') return '#4DFFA0'
+        if (ext === 'MW') return '#7AB8FF'
+        if (ext === 'FT') return '#B8D4FF'
+        if (ext === 'WW') return '#FF9E7A'
+        if (ext === 'BS') return '#FF6B6B'
+        if (ext === 'SV') return '#FFD87A'
+        if (ext === 'ST') return '#FF9224'
+        return '#8b92a0'
     }
 
     return (
@@ -29,14 +53,19 @@ function CaseItem(props) {
                 </div>
 
                 <div class='item-info'>
+                    <div class='item-top-row'>
+                        {getExterior(props?.name) && (
+                            <span class='ext-tag' style={`color: ${getExteriorColor(getExterior(props?.name))}`}>
+                                {getExterior(props?.name)}
+                            </span>
+                        )}
+                    </div>
                     <p class='name'>{props?.name || 'Unknown Item'}</p>
                     <div class='price'>
                         <img src='/assets/icons/coin.svg' height='12' alt=''/>
                         <span>{props?.price?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</span>
                     </div>
                 </div>
-
-                <div class='prob-badge'>{(props?.probability || '0.000')}%</div>
             </div>
 
             <style jsx>{`
@@ -102,6 +131,21 @@ function CaseItem(props) {
                 min-width: 0;
               }
 
+              .item-top-row {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                margin-bottom: 1px;
+              }
+
+              .ext-tag {
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-size: 9px;
+                font-weight: 800;
+                letter-spacing: 0.4px;
+                text-shadow: 0 0 8px currentColor;
+              }
+
               .name {
                 color: #c3cad6;
                 font-family: 'Geogrotesque Wide', sans-serif;
@@ -124,21 +168,6 @@ function CaseItem(props) {
 
               .price span {
                 color: #fff;
-              }
-
-              .prob-badge {
-                position: absolute;
-                bottom: 6px;
-                right: 8px;
-
-                padding: 2px 6px;
-                border-radius: 4px;
-                background: rgba(255,255,255,0.07);
-
-                font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 10px;
-                font-weight: 700;
-                color: #8b92a0;
               }
             `}</style>
         </>

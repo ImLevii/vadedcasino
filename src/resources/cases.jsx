@@ -25,7 +25,7 @@ export const generateRandomItems = (caseItems, chance) => {
 export const COSMIC_ITEM = {
     id: 'cosmic-spin-gem',
     name: 'Cosmic Spin',
-    img: '/public/assets/icons/cosmic-gem.svg',
+    img: '/public/assets/icons/cosmic-gem.png',
     price: 0,
     cosmic: true
 }

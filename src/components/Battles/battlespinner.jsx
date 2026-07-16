@@ -18,6 +18,128 @@ function BattleSpinner(props) {
   const [color, setColor] = createSignal('')
   const navigate = useNavigate()
   let cosmicTimer
+  let particleTimer
+
+  const [particles, setParticles] = createSignal([])
+  const [showShockwave, setShowShockwave] = createSignal(false)
+  const [showFlash, setShowFlash] = createSignal(false)
+
+  function playCosmicChargeSFX() {
+    if (typeof window === 'undefined') return;
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      
+      const masterGain = ctx.createGain();
+      masterGain.gain.setValueAtTime(0.20, ctx.currentTime);
+      masterGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
+      masterGain.connect(ctx.destination);
+      
+      const osc = ctx.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(90, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(950, ctx.currentTime + 0.9);
+      
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.Q.setValueAtTime(12, ctx.currentTime);
+      filter.frequency.setValueAtTime(140, ctx.currentTime);
+      filter.frequency.exponentialRampToValueAtTime(3200, ctx.currentTime + 0.9);
+      
+      osc.connect(filter);
+      filter.connect(masterGain);
+      
+      osc.start();
+      osc.stop(ctx.currentTime + 1.5);
+      
+      for (let i = 0; i < 7; i++) {
+        const time = ctx.currentTime + i * 0.10;
+        const sparkOsc = ctx.createOscillator();
+        const sparkGain = ctx.createGain();
+        
+        sparkOsc.type = 'sine';
+        sparkOsc.frequency.setValueAtTime(1400 + Math.random() * 900, time);
+        
+        sparkGain.gain.setValueAtTime(0.06, time);
+        sparkGain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
+        
+        sparkOsc.connect(sparkGain);
+        sparkGain.connect(ctx.destination);
+        
+        sparkOsc.start(time);
+        sparkOsc.stop(time + 0.5);
+      }
+    } catch (e) {
+      console.error("Web Audio API not supported or blocked", e);
+    }
+  }
+
+  function triggerCosmicParticles() {
+    playCosmicChargeSFX();
+    
+    setShowFlash(true);
+    setTimeout(() => setShowFlash(false), 250);
+    
+    setShowShockwave(true);
+    setTimeout(() => setShowShockwave(false), 850);
+
+    const particleCount = 50;
+    const colors = [
+      '#1fd65f',
+      '#14b04a',
+      '#5cff8b',
+      '#a3ffb4',
+      '#00ffb7',
+    ];
+    
+    const newParticles = [];
+    for (let i = 0; i < particleCount; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 2.5 + Math.random() * 8.5;
+      newParticles.push({
+        id: Math.random(),
+        x: 0,
+        y: 0,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - (1 + Math.random() * 2),
+        size: 5 + Math.random() * 9,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        life: 1.0,
+        decay: 0.016 + Math.random() * 0.024,
+        rotation: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 12
+      });
+    }
+
+    setParticles(newParticles);
+
+    let animFrame;
+    const update = () => {
+      const current = particles();
+      if (current.length === 0) return;
+
+      const updated = current
+        .map(p => ({
+          ...p,
+          x: p.x + p.vx,
+          y: p.y + p.vy,
+          vy: p.vy + 0.08,
+          vx: p.vx * 0.97,
+          life: p.life - p.decay,
+          rotation: p.rotation + p.rotSpeed
+        }))
+        .filter(p => p.life > 0);
+
+      setParticles(updated);
+
+      if (updated.length > 0) {
+        animFrame = requestAnimationFrame(update);
+      }
+    };
+
+    animFrame = requestAnimationFrame(update);
+  }
 
   function adjacentTeamIsWinner() {
     if (props?.state !== 'WINNERS') return
@@ -63,11 +185,20 @@ function BattleSpinner(props) {
           setItems([...rareReel])
           scheduleAnimation(true)
         }, 5300)
+
+        // Trigger green particles exactly when first spin finishes (5000ms)
+        clearTimeout(particleTimer)
+        particleTimer = setTimeout(() => {
+          triggerCosmicParticles();
+        }, 5000)
       }
     }
   })
 
-  onCleanup(() => clearTimeout(cosmicTimer))
+  onCleanup(() => {
+    clearTimeout(cosmicTimer)
+    clearTimeout(particleTimer)
+  })
 
   function scheduleAnimation(secondPhase = false) {
     requestAnimationFrame(() => requestAnimationFrame(() => animate(secondPhase)))
@@ -208,6 +339,31 @@ function BattleSpinner(props) {
             <div class='center-line'/>
             <div class='fade-top'/>
             <div class='fade-bottom'/>
+
+            {/* Particle and Shockwave Effects */}
+            <Show when={showShockwave()}>
+              <div class='shockwave'/>
+            </Show>
+            <Show when={showFlash()}>
+              <div class='flash-overlay'/>
+            </Show>
+            <div class='particle-container'>
+              <For each={particles()}>{(p) =>
+                <div
+                  class='particle'
+                  style={{
+                    transform: `translate(calc(-50% + ${p.x}px), calc(-50% + ${p.y}px)) rotate(${p.rotation}deg) scale(${p.life})`,
+                    width: `${p.size}px`,
+                    height: `${p.size}px`,
+                    background: p.color,
+                    opacity: p.life,
+                    'box-shadow': `0 0 14px ${p.color}, 0 0 5px ${p.color}`,
+                    'border-radius': Math.random() > 0.45 ? '50%' : '3px'
+                  }}
+                />
+              }</For>
+            </div>
+
             <div class='spinner-items' ref={spinner}>
               <Index each={items()}>{(item, index) => (
                 <BattleSpinnerItem
@@ -563,6 +719,70 @@ function BattleSpinner(props) {
           }
           100% {
             transform: rotate(360deg);
+          }
+        }
+
+        /* Cosmic Spin Particle & Shockwave Styles */
+        .particle-container {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 0;
+          height: 0;
+          z-index: 12;
+          pointer-events: none;
+        }
+
+        .particle {
+          position: absolute;
+          transform-origin: center;
+          pointer-events: none;
+          transition: transform 0.016s linear;
+        }
+
+        .shockwave {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%) scale(0.1);
+          width: 130px;
+          height: 130px;
+          border-radius: 50%;
+          border: 4px solid #1fd65f;
+          box-shadow: 0 0 24px #1fd65f, inset 0 0 24px #1fd65f;
+          opacity: 0.85;
+          z-index: 11;
+          pointer-events: none;
+          animation: shockwave-expand 0.85s cubic-bezier(0.1, 0.8, 0.25, 1) forwards;
+        }
+
+        @keyframes shockwave-expand {
+          0% {
+            transform: translate(-50%, -50%) scale(0.1);
+            opacity: 1;
+          }
+          100% {
+            transform: translate(-50%, -50%) scale(3.2);
+            opacity: 0;
+            border-width: 1px;
+          }
+        }
+
+        .flash-overlay {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(circle, rgba(31, 214, 95, 0.35) 0%, rgba(31, 214, 95, 0) 80%);
+          z-index: 10;
+          pointer-events: none;
+          animation: flash-fade 0.25s ease-out forwards;
+        }
+
+        @keyframes flash-fade {
+          0% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0;
           }
         }
 

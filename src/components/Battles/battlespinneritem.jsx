@@ -30,21 +30,52 @@ function BattleSpinnerItem(props) {
 
     function getRarity(price) {
         if (price >= 250000) {
-            return '#FF9900' // Gold
+            return '#FFB84A' // Gold/Covert
         } else if (price >= 50000) {
-            return '#FF5141' // Red
+            return '#FF5141' // Red/Classified
         } else if (price >= 10000) {
-            return '#DC5FDE' // Pink
+            return '#DC5FDE' // Pink/Restricted
         } else if (price >= 1000) {
-            return '#4176FF'
+            return '#4176FF' // Blue/Mil-Spec
         }
-        return '#A9B5D2' // Gray
+        return '#A9B5D2' // Gray/Consumer
+    }
+
+    function getExterior(name) {
+        if (!name) return null
+        const n = name.toLowerCase()
+        if (n.includes('factory new') || n.includes('fn)')) return 'FN'
+        if (n.includes('minimal wear') || n.includes('mw)')) return 'MW'
+        if (n.includes('field-tested') || n.includes('field tested') || n.includes('ft)')) return 'FT'
+        if (n.includes('well-worn') || n.includes('well worn') || n.includes('ww)')) return 'WW'
+        if (n.includes('battle-scarred') || n.includes('battle scarred') || n.includes('bs)')) return 'BS'
+        if (n.includes('souvenir')) return 'SV'
+        if (n.includes('stattrak') || n.includes('stat trak')) return 'ST'
+        return null
+    }
+
+    function getExteriorColor(ext) {
+        if (ext === 'FN') return '#4DFFA0'
+        if (ext === 'MW') return '#7AB8FF'
+        if (ext === 'FT') return '#B8D4FF'
+        if (ext === 'WW') return '#FF9E7A'
+        if (ext === 'BS') return '#FF6B6B'
+        if (ext === 'SV') return '#FFD87A'
+        if (ext === 'ST') return '#FF9224'
+        return '#8b92a0'
     }
 
     return (
         <>
             <div class={'case-item-container ' + (props.index === 50 ? 'winning-item' : '')} style={{ '--rarity': getRarity(props?.price) }}>
                 <div class='card-bg'/>
+                <div class='item-top-badges'>
+                    {getExterior(props.name) && (
+                        <span class='ext-badge' style={{ color: getExteriorColor(getExterior(props.name)) }}>
+                            {getExterior(props.name)}
+                        </span>
+                    )}
+                </div>
                 <img class='item-image' src={resolveImageSrc(props.img, '/assets/logo/cosmic-luck-logo.png')} height='100' alt='' draggable={false} onError={useImageFallback}/>
                 <img class='back-img' src={backImage(props?.price)} height='70' alt=''/>
                 <div class='item-details'>
@@ -90,6 +121,25 @@ function BattleSpinnerItem(props) {
                                 opacity: .96;
                                 filter: drop-shadow(0 9px 13px rgba(0,0,0,0.58));
               }
+
+              .item-top-badges {
+                                position: absolute;
+                                top: 6px;
+                                left: 8px;
+                                z-index: 3;
+                                display: flex;
+                                align-items: center;
+                                gap: 3px;
+                            }
+
+                            .ext-badge {
+                                font-family: "Geogrotesque Wide", sans-serif;
+                                font-size: 7px;
+                                font-weight: 800;
+                                letter-spacing: 0.3px;
+                                line-height: 1;
+                                text-shadow: 0 0 6px currentColor;
+                            }
 
               .back-img {
                 position: absolute;
