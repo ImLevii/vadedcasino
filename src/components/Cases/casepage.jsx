@@ -290,11 +290,12 @@ function CasePage(props) {
             </button>
 
             {/* Cosmic Spin */}
-            <div class='fast-toggle' onClick={() => {
+            <div class='fast-toggle cosmic-toggle' onClick={() => {
               if (spinning() !== '') return
               setCosmicSpin(!cosmicSpin())
             }}>
               <Toggle active={cosmicSpin()} toggle={() => null}/>
+              <img src='/assets/icons/cosmic-spin.png' class='cosmic-icon' alt='' height='16' width='16'/>
               <span>COSMIC SPIN</span>
             </div>
 
@@ -676,6 +677,17 @@ function CasePage(props) {
 
         .fast-toggle:hover {
           color: #c3cad6;
+        }
+
+        .cosmic-icon {
+          object-fit: contain;
+          filter: drop-shadow(0 0 6px rgba(31, 214, 95, 0.35));
+          transition: filter .25s ease, transform .25s ease;
+        }
+
+        .fast-toggle:hover .cosmic-icon {
+          filter: drop-shadow(0 0 10px rgba(31, 214, 95, 0.6));
+          transform: scale(1.1);
         }
 
         .demo-btn {
