@@ -203,9 +203,11 @@ function CaseSpinner(props) {
                 {/* Side fade masks */}
                 <div class='fade-left'/>
                 <div class='fade-right'/>
-                {/* Center indicator */}
-              <div class='lane-arrow lane-arrow-top'/>
-              <div class='lane-arrow lane-arrow-bottom'/>
+                {/* Neon slider line - horizontal indicator */}
+                <div class='slider-track'>
+                  <div class='slider-line'/>
+                  <div class='slider-glow'/>
+                </div>
                 <div class='center-indicator'/>
                 <div class='center-line-top'/>
                 <div class='center-line-bottom'/>
@@ -296,84 +298,65 @@ function CaseSpinner(props) {
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 28px rgba(0, 0, 0, 0.24), var(--green-glow);
               }
 
-              .lane-arrow {
+              /* Neon slider line — replaces old green arrows */
+              .slider-track {
                 position: absolute;
                 left: 50%;
                 transform: translateX(-50%);
-                width: 0;
-                height: 0;
                 z-index: 5;
                 pointer-events: none;
-                filter: drop-shadow(0 0 3px rgba(31, 214, 95, 0.4));
+                display: flex;
+                align-items: center;
+                justify-content: center;
               }
 
-              .lane-arrow-top {
-                top: 7px;
-                border-left: 5px solid transparent;
-                border-right: 5px solid transparent;
-                border-top: 7px solid #1fd65f;
+              .slider-track {
+                top: 0;
+                bottom: 0;
+                width: 130px;
+                height: 100%;
               }
 
-              .lane-arrow-bottom {
-                bottom: 7px;
-                border-left: 5px solid transparent;
-                border-right: 5px solid transparent;
-                border-bottom: 7px solid #1fd65f;
+              .slider-line {
+                position: absolute;
+                width: 2px;
+                height: 100%;
+                background: linear-gradient(180deg, 
+                  transparent 0%, 
+                  rgba(31, 214, 95, 0.2) 15%, 
+                  #1fd65f 45%, 
+                  #1fd65f 55%, 
+                  rgba(31, 214, 95, 0.2) 85%, 
+                  transparent 100%
+                );
+                box-shadow: 
+                  0 0 8px rgba(31, 214, 95, 0.5),
+                  0 0 16px rgba(31, 214, 95, 0.25);
+                animation: sliderPulse 2.4s ease-in-out infinite;
               }
 
-              .case-spinner-container.multi .lane-arrow-top {
-                top: 8px;
-                border-left-width: 5px;
-                border-right-width: 5px;
-                border-top-width: 7px;
+              .slider-glow {
+                position: absolute;
+                width: 4px;
+                height: 60%;
+                top: 20%;
+                background: rgba(31, 214, 95, 0.08);
+                filter: blur(6px);
+                border-radius: 999px;
               }
 
-              .case-spinner-container.multi .lane-arrow-bottom {
-                bottom: 8px;
-                border-left-width: 5px;
-                border-right-width: 5px;
-                border-bottom-width: 7px;
+              .case-spinner-container.multi .slider-track {
+                width: 100%;
               }
 
-              .case-spinner-container.side-arrows .lane-arrow {
-                top: 50%;
-                bottom: auto;
-                left: auto;
-                transform: translateY(-50%);
+              .case-spinner-container.multi .slider-line {
+                width: 1px;
+                box-shadow: 0 0 4px rgba(31, 214, 95, 0.3);
               }
 
-              .case-spinner-container.side-arrows .lane-arrow-top {
-                left: 8px;
-                border-top: 5px solid transparent;
-                border-bottom: 5px solid transparent;
-                border-left: 7px solid #1fd65f;
-                border-right: 0;
-              }
-
-              .case-spinner-container.side-arrows .lane-arrow-bottom {
-                right: 8px;
-                border-top: 5px solid transparent;
-                border-bottom: 5px solid transparent;
-                border-right: 7px solid #1fd65f;
-                border-left: 0;
-              }
-
-              .case-spinner-container.multi.side-arrows .lane-arrow-top {
-                top: 50%;
-                left: 7px;
-                border-top-width: 5px;
-                border-bottom-width: 5px;
-                border-left-width: 7px;
-                border-right-width: 0;
-              }
-
-              .case-spinner-container.multi.side-arrows .lane-arrow-bottom {
-                bottom: auto;
-                right: 7px;
-                border-top-width: 5px;
-                border-bottom-width: 5px;
-                border-right-width: 7px;
-                border-left-width: 0;
+              @keyframes sliderPulse {
+                0%, 100% { opacity: 0.7; }
+                50% { opacity: 1; }
               }
 
               /* Side gradient fades */
