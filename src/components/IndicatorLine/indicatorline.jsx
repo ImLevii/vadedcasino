@@ -1,29 +1,30 @@
 /**
- * IndicatorLine — reusable glowing capsule bar that replaces every dashed tick-mark
- * style indicator across the platform.
+ * IndicatorLine — a precision glowing tick-mark line used across spinners and
+ * roulette wheels. Designed to look like a physical laser line:
+ *   - A razor-thin (1px) bright white-hot core
+ *   - A narrow (2–3px) primary color bloom
+ *   - A very soft outer halo at low opacity
+ *   - Optional slow-breathing pulse
  *
  * Props:
  *   orientation  "horizontal" | "vertical"  (default "horizontal")
- *   length       string CSS value for the long axis (default "100%")
- *   thickness    string CSS value for the short axis (default "3px")
- *   color        hex/css string for core color (default neon green #1fd65f)
- *   pulse        bool – enable slow breathing glow animation (default true)
- *   style        extra inline styles for the outer wrapper
- *   class        extra class names for the outer wrapper
+ *   length       CSS string for the long axis  (default "100%")
+ *   thickness    CSS string for the short axis (default "2px")
+ *   color        hex/css color for the core    (default neon green #1fd65f)
+ *   pulse        bool – breathing glow         (default true)
+ *   style        extra inline styles for outer wrapper
+ *   class        extra class names for outer wrapper
  */
 function IndicatorLine(props) {
-  const isVert = () => (props.orientation || 'horizontal') === 'vertical';
-  const color  = () => props.color || '#1fd65f';
-  const thickness = () => props.thickness || '3px';
-  const length    = () => props.length    || '100%';
+  const isVert   = () => (props.orientation || 'horizontal') === 'vertical';
+  const color    = () => props.color || '#1fd65f';
+  const thickness = () => props.thickness || '2px';
+  const length   = () => props.length || '100%';
 
-  // Derive RGB channels from hex so we can feed them into rgba() for the glow
   function hexToRgb(hex) {
-    const h = hex.replace('#', '');
-    const full = h.length === 3
-      ? h.split('').map(c => c + c).join('')
-      : h;
-    const n = parseInt(full, 16);
+    const h    = hex.replace('#', '');
+    const full = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
+    const n    = parseInt(full, 16);
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
 
@@ -36,45 +37,53 @@ function IndicatorLine(props) {
     return `rgba(${r},${g},${b},${alpha})`;
   }
 
-  // Outer wrapper: constrained to exact dimensions
   const wrapStyle = () => {
-    const base = {
+    const s = {
       display: 'inline-flex',
       'align-items': 'center',
       'justify-content': 'center',
       'pointer-events': 'none',
       'flex-shrink': '0',
+      position: 'relative',
       ...(props.style || {}),
     };
-
     if (isVert()) {
-      base.width  = thickness();
-      base.height = length();
+      s.width  = thickness();
+      s.height = length();
     } else {
-      base.width  = length();
-      base.height = thickness();
+      s.width  = length();
+      s.height = thickness();
     }
-
-    return base;
+    return s;
   };
 
-  // Core capsule — fills the wrapper 100%
+  // The "line" is built from three pseudo-layers stacked via box-shadow:
+  //   1. Innermost: solid bright core (the actual element fill)
+  //   2. Mid bloom: narrow spread at 60% alpha
+  //   3. Outer halo: wider spread at 14% alpha for depth
   const barStyle = () => {
-    const [r, g, b] = rgb();
-    const boxShadow = [
-      `0 0 3px  2px ${glow(0.9)}`,
-      `0 0 8px  4px ${glow(0.5)}`,
-      `0 0 16px 6px ${glow(0.22)}`,
-    ].join(', ');
+    const bloom1 = isVert()
+      ? `0 0 3px 1px ${glow(0.7)}`   // narrow y-axis bloom
+      : `0 0 3px 1px ${glow(0.7)}`;
+    const bloom2 = isVert()
+      ? `0 0 8px 2px ${glow(0.18)}`
+      : `0 0 8px 2px ${glow(0.18)}`;
 
     return {
       display: 'block',
       width: '100%',
       height: '100%',
-      background: color(),
+      // Core: white-hot center tinted by color
+      background: `linear-gradient(${isVert() ? '180deg' : '90deg'},
+        ${glow(0)} 0%,
+        rgba(255,255,255,0.9) 20%,
+        ${color()} 38%,
+        ${color()} 62%,
+        rgba(255,255,255,0.9) 80%,
+        ${glow(0)} 100%)`,
       'border-radius': '9999px',
-      'box-shadow': boxShadow,
-      animation: (props.pulse !== false) ? 'indicator-pulse 2.4s ease-in-out infinite' : 'none',
+      'box-shadow': `${bloom1}, ${bloom2}`,
+      animation: (props.pulse !== false) ? 'il-pulse 2.8s ease-in-out infinite' : 'none',
     };
   };
 
@@ -89,9 +98,9 @@ function IndicatorLine(props) {
       </div>
 
       <style>{`
-        @keyframes indicator-pulse {
-          0%, 100% { opacity: 0.9; filter: brightness(1);    }
-          50%       { opacity: 1;  filter: brightness(1.15); }
+        @keyframes il-pulse {
+          0%, 100% { opacity: 0.85; }
+          50%       { opacity: 1; }
         }
       `}</style>
     </>
