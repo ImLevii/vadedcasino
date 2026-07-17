@@ -402,20 +402,20 @@ function Crash(props) {
 
         <section class='crash-bet-bar'>
           <div class='control-group amount-group'>
-            <label>Bet amount</label>
             <div class='control-row'>
-                <div class='bet-input-wrapper'>
+              <div class='bet-input-wrapper'>
                 <img src='/assets/chips/chip-green.png' height='18' width='18' alt='' />
                 <input
                   type='number'
                   min={config().minBet}
                   max={config().maxBet}
                   step='0.01'
-                  placeholder={config().minBet.toFixed(2)}
+                  placeholder='Play Amount'
                   value={betAmount()}
                   onInput={(e) => setBetAmount(e.target.value)}
                   disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()}
-                /></div>
+                />
+              </div>
 
               <div class='quick-bets' aria-label='Bet amount shortcuts'>
                 <button class='bet-btn' disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()} onClick={() => adjustBet('min')}>Min</button>
@@ -425,49 +425,36 @@ function Crash(props) {
                 <button class='bet-btn' disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()} onClick={() => adjustBet('/2')}>1/2</button>
                 <button class='bet-btn' disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()} onClick={() => adjustBet('x2')}>x2</button>
               </div>
-
-              <div class='quick-bets' aria-label='Bet amount shortcuts'>
-                <button class='bet-btn' onClick={() => adjustBet('min')}>Min</button>
-                <button class='bet-btn' onClick={() => adjustBet('max')}>Max</button>
-                <button class='bet-btn' onClick={() => adjustBet('+1')}>+1</button>
-                <button class='bet-btn' onClick={() => adjustBet('+10')}>+10</button>
-                <button class='bet-btn' onClick={() => adjustBet('/2')}>1/2</button>
-                <button class='bet-btn' onClick={() => adjustBet('x2')}>x2</button>
-              </div>
             </div>
           </div>
 
-          <div class='control-group cashout-group'>
-            <label>Auto cashout</label>
-            <div class='bet-input-wrapper auto-cashout'>
-              <input
-                type='number'
-                min='1.01'
-                step='0.01'
-                placeholder='Optional'
-                value={autoCashout()}
-                onInput={(e) => setAutoCashout(e.target.value)}
-                disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()}
-              />
-              {autoCashout() ? (
-                <button
-                  class='clear-btn'
-                  onClick={() => setAutoCashout('')}
-                  aria-label='Clear auto cashout'
-                  title='Clear'
-                >✕</button>
-              ) : (
-                <span class='input-suffix'>x</span>
-              )}
-            </div>
+          <div class='bar-divider'/>
+
+          <div class='bet-input-wrapper auto-cashout'>
+            <input
+              type='number'
+              min='1.01'
+              step='0.01'
+              placeholder='Auto Cashout'
+              value={autoCashout()}
+              onInput={(e) => setAutoCashout(e.target.value)}
+              disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()}
+            />
+            {autoCashout() ? (
+              <button
+                class='clear-btn'
+                onClick={() => setAutoCashout('')}
+                aria-label='Clear auto cashout'
+                title='Clear'
+              >✕</button>
+            ) : (
+              <span class='input-suffix'>x</span>
+            )}
           </div>
 
-          <div class='control-group pot-group'>
-            <label>Flight bonus</label>
-            <div class='bonus-pot'>
-              <img src='/assets/chips/chip-green-clover.png' height='21' width='21' alt='' />
-              <div><span>Bonus pot</span><strong>{pot().toFixed(2)}</strong></div>
-            </div>
+          <div class='bonus-pot'>
+            <img src='/assets/chips/chip-green-clover.png' height='21' width='21' alt='' />
+            <strong>{pot().toFixed(2)}</strong>
           </div>
 
           <button
@@ -486,156 +473,84 @@ function Crash(props) {
           max-width: 1320px;
           min-height: calc(100vh - 90px);
           margin: 0 auto;
-          padding: 28px 18px 96px;
+          padding: 0 0 96px;
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 0;
         }
 
         .crash-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 24px;
-        }
-
-        .header-copy h1, .header-copy p {
-          margin: 0;
-        }
-
-        .eyebrow, .section-label, .control-group > label {
-          color: #6f7988;
-          font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 9px;
-          font-weight: 700;
-          text-transform: uppercase;
-        }
-
-        .eyebrow {
-          display: block;
-          margin-bottom: 5px;
-          color: #1fd65f;
-        }
-
-        .header-copy h1 {
-          color: #fff;
-          font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 28px;
-          line-height: 1.1;
-        }
-
-        .header-copy p {
-          margin-top: 7px;
-          color: #7d8796;
-          font-size: 12px;
-        }
-
-        .round-status {
-          min-width: 168px;
-          height: 52px;
-          padding: 0 14px;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          border: 1px solid rgba(255,255,255,.065);
-          border-radius: 8px;
-          background: linear-gradient(180deg, rgba(19,24,33,.92), rgba(10,13,19,.96));
-          box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
-        }
-
-        .status-dot {
-          width: 8px;
-          height: 8px;
-          flex: 0 0 8px;
-          border-radius: 50%;
-          background: #1fd65f;
-          box-shadow: 0 0 12px rgba(31,214,95,.7);
-        }
-
-        .round-status.crashed .status-dot {
-          background: #ff5141;
-          box-shadow: 0 0 12px rgba(255,81,65,.65);
-        }
-
-        .round-status.waiting .status-dot {
-          animation: statusPulse 1.6s ease-in-out infinite;
-        }
-
-        .round-status > div {
-          min-width: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 3px;
-        }
-
-        .round-status span {
-          color: #687281;
-          font-size: 9px;
-          font-weight: 700;
-          text-transform: uppercase;
-        }
-
-        .round-status strong {
-          color: #dce2e9;
-          font-size: 11px;
+          display: none;
         }
 
         .history-panel {
-          min-height: 52px;
+          height: 42px;
           padding: 0 12px;
           display: flex;
           align-items: center;
-          gap: 14px;
+          gap: 12px;
           overflow: hidden;
-          border: 1px solid rgba(255,255,255,.055);
-          border-radius: 8px;
-          background: rgba(12,16,23,.72);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+          background: #0d1117;
+          border-bottom: 1px solid rgba(255,255,255,.04);
+          flex-shrink: 0;
         }
 
         .section-label {
           flex: 0 0 auto;
+          color: #4a5568;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 9px;
+          font-weight: 700;
+          text-transform: uppercase;
         }
 
         .crash-main {
+          flex: 1;
           min-height: 560px;
           display: grid;
-          grid-template-columns: 270px minmax(0, 1fr);
-          gap: 14px;
+          grid-template-columns: 260px minmax(0, 1fr);
+          border-bottom: 1px solid rgba(255,255,255,.04);
         }
 
         .crash-bet-bar {
           width: 100%;
-          padding: 14px;
-          display: grid;
-          grid-template-columns: minmax(390px, 1.6fr) minmax(150px, .55fr) minmax(140px, .5fr) minmax(180px, .65fr);
-          align-items: end;
-          gap: 12px;
+          height: 62px;
+          padding: 0 10px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
           border: 1px solid rgba(255,255,255,.065);
           border-radius: 8px;
-          background: linear-gradient(180deg, rgba(18,23,31,.92), rgba(9,12,18,.97));
+          background: linear-gradient(180deg, rgba(18,23,31,.95), rgba(9,12,18,.99));
           box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 14px 35px rgba(0,0,0,.2);
+          box-sizing: border-box;
         }
 
         .control-group {
           min-width: 0;
           display: flex;
-          flex-direction: column;
-          gap: 7px;
+          align-items: center;
+          gap: 6px;
         }
 
         .control-group > label {
-          margin-left: 2px;
+          display: none;
         }
 
         .control-row, .quick-bets {
           display: flex;
           align-items: center;
-          gap: 5px;
+          gap: 4px;
+        }
+
+        .amount-group .control-row {
+          flex: 1;
+          gap: 4px;
         }
 
         .bet-input-wrapper {
-          min-width: 0;
+          min-width: 130px;
+          max-width: 180px;
           display: flex;
           align-items: center;
           gap: 8px;
@@ -674,7 +589,9 @@ function Crash(props) {
         }
 
         .auto-cashout {
-          width: 100%;
+          min-width: 130px;
+          max-width: 165px;
+          flex: 0 0 auto;
         }
 
         .input-suffix {
@@ -726,51 +643,51 @@ function Crash(props) {
           background: rgba(31,214,95,.06);
         }
 
+        .bar-divider {
+          width: 1px;
+          height: 24px;
+          background: rgba(255,255,255,0.07);
+          flex-shrink: 0;
+          margin: 0 2px;
+        }
+
         .bonus-pot {
           height: 40px;
-          padding: 0 11px;
+          padding: 0 12px;
           display: flex;
           align-items: center;
-          gap: 9px;
-          border: 1px solid rgba(31, 214, 95, 0.14);
+          gap: 8px;
+          border: 1px solid rgba(31, 214, 95, 0.18);
           border-radius: 7px;
-          background: rgba(31,214,95,.045);
-        }
-
-        .bonus-pot > div {
-          min-width: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 1px;
-        }
-
-        .bonus-pot span {
-          color: #6f7988;
-          font-size: 8px;
-          font-weight: 700;
-          text-transform: uppercase;
+          background: rgba(31,214,95,.055);
+          flex-shrink: 0;
         }
 
         .bonus-pot strong {
           overflow: hidden;
           color: #1fd65f;
-          font-size: 11px;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 13px;
+          font-weight: 700;
           font-variant-numeric: tabular-nums;
           text-overflow: ellipsis;
         }
 
         .play-button {
           height: 40px;
-          width: 100%;
-          padding: 0 18px;
-          font-size: 11px;
-          font-weight: 700;
+          min-width: 100px;
+          flex: 0 0 auto;
+          margin-left: auto;
+          padding: 0 24px;
+          font-size: 12px;
+          font-weight: 800;
           border: none;
           border-radius: 7px;
           cursor: pointer;
           transition: all 0.2s;
           font-family: 'Geogrotesque Wide', sans-serif;
           outline: none;
+          letter-spacing: 0.4px;
         }
 
         .play-button.play {
@@ -829,33 +746,37 @@ function Crash(props) {
         }
 
         @media (max-width: 1120px) {
-          .crash-bet-bar {
-            grid-template-columns: minmax(390px, 1fr) minmax(150px, .5fr);
-          }
-
           .crash-main {
-            grid-template-columns: 1fr;
-            min-height: 0;
+            grid-template-columns: 240px minmax(0, 1fr);
           }
         }
 
         @media (max-width: 800px) {
-          .crash-container { padding: 20px 12px 90px; }
-          .crash-main { min-height: 650px; }
-          .crash-bet-bar { grid-template-columns: 1fr; }
-
-          .control-row { align-items: stretch; flex-direction: column; }
-          .quick-bets { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
-          .bet-btn { min-width: 0; width: 100%; }
+          .crash-main {
+            grid-template-columns: 1fr;
+            min-height: 0;
+          }
+          .crash-bet-bar {
+            height: auto;
+            min-height: 54px;
+            flex-wrap: wrap;
+            padding: 10px 10px;
+            gap: 6px;
+          }
+          .bet-input-wrapper { max-width: unset; }
+          .quick-bets { flex-wrap: wrap; }
         }
 
         @media (max-width: 560px) {
-          .crash-header { align-items: stretch; flex-direction: column; }
-          .round-status { min-width: 0; }
-          .history-panel { align-items: flex-start; flex-direction: column; gap: 0; padding-top: 10px; }
-          .header-copy h1 { font-size: 25px; }
-          .crash-main { min-height: 590px; }
-          .quick-bets { grid-template-columns: repeat(3, 1fr); }
+          .crash-main { min-height: 420px; }
+          .crash-bet-bar { flex-direction: column; align-items: stretch; height: auto; padding: 12px; }
+          .control-group { width: 100%; }
+          .amount-group .control-row { flex-direction: column; }
+          .quick-bets { display: grid; grid-template-columns: repeat(6, 1fr); width: 100%; }
+          .bet-btn { width: 100%; }
+          .auto-cashout { max-width: unset; width: 100%; }
+          .bonus-pot { width: 100%; justify-content: center; }
+          .play-button { width: 100%; margin-left: 0; }
         }
 
         @media (prefers-reduced-motion: reduce) {

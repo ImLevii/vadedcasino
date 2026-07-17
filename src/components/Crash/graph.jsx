@@ -1,6 +1,5 @@
 import { createEffect, onCleanup, onMount, Show } from 'solid-js';
 import { A } from '@solidjs/router';
-import Rocket3D from './rocket3d';
 
 function CrashGraph(props) {
   let canvasRef;
@@ -235,24 +234,20 @@ function CrashGraph(props) {
   return (
     <>
       <div class='crash-graph' ref={containerRef}>
-        {/* Background canvas for the graph line */}
         <canvas ref={canvasRef} class='graph-canvas-el' />
 
         <div class='graph-header'>
           <A href='/docs/provably' class='fairness-link'>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="m9 12 2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             <span>Game Fairness</span>
           </A>
 
           <div class='max-payout'>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="16 18 22 12 16 6"/>
-              <polyline points="8 6 2 12 8 18"/>
-            </svg>
-            <span>Max Payout</span>
             <img src='/assets/chips/chip-green.png' height='14' width='14' alt='' />
+            <span>Max Payout</span>
             <span class='amount'>{(props.maxPayout / 1000).toFixed(2)}K</span>
           </div>
         </div>
@@ -262,42 +257,32 @@ function CrashGraph(props) {
             when={props.isFlying || props.isCrashed}
             fallback={
               <div class='countdown-display'>
-                <p class='countdown-label'>Starting in</p>
                 <p class='countdown-value'>{(props.countdown / 1000).toFixed(1)}s</p>
+                <p class='countdown-label'>Starting in</p>
               </div>
             }
           >
             <div class='multiplier-display'>
-              <p class='current-label'>
-                {props.isCrashed ? `CRASHED @ ${props.multiplier.toFixed(2)}x` : 'Current Payout'}
-              </p>
               <p
                 class={'multiplier-value ' + (props.isCrashed ? 'crashed' : '')}
                 style={props.isFlying && !props.isCrashed ? {
                   color: props.multiplier >= 10 ? '#f5c842'
                     : props.multiplier >= 5 ? '#00d2b4'
-                    : '#1fd65f',
+                    : '#ffffff',
                   'text-shadow': props.multiplier >= 10
-                    ? '0 0 32px rgba(245,200,66,0.6)'
+                    ? '0 0 32px rgba(245,200,66,0.5)'
                     : props.multiplier >= 5
-                    ? '0 0 28px rgba(0,210,180,0.5)'
-                    : '0 0 26px rgba(31,214,95,0.46)',
+                    ? '0 0 28px rgba(0,210,180,0.4)'
+                    : '0 0 0 transparent',
                 } : {}}
               >
                 {props.multiplier.toFixed(2)}x
               </p>
+              <p class='current-label'>
+                {props.isCrashed ? `CRASHED` : 'Current Payout'}
+              </p>
             </div>
           </Show>
-        </div>
-
-        {/* Rocket flies above the graph */}
-        <div class='rocket-layer'>
-          <Rocket3D
-            multiplier={props.multiplier}
-            isFlying={props.isFlying}
-            isCrashed={props.isCrashed}
-            countdown={props.countdown}
-          />
         </div>
       </div>
 
@@ -306,25 +291,11 @@ function CrashGraph(props) {
           flex: 1;
           min-width: 0;
           min-height: 560px;
-          background: radial-gradient(70% 70% at 50% 55%, rgba(22,61,45,.24), transparent 64%), linear-gradient(180deg, #090e16, #070a10);
-          border-radius: 8px;
-          border: 1px solid rgba(255, 255, 255, 0.065);
+          background: #0b1017;
           position: relative;
           overflow: hidden;
           display: flex;
           flex-direction: column;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 14px 36px rgba(0,0,0,.22);
-        }
-
-        .crash-graph::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          z-index: 0;
-          pointer-events: none;
-          background-image: linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
-          background-size: 34px 34px;
-          mask-image: linear-gradient(180deg, rgba(0,0,0,.7), transparent 85%);
         }
 
         .graph-canvas-el {
@@ -341,9 +312,10 @@ function CrashGraph(props) {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 16px 20px;
+          padding: 14px 18px;
           position: relative;
           z-index: 4;
+          border-bottom: 1px solid rgba(255,255,255,.04);
         }
 
         .fairness-link {
@@ -359,7 +331,7 @@ function CrashGraph(props) {
         }
 
         .fairness-link:hover {
-          color: #1fd65f;
+          color: #c3cad6;
         }
 
         .max-payout {
@@ -370,10 +342,10 @@ function CrashGraph(props) {
           font-family: 'Geogrotesque Wide', sans-serif;
           font-size: 12px;
           font-weight: 600;
-          padding: 7px 9px;
+          padding: 6px 10px;
           border: 1px solid rgba(255,255,255,.05);
           border-radius: 6px;
-          background: rgba(5,8,12,.46);
+          background: rgba(255,255,255,.025);
         }
 
         .max-payout .amount {
@@ -383,7 +355,7 @@ function CrashGraph(props) {
 
         .graph-center {
           position: absolute;
-          top: 72px;
+          top: 58px;
           left: 50%;
           transform: translateX(-50%);
           z-index: 5;
@@ -400,70 +372,55 @@ function CrashGraph(props) {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 8px;
+          gap: 4px;
         }
 
         .countdown-label {
           font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 16px;
+          font-size: 13px;
           font-weight: 600;
           color: #8b92a0;
-          text-transform: uppercase;
         }
 
         .countdown-value {
           font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 56px;
+          font-size: 64px;
           font-weight: 700;
-          color: #1fd65f;
-          text-shadow: 0px 0px 20px rgba(31, 214, 95, 0.5);
+          color: #ffffff;
+          line-height: 1;
         }
 
         .multiplier-display {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 4px;
+          gap: 2px;
         }
 
         .current-label {
           font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 10px;
-          font-weight: 600;
+          font-size: 12px;
+          font-weight: 500;
           color: #8b92a0;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
         }
 
         .multiplier-value {
           font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 72px;
+          font-size: 80px;
           font-weight: 700;
-          color: #1fd65f;
-          text-shadow: 0 0 26px rgba(31, 214, 95, 0.46);
+          color: #ffffff;
           line-height: 1;
-          transition: color .18s ease, text-shadow .18s ease;
+          transition: color .12s ease;
         }
 
         .multiplier-value.crashed {
           color: #ff5141;
-          text-shadow: 0px 0px 30px rgba(255, 81, 65, 0.6);
-          animation: crash-flash 0.5s;
+          animation: crash-flash 0.4s;
         }
 
         @keyframes crash-flash {
           0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-
-        .rocket-layer {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          z-index: 2;
-          pointer-events: none;
+          50% { opacity: 0.4; }
         }
 
         @media (max-width: 768px) {

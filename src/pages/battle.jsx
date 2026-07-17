@@ -280,13 +280,27 @@ function Battle(props) {
                             <div class='cases-container'>
                               <div class='cases' style={{'transform': `translateX(-${74 * Math.max(0, round() - 1) + 30}px)`}}>
                                 <For each={battle()?.rounds}>{(c, index) => (
-                                  <img
-                                    class={'case ' + (round() - 1 === index() ? 'active' : '')}
-                                    src={resolveImageSrc(getCase(c?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
-                                    width='60' height='60'
-                                    alt={getCase(c?.caseId)?.name || 'Battle case'}
-                                    onError={useImageFallback}
-                                  />
+                                  <div class={'case-thumb ' + (round() - 1 === index() ? 'active' : '')}>
+                                    <IndicatorLine
+                                      orientation='horizontal'
+                                      length='60%'
+                                      thickness='3px'
+                                      style={{ position: 'absolute', top: '-2px', left: '50%', transform: 'translateX(-50%)' }}
+                                    />
+                                    <img
+                                      class='case-thumb-img'
+                                      src={resolveImageSrc(getCase(c?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
+                                      width='56' height='56'
+                                      alt={getCase(c?.caseId)?.name || 'Battle case'}
+                                      onError={useImageFallback}
+                                    />
+                                    <IndicatorLine
+                                      orientation='horizontal'
+                                      length='60%'
+                                      thickness='3px'
+                                      style={{ position: 'absolute', bottom: '-2px', left: '50%', transform: 'translateX(-50%)' }}
+                                    />
+                                  </div>
                                 )}</For>
                               </div>
                             </div>
@@ -336,13 +350,19 @@ function Battle(props) {
                         </div>
 
                         <div class='columns-wrapper'>
-                          {/* Vertical center spine with IndicatorLine */}
+                          {/* Center pointer ticks (top + bottom of spinner area) */}
                           <div class='center-spine'>
                             <IndicatorLine
                               orientation='vertical'
-                              length='100%'
-                              thickness='3px'
+                              length='22px'
+                              thickness='4px'
                               style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)' }}
+                            />
+                            <IndicatorLine
+                              orientation='vertical'
+                              length='22px'
+                              thickness='4px'
+                              style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)' }}
                             />
                           </div>
 
@@ -683,26 +703,42 @@ function Battle(props) {
                 transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
               }
                
-              .case {
-                opacity: 0.4;
-                transition: opacity 0.35s ease, filter 0.35s ease, transform 0.35s ease;
-                filter: grayscale(1) brightness(0.7);
-                transform: scale(0.92);
-                object-fit: contain;
-                border-radius: 8px;
+              .case-thumb {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 74px;
+                height: 74px;
+                flex-shrink: 0;
+                border-radius: 6px;
+                background: rgba(255,255,255,.02);
+                border: 1px solid rgba(255,255,255,.06);
+                transition: all 0.3s ease;
               }
-               
-              .case.active {
+
+              .case-thumb.active {
+                background: rgba(31,214,95,.06);
+                border-color: rgba(31,214,95,.3);
+                box-shadow: 0 0 18px rgba(31,214,95,.12);
+              }
+
+              .case-thumb-img {
+                object-fit: contain;
+                opacity: 0.4;
+                filter: grayscale(1) brightness(0.7);
+                transform: scale(0.9);
+                transition: all 0.3s ease;
+              }
+
+              .case-thumb.active .case-thumb-img {
                 opacity: 1;
                 filter: none;
                 transform: scale(1);
-                box-shadow: 0 0 20px rgba(31, 214, 95, 0.25);
               }
 
-              .case.fallback {
-                padding: 14px;
-                box-sizing: border-box;
-                opacity: .24;
+              .case-thumb.fallback .case-thumb-img {
+                opacity: 0.24;
               }
 
               .columns {

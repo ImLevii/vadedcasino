@@ -68,23 +68,21 @@ function CrashPlayerList(props) {
         .crash-player-list {
           min-width: 0;
           width: 100%;
-          background: linear-gradient(180deg, rgba(18,23,31,.92), rgba(9,12,18,.96));
-          border: 1px solid rgba(255,255,255,.06);
-          border-radius: 8px;
+          background: #0d1117;
+          border-right: 1px solid rgba(255,255,255,.04);
           overflow: hidden;
           display: flex;
           flex-direction: column;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 12px 30px rgba(0,0,0,.18);
         }
 
         .player-list-header {
           height: 48px;
-          background: rgba(31, 37, 50, 0.8);
+          background: rgba(255,255,255,.02);
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding: 0 16px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          border-bottom: 1px solid rgba(255,255,255,.04);
         }
 
         .player-list-header p {

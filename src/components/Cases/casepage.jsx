@@ -434,23 +434,9 @@ function CasePage(props) {
         /* ── Spinner ── */
         .spinner-section {
           width: 100%;
-          border-radius: 14px;
-          background: linear-gradient(180deg, rgba(4, 6, 11, 0.96), rgba(2, 4, 8, 0.98));
-          border: 1px solid rgba(255,255,255,0.05);
+          background: #080d14;
           overflow: hidden;
           position: relative;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 10px 48px rgba(0,0,0,0.6);
-        }
-
-        .spinner-section::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 5%;
-          right: 5%;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(31, 214, 95, 0.08), transparent);
-          z-index: 1;
         }
 
         .spinner-track {
@@ -458,12 +444,12 @@ function CasePage(props) {
           display: flex;
           flex-wrap: nowrap;
           align-items: stretch;
-          gap: 12px;
-          padding: 16px 20px 22px;
+          gap: 0;
+          padding: 20px 24px;
           overflow-x: auto;
           overflow-y: hidden;
           scrollbar-width: thin;
-          scrollbar-color: rgba(31, 214, 95, 0.18) transparent;
+          scrollbar-color: rgba(31, 214, 95, 0.12) transparent;
           position: relative;
         }
 
@@ -517,34 +503,38 @@ function CasePage(props) {
         .controls-bar {
           display: flex;
           align-items: center;
-          gap: 18px;
-          padding: 18px 0 16px;
-          flex-wrap: wrap;
-          border-bottom: 1px solid rgba(255,255,255,0.04);
-          margin-bottom: 10px;
+          gap: 8px;
+          padding: 0 14px;
+          height: 62px;
+          flex-wrap: nowrap;
+          background: linear-gradient(180deg, rgba(13,19,28,.95), rgba(8,13,20,.99));
+          border-top: 1px solid rgba(255,255,255,.04);
+          border-bottom: 1px solid rgba(255,255,255,.04);
+          box-sizing: border-box;
         }
 
         .case-info-mini {
           display: flex;
           align-items: center;
-          gap: 14px;
+          gap: 10px;
           flex-shrink: 0;
-          padding-right: 18px;
+          padding-right: 14px;
           border-right: 1px solid rgba(255,255,255,0.06);
         }
 
         .case-img-mini {
-          width: 58px;
-          height: 58px;
+          width: 46px;
+          height: 46px;
           object-fit: contain;
-          filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+          filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
         }
 
         .case-name-mini {
           font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 17px;
+          font-size: 14px;
           font-weight: 700;
           color: #fff;
+          white-space: nowrap;
         }
 
         .controls-left {
@@ -774,7 +764,7 @@ function CasePage(props) {
 
         /* ── Items section ── */
         .items-section {
-          margin-top: 8px;
+          margin-top: 20px;
         }
 
         .items-label {
@@ -782,29 +772,37 @@ function CasePage(props) {
           align-items: center;
           gap: 8px;
           font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 14px;
-          font-weight: 700;
-          color: #8b92a0;
-          margin-bottom: 12px;
-          padding-bottom: 10px;
-          border-bottom: 1px solid rgba(255,255,255,0.04);
+          font-size: 13px;
+          font-weight: 800;
+          color: #c3cad6;
+          margin-bottom: 14px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
         }
 
         .items-label img {
-          opacity: 0.6;
+          opacity: 0.7;
         }
 
         .items-grid {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 10px;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 8px;
         }
 
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
 
-        @media only screen and (max-width: 1100px) {
+        @media only screen and (max-width: 1200px) {
+          .items-grid {
+            grid-template-columns: repeat(4, 1fr);
+          }
+        }
+
+        @media only screen and (max-width: 960px) {
           .items-grid {
             grid-template-columns: repeat(3, 1fr);
           }
@@ -821,9 +819,11 @@ function CasePage(props) {
           }
 
           .controls-bar {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 12px;
+            height: auto;
+            min-height: 54px;
+            flex-wrap: wrap;
+            padding: 10px 14px;
+            gap: 8px;
           }
 
           .case-info-mini {
@@ -834,7 +834,7 @@ function CasePage(props) {
 
         @media only screen and (max-width: 480px) {
           .items-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(2, 1fr);
           }
 
           .controls-right {
