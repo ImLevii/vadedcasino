@@ -62,19 +62,19 @@ function RouletteSpinner(props) {
     return (
         <>
             <div class='spinner-wrapper'>
-                {/* Top indicator line – replaces the old arrow tick */}
+                {/* Top indicator tick — short vertical green capsule at top-center */}
                 <IndicatorLine
-                  orientation='horizontal'
-                  length='84px'
-                  thickness='3px'
-                  style={{ position: 'absolute', left: '50%', top: '-2px', transform: 'translateX(-42px)', 'z-index': 4 }}
+                  orientation='vertical'
+                  length='20px'
+                  thickness='5px'
+                  style={{ position: 'absolute', left: '50%', top: '-2px', transform: 'translateX(-2.5px)', 'z-index': 4 }}
                 />
-                {/* Bottom indicator line */}
+                {/* Bottom indicator tick */}
                 <IndicatorLine
-                  orientation='horizontal'
-                  length='84px'
-                  thickness='3px'
-                  style={{ position: 'absolute', left: '50%', top: '122px', transform: 'translateX(-42px)', 'z-index': 4 }}
+                  orientation='vertical'
+                  length='20px'
+                  thickness='5px'
+                  style={{ position: 'absolute', left: '50%', bottom: '-2px', transform: 'translateX(-2.5px)', 'z-index': 4 }}
                 />
                 <div class='center-glow'/>
                 <div class='fade-left'/>

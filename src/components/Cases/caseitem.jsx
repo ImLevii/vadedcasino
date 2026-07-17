@@ -1,4 +1,5 @@
 import {resolveImageSrc} from "../../util/image";
+import IndicatorLine from "../IndicatorLine/indicatorline";
 
 function CaseItem(props) {
 
@@ -50,6 +51,14 @@ function CaseItem(props) {
             >
                 <div class='item-img-box'>
                   <img class='item-image' src={resolveImageSrc(props.img)} height='58' alt='' draggable={false}/>
+                  <IndicatorLine
+                    orientation='horizontal'
+                    length='60%'
+                    thickness='3px'
+                    color={getRarityColor(props?.price || 0)}
+                    pulse={false}
+                    style={{ position: 'absolute', bottom: '1px', left: '50%', transform: 'translateX(-50%)' }}
+                  />
                 </div>
 
                 <div class='item-info'>
@@ -113,14 +122,16 @@ function CaseItem(props) {
                 align-items: center;
                 justify-content: center;
                 flex-shrink: 0;
+                position: relative;
 
                 width: 68px;
-                height: 58px;
+                height: 68px;
                 border-radius: 6px;
                 background:
-                  radial-gradient(70% 60% at 50% 100%, color-mix(in srgb, var(--rarity-color) 12%, transparent), transparent),
+                  radial-gradient(70% 60% at 50% 100%, color-mix(in srgb, var(--rarity-color) 14%, transparent), transparent),
                   rgba(255, 255, 255, 0.03);
-                border: 1px solid rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.07);
+                overflow: hidden;
               }
 
               .item-image {

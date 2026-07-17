@@ -39,14 +39,17 @@ function NavBar(props) {
                                 if (!props?.user) return setSearchParams({modal: 'login'})
                                 setSearchParams({modal: 'rakeback'})
                             }}>
-                                <svg width='16' height='16' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                                    <rect x='3' y='11' width='18' height='11' rx='1.5' fill='#7a8094' opacity='0.9'/>
-                                    <rect x='1' y='7' width='22' height='5' rx='1.5' fill='#8b92a0'/>
-                                    <path d='M12 7V22' stroke='#5c6474' stroke-width='1.5'/>
-                                    <path d='M12 7C12 7 9 5 8 3C7 1 9 1 10 2C11 3 12 7 12 7Z' fill='#7a8094'/>
-                                    <path d='M12 7C12 7 15 5 16 3C17 1 15 1 14 2C13 3 12 7 12 7Z' fill='#7a8094'/>
+                                <svg class='rewards-icon' width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                                    <rect x='1.5' y='6' width='13' height='8.5' rx='1.5' fill='currentColor' opacity='0.85'/>
+                                    <rect x='0.75' y='4' width='14.5' height='3.5' rx='1.5' fill='currentColor'/>
+                                    <line x1='8' y1='4' x2='8' y2='14.5' stroke='rgba(0,0,0,0.35)' stroke-width='1.5'/>
+                                    <path d='M8 4 C8 4 5.5 3 4.5 1.5 C4 0.5 5.5 0.5 6 1.5 C6.5 2.5 8 4 8 4Z' fill='currentColor'/>
+                                    <path d='M8 4 C8 4 10.5 3 11.5 1.5 C12 0.5 10.5 0.5 10 1.5 C9.5 2.5 8 4 8 4Z' fill='currentColor'/>
                                 </svg>
                                 <span>REWARDS</span>
+                                <svg class='rewards-arrow' width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3.50001 0.994671C3.62547 0.994671 3.7509 1.04269 3.84655 1.13852L6.8564 4.15579C7.04787 4.34773 7.04787 4.65892 6.8564 4.85078C6.66501 5.04263 6.5 4.99467 6.16316 4.99467L3.50001 4.99467L1 4.99467C0.5 4.99467 0.335042 5.04254 0.14367 4.85068C-0.0478893 4.65883 -0.0478893 4.34764 0.14367 4.1557L3.15347 1.13843C3.24916 1.04258 3.3746 0.994671 3.50001 0.994671Z" fill="currentColor"/>
+                                </svg>
                             </button>
                         </div>
                     </div>
@@ -222,15 +225,23 @@ function NavBar(props) {
                 letter-spacing: 0.3px;
               }
 
-              .rewards svg {
+              .rewards-icon {
                 position: relative;
                 z-index: 1;
-                opacity: 0.75;
-                transition: opacity .22s ease;
+                color: #8b92a0;
+                transition: color .22s ease;
               }
 
-              .rewards:hover svg {
-                opacity: 1;
+              .rewards-arrow {
+                position: relative;
+                z-index: 1;
+                color: #8b92a0;
+                transition: color .22s ease;
+              }
+
+              .rewards:hover .rewards-icon,
+              .rewards:hover .rewards-arrow {
+                color: #c6ccd8;
               }
 
               .withdraw {
