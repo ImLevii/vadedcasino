@@ -21,7 +21,7 @@ export function GameFairnessButton(props) {
         {!props.compact && <span>{props.label || 'Game Fairness'}</span>}
       </A>
 
-      <style jsx>{`
+      <style>{`
         .game-fairness-button {
           min-height: 34px;
           padding: 0 11px;
@@ -81,7 +81,7 @@ export function GameFairnessDock(props) {
   return visible() ? (
     <div class='game-fairness-dock'>
       <GameFairnessButton/>
-      <style jsx>{`
+      <style>{`
         .game-fairness-dock {
           position: fixed;
           z-index: 30;
