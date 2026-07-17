@@ -42,34 +42,41 @@ function CoinflipItem(props) {
                 border-radius: 10px;
                 z-index: 0;
                 padding: 1px;
+                transition: transform .15s;
+              }
+
+              .cf-item:hover {
+                transform: translateY(-1px);
               }
               
               .gray {
-                background: linear-gradient(45deg, rgba(169, 181, 210, 0.5), rgba(169, 181, 210, 0) 70%);
+                background: linear-gradient(135deg, rgba(169, 181, 210, 0.55) 0%, rgba(169, 181, 210, 0.08) 55%, rgba(169, 181, 210, 0) 100%);
               }
 
               .blue {
-                background: linear-gradient(45deg, rgba(65, 118, 255, 0.5), rgba(65, 118, 255, 0) 70%);
+                background: linear-gradient(135deg, rgba(65, 118, 255, 0.58) 0%, rgba(65, 118, 255, 0.08) 55%, rgba(65, 118, 255, 0) 100%);
               }
 
               .pink {
-                background: linear-gradient(45deg, rgba(220, 95, 222, 0.5), rgba(220, 95, 222, 0) 70%);
+                background: linear-gradient(135deg, rgba(220, 95, 222, 0.58) 0%, rgba(220, 95, 222, 0.08) 55%, rgba(220, 95, 222, 0) 100%);
               }
 
               .red {
-                background: linear-gradient(45deg, rgba(255, 81, 65, 0.5), rgba(255, 81, 65, 0) 70%);
+                background: linear-gradient(135deg, rgba(255, 81, 65, 0.58) 0%, rgba(255, 81, 65, 0.08) 55%, rgba(255, 81, 65, 0) 100%);
               }
 
               .gold {
-                background: linear-gradient(45deg, rgba(255, 153, 1, 0.5), rgba(255, 153, 1, 0) 70%);
+                background: linear-gradient(135deg, rgba(255, 153, 1, 0.58) 0%, rgba(255, 153, 1, 0.08) 55%, rgba(255, 153, 1, 0) 100%);
               }
 
               .cf-item:before {
                 position: absolute;
                 content: '';
-                border-radius: 10px;
+                border-radius: 9px;
                 z-index: -1;
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(169, 181, 210, 0.14) 0%, rgba(169, 181, 210, 0.00) 100%), rgba(0, 0, 0, 0.3);
+                background:
+                  radial-gradient(100% 65% at 50% 100%, rgba(169, 181, 210, 0.16) 0%, rgba(169, 181, 210, 0) 100%),
+                  linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.28));
                 top: 1px;
                 left: 1px;
                 width: calc(100% - 2px);
@@ -77,23 +84,32 @@ function CoinflipItem(props) {
               }
               
               .blue:before {
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(65, 118, 255, 0.14) 0%, rgba(65, 118, 255, 0.00) 100%), rgba(0, 0, 0, 0.3);
+                background:
+                  radial-gradient(100% 65% at 50% 100%, rgba(65, 118, 255, 0.18) 0%, rgba(65, 118, 255, 0) 100%),
+                  linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.28));
               }
               
               .pink:before {
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(220, 95, 222, 0.14) 0%, rgba(220, 95, 222, 0.00) 100%), rgba(0, 0, 0, 0.3);
+                background:
+                  radial-gradient(100% 65% at 50% 100%, rgba(220, 95, 222, 0.18) 0%, rgba(220, 95, 222, 0) 100%),
+                  linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.28));
               }
               
               .red:before {
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(255, 81, 65, 0.14) 0%, rgba(255, 81, 65, 0.00) 100%), rgba(0, 0, 0, 0.3);
+                background:
+                  radial-gradient(100% 65% at 50% 100%, rgba(255, 81, 65, 0.18) 0%, rgba(255, 81, 65, 0) 100%),
+                  linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.28));
               }
 
               .gold:before {
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(31, 214, 95, 0.14) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(0, 0, 0, 0.21);
+                background:
+                  radial-gradient(100% 65% at 50% 100%, rgba(31, 214, 95, 0.18) 0%, rgba(31, 214, 95, 0) 100%),
+                  linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.22));
               }
               
               .item-image {
                 margin: auto 0;
+                filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
               }
             `}</style>
         </>

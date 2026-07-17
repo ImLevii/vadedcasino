@@ -267,9 +267,12 @@ function NavBar(props) {
                 border-radius: 8px;
 
                 outline: unset;
-                border: unset;
-                background: linear-gradient(180deg, #22e86a 0%, #1fd65f 60%, #18c255 100%);
-                box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset, 0 -2px 0 rgba(0,0,0,0.3) inset;
+                border: 1px solid rgba(52, 232, 114, 0.45);
+                background: linear-gradient(180deg, #25e46a 0%, #1fd65f 55%, #18c255 100%);
+                box-shadow:
+                  inset 0 1px 0 rgba(255, 255, 255, 0.26),
+                  inset 0 -2px 0 rgba(0, 0, 0, 0.18),
+                  0 4px 18px rgba(31, 214, 95, 0.32);
 
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-weight: 800;
@@ -277,11 +280,21 @@ function NavBar(props) {
                 color: #021a09;
 
                 cursor: pointer;
-                transition: filter .2s;
+                transition: filter .18s, transform .18s, box-shadow .18s;
               }
 
               .deposit:hover {
-                filter: brightness(1.08);
+                filter: brightness(1.07);
+                transform: translateY(-1px);
+                box-shadow:
+                  inset 0 1px 0 rgba(255, 255, 255, 0.26),
+                  inset 0 -2px 0 rgba(0, 0, 0, 0.16),
+                  0 8px 24px rgba(31, 214, 95, 0.40);
+              }
+
+              .deposit:active {
+                filter: brightness(0.97);
+                transform: translateY(0);
               }
 
               .balance {
@@ -290,14 +303,17 @@ function NavBar(props) {
                 gap: 10px;
 
                 height: 38px;
-                padding: 0 16px;
+                padding: 0 14px;
                 border-radius: 8px;
 
-                border: 1px solid rgba(31, 214, 95, 0.4);
+                border: 1px solid rgba(31, 214, 95, 0.32);
                 background:
-                  radial-gradient(90% 120% at 50% 0%, rgba(31, 214, 95, 0.2), transparent 58%),
-                  linear-gradient(180deg, rgba(17, 27, 26, 0.84), rgba(10, 17, 18, 0.88));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 8px 22px rgba(0,0,0,0.22), 0 0 20px rgba(31,214,95,0.06);
+                  radial-gradient(80% 110% at 50% 0%, rgba(31, 214, 95, 0.14), transparent 60%),
+                  linear-gradient(180deg, rgba(14, 22, 20, 0.88), rgba(8, 14, 14, 0.92));
+                box-shadow:
+                  inset 0 1px 0 rgba(255, 255, 255, 0.06),
+                  inset 0 0 0 1px rgba(31, 214, 95, 0.06),
+                  0 6px 20px rgba(0, 0, 0, 0.22);
 
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-weight: 700;
@@ -422,17 +438,17 @@ function NavBar(props) {
 
               .signin {
                 outline: unset;
-                border: unset;
-                padding: unset;
+                padding: 0 22px;
 
                 height: 40px;
-                width: 120px;
+                min-width: 110px;
                 border-radius: 8px;
 
                 font-family: 'Geogrotesque Wide', sans-serif;
-                font-weight: 700;
-                font-size: 14px;
-                color: white;
+                font-weight: 800;
+                font-size: 13px;
+                letter-spacing: 0.4px;
+                color: #021a09;
 
                 cursor: pointer;
               }

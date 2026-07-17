@@ -150,7 +150,7 @@ function SpinnerItem(props) {
                         </div>
                     </div>
                 ) : null}
-                <img className='back-img' src={backImage(props?.price)} height='60' alt='' ref={swords}/>
+                <img class='back-img' src={backImage(props?.price)} height='60' alt='' ref={swords}/>
             </div>
 
             <style jsx>{`
@@ -174,10 +174,14 @@ function SpinnerItem(props) {
                 position: absolute;
                 inset: 6px 4px;
                 border-radius: 8px;
-                background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+                background:
+                  radial-gradient(80% 60% at 50% 100%, color-mix(in srgb, var(--rarity, #A9B5D2) 18%, transparent), transparent 70%),
+                  linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.018));
                 border: 1px solid rgba(255,255,255,0.07);
                 border-bottom: 2px solid var(--rarity, #A9B5D2);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 18px -6px var(--rarity, #A9B5D2);
+                box-shadow:
+                  inset 0 1px 0 rgba(255,255,255,0.06),
+                  0 0 22px -4px var(--rarity, #A9B5D2);
                 opacity: 0.72;
                 backdrop-filter: blur(4px);
                 -webkit-backdrop-filter: blur(4px);
