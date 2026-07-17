@@ -322,16 +322,32 @@ function CrashGraph(props) {
           display: flex;
           align-items: center;
           gap: 6px;
+          padding: 6px 10px;
           color: #8b92a0;
           font-family: 'Geogrotesque Wide', sans-serif;
           font-size: 12px;
           font-weight: 600;
           text-decoration: none;
+          transition: all 0.2s;
+          border-radius: 6px;
+          border: 1px solid rgba(31, 214, 95, 0);
+        }
+
+        .fairness-link svg {
+          flex-shrink: 0;
+          color: #1fd65f;
           transition: color 0.2s;
         }
 
         .fairness-link:hover {
           color: #c3cad6;
+          border-color: rgba(31, 214, 95, 0.4);
+          background: rgba(31, 214, 95, 0.08);
+        }
+
+        .fairness-link:hover svg {
+          color: #1fd65f;
+          filter: drop-shadow(0 0 8px rgba(31, 214, 95, 0.5));
         }
 
         .max-payout {

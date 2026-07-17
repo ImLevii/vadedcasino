@@ -62,10 +62,10 @@ function IndicatorLine(props) {
   const barStyle = () => {
     const [r, g, b] = rgb();
     const boxShadow = [
-      `0 0 4px  2px ${glow(0.9)}`,
-      `0 0 10px 4px ${glow(0.6)}`,
-      `0 0 22px 7px ${glow(0.35)}`,
-      `0 0 40px 14px ${glow(0.16)}`,
+      `0 0 6px  3px ${glow(1)}`,
+      `0 0 14px 6px ${glow(0.8)}`,
+      `0 0 28px 10px ${glow(0.55)}`,
+      `0 0 50px 18px ${glow(0.28)}`,
     ].join(', ');
 
     return {
@@ -91,8 +91,8 @@ function IndicatorLine(props) {
 
       <style>{`
         @keyframes indicator-pulse {
-          0%, 100% { opacity: 0.80; filter: brightness(1);    }
-          50%       { opacity: 1;   filter: brightness(1.22); }
+          0%, 100% { opacity: 0.85; filter: brightness(1);    }
+          50%       { opacity: 1;   filter: brightness(1.35); }
         }
       `}</style>
     </>
