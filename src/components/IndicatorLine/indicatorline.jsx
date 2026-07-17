@@ -14,6 +14,8 @@
 function IndicatorLine(props) {
   const isVert = () => (props.orientation || 'horizontal') === 'vertical';
   const color  = () => props.color || '#1fd65f';
+  const thickness = () => props.thickness || '3px';
+  const length    = () => props.length    || '100%';
 
   // Derive RGB channels from hex so we can feed them into rgba() for the glow
   function hexToRgb(hex) {
@@ -34,49 +36,47 @@ function IndicatorLine(props) {
     return `rgba(${r},${g},${b},${alpha})`;
   }
 
-  // The bar is oriented via flex direction so it works for both axes
+  // Outer wrapper: constrained to exact dimensions
   const wrapStyle = () => {
     const base = {
-      display: 'flex',
+      display: 'inline-flex',
       'align-items': 'center',
       'justify-content': 'center',
       'pointer-events': 'none',
+      'flex-shrink': '0',
       ...(props.style || {}),
     };
+
     if (isVert()) {
-      base.width = props.thickness || '3px';
-      base.height = props.length   || '100%';
+      base.width  = thickness();
+      base.height = length();
     } else {
-      base.height = props.thickness || '3px';
-      base.width  = props.length    || '100%';
+      base.width  = length();
+      base.height = thickness();
     }
+
     return base;
   };
 
-  // Core capsule styles
+  // Core capsule — fills the wrapper 100%
   const barStyle = () => {
     const [r, g, b] = rgb();
     const boxShadow = [
-      `0 0 4px  2px ${glow(0.85)}`,
-      `0 0 10px 4px ${glow(0.55)}`,
-      `0 0 22px 8px ${glow(0.30)}`,
-      `0 0 46px 16px ${glow(0.14)}`,
+      `0 0 4px  2px ${glow(0.9)}`,
+      `0 0 10px 4px ${glow(0.6)}`,
+      `0 0 22px 7px ${glow(0.35)}`,
+      `0 0 40px 14px ${glow(0.16)}`,
     ].join(', ');
 
-    const base = {
+    return {
+      display: 'block',
+      width: '100%',
+      height: '100%',
       background: color(),
       'border-radius': '9999px',
       'box-shadow': boxShadow,
       animation: (props.pulse !== false) ? 'indicator-pulse 2.4s ease-in-out infinite' : 'none',
     };
-    if (isVert()) {
-      base.width   = '100%';
-      base.height  = '100%';
-    } else {
-      base.width   = '100%';
-      base.height  = '100%';
-    }
-    return base;
   };
 
   return (
@@ -91,8 +91,8 @@ function IndicatorLine(props) {
 
       <style>{`
         @keyframes indicator-pulse {
-          0%, 100% { opacity: 0.82; filter: brightness(1);   }
-          50%       { opacity: 1;    filter: brightness(1.18); }
+          0%, 100% { opacity: 0.80; filter: brightness(1);    }
+          50%       { opacity: 1;   filter: brightness(1.22); }
         }
       `}</style>
     </>

@@ -129,45 +129,90 @@ export function playGameSFX(key, src, options = {}) {
 }
 
 /**
- * Ticker driven by requestAnimationFrame — checks actual animation progress
- * rather than computing setTimeout delays (which drift).
- *
- * @param {Function} tickFn         — called every time a tick should fire
- * @param {number}   durationMs     — total duration of the animation
- * @param {number}   [minInterval]  — minimum ms between ticks (default 40)
- * @param {Function} [easingFn]     — cubic-bezier or null for linear
- * @returns {Object} { cancel, elapsed, setElapsed }
+ * Cubic bezier evaluation helper.
+ * Evaluates the Y value (output) of a cubic bezier at parameter t using Newton-Raphson.
+ * Control points P1 and P2 (P0=0,0 P3=1,1).
  */
-export function startAnimationTicker(tickFn, durationMs, minInterval = 40, easingFn = null) {
+function cubicBezierY(t, p1x, p1y, p2x, p2y) {
+  // Evaluate X(t) and Y(t) separately
+  function sampleX(t) {
+    return 3 * (1 - t) * (1 - t) * t * p1x + 3 * (1 - t) * t * t * p2x + t * t * t;
+  }
+  function sampleY(t) {
+    return 3 * (1 - t) * (1 - t) * t * p1y + 3 * (1 - t) * t * t * p2y + t * t * t;
+  }
+  function sampleDerivX(t) {
+    return 3 * (1 - t) * (1 - t) * p1x + 6 * (1 - t) * t * (p2x - p1x) + 3 * t * t * (1 - p2x);
+  }
+
+  // Newton-Raphson to find t for a given x (progress)
+  function getTForX(x) {
+    let t = x;
+    for (let i = 0; i < 8; i++) {
+      const dx = sampleX(t) - x;
+      if (Math.abs(dx) < 0.0001) break;
+      const d = sampleDerivX(t);
+      if (Math.abs(d) < 0.0001) break;
+      t -= dx / d;
+    }
+    return Math.max(0, Math.min(1, t));
+  }
+
+  return sampleY(getTForX(t));
+}
+
+/**
+ * Velocity-synced animation ticker powered by requestAnimationFrame.
+ *
+ * Ticks fire proportional to the visual velocity of the eased animation:
+ *   - Fast at the start (many items pass quickly) → dense ticks
+ *   - Slow at the end (items crawling) → sparse ticks
+ *
+ * This produces the correct "rapid fire → decelerating" tick pattern that
+ * matches the CSS cubic-bezier(.08,.78,.16,1) case/battle spinner easing.
+ *
+ * @param {Function} tickFn       — called every time a tick should fire; receives (progress, elapsed)
+ * @param {number}   durationMs   — total animation duration in ms
+ * @param {number}   [minInterval]— minimum ms between ticks (default 35)
+ * @param {number[]} [bezier]     — [p1x,p1y,p2x,p2y] control points (default linear)
+ * @returns {{ cancel: Function }}
+ */
+export function startAnimationTicker(tickFn, durationMs, minInterval = 35, bezier = null) {
   if (typeof window === 'undefined') return { cancel: () => {} };
 
   let startTime = null;
-  let lastTickTime = 0;
   let cancelled = false;
-  let lastProgress = -1;
   let rafId = null;
+  let lastTickTime = 0;
+  let lastPosition = 0; // last bezier Y value we fired at
+
+  // How much bezier-Y position needs to change before we fire a tick.
+  // Smaller → more ticks, larger → fewer ticks.
+  // At the start of the animation the bezier rises steeply so ticks fire rapidly;
+  // near the end the curve flattens so ticks become sparse.
+  const positionThreshold = 0.022; // ~45 ticks total across the full range
 
   function frame(ts) {
     if (cancelled) return;
     if (startTime === null) startTime = ts;
 
-    const elapsed = ts - startTime;
-    const rawProgress = Math.min(elapsed / durationMs, 1);
-    const progress = easingFn ? easingFn(rawProgress) : rawProgress;
+    const elapsed    = ts - startTime;
+    const rawT       = Math.min(elapsed / durationMs, 1);
+    const position   = bezier
+      ? cubicBezierY(rawT, bezier[0], bezier[1], bezier[2], bezier[3])
+      : rawT;
 
-    // Fire a tick if we've crossed a progress threshold (every ~2% of progress)
-    const threshold = Math.floor(progress * 100);
-    if (threshold !== lastProgress) {
-      lastProgress = threshold;
+    // Fire when we've crossed a position threshold AND enough wall-time has passed
+    const positionDelta = position - lastPosition;
+    const timeDelta     = ts - lastTickTime;
 
-      // Rate-limit: don't fire more often than minInterval
-      if (ts - lastTickTime >= minInterval) {
-        lastTickTime = ts;
-        tickFn(progress, elapsed);
-      }
+    if (positionDelta >= positionThreshold && timeDelta >= minInterval) {
+      lastPosition = position;
+      lastTickTime = ts;
+      tickFn(rawT, elapsed);
     }
 
-    if (rawProgress < 1) {
+    if (rawT < 1) {
       rafId = requestAnimationFrame(frame);
     }
   }
@@ -179,6 +224,5 @@ export function startAnimationTicker(tickFn, durationMs, minInterval = 40, easin
       cancelled = true;
       if (rafId) cancelAnimationFrame(rafId);
     },
-    elapsed: () => lastTickTime - startTime,
   };
 }

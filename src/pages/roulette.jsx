@@ -16,23 +16,27 @@ function Roulette(props) {
 
     let rouletteTicker = null
 
+    // Roulette spin easing: cubic-bezier(.14,.15,0,1)
+    const ROULETTE_BEZIER = [0.14, 0.15, 0, 1]
+
     // spinPhase = the active-spin window (0 → 90% of rollTime).
     // Ticking stops naturally here; the hold + snap phases are silent.
     function startRouletteTicking(spinPhase) {
         if (rouletteTicker) rouletteTicker.cancel()
 
-        // Use requestAnimationFrame-driven ticker synced to actual elapsed time
-        // instead of accumulating setTimeout delays (which drift).
+        // Pass the real cubic-bezier so ticks fire densely early and
+        // decelerate as the spinner slows toward the landing position.
         rouletteTicker = startAnimationTicker(
           () => {
             playGameSFX('roulette-tick', '/assets/sfx/casetick.wav', {
               channel: 'spin-tick',
-              volume: 0.5,
-              minIntervalMs: 30,
+              volume: 0.48,
+              minIntervalMs: 28,
             })
           },
           spinPhase,
-          30 // min interval between ticks
+          28,
+          ROULETTE_BEZIER
         )
     }
 

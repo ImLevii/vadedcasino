@@ -9,6 +9,7 @@ import {useNavigate} from "@solidjs/router"
 import Chance from 'chance'
 import SpinnerDiamond from "./spinnerdiamond";
 import IndicatorLine from "../IndicatorLine/indicatorline";
+import {playGameSFX, stopSFXChannel, startAnimationTicker} from "../../util/sound";
 
 function BattleSpinner(props) {
 
@@ -20,6 +21,35 @@ function BattleSpinner(props) {
   const navigate = useNavigate()
   let cosmicTimer
   let particleTimer
+  let tickerHandle = null
+
+  // Spin easing control points: cubic-bezier(.08,.7,.14,1)
+  const SPIN_BEZIER = [0.08, 0.7, 0.14, 1]
+  const SPIN_DURATION = 5000
+
+  function startBattleTicking(duration = SPIN_DURATION) {
+    if (tickerHandle) tickerHandle.cancel()
+    tickerHandle = startAnimationTicker(
+      () => {
+        playGameSFX('battle-tick', '/assets/sfx/casetick.wav', {
+          channel: 'battle-spin-tick',
+          volume: 0.45,
+          minIntervalMs: 28,
+        })
+      },
+      duration,
+      28,
+      SPIN_BEZIER
+    )
+  }
+
+  function stopBattleTicking() {
+    if (tickerHandle) {
+      tickerHandle.cancel()
+      tickerHandle = null
+    }
+    stopSFXChannel('battle-spin-tick', { fadeOutMs: 60 })
+  }
 
   const [particles, setParticles] = createSignal([])
   const [showShockwave, setShowShockwave] = createSignal(false)
@@ -176,6 +206,17 @@ function BattleSpinner(props) {
 
       setItems([...spinnerItems])
       scheduleAnimation()
+      startBattleTicking(SPIN_DURATION)
+
+      // Stop ticking when animation finishes, then play win sound
+      setTimeout(() => {
+        stopBattleTicking()
+        playGameSFX('battle-win', '/assets/sfx/winorcashout.mp3', {
+          channel: 'battle-result-win',
+          volume: 0.58,
+          fadeInMs: 80,
+        })
+      }, SPIN_DURATION)
 
       if (cosmic && isRareItem(winningItem, battleCase?.price)) {
         // Exclusive second spin featuring only rare items
@@ -185,6 +226,8 @@ function BattleSpinner(props) {
           rareReel[50] = winningItem
           setItems([...rareReel])
           scheduleAnimation(true)
+          startBattleTicking(SPIN_DURATION)
+          setTimeout(() => stopBattleTicking(), SPIN_DURATION)
         }, 5300)
 
         // Trigger green particles exactly when first spin finishes (5000ms)
@@ -199,6 +242,7 @@ function BattleSpinner(props) {
   onCleanup(() => {
     clearTimeout(cosmicTimer)
     clearTimeout(particleTimer)
+    stopBattleTicking()
   })
 
   function scheduleAnimation(secondPhase = false) {
