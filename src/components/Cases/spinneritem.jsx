@@ -167,17 +167,21 @@ function SpinnerItem(props) {
                 justify-content: center;
                 
                 opacity: 0.42;
+                transition: opacity var(--transition-smooth);
               }
 
               .card-bg {
                 position: absolute;
                 inset: 6px 4px;
                 border-radius: 8px;
-                background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.018));
-                border: 1px solid rgba(255,255,255,0.065);
+                background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+                border: 1px solid rgba(255,255,255,0.07);
                 border-bottom: 2px solid var(--rarity, #A9B5D2);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.035), 0 0 18px -6px var(--rarity, #A9B5D2);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 18px -6px var(--rarity, #A9B5D2);
                 opacity: 0.72;
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+                transition: all var(--transition-smooth);
               }
               
               .item-image {
@@ -185,6 +189,12 @@ function SpinnerItem(props) {
                 user-select: none;
                 z-index: 1;
                 filter: drop-shadow(0 8px 14px rgba(0,0,0,0.62));
+                transition: transform var(--transition-smooth);
+              }
+
+              .winning-item .card-bg {
+                opacity: 1;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 24px -4px var(--rarity, #A9B5D2);
               }
 
                             .item-meta {

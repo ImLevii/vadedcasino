@@ -410,12 +410,15 @@ function BattleSpinner(props) {
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 10px;
+          border-radius: var(--glass-radius);
           overflow: hidden;
 
-          background: linear-gradient(180deg, rgba(18, 22, 30, 0.95), rgba(10, 13, 19, 0.98));
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 8px 24px rgba(0, 0, 0, 0.22);
+          background: var(--btn-glass-bg);
+          border: 1px solid var(--glass-border);
+          box-shadow: inset 0 1px 0 var(--glass-highlight), 0 8px 24px rgba(0, 0, 0, 0.24);
+          backdrop-filter: var(--glass-blur);
+          -webkit-backdrop-filter: var(--glass-blur);
+          transition: all var(--transition-smooth);
         }
 
         .spinner.gold:before {
@@ -426,25 +429,26 @@ function BattleSpinner(props) {
           width: 100%;
           height: 100%;
           opacity: 0.12;
-          border-radius: 10px;
+          border-radius: var(--glass-radius);
           background-image: url("/assets/icons/battlestripes.png");
         }
 
         .spinner.green {
-          background: radial-gradient(92% 95% at 50.00% 100.00%, rgba(31, 214, 95, 0.20) 0%, rgba(0, 0, 0, 0.00) 70%), linear-gradient(180deg, rgba(18, 22, 30, 0.95), rgba(10, 13, 19, 0.98));
+          background: radial-gradient(92% 95% at 50.00% 100.00%, rgba(31, 214, 95, 0.20) 0%, rgba(0, 0, 0, 0.00) 70%), var(--btn-glass-bg);
           border-color: rgba(31, 214, 95, 0.25);
           border-bottom: 2px solid #1fd65f;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 24px rgba(31, 214, 95, 0.15), 0 8px 24px rgba(0, 0, 0, 0.26);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 24px rgba(31, 214, 95, 0.15), 0 8px 24px rgba(0, 0, 0, 0.26), var(--green-glow);
         }
 
         .spinner.red {
-          background: radial-gradient(92% 95% at 50.00% 100.00%, rgba(249, 81, 81, 0.15) 0%, rgba(0, 0, 0, 0.00) 70%), linear-gradient(180deg, rgba(18, 22, 30, 0.95), rgba(10, 13, 19, 0.98));
+          background: radial-gradient(92% 95% at 50.00% 100.00%, rgba(249, 81, 81, 0.15) 0%, rgba(0, 0, 0, 0.00) 70%), var(--btn-glass-bg);
           border-color: rgba(249, 81, 81, 0.18);
           border-bottom: 2px solid #F95151;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 24px rgba(249, 81, 81, 0.12), 0 8px 24px rgba(0, 0, 0, 0.26);
         }
 
         .gold {
-          background: radial-gradient(92% 95% at 50.00% 100.00%, rgba(255, 184, 74, 0.14) 0%, rgba(0, 0, 0, 0.00) 70%), linear-gradient(180deg, rgba(18, 22, 30, 0.95), rgba(10, 13, 19, 0.98));
+          background: radial-gradient(92% 95% at 50.00% 100.00%, rgba(255, 184, 74, 0.14) 0%, rgba(0, 0, 0, 0.00) 70%), var(--btn-glass-bg);
           border-color: rgba(255, 184, 74, 0.14);
         }
 

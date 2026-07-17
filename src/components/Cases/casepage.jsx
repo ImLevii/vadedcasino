@@ -630,7 +630,7 @@ function CasePage(props) {
 
           height: 38px;
           padding: 0 22px;
-          border-radius: 8px;
+          border-radius: var(--glass-radius-sm);
           border: none;
           outline: none;
 
@@ -644,7 +644,7 @@ function CasePage(props) {
           letter-spacing: .2px;
 
           cursor: pointer;
-          transition: all .2s ease;
+          transition: all var(--transition-smooth);
           position: relative;
           overflow: hidden;
         }
@@ -694,6 +694,10 @@ function CasePage(props) {
           display: flex;
           align-items: center;
           gap: 7px;
+          height: 34px;
+          padding: 0 12px;
+          border-radius: var(--glass-radius-xs);
+          border: 1px solid transparent;
 
           font-family: 'Geogrotesque Wide', sans-serif;
           font-size: 11px;
@@ -702,11 +706,14 @@ function CasePage(props) {
 
           cursor: pointer;
           user-select: none;
-          transition: color .2s;
+          transition: all var(--transition-smooth);
         }
 
         .fast-toggle:hover {
           color: #c3cad6;
+          background: rgba(255,255,255,0.03);
+          border-color: var(--btn-glass-border);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .cosmic-icon {
@@ -723,10 +730,10 @@ function CasePage(props) {
         .demo-btn {
           height: 38px;
           padding: 0 18px;
-          border-radius: 8px;
-          border: 1px solid rgba(255,255,255,0.065);
-          background: linear-gradient(180deg, rgba(20, 25, 35, 0.92), rgba(14, 18, 28, 0.96));
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+          border-radius: var(--glass-radius-sm);
+          border: 1px solid var(--btn-glass-border);
+          background: var(--btn-glass-bg);
+          box-shadow: inset 0 1px 0 var(--glass-highlight), 0 4px 12px rgba(0,0,0,0.15);
 
           font-family: 'Geogrotesque Wide', sans-serif;
           font-size: 13px;
@@ -734,14 +741,21 @@ function CasePage(props) {
           color: #8b92a0;
 
           cursor: pointer;
-          transition: all .2s;
+          backdrop-filter: var(--glass-blur);
+          -webkit-backdrop-filter: var(--glass-blur);
+          transition: all var(--transition-smooth);
         }
 
         .demo-btn:hover {
-          background: rgba(31, 214, 95, 0.07);
-          border-color: rgba(31, 214, 95, 0.3);
+          border-color: rgba(31, 214, 95, 0.25);
+          background: rgba(31, 214, 95, 0.06);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 6px 20px rgba(0,0,0,0.2), var(--green-glow);
           color: #fff;
           transform: translateY(-1px);
+        }
+
+        .demo-btn:active {
+          transform: translateY(0);
         }
 
         .preview-btn {
@@ -751,24 +765,28 @@ function CasePage(props) {
           width: 34px;
           height: 34px;
           padding: 0;
-          border-radius: 8px;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          background: rgba(12, 16, 24, 0.75);
-          backdrop-filter: blur(12px) saturate(130%);
-          -webkit-backdrop-filter: blur(12px) saturate(130%);
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 6px 18px rgba(0, 0, 0, 0.35);
+          border-radius: var(--glass-radius-sm);
+          border: 1px solid var(--btn-glass-border);
+          background: var(--btn-glass-bg);
+          backdrop-filter: var(--glass-blur);
+          -webkit-backdrop-filter: var(--glass-blur);
+          box-shadow: inset 0 1px 0 var(--glass-highlight), 0 6px 18px rgba(0, 0, 0, 0.35);
           color: #8b92a0;
           cursor: pointer;
           outline: none;
-          transition: all .2s ease;
+          transition: all var(--transition-smooth);
         }
 
         .preview-btn:hover {
-          background: rgba(255, 255, 255, 0.08);
-          border-color: rgba(255, 255, 255, 0.16);
-          color: #fff;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 8px 22px rgba(0, 0, 0, 0.4);
+          background: rgba(31, 214, 95, 0.06);
+          border-color: rgba(31, 214, 95, 0.25);
+          color: #1fd65f;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 22px rgba(0, 0, 0, 0.4), var(--green-glow);
           transform: translateY(-1px);
+        }
+
+        .preview-btn:active {
+          transform: translateY(0);
         }
 
         .preview-btn svg {

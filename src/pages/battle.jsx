@@ -386,22 +386,21 @@ function Battle(props) {
                 box-sizing: border-box;
                 position: relative;
 
-                border-radius: 12px;
-                border: 1px solid rgba(255,255,255,0.065);
-                background: linear-gradient(135deg, 
-                  rgba(18, 24, 35, 0.96), 
-                  rgba(10, 14, 22, 0.98));
+                border-radius: var(--glass-radius);
+                border: 1px solid var(--glass-border);
+                background: var(--btn-glass-bg);
                 box-shadow: 
-                  inset 0 1px 0 rgba(255,255,255,0.045), 
-                  0 8px 24px rgba(0,0,0,0.22),
-                  0 16px 40px rgba(0,0,0,0.18);
+                  inset 0 1px 0 var(--glass-highlight), 
+                  0 8px 32px rgba(0,0,0,0.25),
+                  0 16px 48px rgba(0,0,0,0.2);
 
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 padding: 8px 16px;
-                backdrop-filter: blur(12px);
-                transition: all 0.3s ease;
+                backdrop-filter: var(--glass-blur);
+                -webkit-backdrop-filter: var(--glass-blur);
+                transition: all var(--transition-smooth);
               }
                
               .round-info::before {
@@ -413,17 +412,19 @@ function Battle(props) {
                 height: 1px;
                 background: linear-gradient(90deg, 
                   transparent, 
-                  rgba(255,255,255,0.1), 
+                  rgba(255,255,255,0.08), 
                   transparent);
+                z-index: 1;
               }
                
               .round-info:hover {
-                border-color: rgba(31, 214, 95, 0.12);
+                border-color: rgba(31, 214, 95, 0.18);
                 box-shadow: 
-                  inset 0 1px 0 rgba(255,255,255,0.055), 
-                  0 10px 28px rgba(0,0,0,0.24),
-                  0 18px 44px rgba(0,0,0,0.2),
-                  0 0 0 1px rgba(31, 214, 95, 0.06);
+                  inset 0 1px 0 rgba(255,255,255,0.06), 
+                  0 10px 32px rgba(0,0,0,0.3),
+                  0 20px 52px rgba(0,0,0,0.25),
+                  0 0 0 1px rgba(31, 214, 95, 0.06),
+                  var(--green-glow);
               }
 
               .round-info > div:first-child {
@@ -448,10 +449,10 @@ function Battle(props) {
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
-                border-radius: 7px;
-                border: 1px solid rgba(31, 214, 95, 0.32);
-                background: linear-gradient(180deg, rgba(20, 65, 42, 0.82), rgba(9, 31, 21, 0.94));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,.055), 0 8px 20px rgba(0,0,0,.22);
+                border-radius: var(--glass-radius-sm);
+                border: 1px solid rgba(31, 214, 95, 0.3);
+                background: linear-gradient(135deg, rgba(31, 214, 95, 0.15), rgba(31, 214, 95, 0.06));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 8px 24px rgba(0,0,0,.25), var(--green-glow);
                 color: #42e77d;
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 11px;
@@ -459,14 +460,16 @@ function Battle(props) {
                 text-decoration: none;
                 text-transform: uppercase;
                 white-space: nowrap;
-                transition: border-color .18s ease, background .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease;
+                backdrop-filter: var(--glass-blur);
+                -webkit-backdrop-filter: var(--glass-blur);
+                transition: all var(--transition-smooth);
               }
 
               .provably:hover {
                 color: #72f2a3;
-                border-color: rgba(31, 214, 95, 0.58);
-                background: linear-gradient(180deg, rgba(24, 82, 51, 0.92), rgba(10, 40, 25, 0.98));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 9px 24px rgba(0,0,0,.25), 0 0 18px rgba(31,214,95,.09);
+                border-color: rgba(31, 214, 95, 0.5);
+                background: linear-gradient(135deg, rgba(31, 214, 95, 0.22), rgba(31, 214, 95, 0.1));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 10px 28px rgba(0,0,0,.3), var(--green-glow-strong);
                 transform: translateY(-1px);
               }
 
@@ -487,9 +490,9 @@ function Battle(props) {
               .emoji-bar::-webkit-scrollbar { display: none; }
 
               .emoji-btn {
-                background: rgba(255,255,255,0.045);
-                border: 1px solid rgba(255,255,255,0.07);
-                border-radius: 6px;
+                background: var(--btn-glass-bg);
+                border: 1px solid var(--btn-glass-border);
+                border-radius: var(--glass-radius-xs);
                 width: 30px;
                 height: 28px;
                 font-size: 15px;
@@ -497,14 +500,18 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                transition: background 0.15s ease, transform 0.1s ease, border-color 0.15s ease;
+                backdrop-filter: var(--glass-blur);
+                -webkit-backdrop-filter: var(--glass-blur);
+                transition: all var(--transition-fast);
                 line-height: 1;
                 padding: 0;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 2px 6px rgba(0,0,0,0.12);
               }
 
               .emoji-btn:hover {
-                background: rgba(255,255,255,0.09);
-                border-color: rgba(255,255,255,0.16);
+                background: rgba(31, 214, 95, 0.08);
+                border-color: rgba(31, 214, 95, 0.25);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 12px rgba(0,0,0,0.18), var(--green-glow);
                 transform: scale(1.15);
               }
 
@@ -588,17 +595,17 @@ function Battle(props) {
                 grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
                 align-items: start;
                 gap: 14px;
-                padding: 12px;
-                border-radius: 14px;
-                border: 1px solid rgba(255,255,255,0.045);
-                background: linear-gradient(135deg, 
-                  rgba(14, 19, 28, 0.78), 
-                  rgba(8, 11, 18, 0.88));
+                padding: 14px;
+                border-radius: var(--glass-radius);
+                border: 1px solid var(--glass-border);
+                background: var(--btn-glass-bg);
                 box-shadow: 
-                  inset 0 1px 0 rgba(255,255,255,0.03), 
-                  0 10px 32px rgba(0,0,0,0.24),
-                  0 20px 56px rgba(0,0,0,0.2);
+                  inset 0 1px 0 var(--glass-highlight), 
+                  0 10px 32px rgba(0,0,0,0.26),
+                  0 24px 60px rgba(0,0,0,0.22);
                 position: relative;
+                backdrop-filter: var(--glass-blur);
+                -webkit-backdrop-filter: var(--glass-blur);
               }
                
               .columns::before {
@@ -608,11 +615,20 @@ function Battle(props) {
                 left: 0;
                 right: 0;
                 bottom: 0;
-                border-radius: 14px;
+                border-radius: var(--glass-radius);
                 background: radial-gradient(circle at 50% 0%, 
-                  rgba(31, 214, 95, 0.015), 
+                  rgba(31, 214, 95, 0.025), 
                   transparent 60%);
                 pointer-events: none;
+              }
+
+              .columns:hover {
+                border-color: rgba(31, 214, 95, 0.10);
+                box-shadow: 
+                  inset 0 1px 0 rgba(255,255,255,0.05), 
+                  0 12px 40px rgba(0,0,0,0.3),
+                  0 28px 64px rgba(0,0,0,0.25),
+                  0 0 0 1px rgba(31, 214, 95, 0.04);
               }
 
               /* Team Totals Bar */
@@ -621,16 +637,26 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 16px 20px;
-                border-radius: 12px;
-                border: 1px solid rgba(255,255,255,0.045);
-                background: linear-gradient(135deg, 
-                  rgba(14, 19, 28, 0.78), 
-                  rgba(8, 11, 18, 0.88));
+                padding: 18px 22px;
+                border-radius: var(--glass-radius);
+                border: 1px solid var(--glass-border);
+                background: var(--btn-glass-bg);
                 box-shadow: 
-                  inset 0 1px 0 rgba(255,255,255,0.03), 
-                  0 10px 32px rgba(0,0,0,0.24),
-                  0 20px 56px rgba(0,0,0,0.2);
+                  inset 0 1px 0 var(--glass-highlight), 
+                  0 10px 32px rgba(0,0,0,0.26),
+                  0 24px 60px rgba(0,0,0,0.22);
+                backdrop-filter: var(--glass-blur);
+                -webkit-backdrop-filter: var(--glass-blur);
+                transition: all var(--transition-smooth);
+              }
+
+              .team-totals:hover {
+                border-color: rgba(31, 214, 95, 0.12);
+                box-shadow: 
+                  inset 0 1px 0 rgba(255,255,255,0.05), 
+                  0 12px 36px rgba(0,0,0,0.3),
+                  0 28px 64px rgba(0,0,0,0.25),
+                  var(--green-glow);
               }
 
               .team-total {

@@ -263,12 +263,14 @@ function CaseSpinner(props) {
                 min-height: 130px;
                 height: 204px;
 
-                border-radius: 10px;
-                background: radial-gradient(72% 115% at 50% 50%, rgba(31, 214, 95, 0.045), rgba(8, 10, 16, 0) 48%), linear-gradient(180deg, #0a0d14, #06080e);
+                border-radius: var(--glass-radius-sm);
+                background: var(--btn-glass-bg);
                 overflow: hidden;
                 position: relative;
-                border: 1px solid rgba(255,255,255,0.06);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 10px 28px rgba(0, 0, 0, 0.24);
+                border: 1px solid var(--glass-border);
+                box-shadow: inset 0 1px 0 var(--glass-highlight), 0 10px 28px rgba(0, 0, 0, 0.24);
+                backdrop-filter: var(--glass-blur);
+                -webkit-backdrop-filter: var(--glass-blur);
               }
 
               .case-spinner-container.multi {
@@ -279,9 +281,9 @@ function CaseSpinner(props) {
                 border-radius: 0;
                 border-top: 0;
                 border-bottom: 0;
-                border-left: 1px solid rgba(255, 255, 255, 0.045);
+                border-left: 1px solid var(--glass-border);
                 border-right: 0;
-                background: radial-gradient(55% 80% at 50% 50%, rgba(31, 214, 95, 0.045), rgba(31, 214, 95, 0) 54%), linear-gradient(180deg, rgba(12, 16, 23, 0.96), rgba(8, 11, 17, 0.98));
+                background: radial-gradient(55% 80% at 50% 50%, rgba(31, 214, 95, 0.045), rgba(31, 214, 95, 0) 54%), var(--btn-glass-bg);
                 box-shadow: inset 1px 0 0 rgba(255,255,255,0.018), inset -1px 0 0 rgba(0,0,0,0.24);
               }
 
@@ -290,7 +292,8 @@ function CaseSpinner(props) {
               }
 
               .case-spinner-container.idle {
-                border-color: rgba(31, 214, 95, 0.08);
+                border-color: rgba(31, 214, 95, 0.12);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 28px rgba(0, 0, 0, 0.24), var(--green-glow);
               }
 
               .lane-arrow {

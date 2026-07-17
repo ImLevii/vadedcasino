@@ -187,11 +187,27 @@ function BattleUser(props) {
                 font-size: 13px;
                 font-weight: 700;
                 letter-spacing: 0.5px;
-                transition: all 0.25s ease;
+                outline: unset;
+                border: unset;
+                border-radius: var(--glass-radius-xs);
+                background: linear-gradient(135deg, #1fd65f 0%, #14b04a 100%);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 4px 14px rgba(31,214,95,.3), 0 2px 0 #0f8a36;
+                color: #fff;
+                font-family: "Geogrotesque Wide", sans-serif;
+                cursor: pointer;
+                transition: all var(--transition-smooth);
               }
-               
+
               .call:hover {
                 transform: scale(1.02);
+                filter: brightness(1.08);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.24), 0 6px 20px rgba(31,214,95,.4), 0 2px 0 #0f8a36;
+              }
+
+              .call:active {
+                transform: scale(0.98);
+                filter: brightness(0.95);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 2px 8px rgba(31,214,95,.2);
               }
                
               .balance {
