@@ -114,7 +114,7 @@ function Admin() {
         </section>
       </main>
 
-      <style jsx>{`
+      <style>{`
         .admin-shell {
           width: min(1440px, 100%);
           min-height: calc(100vh - 74px);

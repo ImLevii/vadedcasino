@@ -65,16 +65,16 @@ function RouletteSpinner(props) {
                 {/* Top indicator tick — short vertical green capsule at top-center */}
                 <IndicatorLine
                   orientation='vertical'
-                  length='20px'
-                  thickness='5px'
-                  style={{ position: 'absolute', left: '50%', top: '-2px', transform: 'translateX(-2.5px)', 'z-index': 4 }}
+                  length='18px'
+                  thickness='4px'
+                  style={{ position: 'absolute', left: '50%', top: '-2px', transform: 'translateX(-2px)', 'z-index': 4 }}
                 />
-                {/* Bottom indicator tick */}
+                {/* Bottom indicator tick — sits at the join between spinner and numbers row */}
                 <IndicatorLine
                   orientation='vertical'
-                  length='20px'
-                  thickness='5px'
-                  style={{ position: 'absolute', left: '50%', bottom: '-2px', transform: 'translateX(-2.5px)', 'z-index': 4 }}
+                  length='18px'
+                  thickness='4px'
+                  style={{ position: 'absolute', left: '50%', bottom: '41px', transform: 'translateX(-2px)', 'z-index': 4 }}
                 />
                 <div class='center-glow'/>
                 <div class='fade-left'/>

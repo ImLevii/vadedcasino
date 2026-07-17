@@ -147,8 +147,9 @@ function Deposits(props) {
   }
 
   function methodsForCategory(category) {
-    const methods = skinDeckCapabilities()?.enabled ? [SKINDECK_METHOD, ...METHODS] : METHODS
-    return methods.filter(method => method.category === category)
+    // Always show the SkinDeck tab. The component itself surfaces any unavailability
+    // state inline (provider disabled, contract not ready, steam not connected etc.).
+    return [SKINDECK_METHOD, ...METHODS].filter(method => method.category === category)
   }
 
   async function redeemCode() {

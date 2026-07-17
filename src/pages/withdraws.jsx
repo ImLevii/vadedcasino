@@ -64,8 +64,8 @@ function Withdraws(props) {
   }
 
   function methodsForCategory(category) {
-    const methods = skinDeckCapabilities()?.enabled ? [SKINDECK_METHOD, ...METHODS] : METHODS
-    return methods.filter(method => method.category === category)
+    // Always show the SkinDeck tab; the component itself handles provider status.
+    return [SKINDECK_METHOD, ...METHODS].filter(method => method.category === category)
   }
 
   return (
