@@ -140,8 +140,18 @@ function CrashPlayerList(props) {
           background: rgba(31, 214, 95, 0.12);
         }
 
-        .player-row.lost {
-          opacity: 0.5;
+              .player-row.lost {
+          background: rgba(255, 81, 65, 0.04);
+          border-left: 2px solid rgba(255, 81, 65, 0.3);
+        }
+
+        .player-row.won {
+          background: rgba(31, 214, 95, 0.04);
+          border-left: 2px solid rgba(31, 214, 95, 0.3);
+        }
+
+        .player-row.playing {
+          /* neutral waiting state */
         }
 
         .player-info {

@@ -5,14 +5,21 @@ function CrashHistory(props) {
     <>
       <div class='crash-history'>
         <For each={props.history || []}>
-          {(multiplier, index) => (
-            <div 
-              class={'history-item ' + (multiplier <= 1 ? 'bust' : multiplier >= 10 ? 'high' : multiplier < 2 ? 'low' : 'win')}
-              style={{ opacity: 1 - (index() * 0.03) }}
-            >
-              {multiplier.toFixed(2)}x
-            </div>
-          )}
+          {(multiplier, index) => {
+            // Tier: under2x=amber, 2-5x=green, 5-10x=cyan/teal, 10x+=gold/purple
+            const tier = multiplier < 2 ? 'low'
+              : multiplier < 5 ? 'win'
+              : multiplier < 10 ? 'teal'
+              : 'jackpot';
+            return (
+              <div
+                class={'history-item ' + tier}
+                style={{ opacity: 1 - (index() * 0.025) }}
+              >
+                {multiplier.toFixed(2)}x
+              </div>
+            );
+          }}
         </For>
       </div>
 
@@ -46,29 +53,35 @@ function CrashHistory(props) {
           transition: opacity 0.3s;
         }
 
-        .history-item.bust {
-          background: rgba(255, 81, 65, 0.15);
-          color: #ff5141;
-          border: 1px solid rgba(255, 81, 65, 0.3);
+        /* Under 2x — muted amber */
+        .history-item.low {
+          background: rgba(255, 184, 74, 0.07);
+          color: #b8803a;
+          border: 1px solid rgba(255, 184, 74, 0.14);
         }
 
+        /* 2x–5x — green */
         .history-item.win {
           background: rgba(31, 214, 95, 0.08);
           color: #1fd65f;
-          border: 1px solid rgba(31, 214, 95, 0.18);
+          border: 1px solid rgba(31, 214, 95, 0.2);
         }
 
-        .history-item.low {
-          background: rgba(255, 184, 74, .065);
-          color: #d9a654;
-          border: 1px solid rgba(255,184,74,.14);
+        /* 5x–10x — cyan/teal */
+        .history-item.teal {
+          background: rgba(0, 210, 180, 0.09);
+          color: #00d2b4;
+          border: 1px solid rgba(0, 210, 180, 0.22);
+          box-shadow: 0 0 10px rgba(0, 210, 180, 0.07);
         }
 
-        .history-item.high {
-          background: rgba(65,118,255,.1);
-          color: #80a2ff;
-          border: 1px solid rgba(65,118,255,.2);
-          box-shadow: 0 0 14px rgba(65,118,255,.08);
+        /* 10x+ — gold/purple jackpot */
+        .history-item.jackpot {
+          background: linear-gradient(135deg, rgba(255, 184, 74, 0.12), rgba(168, 85, 247, 0.1));
+          color: #f5c842;
+          border: 1px solid rgba(255, 184, 74, 0.28);
+          box-shadow: 0 0 14px rgba(255, 184, 74, 0.12), 0 0 24px rgba(168, 85, 247, 0.06);
+          font-size: 11px;
         }
       `}</style>
     </>

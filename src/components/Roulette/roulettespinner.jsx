@@ -2,6 +2,7 @@ import {createEffect, createSignal, For} from "solid-js";
 import RouletteIcon from "./rouletteicons";
 import RouletteNumbers from "./roulettenumbers";
 import {useWebsocket} from "../../contexts/socketprovider";
+import IndicatorLine from "../IndicatorLine/indicatorline";
 
 const NUMBERS = [1, 14, 2, 13, 3, 12, 4, 0, 11, 5, 10, 6, 9, 7, 8]
 
@@ -61,8 +62,20 @@ function RouletteSpinner(props) {
     return (
         <>
             <div class='spinner-wrapper'>
-                <div class='selector top'/>
-                <div class='selector bottom'/>
+                {/* Top indicator line – replaces the old arrow tick */}
+                <IndicatorLine
+                  orientation='horizontal'
+                  length='84px'
+                  thickness='3px'
+                  style={{ position: 'absolute', left: '50%', top: '-2px', transform: 'translateX(-42px)', 'z-index': 4 }}
+                />
+                {/* Bottom indicator line */}
+                <IndicatorLine
+                  orientation='horizontal'
+                  length='84px'
+                  thickness='3px'
+                  style={{ position: 'absolute', left: '50%', top: '122px', transform: 'translateX(-42px)', 'z-index': 4 }}
+                />
                 <div class='center-glow'/>
                 <div class='fade-left'/>
                 <div class='fade-right'/>
@@ -189,34 +202,7 @@ function RouletteSpinner(props) {
                 height: 100%;
               }
 
-              @keyframes selectorPulse {
-                0%, 100% { filter: drop-shadow(0 0 4px rgba(31, 214, 95, 0.7)); }
-                50%       { filter: drop-shadow(0 0 7px rgba(31, 214, 95, 0.9)); }
-              }
 
-              .selector {
-                position: absolute;
-                left: 50%;
-                transform: translateX(-50%);
-                z-index: 4;
-                width: 0;
-                height: 0;
-                animation: selectorPulse 1.8s ease-in-out infinite;
-              }
-
-              .selector.top {
-                top: -3px;
-                border-left: 12px solid transparent;
-                border-right: 12px solid transparent;
-                border-top: 17px solid #1fd65f;
-              }
-
-              .selector.bottom {
-                top: 114px;
-                border-left: 12px solid transparent;
-                border-right: 12px solid transparent;
-                border-bottom: 17px solid #1fd65f;
-              }
             `}</style>
         </>
     );

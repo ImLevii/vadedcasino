@@ -8,6 +8,7 @@ import Countup from "../Countup/countup"
 import {useNavigate} from "@solidjs/router"
 import Chance from 'chance'
 import SpinnerDiamond from "./spinnerdiamond";
+import IndicatorLine from "../IndicatorLine/indicatorline";
 
 function BattleSpinner(props) {
 
@@ -336,7 +337,12 @@ function BattleSpinner(props) {
         ) : props?.player && props?.state === 'ROLLING' ? (
           <div class='spinner-column'>
             <div class='center-band'/>
-            <div class='center-line'/>
+            <IndicatorLine
+              orientation='horizontal'
+              length='calc(100% - 44px)'
+              thickness='3px'
+              style={{ position: 'absolute', top: '50%', left: '22px', transform: 'translateY(-50%)', 'z-index': 4 }}
+            />
             <div class='fade-top'/>
             <div class='fade-bottom'/>
 
@@ -636,19 +642,6 @@ function BattleSpinner(props) {
           background: linear-gradient(180deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.10) 48%, rgba(31, 214, 95, 0));
           box-shadow: inset 0 1px 0 rgba(31, 214, 95, 0.06), inset 0 -1px 0 rgba(31, 214, 95, 0.06), 0 0 42px rgba(31, 214, 95, 0.12);
           animation: battleCenterGlow 2.8s ease-in-out infinite;
-        }
-
-        .center-line {
-          position: absolute;
-          left: 22px;
-          right: 22px;
-          top: 50%;
-          height: 2px;
-          transform: translateY(-1px);
-          z-index: 4;
-          pointer-events: none;
-          background: linear-gradient(90deg, transparent, rgba(31, 214, 95, 0.18) 16%, #1fd65f 48%, #1fd65f 52%, rgba(31, 214, 95, 0.18) 84%, transparent);
-          box-shadow: 0 0 10px rgba(31, 214, 95, 0.5), 0 0 20px rgba(31, 214, 95, 0.15);
         }
 
         .fade-top, .fade-bottom {

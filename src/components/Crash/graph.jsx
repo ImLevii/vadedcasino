@@ -173,7 +173,20 @@ function CrashGraph(props) {
               <p class='current-label'>
                 {props.isCrashed ? `CRASHED @ ${props.multiplier.toFixed(2)}x` : 'Current Payout'}
               </p>
-              <p class={'multiplier-value ' + (props.isCrashed ? 'crashed' : '')}>
+              <p
+                class={'multiplier-value ' + (props.isCrashed ? 'crashed' : '')}
+                style={props.isFlying && !props.isCrashed ? {
+                  color: props.multiplier >= 10 ? '#f5c842'
+                    : props.multiplier >= 5 ? '#00d2b4'
+                    : props.multiplier >= 2 ? '#1fd65f'
+                    : '#1fd65f',
+                  'text-shadow': props.multiplier >= 10
+                    ? '0 0 32px rgba(245,200,66,0.6)'
+                    : props.multiplier >= 5
+                    ? '0 0 28px rgba(0,210,180,0.5)'
+                    : '0 0 26px rgba(31,214,95,0.46)',
+                } : {}}
+              >
                 {props.multiplier.toFixed(2)}x
               </p>
             </div>
