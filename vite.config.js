@@ -16,6 +16,7 @@ export default defineConfig({
   server: {
     host: '127.0.0.1',
     port: 3001,
+    allowedHosts: ['sb-6074o5yeevaw.vercel.run'],
     proxy: {
       '/auth': 'http://127.0.0.1:3000',
       '/user': 'http://127.0.0.1:3000',
