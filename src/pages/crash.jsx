@@ -254,7 +254,8 @@ function Crash(props) {
   }
 
   function isBettingOpen() {
-    return round()?.status === 'created' && !isFlying() && !isCrashed();
+    // Betting is open only if: round is created, flight hasn't started, and countdown isn't expired
+    return round()?.status === 'created' && !isFlying() && !isCrashed() && countdown() > 0;
   }
 
   function normalizeAmount(value) {
@@ -354,6 +355,10 @@ function Crash(props) {
     
     if (isFlying() && !bet) {
       return { text: 'Betting closed', style: 'info', action: null };
+    }
+    
+    if (isCrashed() && countdown() > 0) {
+      return { text: `Next round in ${Math.ceil(countdown() / 1000)}s`, style: 'info', action: null };
     }
     
     if (isCrashed()) {
@@ -720,22 +725,8 @@ function Crash(props) {
         }
 
         .play-button.cashout:hover {
-          background: #e64738;
+          background: linear-gradient(180deg, #ff6624 0%, #ff3d2d 100%);
         }
-
-        .play-button.info,
-        .play-button.queued {
-          border: 1px solid rgba(31,214,95,.2);
-          background: #111a20;
-          color: #1fd65f;
-        }
-
-        .play-button.info:hover {
-          border-color: rgba(31,214,95,.5);
-          background: #15221d;
-        }
-
-        .play-button.queued { cursor: default; }
 
         .play-button.disabled {
           background: rgba(255,255,255,.045);
