@@ -29,9 +29,9 @@ function assertProviderContract(mode = 'live') {
 }
 
 function isProviderContractReady(mode = 'live') {
-    // Live mode is ready when API credentials are configured
-    // Sandbox mode is always ready for testing
-    return mode === 'sandbox' || mode === 'live';
+    // Sandbox is fully implemented. Live remains disabled until the protected
+    // merchant specification is verified and represented by contract fixtures.
+    return mode === 'sandbox';
 }
 
 module.exports = {

@@ -1,234 +1,207 @@
-import {A, Outlet, useLocation, useSearchParams} from "@solidjs/router";
-import {useUser} from "../contexts/usercontextprovider";
+import { A, Outlet, useLocation, useSearchParams } from '@solidjs/router';
+import { For, Show } from 'solid-js';
+import { useUser } from '../contexts/usercontextprovider';
 
-const URL_TO_PAGE = {
-    '/admin': 'DASHBOARD',
-    '/admin/users': 'USERS',
-    '/admin/user': 'USERS',
-    '/admin/statistics': 'STATISTICS',
-    '/admin/filter': 'FILTER',
-    '/admin/cashier': 'CASHIER',
-    '/admin/rain': 'RAIN',
-    '/admin/announcements': 'ANNOUNCEMENTS',
-    '/admin/cases': 'CASES',
-    '/admin/rewards': 'REWARDS',
-    '/admin/slides': 'SLIDER',
-    '/admin/statsbook': 'STATSBOOK',
-    '/admin/settings': 'SETTINGS',
-    '/admin/games': 'GAME CONTROL',
-    '/admin/games/probability': 'FAIRNESS'
-}
+const NAV_GROUPS = [
+  { label: 'Overview', items: [
+    { href: '/admin', label: 'Dashboard', exact: true },
+    { href: '/admin/statistics', label: 'Statistics' },
+    { href: '/admin/statsbook', label: 'Statsbook' },
+  ]},
+  { label: 'Operations', items: [
+    { href: '/admin/users', label: 'Users' },
+    { href: '/admin/filter', label: 'Bet filter' },
+    { href: '/admin/cashier', label: 'Cashier' },
+    { href: '/admin/rain', label: 'Rain' },
+  ]},
+  { label: 'Content', items: [
+    { href: '/admin/announcements', label: 'Announcements' },
+    { href: '/admin/cases', label: 'Cases' },
+    { href: '/admin/rewards', label: 'Rewards' },
+    { href: '/admin/slides', label: 'Homepage slider' },
+  ]},
+  { label: 'System', items: [
+    { href: '/admin/games', label: 'Game control', exact: true },
+    { href: '/admin/games/probability', label: 'Game fairness' },
+    { href: '/admin/settings', label: 'Settings' },
+  ]},
+];
 
-function Admin(props) {
+const PAGE_LABELS = Object.fromEntries(NAV_GROUPS.flatMap((group) => group.items.map((item) => [item.href, item.label])));
+PAGE_LABELS['/admin/user'] = 'Users';
 
-    const location = useLocation()
-    const [user] = useUser()
-    const [params, setParams] = useSearchParams()
+function Admin() {
+  const location = useLocation();
+  const [user] = useUser();
+  const [params, setParams] = useSearchParams();
 
-    return (
-        <>
-            <div class='admin-container fadein'>
+  const currentTitle = () => PAGE_LABELS[location.pathname] || 'Admin operations';
+  const isActive = (item) => item.exact ? location.pathname === item.href : location.pathname.startsWith(item.href);
 
-                <div class='banner'>
-                    <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#1fd65f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'><circle cx='12' cy='12' r='3'/><path d='M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z'/></svg>
-                    <p>ADMIN PANEL</p>
-                    <div class='line'/>
-                </div>
+  return (
+    <>
+      <main class='admin-shell fadein'>
+        <aside class='admin-sidebar' aria-label='Admin navigation'>
+          <div class='admin-brand'>
+            <span class='admin-brand-mark'>CL</span>
+            <div>
+              <strong>Control room</strong>
+              <span>Cosmic Luck</span>
+            </div>
+          </div>
 
-                <div class='user-info'>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="19" viewBox="0 0 16 19" fill="none">
-                        <path d="M7.99971 0.104492C5.35299 0.104492 3.19971 2.25777 3.19971 4.90449C3.19971 7.55121 5.35299 9.70449 7.99971 9.70449C10.6464 9.70449 12.7997 7.55121 12.7997 4.90449C12.7997 2.25777 10.6464 0.104492 7.99971 0.104492Z" fill="#8b92a0"/>
-                        <path d="M13.9721 12.8403C12.658 11.506 10.9159 10.7712 9.06667 10.7712H6.93333C5.08416 10.7712 3.34201 11.506 2.02788 12.8403C0.720178 14.1681 0 15.9208 0 17.7756C0 18.0702 0.238791 18.309 0.533333 18.309H15.4667C15.7612 18.309 16 18.0702 16 17.7756C16 15.9208 15.2798 14.1681 13.9721 12.8403Z" fill="#8b92a0"/>
-                    </svg>
+          <nav class='admin-nav'>
+            <For each={NAV_GROUPS}>{(group) => (
+              <section class='nav-group'>
+                <p>{group.label}</p>
+                <For each={group.items}>{(item) => (
+                  <A href={item.href} class='admin-nav-link' classList={{ active: isActive(item) }}>
+                    <span class='nav-indicator'/>
+                    {item.label}
+                  </A>
+                )}</For>
+              </section>
+            )}</For>
+          </nav>
 
-                    <p>
-                        ADMIN USER -
-                        &nbsp;<span class='gold id'>ACCOUNT ID</span>
-                        &nbsp;<span class='id gray'>{user()?.id}</span>
-                    </p>
+          <div class='admin-identity'>
+            <span class='security-dot'/>
+            <div>
+              <strong>{user()?.username || 'Administrator'}</strong>
+              <span>Secure session · ID {user()?.id || '—'}</span>
+            </div>
+          </div>
+        </aside>
 
-                    <div class='pages-container'>
-                        {URL_TO_PAGE[location?.pathname] === 'CASHIER' && (
-                            <div className='pages bevel-light' onClick={(e) => e.currentTarget.classList.toggle('active')}>
-                                <p>{params?.type || 'COINS'}</p>
-
-                                <div className='pages-dropdown' onClick={(e) => e.stopPropagation()}>
-                                    <p onClick={() => setParams({ type: null })}>COINS</p>
-                                    <p onClick={() => setParams({ type: 'crypto' })}>CRYPTO</p>
-                                    <p onClick={() => setParams({ type: 'skindeck' })}>SKINDECK</p>
-                                </div>
-                            </div>
-                        )}
-
-                        <div class='pages bevel-light' onClick={(e) => e.currentTarget.classList.toggle('active')}>
-                            <p>{URL_TO_PAGE[location?.pathname]}</p>
-
-                            <div class='pages-dropdown' onClick={(e) => e.stopPropagation()}>
-                                <A href='/admin' class='admin-link'>DASHBOARD</A>
-                                <A href='/admin/users' class='admin-link'>USERS</A>
-                                <A href='/admin/statistics' class='admin-link'>STATISTICS</A>
-                                <A href='/admin/filter' class='admin-link'>FILTER</A>
-                                <A href='/admin/cashier' class='admin-link'>CASHIER</A>
-                                <A href='/admin/rain' class='admin-link'>RAIN</A>
-                                <A href='/admin/announcements' class='admin-link'>ANNOUNCEMENTS</A>
-                                <A href='/admin/cases' class='admin-link'>CASES</A>
-                                <A href='/admin/rewards' class='admin-link'>REWARDS</A>
-                                <A href='/admin/slides' class='admin-link'>SLIDER</A>
-                                <A href='/admin/statsbook' class='admin-link'>STATSBOOK</A>
-                                <A href='/admin/settings' class='admin-link'>SETTINGS</A>
-                                <A href='/admin/games' class='admin-link'>GAME CONTROL</A>
-                                <A href='/admin/games/probability' class='admin-link'>FAIRNESS</A>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className='bar' style={{margin: '25px 0 30px 0'}}/>
-
-                <Outlet/>
+        <section class='admin-workspace'>
+          <header class='admin-topbar'>
+            <div class='admin-heading'>
+              <span>Admin / {currentTitle()}</span>
+              <h1>{currentTitle()}</h1>
             </div>
 
-            <style jsx>{`
-              .admin-container {
-                width: 100%;
-                max-width: 1175px;
-                height: fit-content;
+            <div class='admin-topbar-actions'>
+              <Show when={location.pathname === '/admin/cashier'}>
+                <label class='admin-select-label'>
+                  <span>Ledger</span>
+                  <select value={params.type || 'coins'} onChange={(event) => setParams({ type: event.currentTarget.value === 'coins' ? null : event.currentTarget.value })}>
+                    <option value='coins'>Coins</option>
+                    <option value='crypto'>Crypto</option>
+                    <option value='skindeck'>SkinDeck</option>
+                  </select>
+                </label>
+              </Show>
 
-                box-sizing: border-box;
-                padding: 30px 0;
-                margin: 0 auto;
-              }
+              <label class='mobile-admin-nav'>
+                <span class='sr-only'>Admin page</span>
+                <select value={location.pathname} onChange={(event) => window.location.assign(event.currentTarget.value)}>
+                  <For each={NAV_GROUPS.flatMap((group) => group.items)}>{(item) => (
+                    <option value={item.href}>{item.label}</option>
+                  )}</For>
+                </select>
+              </label>
 
-              .bar {
-                width: 100%;
-                height: 1px;
-                min-height: 1px;
-                background: rgba(255,255,255,0.06);
-              }
-              
-              .user-info {
-                display: flex;
-                gap: 10px;
-                align-items: center;
+              <div class='system-health'>
+                <span class='security-dot'/>
+                Systems online
+              </div>
+            </div>
+          </header>
 
-                color: #c3cad6;
-                font-size: 14px;
-                font-weight: 700;
-              }
-              
-              .pages-container {
-                margin-left: auto;
-                display: flex;
-                gap: 10px;
-              }
-              
-              .pages {
-                display: flex;
-                gap: 8px;
-                align-items: center;
-                justify-content: center;
-                font-size: 12px;
-                font-weight: 700;
-                position: relative;
-                user-select: none;
-                width: 130px;
-                height: 36px;
-                border-radius: 6px;
-                background: #1a1f29;
-                border: 1px solid rgba(255,255,255,0.07);
-                color: #c3cad6;
-              }
-              
-              .pages-dropdown {
-                display: none;
-                position: absolute;
-                z-index: 10;
+          <div class='admin-content'>
+            <Outlet/>
+          </div>
+        </section>
+      </main>
 
-                border-radius: 8px;
-                background: #1a1f29;
-                border: 1px solid rgba(255,255,255,0.07);
-                box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-                
-                flex-direction: column;
-                
-                width: 100%;
-                top: 42px;
-                
-                padding: 6px;
-                gap: 2px;
-              }
-              
-              .pages {
-                text-transform: uppercase;
-              }
-              
-              .pages-dropdown a {
-                color: #6b7280;
-                font-size: 11px;
-                font-weight: 700;
-                padding: 6px 10px;
-                border-radius: 4px;
-                transition: background .15s, color .15s;
-                text-decoration: none;
-              }
-              
-              .pages-dropdown a:hover {
-                background: rgba(255,255,255,0.06);
-                color: #c3cad6;
-              }
-              
-              .active .pages-dropdown {
-                display: flex;
-              }
-              
-              .id {
-                font-size: 14px;
-              }
-              
-              .id.gray {
-                color: #6b7280;
-                font-weight: 500;
-              }
-              
-              .banner {
-                outline: unset;
-                border: unset;
-                border-left: 3px solid rgba(31,214,95,0.5);
+      <style jsx>{`
+        .admin-shell {
+          width: min(1440px, 100%);
+          min-height: calc(100vh - 74px);
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: 224px minmax(0, 1fr);
+          border: 1px solid rgba(255,255,255,.06);
+          background: #0b1017;
+        }
 
-                width: 100%;
-                height: 44px;
+        .admin-sidebar {
+          min-width: 0;
+          padding: 18px 12px;
+          display: flex;
+          flex-direction: column;
+          gap: 22px;
+          border-right: 1px solid rgba(255,255,255,.06);
+          background: #0e141c;
+        }
 
-                border-radius: 0 6px 6px 0;
-                background: linear-gradient(90deg, rgba(31,214,95,0.08) 0%, rgba(18,21,28,0) 60%);
+        .admin-brand, .admin-identity { display: flex; align-items: center; gap: 10px; }
+        .admin-brand { padding: 0 6px 16px; border-bottom: 1px solid rgba(255,255,255,.06); }
+        .admin-brand-mark { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid rgba(31,214,95,.35); border-radius: 7px; background: #111b20; color: #1fd65f; font: 800 11px 'Geogrotesque Wide', sans-serif; }
+        .admin-brand div, .admin-identity div { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+        .admin-brand strong, .admin-identity strong { color: #f3f6f8; font-size: 12px; }
+        .admin-brand span:not(.admin-brand-mark), .admin-identity span { color: #7e8998; font-size: 9px; }
 
-                padding: 0 16px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
+        .admin-nav { display: flex; flex-direction: column; gap: 20px; }
+        .nav-group { display: flex; flex-direction: column; gap: 3px; }
+        .nav-group > p { padding: 0 9px 5px; color: #596575; font: 700 9px 'Geogrotesque Wide', sans-serif; letter-spacing: .09em; text-transform: uppercase; }
+        .admin-nav-link { min-height: 34px; padding: 0 9px; display: flex; align-items: center; gap: 9px; border-radius: 6px; color: #8893a2; font-size: 11px; font-weight: 650; text-decoration: none; transition: background .16s ease, color .16s ease; }
+        .nav-indicator { width: 3px; height: 12px; border-radius: 3px; background: #303a47; }
+        .admin-nav-link:hover { background: #131b24; color: #dce2e8; }
+        .admin-nav-link.active { background: #15221d; color: #f3f6f8; }
+        .admin-nav-link.active .nav-indicator { background: #1fd65f; }
 
-                color: #c3cad6;
-                font-size: 15px;
-                font-weight: 700;
-                letter-spacing: 0.05em;
-                
-                margin-bottom: 24px;
-              }
+        .admin-identity { margin-top: auto; padding: 12px 7px 0; border-top: 1px solid rgba(255,255,255,.06); }
+        .security-dot { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: #1fd65f; box-shadow: 0 0 9px rgba(31,214,95,.5); }
 
-              .line {
-                flex: 1;
-                height: 1px;
+        .admin-workspace { min-width: 0; }
+        .admin-topbar { min-height: 72px; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid rgba(255,255,255,.06); background: #0e141c; }
+        .admin-heading { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+        .admin-heading span { color: #667282; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+        .admin-heading h1 { margin: 0; color: #f3f6f8; font: 750 20px 'Geogrotesque Wide', sans-serif; }
+        .admin-topbar-actions { display: flex; align-items: center; gap: 10px; }
+        .system-health { min-height: 34px; padding: 0 11px; display: flex; align-items: center; gap: 7px; border: 1px solid rgba(255,255,255,.06); border-radius: 6px; color: #9ca6b3; font-size: 10px; font-weight: 700; }
+        .admin-select-label { display: flex; align-items: center; gap: 8px; color: #697586; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+        select { height: 34px; padding: 0 30px 0 10px; border: 1px solid rgba(255,255,255,.08); border-radius: 6px; background: #111820; color: #dbe1e7; font: 700 10px 'Geogrotesque Wide', sans-serif; }
+        select:focus-visible { outline: 2px solid #1fd65f; outline-offset: 2px; }
+        .mobile-admin-nav { display: none; }
 
-                background: linear-gradient(90deg, rgba(31,214,95,0.2) 0%, transparent 100%);
-              }
+        .admin-content { min-width: 0; padding: 20px; }
 
-              @media only screen and (max-width: 1000px) {
-                .admin-container {
-                  padding-bottom: 90px;
-                }
-              }
-            `}</style>
-        </>
-    );
+        :global(.admin-content input), :global(.admin-content textarea), :global(.admin-content select) {
+          border-color: rgba(255,255,255,.08) !important;
+          border-radius: 6px !important;
+          background: #0e141c !important;
+          color: #f3f6f8 !important;
+        }
+        :global(.admin-content input:focus), :global(.admin-content textarea:focus), :global(.admin-content select:focus) { border-color: rgba(31,214,95,.55) !important; outline: none !important; }
+        :global(.admin-content button) { border-radius: 6px; font-family: 'Geogrotesque Wide', sans-serif; }
+        :global(.admin-content .banner) { min-height: 42px; border: 1px solid rgba(255,255,255,.06) !important; border-left: 3px solid #1fd65f !important; border-radius: 6px !important; background: #0e141c !important; }
+        :global(.admin-content .panel), :global(.admin-content .card), :global(.admin-content .section), :global(.admin-content .graph), :global(.admin-content .table-panel) { border-color: rgba(255,255,255,.06) !important; background: #0e141c !important; box-shadow: none !important; }
+        :global(.admin-content .table), :global(.admin-content .users) { border-color: rgba(255,255,255,.06) !important; background: #0e141c !important; }
+        :global(.admin-content .filters), :global(.admin-content .toolbar) { position: sticky; top: 0; z-index: 3; background: #0b1017 !important; }
+        :global(.admin-content .table-scroll), :global(.admin-content .users-wrapper) { max-width: 100%; overflow-x: auto; }
+        :global(.admin-content button:focus-visible), :global(.admin-content a:focus-visible) { outline: 2px solid #1fd65f !important; outline-offset: 2px; }
+        :global(.sr-only) { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+        @media (max-width: 920px) {
+          .admin-shell { display: block; border-left: 0; border-right: 0; }
+          .admin-sidebar { display: none; }
+          .mobile-admin-nav { display: block; }
+          .admin-content { padding: 14px; padding-bottom: 90px; }
+          .admin-topbar { padding: 10px 14px; }
+          .system-health { display: none; }
+        }
+
+        @media (max-width: 560px) {
+          .admin-topbar { align-items: flex-start; flex-direction: column; }
+          .admin-topbar-actions { width: 100%; justify-content: space-between; }
+          .admin-select-label > span { display: none; }
+          .admin-content { padding: 10px; padding-bottom: 90px; }
+        }
+      `}</style>
+    </>
+  );
 }
 
-export default Admin
+export default Admin;

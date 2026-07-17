@@ -11,6 +11,7 @@ import Toggle from "../Toggle/toggle";
 import {resolveImageSrc} from "../../util/image";
 import CasePreview from "./casepreview";
 import {playGameSFX, stopSFXChannel, startAnimationTicker} from "../../util/sound";
+import GameFairnessButton from "../GameFairness/gamefairnessbutton";
 
 function CasePage(props) {
 
@@ -211,12 +212,7 @@ function CasePage(props) {
               </svg>
               Share Case
             </button>
-            <A href='/docs/provably' class='action-btn provably-btn'>
-              <svg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                <path d='M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z' fill='#1fd65f'/>
-              </svg>
-              Provably Fair
-            </A>
+            <GameFairnessButton/>
           </div>
         </div>
 

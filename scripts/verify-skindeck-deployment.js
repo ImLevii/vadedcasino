@@ -1,153 +1,85 @@
+#!/usr/bin/env node
+
 /**
- * SkinDeck Deployment Verification Script
- * 
- * This script checks if SkinDeck is properly configured for production.
- * Run this against your production database to verify the setup.
- * 
- * Usage: node scripts/verify-skindeck-deployment.js
+ * Non-destructive SkinDeck deployment readiness check.
+ * This script never prints credential values and never creates a trade.
  */
-
 require('dotenv').config();
+
 const { sql } = require('../database');
+const { getSkinDeckConfig } = require('../routes/trading/skindeck/config');
+const { isProviderContractReady } = require('../routes/trading/skindeck/contract');
 
-async function verifyDeployment() {
-    console.log('🔍 Verifying SkinDeck deployment...\n');
-
-    let allGood = true;
-
-    // Check 1: Feature flag in database
-    try {
-        const [[feature]] = await sql.query(
-            'SELECT enabled FROM features WHERE id = ?',
-            ['skindeck']
-        );
-        
-        if (!feature) {
-            console.log('❌ Feature flag missing: skindeck not found in features table');
-            allGood = false;
-        } else if (feature.enabled !== 1) {
-            console.log('❌ Feature flag disabled: skindeck is set to 0 in database');
-            console.log("   Fix: INSERT IGNORE INTO `features` (`id`, `enabled`) VALUES ('skindeck', 1);");
-            console.log("   Or: UPDATE `features` SET `enabled` = 1 WHERE `id` = 'skindeck';");
-            allGood = false;
-        } else {
-            console.log('✅ Feature flag enabled: skindeck = 1');
-        }
-    } catch (error) {
-        console.log('❌ Database error checking feature flag:', error.message);
-        allGood = false;
-    }
-
-    // Check 2: Environment variables
-    console.log('\n📋 Environment Variables:');
-    
-    const requiredEnvVars = [
-        'SKINDECK_ENABLED',
-        'SKINDECK_API_KEY',
-        'SKINDECK_WEBHOOK_SECRET',
-        'SKINDECK_MODE',
-        'SKINDECK_API_URL'
-    ];
-
-    for (const envVar of requiredEnvVars) {
-        const value = process.env[envVar];
-        if (!value) {
-            console.log(`❌ Missing: ${envVar}`);
-            allGood = false;
-        } else {
-            const masked = envVar.includes('SECRET') || envVar.includes('KEY') 
-                ? value.substring(0, 8) + '...' 
-                : value;
-            console.log(`✅ ${envVar} = ${masked}`);
-        }
-    }
-
-    // Check 3: Database tables
-    console.log('\n🗄️  Database Tables:');
-    try {
-        const [tables] = await sql.query(
-            "SHOW TABLES LIKE 'paymentTransactions'"
-        );
-        if (tables.length === 0) {
-            console.log('❌ Missing table: paymentTransactions');
-            console.log('   Fix: Run database/migrations/007_skindeck_payments.sql');
-            allGood = false;
-        } else {
-            console.log('✅ paymentTransactions table exists');
-        }
-    } catch (error) {
-        console.log('❌ Database error checking tables:', error.message);
-        allGood = false;
-    }
-
-    // Check 4: Capabilities endpoint
-    console.log('\n🔌 API Capabilities:');
-    try {
-        const http = require('http');
-        const options = {
-            hostname: 'localhost',
-            port: process.env.PORT || 3000,
-            path: '/trading/skindeck/capabilities',
-            method: 'GET',
-            timeout: 5000
-        };
-
-        const capabilities = await new Promise((resolve, reject) => {
-            const req = http.request(options, (res) => {
-                let data = '';
-                res.on('data', chunk => data += chunk);
-                res.on('end', () => {
-                    try {
-                        resolve(JSON.parse(data));
-                    } catch (e) {
-                        reject(new Error('Invalid JSON response'));
-                    }
-                });
-            });
-            req.on('error', reject);
-            req.on('timeout', () => {
-                req.destroy();
-                reject(new Error('Request timeout'));
-            });
-            req.end();
-        });
-
-        if (capabilities.enabled) {
-            console.log('✅ SkinDeck API is enabled');
-            console.log(`   Mode: ${capabilities.mode}`);
-        } else {
-            console.log('❌ SkinDeck API is disabled');
-            console.log('   Check: SKINDECK_ENABLED=true and feature flag in database');
-            allGood = false;
-        }
-    } catch (error) {
-        console.log('⚠️  Could not verify API (server may not be running locally)');
-        console.log(`   Error: ${error.message}`);
-    }
-
-    // Summary
-    console.log('\n' + '='.repeat(50));
-    if (allGood) {
-        console.log('✅ All checks passed! SkinDeck is ready for production.');
-    } else {
-        console.log('❌ Some checks failed. Please fix the issues above.');
-        console.log('\n📝 Quick Fix Guide:');
-        console.log('1. Set environment variables in Dokploy dashboard:');
-        console.log('   - SKINDECK_ENABLED=true');
-        console.log('   - SKINDECK_API_KEY=your-api-key');
-        console.log('   - SKINDECK_WEBHOOK_SECRET=your-webhook-secret');
-        console.log('   - SKINDECK_MODE=live (or sandbox for testing)');
-        console.log('   - SKINDECK_API_URL=https://api.skindeck.com/v1');
-        console.log('\n2. Run database migration:');
-        console.log('   mysql -h HOST -u USER -p DB < database/migrations/007_skindeck_payments.sql');
-        console.log('\n3. Trigger redeploy in Dokploy');
-    }
-    console.log('='.repeat(50));
-
-    process.exit(allGood ? 0 : 1);
+const results = [];
+function check(name, passed, detail) {
+    results.push({ name, passed, detail });
+    console.log(`${passed ? 'PASS' : 'FAIL'}  ${name}${detail ? ` — ${detail}` : ''}`);
 }
 
-verifyDeployment().catch(error => {
-    console.error('Fatal error:', error);
-    process.exit(1);
+async function verifyDatabase() {
+    const [[feature]] = await sql.query('SELECT enabled FROM features WHERE id = ?', ['skindeck']);
+    check('Feature flag exists', !!feature, feature ? null : 'Add the skindeck feature row before rollout.');
+    check('Feature flag enabled', feature?.enabled === 1, feature?.enabled === 1 ? null : 'Keep disabled until every readiness check passes.');
+
+    const [table] = await sql.query("SHOW TABLES LIKE 'paymentTransactions'");
+    check('Payment transaction table', table.length > 0, table.length ? null : 'Run database/migrations/007_skindeck_payments.sql.');
+
+    if (table.length) {
+        const [columns] = await sql.query('SHOW COLUMNS FROM paymentTransactions');
+        const names = new Set(columns.map((column) => column.Field));
+        const required = ['internalRef', 'providerRef', 'providerStatus', 'status', 'skinItems', 'value', 'providerValue', 'providerCurrency', 'finalizedAt', 'lastError'];
+        const missing = required.filter((name) => !names.has(name));
+        check('Settlement schema', missing.length === 0, missing.length ? `Missing columns: ${missing.join(', ')}` : null);
+    }
+}
+
+async function verifyEnvironment() {
+    const config = getSkinDeckConfig();
+    check('Integration explicitly enabled', config.enabled === true, 'SKINDECK_ENABLED must be true only at cutover.');
+    check('Valid provider mode', ['sandbox', 'live'].includes(config.mode), 'Use sandbox or live.');
+    check('Merchant API key present', !!config.apiKey, 'Credential value is intentionally not displayed.');
+    check('Webhook secret present', !!config.webhookSecret, 'Credential value is intentionally not displayed.');
+    check('Provider contract verified', isProviderContractReady(config.mode), config.mode === 'live' ? 'Live remains fail-closed until the exact merchant contract is implemented and verified.' : null);
+    check('Public frontend URL', /^https:\/\//.test(process.env.FRONTEND_URL || ''), 'Production callbacks require an HTTPS FRONTEND_URL.');
+}
+
+async function verifyEndpoint() {
+    const base = process.env.SKINDECK_HEALTHCHECK_URL || `http://127.0.0.1:${process.env.PORT || 3000}`;
+    try {
+        const response = await fetch(`${base.replace(/\/$/, '')}/trading/skindeck/capabilities`, { signal: AbortSignal.timeout(5000) });
+        const body = await response.json();
+        check('Capabilities endpoint', response.ok, `HTTP ${response.status}`);
+        check('Runtime configured', body.configured === true, body.configured ? null : 'Required runtime configuration is incomplete.');
+        check('Runtime contract ready', body.contractReady === true, body.contractReady ? null : 'Provider operations are correctly fail-closed.');
+        check('Runtime integration enabled', body.enabled === true, body.enabled ? `${body.mode} mode` : 'No live or sandbox trades can be created.');
+    } catch (error) {
+        check('Capabilities endpoint', false, `Non-destructive check failed: ${error.message}`);
+    }
+}
+
+async function main() {
+    console.log('SkinDeck production readiness\n');
+    try {
+        await verifyEnvironment();
+        await verifyDatabase();
+        await verifyEndpoint();
+    } catch (error) {
+        check('Readiness execution', false, error.message);
+    } finally {
+        await sql.end?.().catch?.(() => {});
+    }
+
+    const failed = results.filter((result) => !result.passed);
+    console.log(`\n${results.length - failed.length}/${results.length} checks passed.`);
+    if (failed.length) {
+        console.log('SkinDeck is not production-ready. Keep the feature disabled and resolve every failed check.');
+        process.exitCode = 1;
+    } else {
+        console.log('All non-destructive readiness checks passed. Complete a monitored sandbox transaction before live cutover.');
+    }
+}
+
+main().catch((error) => {
+    console.error('Readiness check failed:', error.message);
+    process.exitCode = 1;
 });

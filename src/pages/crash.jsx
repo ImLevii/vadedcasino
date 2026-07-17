@@ -253,79 +253,91 @@ function Crash(props) {
     return bet && !bet.cashoutPoint;
   }
 
-  async function placeBet() {
-    if (pendingAction() || isFlying() || isCrashed() || countdown() <= 0 || betQueued() || myBet()) return;
+  function isBettingOpen() {
+    return round()?.status === 'created' && !isFlying() && !isCrashed();
+  }
 
-    const amount = parseFloat(betAmount());
-    const autoCashoutPoint = autoCashout() ? parseFloat(autoCashout()) : null;
-    
+  function normalizeAmount(value) {
+    const numeric = Number.parseFloat(value);
+    if (!Number.isFinite(numeric)) return null;
+    return Math.round(numeric * 100) / 100;
+  }
+
+  async function placeBet() {
+    if (!props.user) {
+      createNotification('info', 'Sign in from the account menu to place a bet.');
+      return;
+    }
+    if (pendingAction() || !isBettingOpen() || betQueued() || myBet()) return;
+
+    const amount = normalizeAmount(betAmount());
+    const autoCashoutPoint = autoCashout() ? normalizeAmount(autoCashout()) : null;
+
     if (!amount || amount < config().minBet) {
       createNotification('error', `Minimum bet is ${config().minBet} coins`);
       return;
     }
-    
+
     if (amount > config().maxBet) {
       createNotification('error', `Maximum bet is ${config().maxBet} coins`);
       return;
     }
 
-    if (autoCashoutPoint !== null && (!Number.isFinite(autoCashoutPoint) || autoCashoutPoint < 1.01)) {
-      createNotification('error', 'Auto cashout must be at least 1.01x');
+    if (autoCashoutPoint !== null && (autoCashoutPoint < 1.01 || autoCashoutPoint > 100000)) {
+      createNotification('error', 'Auto cashout must be between 1.01x and 100,000x');
       return;
     }
 
     setPendingAction('bet');
-    const response = await authedAPI('/crash/bet', 'POST', JSON.stringify({
-      amount,
-      autoCashoutPoint
-    }), true);
+    try {
+      const response = await authedAPI('/crash/bet', 'POST', JSON.stringify({
+        amount,
+        autoCashoutPoint
+      }), true);
 
-    if (response?.success) {
-      setBetQueued(true);
-      createNotification('success', `Bet queued for ${amount.toFixed(2)} coins`);
+      if (response?.success) {
+        setBetQueued(true);
+        createNotification('success', `Bet placed for ${amount.toFixed(2)} coins`);
+      }
+    } finally {
+      setPendingAction('');
     }
-    setPendingAction('');
   }
 
   async function cashout() {
     if (pendingAction() || !isFlying() || !hasActiveBet()) return;
     setPendingAction('cashout');
-    const response = await authedAPI('/crash/cashout', 'POST', null, true);
-    if (response?.success) {
-      createNotification('success', `Cashed out at ${multiplier().toFixed(2)}x`);
+    try {
+      const response = await authedAPI('/crash/cashout', 'POST', null, true);
+      if (response?.success) {
+        createNotification('success', `Cashed out at ${multiplier().toFixed(2)}x`);
+      }
+    } finally {
+      setPendingAction('');
     }
-    setPendingAction('');
   }
 
   function adjustBet(type) {
-    const current = parseFloat(betAmount()) || 0;
+    const current = normalizeAmount(betAmount()) || 0;
+    let next = current;
     switch(type) {
-      case 'min':
-        setBetAmount(config().minBet.toString());
-        break;
-      case 'max':
-        setBetAmount(config().maxBet.toString());
-        break;
-      case '+1':
-        setBetAmount((current + 1).toString());
-        break;
-      case '+10':
-        setBetAmount((current + 10).toString());
-        break;
-      case '/2':
-        setBetAmount((current / 2).toString());
-        break;
-      case 'x2':
-        setBetAmount((current * 2).toString());
-        break;
+      case 'min': next = config().minBet; break;
+      case 'max': next = Math.min(config().maxBet, Number(props.user?.balance) || config().maxBet); break;
+      case '+1': next = current + 1; break;
+      case '+10': next = current + 10; break;
+      case '/2': next = current / 2; break;
+      case 'x2': next = current * 2; break;
     }
+    const affordableMax = Math.min(config().maxBet, Number(props.user?.balance) || config().maxBet);
+    const clamped = Math.min(affordableMax, Math.max(config().minBet, next));
+    setBetAmount((Math.round(clamped * 100) / 100).toString());
   }
 
   function getButtonState() {
     const bet = myBet();
 
     if (!props.user) {
-      return { text: 'Sign in to play', style: 'disabled', action: null };
+      return { text: 'Sign in to play', style: 'info', action: placeBet };
     }
 
     if (pendingAction() === 'bet') {
@@ -352,12 +364,13 @@ function Crash(props) {
       return { text: 'Bet placed', style: 'queued', action: null };
     }
 
-    if (countdown() <= 0) {
-      return { text: 'Starting round...', style: 'disabled', action: null };
+    if (!isBettingOpen()) {
+      return { text: 'Syncing round...', style: 'disabled', action: null };
     }
-    
-    // Waiting for round start
-    return { text: 'Play', style: 'play', action: placeBet };
+
+    // The server round state is authoritative. A locally elapsed countdown must
+    // never disable betting while the backend still accepts bets.
+    return { text: countdown() > 0 ? 'Place bet' : 'Place bet now', style: 'play', action: placeBet };
   }
 
   const buttonState = () => getButtonState();
@@ -707,8 +720,22 @@ function Crash(props) {
         }
 
         .play-button.cashout:hover {
-          background: linear-gradient(180deg, #ff6624 0%, #ff3d2d 100%);
+          background: #e64738;
         }
+
+        .play-button.info,
+        .play-button.queued {
+          border: 1px solid rgba(31,214,95,.2);
+          background: #111a20;
+          color: #1fd65f;
+        }
+
+        .play-button.info:hover {
+          border-color: rgba(31,214,95,.5);
+          background: #15221d;
+        }
+
+        .play-button.queued { cursor: default; }
 
         .play-button.disabled {
           background: rgba(255,255,255,.045);

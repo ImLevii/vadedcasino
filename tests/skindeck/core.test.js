@@ -74,7 +74,8 @@ test('configuration defaults to disabled sandbox mode', () => {
         enabled: false,
         mode: 'sandbox',
         apiKey: process.env.SKINDECK_API_KEY || '',
-        webhookSecret: process.env.SKINDECK_WEBHOOK_SECRET || ''
+        webhookSecret: process.env.SKINDECK_WEBHOOK_SECRET || '',
+        apiUrl: process.env.SKINDECK_API_URL || 'https://api.skindeck.com/v1'
     });
 
     if (previous.enabled == null) delete process.env.SKINDECK_ENABLED;

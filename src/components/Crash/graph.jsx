@@ -1,5 +1,5 @@
 import { createEffect, onCleanup, onMount, Show } from 'solid-js';
-import { A } from '@solidjs/router';
+import GameFairnessButton from '../GameFairness/gamefairnessbutton';
 
 function CrashGraph(props) {
   let canvasRef;
@@ -237,13 +237,7 @@ function CrashGraph(props) {
         <canvas ref={canvasRef} class='graph-canvas-el' />
 
         <div class='graph-header'>
-          <A href='/docs/provably' class='fairness-link'>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              <path d="m9 12 2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Game Fairness</span>
-          </A>
+          <GameFairnessButton/>
 
           <div class='max-payout'>
             <img src='/assets/chips/chip-green.png' height='14' width='14' alt='' />

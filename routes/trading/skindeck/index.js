@@ -134,9 +134,14 @@ function mapPayment(payment) {
 
 router.get('/capabilities', (req, res) => {
     const capabilities = getCapabilities();
+    res.set('Cache-Control', 'no-store');
     res.json({
         enabled: capabilities.enabled,
-        mode: capabilities.mode
+        mode: capabilities.mode,
+        configured: capabilities.configured,
+        contractReady: capabilities.contractReady,
+        deposits: capabilities.enabled,
+        withdrawals: capabilities.enabled
     });
 });
 

@@ -2684,3 +2684,5 @@
 [15/Jul/2026:01:15:22 +0000] - GET /cases/alien-case.png 404 0.164 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
 [15/Jul/2026:01:15:22 +0000] - GET /cases/beast-bonanza.png 404 0.117 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
 [15/Jul/2026:01:15:22 +0000] - GET /cases/bloodmoon-case.png 404 0.099 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[17/Jul/2026:07:17:52 +0000] - GET /crash 400 2.370 ms - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36
+[17/Jul/2026:07:18:26 +0000] - GET /crash 400 0.449 ms - Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36

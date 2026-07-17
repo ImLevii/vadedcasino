@@ -16,6 +16,7 @@ import Rakeback from "./components/Rakeback/rakeback";
 import AML from "./components/Documentation/aml";
 import UserModal from "./components/UserPopup/userpopup";
 import SignIn from "./components/Signin/signin";
+import {GameFairnessDock} from "./components/GameFairness/gamefairnessbutton";
 
 const Admin = lazy(() => import('./pages/admin'))
 const AdminDashboard = lazy(() => import('./components/Admin/dashboard'))
@@ -220,6 +221,7 @@ function App() {
               <Sidebar chat={chat()} setChat={setChat}/>
               <div class='center' ref={pageContent}>
                 <Navbar user={user()} chat={chat()} setChat={setChat}/>
+                <GameFairnessDock pathname={location.pathname}/>
 
                 <div class='content'>
                   <Routes>

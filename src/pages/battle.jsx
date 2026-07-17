@@ -11,6 +11,7 @@ import {Title} from "@solidjs/meta";
 import {resolveImageSrc} from "../util/image";
 import {playGameSFX, stopSFXChannel, startAnimationTicker} from "../util/sound";
 import IndicatorLine from "../components/IndicatorLine/indicatorline";
+import GameFairnessButton from "../components/GameFairness/gamefairnessbutton";
 
 function Battle(props) {
 
@@ -314,12 +315,7 @@ function Battle(props) {
                               )}</For>
                             </div>
                             <div class='action-cluster'>
-                              <A href='/docs/provably' class='cluster-btn' title='Provably Fair'>
-                                <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'>
-                                  <path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z'/>
-                                  <path d='m9 12 2 2 4-4' stroke-linecap='round' stroke-linejoin='round'/>
-                                </svg>
-                              </A>
+                              <GameFairnessButton compact/>
                               <button class='cluster-btn' title='Share' onClick={() => {
                                 if (navigator.clipboard) navigator.clipboard.writeText(window.location.href)
                               }}>

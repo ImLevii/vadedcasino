@@ -12,8 +12,13 @@ function SkinDeckDeposit() {
     const [selectedIds, setSelectedIds] = createSignal([]);
     const [sidebarTab, setSidebarTab] = createSignal('items');
     const steamReady = createMemo(() => !!user()?.hasTradeUrl && !!user()?.hasApiKey);
+    const [capabilities, {refetch: refetchCapabilities}] = createResource(async () => {
+        const response = await authedAPI('/trading/skindeck/capabilities', 'GET');
+        return response || {enabled: false, mode: 'unavailable'};
+    });
+    const providerReady = createMemo(() => capabilities()?.enabled === true);
     const [inventory, {refetch: refetchInventory}] = createResource(
-        () => steamReady() ? 'ready' : null,
+        () => steamReady() && providerReady() ? 'ready' : null,
         fetchInventory
     );
     const [history, {refetch}] = createResource(fetchHistory);
@@ -64,7 +69,16 @@ function SkinDeckDeposit() {
 
     return (
         <section class='skindeck-market'>
-            <Show when={steamReady()} fallback={
+            <Show when={!capabilities.loading && !providerReady()}>
+                <div class='provider-unavailable' role='status'>
+                    <div>
+                        <strong>SkinDeck is not available yet</strong>
+                        <span>{capabilities()?.mode === 'live' && !capabilities()?.contractReady ? 'The live merchant contract has not been verified. Deposits remain safely disabled.' : 'The provider is disabled or still being configured. No trade has been created.'}</span>
+                    </div>
+                    <button onClick={() => refetchCapabilities()}>CHECK AGAIN</button>
+                </div>
+            </Show>
+            <Show when={steamReady() && providerReady()} fallback={
                 <div class='steam-setup'>
                     <div class='setup-icon'><img src='/assets/icons/cs2-logo.svg' alt=''/></div>
                     <div class='setup-copy'>
@@ -172,6 +186,11 @@ function SkinDeckDeposit() {
 
             <style jsx>{`
                 .skindeck-market, .skindeck-market * { box-sizing: border-box; }
+                .provider-unavailable { min-height: 62px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border-bottom: 1px solid rgba(255,81,65,.25); background: #17151a; }
+                .provider-unavailable > div { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+                .provider-unavailable strong { color: #f4f7fb; font-size: 11px; }
+                .provider-unavailable span { color: #8a929e; font-size: 9px; line-height: 1.45; }
+                .provider-unavailable button { min-height: 32px; padding: 0 10px; border: 1px solid rgba(255,255,255,.1); border-radius: 5px; background: #111720; color: #cbd3dd; font-size: 8px; font-weight: 800; cursor: pointer; }
                 .skindeck-market { min-height: 570px; border: 1px solid #242c38; border-radius: 8px; overflow: hidden; background: #0c1018; box-shadow: inset 0 1px rgba(255,255,255,.025), 0 22px 52px rgba(0,0,0,.32); font-family: Geogrotesque Wide, sans-serif; }
                 button, input, select, a { font-family: inherit; letter-spacing: 0; }
                 .market-head { height: 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border-bottom: 1px solid #242c38; background: linear-gradient(90deg, rgba(31,214,95,.055), transparent 35%), #111720; }

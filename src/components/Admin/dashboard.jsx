@@ -1,221 +1,135 @@
-import {createResource, Show} from "solid-js";
-import {authedAPI, createNotification} from "../../util/api";
-import Loader from "../Loader/loader";
-import LineChart from "./linechart";
-import AdminMFA from "../MFA/adminmfa";
+import { A } from '@solidjs/router';
+import { createResource, For, Show } from 'solid-js';
+import { authedAPI } from '../../util/api';
+import Loader from '../Loader/loader';
+import LineChart from './linechart';
+import AdminMFA from '../MFA/adminmfa';
 
-function AdminDashboard(props) {
+function AdminDashboard() {
+  const [stats, { mutate: mutateStats, refetch: refetchStats }] = createResource(fetchStats);
 
-    const [stats, { mutate: mutateStats, refetch: refetchStats }] = createResource(fetchStats)
-
-    async function fetchStats() {
-        try {
-            let stats = await authedAPI(`/admin/dashboard`, 'GET', null)
-            if (stats.error && stats.error === '2FA_REQUIRED') {
-                return mutateStats({ mfa: true })
-            }
-
-            if (stats.growth) {
-                stats.growth = stats.growth.reverse()
-            }
-
-            return mutateStats(stats)
-        } catch (e) {
-            console.log(e)
-            return mutateStats(null)
-        }
+  async function fetchStats() {
+    const response = await authedAPI('/admin/dashboard', 'GET', null);
+    if (response?.error === '2FA_REQUIRED') {
+      mutateStats({ mfa: true });
+      return { mfa: true };
     }
+    if (!response || response.error) throw new Error(response?.error || 'Dashboard unavailable');
+    return { ...response, growth: [...(response.growth || [])].reverse() };
+  }
 
-    return (
-        <>
-            {stats()?.mfa && (
-                <AdminMFA refetch={() => refetchStats()}/>
-            )}
+  const money = (value) => Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const cards = () => [
+    { label: 'Profit today', value: `$${money(stats()?.profit?.lastDay)}`, note: 'Rolling 24 hours' },
+    { label: 'Profit this week', value: `$${money(stats()?.profit?.last7d)}`, note: 'Last 7 days' },
+    { label: 'Profit this month', value: `$${money(stats()?.profit?.last31d)}`, note: 'Last 31 days' },
+    { label: 'Lifetime profit', value: `$${money(stats()?.profit?.total)}`, note: 'All recorded activity', accent: true },
+  ];
 
-            <Show when={!stats.loading} fallback={<Loader/>}>
-                <div className='stats'>
-                    <div className='stat'>
-                        <p className='white align'>
-                            $
-                            {(stats()?.profit?.lastDay || 0)?.toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            })}
-                        </p>
-                        <p>PROFIT ON DAY</p>
-                    </div>
+  return (
+    <>
+      <Show when={stats()?.mfa}><AdminMFA refetch={refetchStats}/></Show>
 
-                    <div className='stat'>
-                        <p className='white align'>
-                            $
-                            {(stats()?.profit?.last7d || 0)?.toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            })}
-                        </p>
-                        <p>PROFIT ON WEEK</p>
-                    </div>
+      <div class='dashboard-toolbar'>
+        <div>
+          <h2>Operations overview</h2>
+          <p>Revenue and platform controls in one place.</p>
+        </div>
+        <button onClick={() => refetchStats()} disabled={stats.loading}>
+          {stats.loading ? 'Refreshing…' : 'Refresh data'}
+        </button>
+      </div>
 
-                    <div className='stat'>
-                        <p className='white align'>
-                            $
-                            {(stats()?.profit?.last31d || 0)?.toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            })}
-                        </p>
-                        <p>PROFIT ON MONTH</p>
-                    </div>
+      <Show when={!stats.loading} fallback={<div class='dashboard-loader'><Loader/></div>}>
+        <Show when={!stats.error} fallback={
+          <div class='dashboard-state' role='alert'>
+            <strong>Dashboard data is unavailable</strong>
+            <p>Check the admin API connection, then try again.</p>
+            <button onClick={() => refetchStats()}>Try again</button>
+          </div>
+        }>
+          <section class='stats-grid' aria-label='Profit summary'>
+            <For each={cards()}>{(card) => (
+              <article class='metric-card' classList={{ accent: card.accent }}>
+                <p>{card.label}</p>
+                <strong>{card.value}</strong>
+                <span>{card.note}</span>
+              </article>
+            )}</For>
+          </section>
 
-                    <div className='stat green'>
-                        <p className='white align'>
-                            $
-                            {((stats()?.profit?.total) || 0)?.toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            })}
-                        </p>
-                        <p class='green'>OVERALL PROFIT</p>
-                    </div>
+          <div class='dashboard-grid'>
+            <section class='chart-panel'>
+              <div class='panel-heading'>
+                <div>
+                  <span>Performance</span>
+                  <h3>Growth trend</h3>
                 </div>
-            </Show>
+                <span class='live-status'><i/> Live data</span>
+              </div>
+              <div class='graph'><LineChart data={stats()?.growth || []}/></div>
+            </section>
 
-            <div class='bar' style={{margin: '30px 0 10px 0'}}/>
+            <aside class='quick-panel'>
+              <div class='panel-heading'>
+                <div><span>Workflows</span><h3>Quick actions</h3></div>
+              </div>
+              <nav>
+                <A href='/admin/cashier'>Review transactions <span>→</span></A>
+                <A href='/admin/users'>Manage users <span>→</span></A>
+                <A href='/admin/games'>Game controls <span>→</span></A>
+                <A href='/admin/games/probability'>Fairness settings <span>→</span></A>
+              </nav>
+              <div class='security-note'>
+                <i/>
+                <div><strong>Protected session</strong><span>Sensitive actions remain MFA-gated.</span></div>
+              </div>
+            </aside>
+          </div>
+        </Show>
+      </Show>
 
-            <div className='banner'>
-                <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#1fd65f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'><polyline points='22 12 18 12 15 21 9 3 6 12 2 12'/></svg>
-                <p>GROWTH</p>
-                <div className='line'/>
-            </div>
+      <style jsx>{`
+        .dashboard-toolbar { margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+        .dashboard-toolbar > div { display: flex; flex-direction: column; gap: 4px; }
+        .dashboard-toolbar h2, .panel-heading h3 { margin: 0; color: #f3f6f8; font: 750 16px 'Geogrotesque Wide', sans-serif; }
+        .dashboard-toolbar p { color: #758191; font-size: 11px; }
+        button { min-height: 34px; padding: 0 12px; border: 1px solid rgba(31,214,95,.28); border-radius: 6px; background: #15221d; color: #1fd65f; font-size: 10px; font-weight: 750; cursor: pointer; }
+        button:disabled { opacity: .55; cursor: wait; }
 
-            <div class='graph'>
-                <Show when={!stats.loading} fallback={<Loader/>}>
-                    <LineChart data={stats()?.growth || []}/>
-                </Show>
-            </div>
+        .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+        .metric-card { min-width: 0; min-height: 110px; padding: 15px; display: flex; flex-direction: column; gap: 8px; border: 1px solid rgba(255,255,255,.06); border-radius: 7px; background: #0e141c; }
+        .metric-card p, .panel-heading span { color: #687586; font-size: 9px; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
+        .metric-card strong { overflow: hidden; color: #f3f6f8; font: 750 21px 'Geogrotesque Wide', sans-serif; text-overflow: ellipsis; }
+        .metric-card span { margin-top: auto; color: #687586; font-size: 9px; }
+        .metric-card.accent { border-color: rgba(31,214,95,.3); background: #111d19; }
+        .metric-card.accent strong { color: #1fd65f; }
 
-            <div className='banner'>
-                <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#1fd65f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'><circle cx='12' cy='12' r='10'/><line x1='2' y1='12' x2='22' y2='12'/><path d='M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/></svg>
-                <p>DEMOGRAPHIC</p>
-                <div className='line'/>
-            </div>
+        .dashboard-grid { margin-top: 10px; display: grid; grid-template-columns: minmax(0, 2fr) minmax(240px, .8fr); gap: 10px; }
+        .chart-panel, .quick-panel { min-width: 0; border: 1px solid rgba(255,255,255,.06); border-radius: 7px; background: #0e141c; }
+        .panel-heading { min-height: 58px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(255,255,255,.06); }
+        .panel-heading > div { display: flex; flex-direction: column; gap: 4px; }
+        .live-status { display: flex; align-items: center; gap: 6px; }
+        .live-status i, .security-note > i { width: 7px; height: 7px; border-radius: 50%; background: #1fd65f; }
+        .graph { width: 100%; height: 270px; border: 0 !important; border-radius: 0 !important; }
+        .quick-panel nav { padding: 7px; display: flex; flex-direction: column; gap: 3px; }
+        .quick-panel a { min-height: 38px; padding: 0 10px; display: flex; align-items: center; justify-content: space-between; border-radius: 5px; color: #aab3bf; font-size: 10px; font-weight: 700; text-decoration: none; }
+        .quick-panel a:hover { background: #151d26; color: #f3f6f8; }
+        .quick-panel a span { color: #1fd65f; }
+        .security-note { margin: 7px; padding: 11px; display: flex; align-items: flex-start; gap: 9px; border: 1px solid rgba(31,214,95,.18); border-radius: 6px; background: #111d19; }
+        .security-note div { display: flex; flex-direction: column; gap: 3px; }
+        .security-note strong { color: #dfe5e9; font-size: 10px; }
+        .security-note span { color: #748090; font-size: 9px; line-height: 1.45; }
+        .dashboard-loader, .dashboard-state { min-height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(255,255,255,.06); border-radius: 7px; background: #0e141c; text-align: center; }
+        .dashboard-state strong { color: #f3f6f8; }
+        .dashboard-state p { color: #758191; font-size: 11px; }
 
-            <div class='demographics'>
-
-            </div>
-
-            <style jsx>{`
-              .stats {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 8px;
-              }
-
-              .stat {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-direction: column;
-                gap: 6px;
-
-                flex: 1 1 0;
-                height: 88px;
-
-                border-radius: 8px;
-                background: #12151c;
-                border: 1px solid rgba(255,255,255,0.06);
-
-                color: #ffffff;
-                font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 20px;
-                font-weight: 700;
-
-                padding: 10px 20px;
-                transition: border-color .2s;
-              }
-
-              .stat:hover {
-                border-color: rgba(255,255,255,0.12);
-              }
-
-              .stat.green {
-                background: rgba(31, 214, 95, 0.08);
-                border-color: rgba(31, 214, 95, 0.25);
-              }
-
-              .stat.green:hover {
-                border-color: rgba(31, 214, 95, 0.4);
-              }
-
-              .stat p:last-child {
-                color: #4b5260;
-                font-size: 11px;
-                font-weight: 700;
-                letter-spacing: 0.08em;
-              }
-
-              .stat.green p:last-child {
-                color: rgba(31,214,95,0.6);
-              }
-
-              .align {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-              }
-
-              .green {
-                color: #1fd65f !important;
-              }
-
-              .bar {
-                width: 100%;
-                height: 1px;
-                min-height: 1px;
-                background: rgba(255,255,255,0.06);
-              }
-
-              .banner {
-                outline: unset;
-                border: unset;
-                border-left: 3px solid rgba(31,214,95,0.5);
-
-                width: 100%;
-                height: 44px;
-
-                border-radius: 0 6px 6px 0;
-                background: linear-gradient(90deg, rgba(31,214,95,0.08) 0%, rgba(18,21,28,0) 60%);
-
-                padding: 0 16px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-
-                color: #c3cad6;
-                font-size: 15px;
-                font-weight: 700;
-                letter-spacing: 0.05em;
-
-                margin-bottom: 20px;
-              }
-
-              .line {
-                flex: 1;
-                height: 1px;
-                background: linear-gradient(90deg, rgba(31,214,95,0.2) 0%, transparent 100%);
-              }
-              
-              .graph {
-                width: 100%;
-                height: 235px;
-
-                border-radius: 10px;
-                background: #12151c;
-                border: 1px solid rgba(255,255,255,0.06);
-              }
-            `}</style>
-        </>
-    );
+        @media (max-width: 1000px) { .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 700px) { .dashboard-grid { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 460px) { .stats-grid { grid-template-columns: 1fr; } .dashboard-toolbar { align-items: flex-start; } }
+      `}</style>
+    </>
+  );
 }
 
 export default AdminDashboard;
