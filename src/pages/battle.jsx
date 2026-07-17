@@ -9,7 +9,7 @@ import {subscribeToGame, unsubscribeFromGames} from "../util/socket";
 import {calculateWinnings, convertItems, fillEmptySlots, getRoundWinner, getWonItems} from "../util/battleutil";
 import {Title} from "@solidjs/meta";
 import {resolveImageSrc} from "../util/image";
-import {playGameSFX, stopSFXChannel} from "../util/sound";
+import {playGameSFX, stopSFXChannel, startAnimationTicker} from "../util/sound";
 
 function Battle(props) {
 
@@ -33,45 +33,30 @@ function Battle(props) {
     const [floatingEmojis, setFloatingEmojis] = createSignal([])
     let emojiLastSent = 0
 
-    // Spin sounds — curve-matched to the CSS cubic-bezier(.08,.7,.14,1)
-    let battleTickTimer = null
-
-    /**
-     * Derivative of cubic-bezier(0.08, 0.7, 0.14, 1.0) — the battle spinner easing.
-     * Returns instantaneous speed at normalized time t (0→1).
-     */
-    function battleBezierSpeed(t) {
-        // Control points: P0=0, P1=0.08, P2=0.7, P3=1
-        const p1 = 0.08, p2 = 0.7, p3 = 1
-        const u = 1 - t
-        return 3 * u * u * p1 + 6 * u * t * (p2 - p1) + 3 * t * t * (p3 - p2)
-    }
+    // Spin sounds — driven by requestAnimationFrame for drift-free sync
+    let battleTicker = null
 
     function startBattleTicking(spinPhase) {
-        if (battleTickTimer) clearTimeout(battleTickTimer)
-        let elapsed = 0
+        if (battleTicker) battleTicker.cancel()
 
-        const minDelay = 75
-        const maxDelay = 320
+        battleTicker = startAnimationTicker(
+          () => {
+            playGameSFX('battle-tick', '/assets/sfx/casetick.wav', {
+              channel: 'spin-tick',
+              volume: 0.5,
+              minIntervalMs: 30,
+            })
+          },
+          spinPhase,
+          30 // min interval
+        )
+    }
 
-        const tick = () => {
-          playGameSFX('battle-tick', '/assets/sfx/casetick.wav', {
-            channel: 'spin-tick',
-            volume: 0.5,
-            minIntervalMs: 40,
-          })
-            const progress = Math.min(elapsed / spinPhase, 0.999)
-            const speed = Math.max(battleBezierSpeed(progress), 0.01)
-            const normalized = 1 - Math.min(1, speed / 3)
-            const delay = Math.round(minDelay + normalized * (maxDelay - minDelay))
-            elapsed += delay
-            if (elapsed < spinPhase) {
-                battleTickTimer = setTimeout(tick, delay)
-            } else {
-                battleTickTimer = null
-            }
+    function stopBattleTicking() {
+        if (battleTicker) {
+            battleTicker.cancel()
+            battleTicker = null
         }
-        battleTickTimer = setTimeout(tick, minDelay)
     }
 
     // Winning
@@ -161,7 +146,7 @@ function Battle(props) {
             })
 
             ws().on('battle:ended', (battleId, { winnerTeam, serverSeed, clientSeed }) => {
-                if (battleTickTimer) { clearTimeout(battleTickTimer); battleTickTimer = null }
+                stopBattleTicking()
               playGameSFX('battle-win', '/assets/sfx/winorcashout.mp3', {
                 channel: 'result-win',
                 volume: 0.62,
@@ -181,7 +166,7 @@ function Battle(props) {
     })
 
     onCleanup(() => {
-        if (battleTickTimer) { clearTimeout(battleTickTimer); battleTickTimer = null }
+        stopBattleTicking()
       stopSFXChannel('spin-tick', { fadeOutMs: 70 })
         if (ws() && ws().connected) {
             ws().emit('battles:unsubscribe', prevBattle)

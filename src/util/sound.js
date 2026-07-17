@@ -72,23 +72,19 @@ export function stopSFXChannel(channel, options = {}) {
 }
 
 /**
- * Forcefully restart an audio element: fully reset it before playing again.
- * This prevents audio drift/overlap when the same sound must replay immediately.
+ * Reset audio and play from start — ensures no overlap/drift.
  */
 function resetAndPlay(audio, volume) {
   try {
-    // Fully reset the audio element to a clean state
     audio.pause();
-    // Small delay forces the browser to flush any pending audio buffer
     audio.currentTime = 0;
     audio.volume = volume;
-    // Use void to ensure the play() promise is handled
     const playPromise = audio.play();
     if (playPromise !== undefined) {
       playPromise.catch(() => {});
     }
   } catch (e) {
-    // Silently fail if audio context is not available
+    // Silently fail
   }
 }
 
@@ -126,9 +122,63 @@ export function playGameSFX(key, src, options = {}) {
     resetAndPlay(audio, 0);
     fadeTo(audio, targetVolume, options.fadeInMs);
   } else {
-    // Force restart with proper volume
     resetAndPlay(audio, targetVolume);
   }
 
   lastPlayedAt.set(key, nowMs());
+}
+
+/**
+ * Ticker driven by requestAnimationFrame — checks actual animation progress
+ * rather than computing setTimeout delays (which drift).
+ *
+ * @param {Function} tickFn         — called every time a tick should fire
+ * @param {number}   durationMs     — total duration of the animation
+ * @param {number}   [minInterval]  — minimum ms between ticks (default 40)
+ * @param {Function} [easingFn]     — cubic-bezier or null for linear
+ * @returns {Object} { cancel, elapsed, setElapsed }
+ */
+export function startAnimationTicker(tickFn, durationMs, minInterval = 40, easingFn = null) {
+  if (typeof window === 'undefined') return { cancel: () => {} };
+
+  let startTime = null;
+  let lastTickTime = 0;
+  let cancelled = false;
+  let lastProgress = -1;
+  let rafId = null;
+
+  function frame(ts) {
+    if (cancelled) return;
+    if (startTime === null) startTime = ts;
+
+    const elapsed = ts - startTime;
+    const rawProgress = Math.min(elapsed / durationMs, 1);
+    const progress = easingFn ? easingFn(rawProgress) : rawProgress;
+
+    // Fire a tick if we've crossed a progress threshold (every ~2% of progress)
+    const threshold = Math.floor(progress * 100);
+    if (threshold !== lastProgress) {
+      lastProgress = threshold;
+
+      // Rate-limit: don't fire more often than minInterval
+      if (ts - lastTickTime >= minInterval) {
+        lastTickTime = ts;
+        tickFn(progress, elapsed);
+      }
+    }
+
+    if (rawProgress < 1) {
+      rafId = requestAnimationFrame(frame);
+    }
+  }
+
+  rafId = requestAnimationFrame(frame);
+
+  return {
+    cancel: () => {
+      cancelled = true;
+      if (rafId) cancelAnimationFrame(rafId);
+    },
+    elapsed: () => lastTickTime - startTime,
+  };
 }

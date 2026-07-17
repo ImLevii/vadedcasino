@@ -7,54 +7,40 @@ import RouletteBetControls from "../components/Roulette/betcontrols";
 import RouletteColor from "../components/Roulette/roulettecolor";
 import {subscribeToGame, unsubscribeFromGames} from "../util/socket";
 import {Meta, Title} from "@solidjs/meta";
-import {playGameSFX, stopSFXChannel} from "../util/sound";
+import {playGameSFX, stopSFXChannel, startAnimationTicker} from "../util/sound";
 
 function Roulette(props) {
 
     let hasConnected = false
     let bar
 
-    let rouletteTickTimer = null
-
-    /**
-     * Derivative of cubic-bezier(0.09, 0.75, 0.13, 1) — the roulette spinner easing.
-     * Returns instantaneous speed at normalized time t (0→1).
-     */
-    function rouletteBezierSpeed(t) {
-        // Control points: P0=0, P1=0.09, P2=0.75, P3=1
-        const p1 = 0.09, p2 = 0.75, p3 = 1
-        const u = 1 - t
-        return 3 * u * u * p1 + 6 * u * t * (p2 - p1) + 3 * t * t * (p3 - p2)
-    }
+    let rouletteTicker = null
 
     // spinPhase = the active-spin window (0 → 90% of rollTime).
     // Ticking stops naturally here; the hold + snap phases are silent.
-    // Tick intervals follow the bezier curve — faster when items move fast.
     function startRouletteTicking(spinPhase) {
-        if (rouletteTickTimer) clearTimeout(rouletteTickTimer)
-        let elapsed = 0
+        if (rouletteTicker) rouletteTicker.cancel()
 
-        const minDelay = 75
-        const maxDelay = 300
+        // Use requestAnimationFrame-driven ticker synced to actual elapsed time
+        // instead of accumulating setTimeout delays (which drift).
+        rouletteTicker = startAnimationTicker(
+          () => {
+            playGameSFX('roulette-tick', '/assets/sfx/casetick.wav', {
+              channel: 'spin-tick',
+              volume: 0.5,
+              minIntervalMs: 30,
+            })
+          },
+          spinPhase,
+          30 // min interval between ticks
+        )
+    }
 
-        const tick = () => {
-          playGameSFX('roulette-tick', '/assets/sfx/casetick.wav', {
-            channel: 'spin-tick',
-            volume: 0.5,
-            minIntervalMs: 40,
-          })
-            const progress = Math.min(elapsed / spinPhase, 0.999)
-            const speed = Math.max(rouletteBezierSpeed(progress), 0.01)
-            const normalized = 1 - Math.min(1, speed / 3)
-            const delay = Math.round(minDelay + normalized * (maxDelay - minDelay))
-            elapsed += delay
-            if (elapsed < spinPhase) {
-                rouletteTickTimer = setTimeout(tick, delay)
-            } else {
-                rouletteTickTimer = null
-            }
+    function stopRouletteTicking() {
+        if (rouletteTicker) {
+          rouletteTicker.cancel()
+          rouletteTicker = null
         }
-        rouletteTickTimer = setTimeout(tick, minDelay)
     }
 
     const [bets, setBets] = createSignal([])
@@ -128,10 +114,7 @@ function Roulette(props) {
             ws().on('roulette:new', (roll) => {
                 setBets([])
                 setState('')
-              if (rouletteTickTimer) {
-                clearTimeout(rouletteTickTimer)
-                rouletteTickTimer = null
-              }
+              stopRouletteTicking()
               stopSFXChannel('spin-tick', { fadeOutMs: 70 })
                 startCountdown()
             })
@@ -179,10 +162,7 @@ function Roulette(props) {
     })
 
       onCleanup(() => {
-        if (rouletteTickTimer) {
-          clearTimeout(rouletteTickTimer)
-          rouletteTickTimer = null
-        }
+        stopRouletteTicking()
         stopSFXChannel('spin-tick', { fadeOutMs: 70 })
 
         if (ws() && ws().connected) {
