@@ -341,7 +341,7 @@ function Crash(props) {
     }
     
     if (isFlying() && !bet) {
-      return { text: 'Betting closed', style: 'disabled', action: null };
+      return { text: 'Betting closed', style: 'info', action: null };
     }
     
     if (isCrashed()) {
@@ -404,7 +404,7 @@ function Crash(props) {
           <div class='control-group amount-group'>
             <label>Bet amount</label>
             <div class='control-row'>
-              <div class='bet-input-wrapper'>
+                <div class='bet-input-wrapper'>
                 <img src='/assets/chips/chip-green.png' height='18' width='18' alt='' />
                 <input
                   type='number'
@@ -414,8 +414,16 @@ function Crash(props) {
                   placeholder={config().minBet.toFixed(2)}
                   value={betAmount()}
                   onInput={(e) => setBetAmount(e.target.value)}
-                  disabled={betQueued() || isFlying() || isCrashed()}
-                />
+                  disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()}
+                /></div>
+
+              <div class='quick-bets' aria-label='Bet amount shortcuts'>
+                <button class='bet-btn' disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()} onClick={() => adjustBet('min')}>Min</button>
+                <button class='bet-btn' disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()} onClick={() => adjustBet('max')}>Max</button>
+                <button class='bet-btn' disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()} onClick={() => adjustBet('+1')}>+1</button>
+                <button class='bet-btn' disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()} onClick={() => adjustBet('+10')}>+10</button>
+                <button class='bet-btn' disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()} onClick={() => adjustBet('/2')}>1/2</button>
+                <button class='bet-btn' disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()} onClick={() => adjustBet('x2')}>x2</button>
               </div>
 
               <div class='quick-bets' aria-label='Bet amount shortcuts'>
@@ -439,9 +447,18 @@ function Crash(props) {
                 placeholder='Optional'
                 value={autoCashout()}
                 onInput={(e) => setAutoCashout(e.target.value)}
-                disabled={betQueued() || isFlying() || isCrashed()}
+                disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()}
               />
-              <span class='input-suffix'>x</span>
+              {autoCashout() ? (
+                <button
+                  class='clear-btn'
+                  onClick={() => setAutoCashout('')}
+                  aria-label='Clear auto cashout'
+                  title='Clear'
+                >✕</button>
+              ) : (
+                <span class='input-suffix'>x</span>
+              )}
             </div>
           </div>
 
@@ -666,6 +683,28 @@ function Crash(props) {
           font-weight: 800;
         }
 
+        .clear-btn {
+          background: none;
+          border: none;
+          color: #6f7988;
+          cursor: pointer;
+          font-size: 10px;
+          padding: 2px 4px;
+          border-radius: 3px;
+          transition: color .18s ease, background .18s ease;
+          flex-shrink: 0;
+        }
+
+        .clear-btn:hover {
+          color: #ff5141;
+          background: rgba(255, 81, 65, 0.1);
+        }
+
+        .bet-btn:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+
         .bet-btn {
           height: 40px;
           min-width: 42px;
@@ -766,6 +805,17 @@ function Crash(props) {
           color: #1fd65f;
           border: 1px solid rgba(31,214,95,.2);
           cursor: default;
+        }
+
+        .play-button.info {
+          background: transparent;
+          color: #6b7280;
+          border: 1px solid rgba(255,255,255,.06);
+          cursor: default;
+          font-size: 10px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
         }
 
         .play-button.pending {

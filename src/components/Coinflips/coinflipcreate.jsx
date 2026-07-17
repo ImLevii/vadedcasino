@@ -159,47 +159,54 @@ function CreateCoinflip(props) {
           height: fit-content;
           min-height: 340px;
           max-height: 650px;
-          background: #1a1f29;
+          background: #161b24;
 
           display: flex;
           flex-direction: column;
-          border-radius: 16px;
+          border-radius: 12px;
           overflow: hidden;
+          border: 1px solid rgba(255,255,255,0.06);
+          box-shadow: 0 24px 80px rgba(0,0,0,0.55);
         }
 
         .header, .footer {
           width: 100%;
-          min-height: 70px;
+          min-height: 66px;
 
           display: flex;
           align-items: center;
-          gap: 15px;
+          gap: 12px;
 
-          padding: 0 20px;
+          padding: 0 18px;
 
-          background: #232a36;
+          background: #1e2533;
+          border-bottom: 1px solid rgba(255,255,255,0.055);
         }
 
         .header {
-          background: linear-gradient(109deg, rgba(31, 214, 95, 0.11) 0%, rgba(156, 101, 19, 0.07) 19.78%, rgba(0, 0, 0, 0.00) 100%), #232a36;
+          background: linear-gradient(90deg, rgba(31, 214, 95, 0.09) 0%, rgba(22, 27, 36, 0) 45%), #1e2533;
         }
 
         .footer {
-          min-height: 60px;
+          min-height: 58px;
+          border-bottom: none;
+          border-top: 1px solid rgba(255,255,255,0.055);
         }
 
         .info {
-          height: 30px;
-          padding: 0 10px;
+          height: 32px;
+          padding: 0 12px;
           margin-left: auto;
 
-          border-radius: 2px;
-          background: rgba(58, 66, 80, 0.45);
-          line-height: 30px;
+          border-radius: 4px;
+          background: rgba(38, 46, 62, 0.7);
+          line-height: 32px;
 
           color: #8b92a0;
           font-size: 11px;
-          font-weight: 600;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+          white-space: nowrap;
         }
 
         .selected {
@@ -207,13 +214,26 @@ function CreateCoinflip(props) {
         }
 
         .cost {
-          height: 30px;
+          height: 32px;
           padding: 0 12px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+
+          border-radius: 4px;
+          background: rgba(38, 46, 62, 0.7);
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-weight: 700;
+          font-size: 13px;
+          color: #fff;
         }
 
         .selected-coins {
           width: 100%;
           height: 25px;
+          background: unset;
+          border: unset;
+          padding: unset;
         }
 
         .coin-input {
@@ -229,35 +249,69 @@ function CreateCoinflip(props) {
         }
 
         .done {
-          height: 30px;
-          width: 95px;
+          height: 34px;
+          min-width: 95px;
+          padding: 0 18px;
+          border-radius: 6px;
+          border: none;
+          outline: none;
+          background: linear-gradient(135deg, #1fd65f, #14b04a);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 14px rgba(31,214,95,0.32);
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-weight: 800;
+          font-size: 13px;
+          color: #021a09;
+          letter-spacing: 0.3px;
+          cursor: pointer;
+          transition: filter .18s, transform .18s;
+        }
+
+        .done:hover {
+          filter: brightness(1.08);
+          transform: translateY(-1px);
+        }
+
+        .done:active {
+          transform: translateY(0);
+          filter: brightness(0.97);
         }
 
         .bar {
-          height: 13px;
+          height: 16px;
           width: 1px;
-          background: #534F96;
-          margin: 0 10px;
+          background: rgba(255,255,255,0.1);
+          margin: 0 4px;
+          flex-shrink: 0;
         }
 
         .exit {
-          width: 25px;
-          height: 25px;
-          background: rgba(85, 76, 125, 1);
+          width: 28px;
+          height: 28px;
+          border-radius: 6px;
+          background: rgba(255,255,255,0.07);
+          border: 1px solid rgba(255,255,255,0.1);
+          flex-shrink: 0;
 
           display: flex;
           align-items: center;
           justify-content: center;
+          cursor: pointer;
+          transition: background .2s;
+        }
+
+        .exit:hover {
+          background: rgba(255,255,255,0.12);
         }
 
         .title {
           color: #FFF;
-          font-size: 20px;
-          font-weight: 700;
+          font-size: 16px;
+          font-weight: 800;
+          letter-spacing: 0.3px;
 
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
         }
 
         .items {
@@ -277,84 +331,86 @@ function CreateCoinflip(props) {
         .min {
           margin-left: auto;
           display: flex;
-          gap: 8px;
+          gap: 7px;
           align-items: center;
+          font-family: 'Geogrotesque Wide', sans-serif;
           font-weight: 700;
           font-size: 10px;
           color: #8b92a0;
+          letter-spacing: 0.4px;
 
-          border-radius: 3px;
-          background: rgba(58, 66, 80, 0.45);
-          padding: 10px 12px;
+          border-radius: 6px;
+          background: rgba(38, 46, 62, 0.7);
+          border: 1px solid rgba(255,255,255,0.06);
+          padding: 8px 14px;
         }
 
         .price {
-          font-size: 12px;
-          margin-top: -2px;
+          font-size: 13px;
+          color: #fff;
+          font-weight: 700;
         }
 
         .color {
           display: flex;
+          align-items: center;
+          gap: 0;
+          cursor: pointer;
+          padding: unset;
           background: unset;
           outline: unset;
           border: unset;
-          align-items: center;
-          cursor: pointer;
-          padding: unset;
+          border-radius: 999px;
         }
 
         .coin {
-          z-index: 1;
+          z-index: 2;
+          border-radius: 50%;
+          flex-shrink: 0;
         }
 
         .coinname {
-          border-radius: 28px;
+          border-radius: 999px;
 
-          padding: 0 0 0 25px;
-          line-height: 30px;
+          padding: 0 14px 0 28px;
+          line-height: 32px;
 
-          font-size: 14px;
-          font-weight: 700;
+          font-size: 13px;
+          font-weight: 800;
+          letter-spacing: 0.5px;
 
-          color: rgba(255, 255, 255, 0.35);
-          background: rgba(58, 66, 80, 0.45);
+          color: rgba(255, 255, 255, 0.3);
+          background: rgba(38, 46, 62, 0.7);
+          border: 1px solid rgba(255,255,255,0.07);
           position: relative;
-          z-index: 0;
+          z-index: 1;
 
-          width: 85px;
-          height: 30px;
-          margin-left: -30px;
+          height: 32px;
+          margin-left: -22px;
 
-          transition: all .3s;
+          transition: all .25s ease;
         }
 
-        .coinname:before {
-          border-radius: 28px;
-          position: absolute;
-          top: 1px;
-          left: 1px;
-          content: '';
-          height: calc(100% - 2px);
-          width: calc(100% - 2px);
-          z-index: -1;
+        .blue .coinname {
+          color: rgba(255, 255, 255, 0.3);
+        }
+
+        .red .coinname {
+          color: rgba(255, 255, 255, 0.3);
         }
 
         .blue.active .coinname {
-          background: linear-gradient(to left, rgba(30, 77, 209, 1), rgba(0, 0, 0, 0));
-          color: #1E4DD1;
-        }
-
-        .blue.active .coinname:before {
-          background: linear-gradient(rgba(30, 77, 209, 0.15), rgba(30, 77, 209, 0.15)), #232a36;
+          background: rgba(30, 77, 209, 0.18);
+          border-color: rgba(30, 77, 209, 0.5);
+          color: #5b8aff;
+          box-shadow: 0 0 10px rgba(30, 77, 209, 0.25);
         }
 
         .red.active .coinname {
-          background: linear-gradient(to left, rgba(236, 75, 69, 1), rgba(0, 0, 0, 0));
-          color: #EC4B45;
-        }
-
-        .red.active .coinname:before {
-          background: linear-gradient(rgba(236, 75, 69, 0.15), rgba(236, 75, 69, 0.15)), #232a36;
+          background: rgba(236, 75, 69, 0.18);
+          border-color: rgba(236, 75, 69, 0.5);
+          color: #ff6b66;
+          box-shadow: 0 0 10px rgba(236, 75, 69, 0.25);
         }
 
         .coin {
@@ -376,9 +432,10 @@ function CreateCoinflip(props) {
         .coin-amount-container {
           height: 170px;
 
-          border-radius: 7px;
-          border: 1px solid rgba(82, 76, 147, 0.35);
-          background: linear-gradient(230deg, rgba(26, 14, 51, 0.26) 0%, rgba(66, 60, 122, 0.26) 100%);
+          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          background: rgba(10, 13, 20, 0.5);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
 
           display: flex;
           flex-direction: column;

@@ -1,4 +1,5 @@
 import {resolveImageSrc} from "../../util/image";
+import IndicatorLine from "../IndicatorLine/indicatorline";
 
 function CaseItem(props) {
 
@@ -50,6 +51,14 @@ function CaseItem(props) {
             >
                 <div class='item-img-box'>
                   <img class='item-image' src={resolveImageSrc(props.img)} height='58' alt='' draggable={false}/>
+                  <IndicatorLine
+                    orientation='horizontal'
+                    length='60%'
+                    thickness='3px'
+                    color={getRarityColor(props?.price || 0)}
+                    pulse={false}
+                    style={{ position: 'absolute', bottom: '1px', left: '50%', transform: 'translateX(-50%)' }}
+                  />
                 </div>
 
                 <div class='item-info'>
@@ -82,16 +91,19 @@ function CaseItem(props) {
                 box-sizing: border-box;
 
                 border-radius: 8px;
-                border: 1px solid rgba(255,255,255,0.05);
-                background: #13161e;
+                border: 1px solid rgba(255,255,255,0.045);
+                background:
+                  radial-gradient(120% 80% at 0% 50%, color-mix(in srgb, var(--rarity-color) 8%, transparent), transparent 60%),
+                  linear-gradient(160deg, #141720, #0f1219);
 
                 overflow: hidden;
-                transition: border-color .2s;
+                transition: border-color .18s, box-shadow .18s;
                 cursor: default;
               }
 
               .case-item-container:hover {
-                border-color: var(--rarity-color);
+                border-color: color-mix(in srgb, var(--rarity-color) 55%, transparent);
+                box-shadow: 0 0 16px -4px color-mix(in srgb, var(--rarity-color) 25%, transparent);
               }
 
               .case-item-container::before {
@@ -102,7 +114,7 @@ function CaseItem(props) {
                 bottom: 0;
                 width: 3px;
                 border-radius: 8px 0 0 8px;
-                background: var(--rarity-color);
+                background: linear-gradient(180deg, color-mix(in srgb, var(--rarity-color) 90%, white 10%), var(--rarity-color));
               }
 
               .item-img-box {
@@ -110,23 +122,29 @@ function CaseItem(props) {
                 align-items: center;
                 justify-content: center;
                 flex-shrink: 0;
+                position: relative;
 
                 width: 68px;
-                height: 58px;
+                height: 68px;
                 border-radius: 6px;
-                background: rgba(255,255,255,0.04);
+                background:
+                  radial-gradient(70% 60% at 50% 100%, color-mix(in srgb, var(--rarity-color) 14%, transparent), transparent),
+                  rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.07);
+                overflow: hidden;
               }
 
               .item-image {
                 object-fit: contain;
                 max-width: 60px;
                 max-height: 54px;
+                filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
               }
 
               .item-info {
                 display: flex;
                 flex-direction: column;
-                gap: 5px;
+                gap: 4px;
                 flex: 1;
                 min-width: 0;
               }
@@ -142,12 +160,12 @@ function CaseItem(props) {
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-size: 9px;
                 font-weight: 800;
-                letter-spacing: 0.4px;
-                text-shadow: 0 0 8px currentColor;
+                letter-spacing: 0.5px;
+                text-shadow: 0 0 10px currentColor, 0 0 4px currentColor;
               }
 
               .name {
-                color: #c3cad6;
+                color: #d0d7e4;
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-size: 11px;
                 font-weight: 700;
@@ -167,7 +185,7 @@ function CaseItem(props) {
               }
 
               .price span {
-                color: #fff;
+                color: #e8edf5;
               }
             `}</style>
         </>

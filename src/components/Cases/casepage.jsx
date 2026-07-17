@@ -30,37 +30,25 @@ function CasePage(props) {
 
   let tickerHandle = null
 
-  /**
-   * Cubic bezier curve for cubic-bezier(0.08, 0.78, 0.16, 1.0) — the CSS spin easing.
-   * Returns the progress value (0→1) at normalized time t.
-   */
-  function spinBezier(t) {
-    const p1 = 0.08, p2 = 0.78, p3 = 1
-    const u = 1 - t
-    // B(t) = 3(1-t)²tp1 + 3(1-t)t²p2 + t³p3
-    return 3 * u * u * t * p1 + 3 * u * t * t * p2 + t * t * t * p3
-  }
+  // CSS spin easing control points: cubic-bezier(.08,.78,.16,1)
+  const CASE_SPIN_BEZIER = [0.08, 0.78, 0.16, 1]
 
   function startTicking(duration) {
     if (tickerHandle) tickerHandle.cancel()
 
-    // Use requestAnimationFrame-driven ticker that reads actual elapsed time
-    // instead of accumulating setTimeout delays (which drift).
+    // Pass the real cubic-bezier control points so the ticker fires fast at
+    // the start (when items rush past) and decelerates near the end.
     tickerHandle = startAnimationTicker(
-      (progress) => {
-        // Scale by bezier so ticks cluster when items move slowly
-        const bezierProgress = spinBezier(Math.min(progress, 0.99))
-        // Fire a tick roughly every 1.5% of bezier progress
-        // This naturally gives more ticks at start (fast) and fewer at end (slow)
+      () => {
         playGameSFX('case-tick', '/assets/sfx/casetick.wav', {
           channel: 'spin-tick',
-          volume: 0.52,
-          minIntervalMs: 30,
+          volume: 0.50,
+          minIntervalMs: 28,
         })
       },
       duration,
-      30, // min interval between ticks
-      null // No extra easing - we use the progress threshold approach in the ticker
+      28,
+      CASE_SPIN_BEZIER
     )
   }
 
@@ -69,6 +57,7 @@ function CasePage(props) {
       tickerHandle.cancel()
       tickerHandle = null
     }
+    stopSFXChannel('spin-tick', { fadeOutMs: 60 })
   }
 
   createEffect(() => {

@@ -556,18 +556,17 @@ function App() {
           position: relative;
           padding-inline: clamp(12px, 1.75vw, 30px);
           background:
-            radial-gradient(140% 70% at 50% -8%, rgba(31, 214, 95, 0.06), transparent 45%),
-            linear-gradient(180deg, rgba(10, 13, 19, 0.64), rgba(8, 11, 17, 0.66));
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 16px;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 16px 40px rgba(0,0,0,0.28);
-          backdrop-filter: blur(8px) saturate(120%);
-          -webkit-backdrop-filter: blur(8px) saturate(120%);
-          scrollbar-color: transparent transparent;
-        }
-
-        .content::-webkit-scrollbar {
-          display: none;
+            radial-gradient(130% 60% at 50% -6%, rgba(31, 214, 95, 0.05), transparent 48%),
+            linear-gradient(200deg, rgba(12, 16, 24, 0.72), rgba(7, 10, 16, 0.78));
+          border: 1px solid rgba(255, 255, 255, 0.045);
+          border-top: 1px solid rgba(255, 255, 255, 0.065);
+          border-radius: 14px;
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.05),
+            inset 0 0 0 1px rgba(0, 0, 0, 0.06),
+            0 24px 60px rgba(0, 0, 0, 0.36);
+          backdrop-filter: blur(10px) saturate(130%);
+          -webkit-backdrop-filter: blur(10px) saturate(130%);
         }
 
         .background {
@@ -595,39 +594,48 @@ function App() {
         }
 
         .startup-error {
-          width: min(460px, calc(100vw - 36px));
-          margin: 18vh auto 0;
-          padding: 28px;
-          border: 1px solid rgba(255, 255, 255, 0.09);
-          border-radius: 8px;
-          background: linear-gradient(145deg, rgba(22, 29, 39, 0.94), rgba(8, 12, 18, 0.98));
-          box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 20px 50px rgba(0,0,0,.38);
-          color: #c3cad6;
-          font-family: Geogrotesque Wide, sans-serif;
+          width: min(440px, calc(100vw - 36px));
+          margin: 16vh auto 0;
+          padding: 32px 28px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-top: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 12px;
+          background: linear-gradient(160deg, rgba(22, 28, 40, 0.96), rgba(8, 11, 18, 0.98));
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.06),
+            0 24px 64px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(0, 0, 0, 0.12);
+          color: var(--text-secondary, #8f96a6);
+          font-family: 'Geogrotesque Wide', sans-serif;
           text-align: center;
         }
 
         .startup-error h2 {
           margin: 0 0 10px;
           color: #fff;
-          font-size: 20px;
-          letter-spacing: 0;
+          font-size: 19px;
+          font-weight: 700;
+          letter-spacing: -0.2px;
         }
 
         .startup-error p {
-          margin: 0 0 22px;
-          color: #8b92a0;
+          margin: 0 0 24px;
+          color: #7a8294;
           font-size: 13px;
-          line-height: 1.5;
+          line-height: 1.6;
         }
 
         .startup-error button {
-          min-width: 150px;
-          height: 40px;
+          min-width: 160px;
+          height: 42px;
+          padding: 0 22px;
           border: 0;
           font-family: inherit;
           font-weight: 700;
+          font-size: 13px;
+          letter-spacing: 0.4px;
           cursor: pointer;
+          border-radius: 8px;
         }
 
         @media only screen and (max-width: 1000px) {

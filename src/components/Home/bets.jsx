@@ -125,8 +125,8 @@ function Bets(props) {
             <style jsx>{`
                 .bets-container {
                   border-radius: 12px;
-                  border: 1px solid rgba(255, 255, 255, 0.06);
-                  background: #0e1116;
+                  border: 1px solid rgba(255, 255, 255, 0.055);
+                  background: linear-gradient(180deg, #0d1018 0%, #0b0e14 100%);
                   overflow: hidden;
                 }
               
@@ -136,7 +136,7 @@ function Bets(props) {
                   gap: 4px;
                   padding: 10px 12px;
                   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-                  background: #11141b;
+                  background: rgba(255, 255, 255, 0.025);
                 }
                 
                 .option {
@@ -145,9 +145,9 @@ function Bets(props) {
                   border-radius: 6px;
                   background: transparent;
 
-                  color: #8b92a0;
+                  color: #7a8294;
                   font-size: 12px;
-                  font-family: Geogrotesque Wide;
+                  font-family: 'Geogrotesque Wide', sans-serif;
                   font-weight: 700;
                   letter-spacing: .3px;
                   
@@ -156,19 +156,20 @@ function Bets(props) {
                   position: relative;
                   cursor: pointer;
                   
-                  transition: background .2s, color .2s, border-color .2s;
+                  transition: background .18s, color .18s, border-color .18s;
                 }
 
                 .option:hover {
                   color: #c3cad6;
-                  background: rgba(255, 255, 255, 0.04);
-                  border-color: rgba(255,255,255,0.07);
+                  background: rgba(255, 255, 255, 0.045);
+                  border-color: rgba(255, 255, 255, 0.08);
                 }
                 
                 .option.active {
                   color: #1fd65f;
-                  background: rgba(31, 214, 95, 0.12);
-                  border-color: rgba(31, 214, 95, 0.3);
+                  background: rgba(31, 214, 95, 0.1);
+                  border-color: rgba(31, 214, 95, 0.28);
+                  box-shadow: 0 0 12px rgba(31, 214, 95, 0.08);
                 }
 
                 .bets-table {
@@ -178,30 +179,44 @@ function Bets(props) {
                 
                 .bets-header {
                   width: 100%;
-                  height: 42px;
-                  background: transparent;
+                  height: 36px;
+                  background: rgba(0, 0, 0, 0.18);
+                  border-bottom: 1px solid rgba(255, 255, 255, 0.045);
 
-                  color: #6b7280;
-                  font-size: 12px;
-                  font-family: Geogrotesque Wide;
+                  color: #515a6b;
+                  font-size: 11px;
+                  font-family: 'Geogrotesque Wide', sans-serif;
                   font-weight: 700;
-                  letter-spacing: .5px;
+                  letter-spacing: .6px;
+                  text-transform: uppercase;
                   
                   text-align: left;
                 }
-                
-                .bet {
-                  background: unset;
-                  height: 46px;
 
-                  color: #8b92a0;
-                  font-size: 13px;
-                  font-family: Geogrotesque Wide;
-                  font-weight: 600;
+                th {
+                  padding: 0 10px;
                 }
                 
-                .bet:nth-child(2n - 1) {
-                  background: rgba(255, 255, 255, 0.02);
+                .bet {
+                  background: transparent;
+                  height: 44px;
+                  border-bottom: 1px solid rgba(255, 255, 255, 0.028);
+
+                  color: #7a8294;
+                  font-size: 13px;
+                  font-family: 'Geogrotesque Wide', sans-serif;
+                  font-weight: 600;
+
+                  transition: background .14s;
+                  cursor: default;
+                }
+
+                .bet:last-child {
+                  border-bottom: none;
+                }
+                
+                .bet:hover {
+                  background: rgba(255, 255, 255, 0.024);
                 }
                 
                 .image-data {
@@ -224,8 +239,8 @@ function Bets(props) {
                 }
                 
                 .lum {
-                  mix-blend-mode: luminosity;
-                  color: #6b7280;
+                  opacity: 0.4;
+                  color: #8b92a0;
                 }
                 
                 .caps {
@@ -237,15 +252,19 @@ function Bets(props) {
                 }
                 
                 td:first-child, th:first-child {
-                  padding: 0 0 0 22px;
+                  padding: 0 0 0 18px;
                 }
 
                 td:last-child, th:last-child {
-                  padding: 0 22px 0 0;
+                  padding: 0 18px 0 0;
+                }
+
+                td {
+                  padding: 0 10px;
                 }
                 
                 .cents {
-                  color: #6b7280;
+                  color: #4a5162;
                 }
                 
                 .gold .cents {

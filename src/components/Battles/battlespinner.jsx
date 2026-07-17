@@ -8,6 +8,8 @@ import Countup from "../Countup/countup"
 import {useNavigate} from "@solidjs/router"
 import Chance from 'chance'
 import SpinnerDiamond from "./spinnerdiamond";
+import IndicatorLine from "../IndicatorLine/indicatorline";
+import {playGameSFX, stopSFXChannel, startAnimationTicker} from "../../util/sound";
 
 function BattleSpinner(props) {
 
@@ -19,6 +21,35 @@ function BattleSpinner(props) {
   const navigate = useNavigate()
   let cosmicTimer
   let particleTimer
+  let tickerHandle = null
+
+  // Spin easing control points: cubic-bezier(.08,.7,.14,1)
+  const SPIN_BEZIER = [0.08, 0.7, 0.14, 1]
+  const SPIN_DURATION = 5000
+
+  function startBattleTicking(duration = SPIN_DURATION) {
+    if (tickerHandle) tickerHandle.cancel()
+    tickerHandle = startAnimationTicker(
+      () => {
+        playGameSFX('battle-tick', '/assets/sfx/casetick.wav', {
+          channel: 'battle-spin-tick',
+          volume: 0.45,
+          minIntervalMs: 28,
+        })
+      },
+      duration,
+      28,
+      SPIN_BEZIER
+    )
+  }
+
+  function stopBattleTicking() {
+    if (tickerHandle) {
+      tickerHandle.cancel()
+      tickerHandle = null
+    }
+    stopSFXChannel('battle-spin-tick', { fadeOutMs: 60 })
+  }
 
   const [particles, setParticles] = createSignal([])
   const [showShockwave, setShowShockwave] = createSignal(false)
@@ -175,6 +206,17 @@ function BattleSpinner(props) {
 
       setItems([...spinnerItems])
       scheduleAnimation()
+      startBattleTicking(SPIN_DURATION)
+
+      // Stop ticking when animation finishes, then play win sound
+      setTimeout(() => {
+        stopBattleTicking()
+        playGameSFX('battle-win', '/assets/sfx/winorcashout.mp3', {
+          channel: 'battle-result-win',
+          volume: 0.58,
+          fadeInMs: 80,
+        })
+      }, SPIN_DURATION)
 
       if (cosmic && isRareItem(winningItem, battleCase?.price)) {
         // Exclusive second spin featuring only rare items
@@ -184,6 +226,8 @@ function BattleSpinner(props) {
           rareReel[50] = winningItem
           setItems([...rareReel])
           scheduleAnimation(true)
+          startBattleTicking(SPIN_DURATION)
+          setTimeout(() => stopBattleTicking(), SPIN_DURATION)
         }, 5300)
 
         // Trigger green particles exactly when first spin finishes (5000ms)
@@ -198,6 +242,7 @@ function BattleSpinner(props) {
   onCleanup(() => {
     clearTimeout(cosmicTimer)
     clearTimeout(particleTimer)
+    stopBattleTicking()
   })
 
   function scheduleAnimation(secondPhase = false) {
@@ -336,7 +381,12 @@ function BattleSpinner(props) {
         ) : props?.player && props?.state === 'ROLLING' ? (
           <div class='spinner-column'>
             <div class='center-band'/>
-            <div class='center-line'/>
+            <IndicatorLine
+              orientation='horizontal'
+              length='calc(100% - 44px)'
+              thickness='3px'
+              style={{ position: 'absolute', top: '50%', left: '22px', transform: 'translateY(-50%)', 'z-index': 4 }}
+            />
             <div class='fade-top'/>
             <div class='fade-bottom'/>
 
@@ -636,19 +686,6 @@ function BattleSpinner(props) {
           background: linear-gradient(180deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.10) 48%, rgba(31, 214, 95, 0));
           box-shadow: inset 0 1px 0 rgba(31, 214, 95, 0.06), inset 0 -1px 0 rgba(31, 214, 95, 0.06), 0 0 42px rgba(31, 214, 95, 0.12);
           animation: battleCenterGlow 2.8s ease-in-out infinite;
-        }
-
-        .center-line {
-          position: absolute;
-          left: 22px;
-          right: 22px;
-          top: 50%;
-          height: 2px;
-          transform: translateY(-1px);
-          z-index: 4;
-          pointer-events: none;
-          background: linear-gradient(90deg, transparent, rgba(31, 214, 95, 0.18) 16%, #1fd65f 48%, #1fd65f 52%, rgba(31, 214, 95, 0.18) 84%, transparent);
-          box-shadow: 0 0 10px rgba(31, 214, 95, 0.5), 0 0 20px rgba(31, 214, 95, 0.15);
         }
 
         .fade-top, .fade-bottom {

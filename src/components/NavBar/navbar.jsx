@@ -39,14 +39,17 @@ function NavBar(props) {
                                 if (!props?.user) return setSearchParams({modal: 'login'})
                                 setSearchParams({modal: 'rakeback'})
                             }}>
-                                <svg width='16' height='16' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                                    <rect x='3' y='11' width='18' height='11' rx='1.5' fill='#7a8094' opacity='0.9'/>
-                                    <rect x='1' y='7' width='22' height='5' rx='1.5' fill='#8b92a0'/>
-                                    <path d='M12 7V22' stroke='#5c6474' stroke-width='1.5'/>
-                                    <path d='M12 7C12 7 9 5 8 3C7 1 9 1 10 2C11 3 12 7 12 7Z' fill='#7a8094'/>
-                                    <path d='M12 7C12 7 15 5 16 3C17 1 15 1 14 2C13 3 12 7 12 7Z' fill='#7a8094'/>
+                                <svg class='rewards-icon' width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                                    <rect x='1.5' y='6' width='13' height='8.5' rx='1.5' fill='currentColor' opacity='0.85'/>
+                                    <rect x='0.75' y='4' width='14.5' height='3.5' rx='1.5' fill='currentColor'/>
+                                    <line x1='8' y1='4' x2='8' y2='14.5' stroke='rgba(0,0,0,0.35)' stroke-width='1.5'/>
+                                    <path d='M8 4 C8 4 5.5 3 4.5 1.5 C4 0.5 5.5 0.5 6 1.5 C6.5 2.5 8 4 8 4Z' fill='currentColor'/>
+                                    <path d='M8 4 C8 4 10.5 3 11.5 1.5 C12 0.5 10.5 0.5 10 1.5 C9.5 2.5 8 4 8 4Z' fill='currentColor'/>
                                 </svg>
                                 <span>REWARDS</span>
+                                <svg class='rewards-arrow' width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3.50001 0.994671C3.62547 0.994671 3.7509 1.04269 3.84655 1.13852L6.8564 4.15579C7.04787 4.34773 7.04787 4.65892 6.8564 4.85078C6.66501 5.04263 6.5 4.99467 6.16316 4.99467L3.50001 4.99467L1 4.99467C0.5 4.99467 0.335042 5.04254 0.14367 4.85068C-0.0478893 4.65883 -0.0478893 4.34764 0.14367 4.1557L3.15347 1.13843C3.24916 1.04258 3.3746 0.994671 3.50001 0.994671Z" fill="currentColor"/>
+                                </svg>
                             </button>
                         </div>
                     </div>
@@ -222,15 +225,23 @@ function NavBar(props) {
                 letter-spacing: 0.3px;
               }
 
-              .rewards svg {
+              .rewards-icon {
                 position: relative;
                 z-index: 1;
-                opacity: 0.75;
-                transition: opacity .22s ease;
+                color: #8b92a0;
+                transition: color .22s ease;
               }
 
-              .rewards:hover svg {
-                opacity: 1;
+              .rewards-arrow {
+                position: relative;
+                z-index: 1;
+                color: #8b92a0;
+                transition: color .22s ease;
+              }
+
+              .rewards:hover .rewards-icon,
+              .rewards:hover .rewards-arrow {
+                color: #c6ccd8;
               }
 
               .withdraw {
@@ -267,9 +278,12 @@ function NavBar(props) {
                 border-radius: 8px;
 
                 outline: unset;
-                border: unset;
-                background: linear-gradient(180deg, #22e86a 0%, #1fd65f 60%, #18c255 100%);
-                box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset, 0 -2px 0 rgba(0,0,0,0.3) inset;
+                border: 1px solid rgba(52, 232, 114, 0.45);
+                background: linear-gradient(180deg, #25e46a 0%, #1fd65f 55%, #18c255 100%);
+                box-shadow:
+                  inset 0 1px 0 rgba(255, 255, 255, 0.26),
+                  inset 0 -2px 0 rgba(0, 0, 0, 0.18),
+                  0 4px 18px rgba(31, 214, 95, 0.32);
 
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-weight: 800;
@@ -277,11 +291,21 @@ function NavBar(props) {
                 color: #021a09;
 
                 cursor: pointer;
-                transition: filter .2s;
+                transition: filter .18s, transform .18s, box-shadow .18s;
               }
 
               .deposit:hover {
-                filter: brightness(1.08);
+                filter: brightness(1.07);
+                transform: translateY(-1px);
+                box-shadow:
+                  inset 0 1px 0 rgba(255, 255, 255, 0.26),
+                  inset 0 -2px 0 rgba(0, 0, 0, 0.16),
+                  0 8px 24px rgba(31, 214, 95, 0.40);
+              }
+
+              .deposit:active {
+                filter: brightness(0.97);
+                transform: translateY(0);
               }
 
               .balance {
@@ -290,14 +314,17 @@ function NavBar(props) {
                 gap: 10px;
 
                 height: 38px;
-                padding: 0 16px;
+                padding: 0 14px;
                 border-radius: 8px;
 
-                border: 1px solid rgba(31, 214, 95, 0.4);
+                border: 1px solid rgba(31, 214, 95, 0.32);
                 background:
-                  radial-gradient(90% 120% at 50% 0%, rgba(31, 214, 95, 0.2), transparent 58%),
-                  linear-gradient(180deg, rgba(17, 27, 26, 0.84), rgba(10, 17, 18, 0.88));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 8px 22px rgba(0,0,0,0.22), 0 0 20px rgba(31,214,95,0.06);
+                  radial-gradient(80% 110% at 50% 0%, rgba(31, 214, 95, 0.14), transparent 60%),
+                  linear-gradient(180deg, rgba(14, 22, 20, 0.88), rgba(8, 14, 14, 0.92));
+                box-shadow:
+                  inset 0 1px 0 rgba(255, 255, 255, 0.06),
+                  inset 0 0 0 1px rgba(31, 214, 95, 0.06),
+                  0 6px 20px rgba(0, 0, 0, 0.22);
 
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-weight: 700;
@@ -422,17 +449,17 @@ function NavBar(props) {
 
               .signin {
                 outline: unset;
-                border: unset;
-                padding: unset;
+                padding: 0 22px;
 
                 height: 40px;
-                width: 120px;
+                min-width: 110px;
                 border-radius: 8px;
 
                 font-family: 'Geogrotesque Wide', sans-serif;
-                font-weight: 700;
-                font-size: 14px;
-                color: white;
+                font-weight: 800;
+                font-size: 13px;
+                letter-spacing: 0.4px;
+                color: #021a09;
 
                 cursor: pointer;
               }

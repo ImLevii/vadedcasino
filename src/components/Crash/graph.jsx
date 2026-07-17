@@ -17,8 +17,11 @@ function CrashGraph(props) {
 
   function resizeCanvas() {
     if (!canvasRef || !containerRef) return;
-    canvasRef.width = containerRef.clientWidth;
-    canvasRef.height = containerRef.clientHeight;
+    const dpr = window.devicePixelRatio || 1;
+    canvasRef.width  = containerRef.clientWidth  * dpr;
+    canvasRef.height = containerRef.clientHeight * dpr;
+    canvasRef.style.width  = containerRef.clientWidth  + 'px';
+    canvasRef.style.height = containerRef.clientHeight + 'px';
     drawGraph();
   }
 
@@ -30,116 +33,211 @@ function CrashGraph(props) {
 
   function drawGraph() {
     if (!canvasRef) return;
-    
     const ctx = canvasRef.getContext('2d');
-    const width = canvasRef.width;
+    const dpr = window.devicePixelRatio || 1;
+    const width  = canvasRef.width;
     const height = canvasRef.height;
-    
+
     ctx.clearRect(0, 0, width, height);
-    
+
     if (!props.isFlying && !props.isCrashed) return;
 
-    const multi = props.multiplier || 1.00;
-    const maxTime = Math.max(10000, getTimeFromMultiplier(multi) * 1.2);
-    const maxMulti = Math.max(2.0, multi * 1.2);
+    const multi    = props.multiplier || 1.00;
+    const maxMulti = Math.max(2.0, multi * 1.25);
+    const maxTime  = Math.max(10000, getTimeFromMultiplier(multi) * 1.25);
 
-    // Draw axes
-    drawAxes(ctx, width, height, maxMulti, maxTime);
+    // Padding: left side thin, right side wider for labels, bottom for time labels
+    const padLeft   = 18 * dpr;
+    const padRight  = 70 * dpr;
+    const padTop    = 24 * dpr;
+    const padBottom = 36 * dpr;
+    const gW = width  - padLeft - padRight;
+    const gH = height - padTop  - padBottom;
 
-    // Draw graph line
-    drawLine(ctx, width, height, multi, maxMulti, maxTime);
-  }
+    // ── Grid lines ────────────────────────────────────────────────────────────
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.045)';
+    ctx.lineWidth   = 1 * dpr;
+    ctx.setLineDash([4 * dpr, 6 * dpr]);
 
-  function getTimeFromMultiplier(multi) {
-    // Inverse of: multi = e^(0.00006 * time)
-    return Math.log(multi) / 0.00006;
-  }
+    const yStep = maxMulti > 6 ? 1 : maxMulti > 3 ? 0.5 : 0.25;
+    const steps = Math.ceil((maxMulti - 1) / yStep);
 
-  function drawAxes(ctx, width, height, maxMulti, maxTime) {
-    const padding = 60;
-    const graphWidth = width - padding * 2;
-    const graphHeight = height - padding * 2;
+    for (let i = 0; i <= steps; i++) {
+      const m = 1 + i * yStep;
+      if (m > maxMulti) break;
+      const y = padTop + gH - ((m - 1) / (maxMulti - 1)) * gH;
 
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.lineWidth = 1;
-    ctx.font = '12px Geogrotesque Wide';
-    ctx.fillStyle = '#8b92a0';
-
-    // Y-axis ticks (multipliers)
-    const yStep = maxMulti > 5 ? 1 : 0.5;
-    for (let m = 1; m < maxMulti; m += yStep) {
-      const y = height - padding - ((m - 1) / (maxMulti - 1)) * graphHeight;
-      
       ctx.beginPath();
-      ctx.setLineDash([5, 5]);
-      ctx.moveTo(padding, y);
-      ctx.lineTo(width - padding, y);
+      ctx.moveTo(padLeft, y);
+      ctx.lineTo(width - padRight, y);
       ctx.stroke();
-      
-      ctx.fillText(`${m.toFixed(2)}x`, width - padding + 10, y + 4);
     }
 
-    // X-axis ticks (time)
-    const xStep = 2000; // 2 seconds
-    for (let t = xStep; t < maxTime; t += xStep) {
-      const x = padding + (t / maxTime) * graphWidth;
-      
-      ctx.fillText(`${(t / 1000).toFixed(0)}s`, x - 10, height - padding + 20);
+    // X-axis grid
+    const xTickSec = maxTime > 20000 ? 5 : 2;
+    const xTickMs  = xTickSec * 1000;
+    for (let t = xTickMs; t < maxTime; t += xTickMs) {
+      const x = padLeft + (t / maxTime) * gW;
+      ctx.beginPath();
+      ctx.moveTo(x, padTop);
+      ctx.lineTo(x, padTop + gH);
+      ctx.stroke();
     }
-
     ctx.setLineDash([]);
+    ctx.restore();
+
+    // ── Y-axis labels (right side) ────────────────────────────────────────────
+    ctx.save();
+    ctx.font      = `${Math.round(11 * dpr)}px "Geogrotesque Wide", "Inter", sans-serif`;
+    ctx.textAlign = 'left';
+
+    for (let i = 0; i <= steps; i++) {
+      const m = 1 + i * yStep;
+      if (m > maxMulti) break;
+      const y = padTop + gH - ((m - 1) / (maxMulti - 1)) * gH;
+
+      // Color label based on value
+      if (m >= 10)       ctx.fillStyle = '#f5c842';
+      else if (m >= 5)   ctx.fillStyle = '#00d2b4';
+      else if (m >= 2)   ctx.fillStyle = '#1fd65f';
+      else               ctx.fillStyle = 'rgba(255,255,255,0.38)';
+
+      ctx.fillText(`${m.toFixed(2)}x`, width - padRight + 10 * dpr, y + 4 * dpr);
+    }
+    ctx.restore();
+
+    // ── X-axis labels (bottom) ────────────────────────────────────────────────
+    ctx.save();
+    ctx.font      = `${Math.round(10 * dpr)}px "Geogrotesque Wide", "Inter", sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.28)';
+    ctx.textAlign = 'center';
+
+    for (let t = xTickMs; t < maxTime; t += xTickMs) {
+      const x = padLeft + (t / maxTime) * gW;
+      ctx.fillText(`${(t / 1000).toFixed(0)}s`, x, padTop + gH + 22 * dpr);
+    }
+    ctx.restore();
+
+    // ── Graph line ────────────────────────────────────────────────────────────
+    drawLine(ctx, width, height, padLeft, padRight, padTop, padBottom, gW, gH, multi, maxMulti, maxTime, dpr);
   }
 
-  function drawLine(ctx, width, height, currentMulti, maxMulti, maxTime) {
-    const padding = 60;
-    const graphWidth = width - padding * 2;
-    const graphHeight = height - padding * 2;
+  function getTimeFromMultiplier(m) {
+    return Math.log(Math.max(1.001, m)) / 0.00006;
+  }
 
+  function multiplierToColor(m) {
+    if (m >= 10) return { r: 245, g: 200, b: 66  };
+    if (m >= 5)  return { r:   0, g: 210, b: 180 };
+    if (m >= 2)  return { r:  31, g: 214, b: 95  };
+    return           { r:  31, g: 214, b: 95  };
+  }
+
+  function drawLine(ctx, width, height, padLeft, padRight, padTop, padBottom, gW, gH, currentMulti, maxMulti, maxTime, dpr) {
+    const isCrashed = props.isCrashed;
     const currentTime = getTimeFromMultiplier(currentMulti);
 
-    ctx.strokeStyle = props.isCrashed ? '#ff5141' : '#1fd65f';
-    ctx.lineWidth = 3;
-    ctx.shadowBlur = props.isCrashed ? 0 : 15;
-    ctx.shadowColor = props.isCrashed ? 'transparent' : '#1fd65f';
-
-    ctx.beginPath();
-
-    for (let m = 1.00; m <= currentMulti; m += 0.01) {
+    // Build sample points
+    const samples = 200;
+    const points  = [];
+    for (let s = 0; s <= samples; s++) {
+      const m = 1 + (currentMulti - 1) * (s / samples);
       const t = getTimeFromMultiplier(m);
-      const x = padding + (t / maxTime) * graphWidth;
-      const y = height - padding - ((m - 1) / (maxMulti - 1)) * graphHeight;
-      
-      if (m === 1.00) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
+      const x = padLeft + (t / maxTime) * gW;
+      const y = padTop  + gH - ((m - 1) / (maxMulti - 1)) * gH;
+      points.push({ x, y, m });
     }
 
-    ctx.stroke();
-    ctx.shadowBlur = 0;
+    if (points.length < 2) return;
 
-    // Draw current point
-    if (!props.isCrashed) {
-      const x = padding + (currentTime / maxTime) * graphWidth;
-      const y = height - padding - ((currentMulti - 1) / (maxMulti - 1)) * graphHeight;
-      
-      ctx.fillStyle = '#1fd65f';
+    // Draw glowing line with gradient color based on current multiplier
+    if (isCrashed) {
+      // Crashed — solid red line, no glow
+      ctx.save();
+      ctx.strokeStyle = '#ff5141';
+      ctx.lineWidth   = 3 * dpr;
+      ctx.shadowBlur  = 0;
       ctx.beginPath();
-      ctx.arc(x, y, 6, 0, Math.PI * 2);
-      ctx.fill();
-      
-      ctx.strokeStyle = 'rgba(31, 214, 95, 0.3)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(x, y, 12, 0, Math.PI * 2);
+      points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
       ctx.stroke();
+      ctx.restore();
+    } else {
+      // Flying — segmented gradient line (green → teal → gold based on multi)
+      const segmentSize = Math.max(1, Math.floor(points.length / 40));
+
+      ctx.save();
+      ctx.lineWidth = 3 * dpr;
+      ctx.lineCap   = 'round';
+      ctx.lineJoin  = 'round';
+
+      for (let i = 0; i < points.length - 1; i += segmentSize) {
+        const end = Math.min(i + segmentSize, points.length - 1);
+        const midM = (points[i].m + points[end].m) / 2;
+        const c = multiplierToColor(midM);
+        ctx.strokeStyle = `rgb(${c.r},${c.g},${c.b})`;
+        ctx.shadowBlur  = 18 * dpr;
+        ctx.shadowColor = `rgba(${c.r},${c.g},${c.b},0.7)`;
+        ctx.beginPath();
+        ctx.moveTo(points[i].x, points[i].y);
+        for (let j = i + 1; j <= end; j++) {
+          ctx.lineTo(points[j].x, points[j].y);
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Glow trail under the line
+      ctx.save();
+      const gradX1 = points[0].x;
+      const gradX2 = points[points.length - 1].x;
+      const grad = ctx.createLinearGradient(gradX1, 0, gradX2, 0);
+
+      grad.addColorStop(0,   'rgba(31,214,95,0.0)');
+      grad.addColorStop(0.5, 'rgba(31,214,95,0.08)');
+      grad.addColorStop(1,   'rgba(31,214,95,0.18)');
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      points.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.lineTo(points[points.length - 1].x, padTop + gH);
+      ctx.lineTo(points[0].x, padTop + gH);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // Current point dot
+      const last = points[points.length - 1];
+      const c    = multiplierToColor(currentMulti);
+
+      ctx.save();
+      ctx.shadowBlur  = 24 * dpr;
+      ctx.shadowColor = `rgba(${c.r},${c.g},${c.b},0.9)`;
+      ctx.fillStyle   = `rgb(${c.r},${c.g},${c.b})`;
+      ctx.beginPath();
+      ctx.arc(last.x, last.y, 5 * dpr, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Outer ring
+      ctx.save();
+      ctx.strokeStyle = `rgba(${c.r},${c.g},${c.b},0.35)`;
+      ctx.lineWidth   = 1.5 * dpr;
+      ctx.shadowBlur  = 0;
+      ctx.beginPath();
+      ctx.arc(last.x, last.y, 10 * dpr, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
     }
   }
 
   return (
     <>
       <div class='crash-graph' ref={containerRef}>
+        {/* Background canvas for the graph line */}
+        <canvas ref={canvasRef} class='graph-canvas-el' />
+
         <div class='graph-header'>
           <A href='/docs/provably' class='fairness-link'>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -160,7 +258,7 @@ function CrashGraph(props) {
         </div>
 
         <div class='graph-center' classList={{ waiting: !props.isFlying && !props.isCrashed }}>
-          <Show 
+          <Show
             when={props.isFlying || props.isCrashed}
             fallback={
               <div class='countdown-display'>
@@ -173,14 +271,27 @@ function CrashGraph(props) {
               <p class='current-label'>
                 {props.isCrashed ? `CRASHED @ ${props.multiplier.toFixed(2)}x` : 'Current Payout'}
               </p>
-              <p class={'multiplier-value ' + (props.isCrashed ? 'crashed' : '')}>
+              <p
+                class={'multiplier-value ' + (props.isCrashed ? 'crashed' : '')}
+                style={props.isFlying && !props.isCrashed ? {
+                  color: props.multiplier >= 10 ? '#f5c842'
+                    : props.multiplier >= 5 ? '#00d2b4'
+                    : '#1fd65f',
+                  'text-shadow': props.multiplier >= 10
+                    ? '0 0 32px rgba(245,200,66,0.6)'
+                    : props.multiplier >= 5
+                    ? '0 0 28px rgba(0,210,180,0.5)'
+                    : '0 0 26px rgba(31,214,95,0.46)',
+                } : {}}
+              >
                 {props.multiplier.toFixed(2)}x
               </p>
             </div>
           </Show>
         </div>
 
-        <div class='graph-canvas'>
+        {/* Rocket flies above the graph */}
+        <div class='rocket-layer'>
           <Rocket3D
             multiplier={props.multiplier}
             isFlying={props.isFlying}
@@ -216,13 +327,23 @@ function CrashGraph(props) {
           mask-image: linear-gradient(180deg, rgba(0,0,0,.7), transparent 85%);
         }
 
+        .graph-canvas-el {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 1;
+          pointer-events: none;
+        }
+
         .graph-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
           padding: 16px 20px;
           position: relative;
-          z-index: 2;
+          z-index: 4;
         }
 
         .fairness-link {
@@ -262,11 +383,12 @@ function CrashGraph(props) {
 
         .graph-center {
           position: absolute;
-          top: 82px;
+          top: 72px;
           left: 50%;
           transform: translateX(-50%);
-          z-index: 3;
+          z-index: 5;
           text-align: center;
+          pointer-events: none;
         }
 
         .graph-center.waiting {
@@ -310,16 +432,17 @@ function CrashGraph(props) {
           font-weight: 600;
           color: #8b92a0;
           text-transform: uppercase;
+          letter-spacing: 0.08em;
         }
 
         .multiplier-value {
           font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 58px;
+          font-size: 72px;
           font-weight: 700;
           color: #1fd65f;
           text-shadow: 0 0 26px rgba(31, 214, 95, 0.46);
           line-height: 1;
-          transition: color .18s ease, text-shadow .18s ease, transform .18s ease;
+          transition: color .18s ease, text-shadow .18s ease;
         }
 
         .multiplier-value.crashed {
@@ -333,13 +456,14 @@ function CrashGraph(props) {
           50% { opacity: 0.5; }
         }
 
-        .graph-canvas {
+        .rocket-layer {
           position: absolute;
           top: 0;
           left: 0;
           width: 100%;
           height: 100%;
-          z-index: 1;
+          z-index: 2;
+          pointer-events: none;
         }
 
         @media (max-width: 768px) {
@@ -352,7 +476,7 @@ function CrashGraph(props) {
           }
 
           .multiplier-value {
-            font-size: 48px;
+            font-size: 56px;
           }
 
           .countdown-value {
