@@ -30,23 +30,53 @@ function CasePage(props) {
 
   let tickTimer = null
 
+  /**
+   * Bezier derivative for cubic-bezier(0.08, 0.78, 0.16, 1.0) — the CSS spin easing.
+   * Returns the instantaneous speed at normalized time t (0→1).
+   * Higher speed → shorter tick interval.
+   */
+  function spinBezierSpeed(t) {
+    // Control points: P0=0, P1=0.08, P2=0.78, P3=1
+    const p1 = 0.08, p2 = 0.78, p3 = 1
+    // Derivative of cubic bezier: B'(t) = 3(1-t)²(p1-0) + 6(1-t)t(p2-p1) + 3t²(p3-p2)
+    const u = 1 - t
+    return 3 * u * u * p1 + 6 * u * t * (p2 - p1) + 3 * t * t * (p3 - p2)
+  }
+
   function startTicking(duration) {
     if (tickTimer) clearTimeout(tickTimer)
     let elapsed = 0
+
+    /**
+     * Instead of naive linear deceleration, we use the same cubic-bezier
+     * as the CSS animation. At each step we compute the bezier speed and
+     * derive a delay that matches how fast items are actually scrolling.
+     *
+     * minDelay  = 75 ms  — fastest tick (start of spin)
+     * maxDelay  = 280 ms — slowest tick (end of spin)
+     */
+    const minDelay = 75
+    const maxDelay = 280
+
     const tick = () => {
       playGameSFX('case-tick', '/assets/sfx/casetick.wav', {
         channel: 'spin-tick',
         volume: 0.52,
-        minIntervalMs: 45,
+        minIntervalMs: 40,
       })
-      const progress = Math.min(elapsed / duration, 1)
-      const delay = Math.round(75 + progress * 225)
+
+      const progress = Math.min(elapsed / duration, 0.999)
+      const speed = Math.max(spinBezierSpeed(progress), 0.01)
+      // Invert speed to get delay: fast (high speed) → short delay, slow → long delay
+      const normalized = 1 - Math.min(1, speed / 3)
+      const delay = Math.round(minDelay + normalized * (maxDelay - minDelay))
+
       elapsed += delay
       if (elapsed < duration) {
         tickTimer = setTimeout(tick, delay)
       }
     }
-    tickTimer = setTimeout(tick, 75)
+    tickTimer = setTimeout(tick, minDelay)
   }
 
   createEffect(() => {

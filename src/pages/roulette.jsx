@@ -16,20 +16,37 @@ function Roulette(props) {
 
     let rouletteTickTimer = null
 
+    /**
+     * Derivative of cubic-bezier(0.09, 0.75, 0.13, 1) — the roulette spinner easing.
+     * Returns instantaneous speed at normalized time t (0→1).
+     */
+    function rouletteBezierSpeed(t) {
+        // Control points: P0=0, P1=0.09, P2=0.75, P3=1
+        const p1 = 0.09, p2 = 0.75, p3 = 1
+        const u = 1 - t
+        return 3 * u * u * p1 + 6 * u * t * (p2 - p1) + 3 * t * t * (p3 - p2)
+    }
+
     // spinPhase = the active-spin window (0 → 90% of rollTime).
     // Ticking stops naturally here; the hold + snap phases are silent.
+    // Tick intervals follow the bezier curve — faster when items move fast.
     function startRouletteTicking(spinPhase) {
         if (rouletteTickTimer) clearTimeout(rouletteTickTimer)
         let elapsed = 0
+
+        const minDelay = 75
+        const maxDelay = 300
+
         const tick = () => {
           playGameSFX('roulette-tick', '/assets/sfx/casetick.wav', {
             channel: 'spin-tick',
             volume: 0.5,
-            minIntervalMs: 45,
+            minIntervalMs: 40,
           })
-            // Linear decel: 75 ms → 300 ms — same pattern as case opening & battles
-            const progress = Math.min(elapsed / spinPhase, 1)
-            const delay = Math.round(75 + progress * 225)
+            const progress = Math.min(elapsed / spinPhase, 0.999)
+            const speed = Math.max(rouletteBezierSpeed(progress), 0.01)
+            const normalized = 1 - Math.min(1, speed / 3)
+            const delay = Math.round(minDelay + normalized * (maxDelay - minDelay))
             elapsed += delay
             if (elapsed < spinPhase) {
                 rouletteTickTimer = setTimeout(tick, delay)
@@ -37,7 +54,7 @@ function Roulette(props) {
                 rouletteTickTimer = null
             }
         }
-        rouletteTickTimer = setTimeout(tick, 75)
+        rouletteTickTimer = setTimeout(tick, minDelay)
     }
 
     const [bets, setBets] = createSignal([])

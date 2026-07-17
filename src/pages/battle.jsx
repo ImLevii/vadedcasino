@@ -33,21 +33,37 @@ function Battle(props) {
     const [floatingEmojis, setFloatingEmojis] = createSignal([])
     let emojiLastSent = 0
 
-    // Spin sounds — same linear-decel pattern as case opening
+    // Spin sounds — curve-matched to the CSS cubic-bezier(.08,.7,.14,1)
     let battleTickTimer = null
+
+    /**
+     * Derivative of cubic-bezier(0.08, 0.7, 0.14, 1.0) — the battle spinner easing.
+     * Returns instantaneous speed at normalized time t (0→1).
+     */
+    function battleBezierSpeed(t) {
+        // Control points: P0=0, P1=0.08, P2=0.7, P3=1
+        const p1 = 0.08, p2 = 0.7, p3 = 1
+        const u = 1 - t
+        return 3 * u * u * p1 + 6 * u * t * (p2 - p1) + 3 * t * t * (p3 - p2)
+    }
 
     function startBattleTicking(spinPhase) {
         if (battleTickTimer) clearTimeout(battleTickTimer)
         let elapsed = 0
+
+        const minDelay = 75
+        const maxDelay = 320
+
         const tick = () => {
           playGameSFX('battle-tick', '/assets/sfx/casetick.wav', {
             channel: 'spin-tick',
             volume: 0.5,
-            minIntervalMs: 45,
+            minIntervalMs: 40,
           })
-            // Linear decel: 75 ms → 300 ms — identical to case opening
-            const progress = Math.min(elapsed / spinPhase, 1)
-            const delay = Math.round(75 + progress * 225)
+            const progress = Math.min(elapsed / spinPhase, 0.999)
+            const speed = Math.max(battleBezierSpeed(progress), 0.01)
+            const normalized = 1 - Math.min(1, speed / 3)
+            const delay = Math.round(minDelay + normalized * (maxDelay - minDelay))
             elapsed += delay
             if (elapsed < spinPhase) {
                 battleTickTimer = setTimeout(tick, delay)
@@ -55,7 +71,7 @@ function Battle(props) {
                 battleTickTimer = null
             }
         }
-        battleTickTimer = setTimeout(tick, 75)
+        battleTickTimer = setTimeout(tick, minDelay)
     }
 
     // Winning

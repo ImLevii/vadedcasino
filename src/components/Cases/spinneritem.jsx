@@ -21,7 +21,7 @@ function SpinnerItem(props) {
         if (elapsed > delay) {
             start = null
             playGameSFX('case-item-tick', '/assets/sfx/casetick.wav', {
-                channel: 'spin-tick',
+                channel: 'item-tick',
                 volume: 0.45,
                 minIntervalMs: 50,
             })

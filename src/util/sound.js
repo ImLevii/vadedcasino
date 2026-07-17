@@ -71,6 +71,27 @@ export function stopSFXChannel(channel, options = {}) {
   channelState.delete(channel);
 }
 
+/**
+ * Forcefully restart an audio element: fully reset it before playing again.
+ * This prevents audio drift/overlap when the same sound must replay immediately.
+ */
+function resetAndPlay(audio, volume) {
+  try {
+    // Fully reset the audio element to a clean state
+    audio.pause();
+    // Small delay forces the browser to flush any pending audio buffer
+    audio.currentTime = 0;
+    audio.volume = volume;
+    // Use void to ensure the play() promise is handled
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {});
+    }
+  } catch (e) {
+    // Silently fail if audio context is not available
+  }
+}
+
 export function playGameSFX(key, src, options = {}) {
   if (typeof window === 'undefined') return;
 
@@ -100,17 +121,14 @@ export function playGameSFX(key, src, options = {}) {
   const localVolume = options.volume == null ? 1 : options.volume;
   const targetVolume = Math.max(0, Math.min(1, localVolume * globalVolume));
 
-  if (options.restart !== false) {
-    audio.currentTime = 0;
-  }
-
   if (options.fadeInMs && options.fadeInMs > 0) {
     audio.volume = 0;
+    resetAndPlay(audio, 0);
     fadeTo(audio, targetVolume, options.fadeInMs);
   } else {
-    audio.volume = targetVolume;
+    // Force restart with proper volume
+    resetAndPlay(audio, targetVolume);
   }
 
   lastPlayedAt.set(key, nowMs());
-  audio.play().catch(() => {});
 }
