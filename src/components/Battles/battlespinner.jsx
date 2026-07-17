@@ -660,16 +660,7 @@ function BattleSpinner(props) {
           align-items: center;
 
           overflow: hidden;
-          background: radial-gradient(94% 48% at 50% 50%, rgba(31, 214, 95, 0.06), rgba(31, 214, 95, 0) 68%);
-        }
-
-        .spinner-column:before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          z-index: -1;
-          background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.03) 50%, rgba(255,255,255,0));
-          opacity: 0.5;
+          background: #0d1219;
         }
 
         .center-band {
@@ -699,12 +690,12 @@ function BattleSpinner(props) {
 
         .fade-top {
           top: 0;
-          background: linear-gradient(180deg, #06080e 0%, rgba(6, 8, 14, 0.68) 42%, transparent 100%);
+          background: linear-gradient(180deg, #0d1219 0%, rgba(13, 18, 25, 0.72) 42%, transparent 100%);
         }
 
         .fade-bottom {
           bottom: 0;
-          background: linear-gradient(0deg, #06080e 0%, rgba(6, 8, 14, 0.68) 42%, transparent 100%);
+          background: linear-gradient(0deg, #0d1219 0%, rgba(13, 18, 25, 0.72) 42%, transparent 100%);
         }
 
         .bar {

@@ -43,8 +43,13 @@ function BattleColumn(props) {
                 flex: 1 0 0;
                 display: flex;
                 flex-direction: column;
-                gap: 14px;
+                gap: 0;
                 min-width: 0;
+                border-right: 1px solid rgba(255,255,255,0.05);
+              }
+
+              .column:last-child {
+                border-right: none;
               }
               
               .container {

@@ -452,40 +452,27 @@ function Battle(props) {
 
                 display: flex;
                 flex-direction: column;
-                gap: 20px;
+                gap: 14px;
 
                 box-sizing: border-box;
-                padding: 20px 18px 96px;
+                padding: 18px 18px 96px;
                 margin: 0 auto;
               }
 
-              /* ── Enhanced top bar ── */
+              /* ── Top bar — tight flat bar matching CSGOLuck reference ── */
               .battle-topbar {
                 width: 100%;
-                min-height: 74px;
+                min-height: 68px;
                 box-sizing: border-box;
                 position: relative;
-                border-radius: var(--glass-radius);
-                border: 1px solid var(--glass-border);
-                background: var(--btn-glass-bg);
-                box-shadow: inset 0 1px 0 var(--glass-highlight), 0 8px 32px rgba(0,0,0,0.25);
+                border-radius: 10px;
+                border: 1px solid rgba(255,255,255,0.06);
+                background: #111720;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 12px;
-                padding: 8px 16px;
-                backdrop-filter: var(--glass-blur);
-                -webkit-backdrop-filter: var(--glass-blur);
-                transition: all var(--transition-smooth);
-              }
-
-              .battle-topbar::before {
-                content: '';
-                position: absolute;
-                top: 0; left: 0; right: 0;
-                height: 1px;
-                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
-                z-index: 1;
+                gap: 10px;
+                padding: 6px 14px;
               }
 
               .topbar-left, .topbar-right {
@@ -568,11 +555,11 @@ function Battle(props) {
 
               .center-spine {
                 position: absolute;
-                top: 14px;
-                bottom: 14px;
+                top: 0;
+                bottom: 0;
                 left: 50%;
                 transform: translateX(-50%);
-                width: 3px;
+                width: 4px;
                 z-index: 5;
                 pointer-events: none;
               }
@@ -746,43 +733,15 @@ function Battle(props) {
                 overflow: visible;
                 box-sizing: border-box;
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
                 align-items: start;
-                gap: 14px;
-                padding: 14px;
-                border-radius: var(--glass-radius);
-                border: 1px solid var(--glass-border);
-                background: var(--btn-glass-bg);
-                box-shadow: 
-                  inset 0 1px 0 var(--glass-highlight), 
-                  0 10px 32px rgba(0,0,0,0.26),
-                  0 24px 60px rgba(0,0,0,0.22);
+                gap: 0;
+                padding: 0;
+                border-radius: 10px;
+                border: 1px solid rgba(255,255,255,0.06);
+                background: #0d1219;
                 position: relative;
-                backdrop-filter: var(--glass-blur);
-                -webkit-backdrop-filter: var(--glass-blur);
-              }
-               
-              .columns::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                border-radius: var(--glass-radius);
-                background: radial-gradient(circle at 50% 0%, 
-                  rgba(31, 214, 95, 0.025), 
-                  transparent 60%);
-                pointer-events: none;
-              }
-
-              .columns:hover {
-                border-color: rgba(31, 214, 95, 0.10);
-                box-shadow: 
-                  inset 0 1px 0 rgba(255,255,255,0.05), 
-                  0 12px 40px rgba(0,0,0,0.3),
-                  0 28px 64px rgba(0,0,0,0.25),
-                  0 0 0 1px rgba(31, 214, 95, 0.04);
+                overflow: hidden;
               }
 
               /* Team Totals Bar */
@@ -791,26 +750,10 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 18px 22px;
-                border-radius: var(--glass-radius);
-                border: 1px solid var(--glass-border);
-                background: var(--btn-glass-bg);
-                box-shadow: 
-                  inset 0 1px 0 var(--glass-highlight), 
-                  0 10px 32px rgba(0,0,0,0.26),
-                  0 24px 60px rgba(0,0,0,0.22);
-                backdrop-filter: var(--glass-blur);
-                -webkit-backdrop-filter: var(--glass-blur);
-                transition: all var(--transition-smooth);
-              }
-
-              .team-totals:hover {
-                border-color: rgba(31, 214, 95, 0.12);
-                box-shadow: 
-                  inset 0 1px 0 rgba(255,255,255,0.05), 
-                  0 12px 36px rgba(0,0,0,0.3),
-                  0 28px 64px rgba(0,0,0,0.25),
-                  var(--green-glow);
+                padding: 14px 18px;
+                border-radius: 10px;
+                border: 1px solid rgba(255,255,255,0.06);
+                background: #111720;
               }
 
               .team-side {
