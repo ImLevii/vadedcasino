@@ -229,9 +229,10 @@ async function start() {
         console.log(`Listening on 0.0.0.0:${port}`);
     });
 
+    // Load socket.io handlers (imports game modules)
     require('./socketio');
-    io.attach(serverInstance, { cors: { origin: '*' } });
 
+    // Warm up caches BEFORE accepting socket connections
     const timeoutMs = Math.max(100, Number(process.env.STARTUP_CACHE_TIMEOUT_MS) || 15000);
     const results = await Promise.all(promises.map((promise) => timedPromise(promise, promise.name, timeoutMs)));
     startupState.failures = results.filter((result) => result.error).map((result) => ({
@@ -246,6 +247,9 @@ async function start() {
     } else {
         console.log('[startup] Cache warm-up completed successfully.');
     }
+
+    // Attach socket.io AFTER cache warm-up completes
+    io.attach(serverInstance, { cors: { origin: '*' } });
 
 }
 
