@@ -30,8 +30,10 @@ router.post('/join', [isAuthed, apiLimiter], async (req, res) => {
     const [[userWagered]] = await sql.query('SELECT SUM(amount) AS wagered FROM bets WHERE userId = ? AND completed = 1 AND createdAt > DATE_SUB(NOW(), INTERVAL 30 DAY)', [req.userId]);
     if (userWagered.wagered < 2500) return res.status(400).json({ error: 'NOT_ENOUGH_WAGERED' });
 
-    const [[lastWeekDeposits]] = await sql.query('SELECT COALESCE(SUM(amount), 0) as sum FROM transactions WHERE userId = ? AND type = ? AND createdAt > ?', [req.userId, 'deposit', new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)]);
-    if (lastWeekDeposits.sum < 200) return res.status(400).json({ error: 'INSUFFICIENT_DEPOSITS' });
+    if (enabledFeatures.rainDailyDepositRequirement) {
+        const [[lastWeekDeposits]] = await sql.query('SELECT COALESCE(SUM(amount), 0) as sum FROM transactions WHERE userId = ? AND type = ? AND createdAt > ?', [req.userId, 'deposit', new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)]);
+        if (lastWeekDeposits.sum < 200) return res.status(400).json({ error: 'INSUFFICIENT_DEPOSITS' });
+    }
 
     // console.log(req.body);
 
@@ -52,6 +54,13 @@ router.post('/join', [isAuthed, apiLimiter], async (req, res) => {
     }
 
     if (rain.users.includes(req.userId)) return res.status(400).json({ error: 'ALREADY_JOINED_RAIN' });
+
+    if (enabledFeatures.rainCaptcha) {
+        const captchaResponse = req.body.captchaResponse;
+        if (!captchaResponse || typeof captchaResponse !== 'string' || captchaResponse.length < 10) {
+            return res.status(400).json({ error: 'CAPTCHA_REQUIRED' });
+        }
+    }
 
     try {
 

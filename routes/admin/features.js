@@ -15,7 +15,7 @@ router.post('/:id', async (req, res) => {
     if (enabledFeatures[feature] === undefined) return res.status(400).json({ error: 'INVALID_FEATURE' });
 
     const enable = req.body.enable;
-    if (typeof enable !== 'boolean') return res.status(400).json({ error: 'INVALID_ENABLE' });
+    if (enable !== true && enable !== false) return res.status(400).json({ error: 'INVALID_ENABLE' });
 
     enabledFeatures[feature] = enable;
     await sql.query('UPDATE features SET enabled = ? WHERE id = ?', [enable, feature]);

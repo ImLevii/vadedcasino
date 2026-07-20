@@ -4,6 +4,31 @@ import Loader from "../Loader/loader";
 import AdminMFA from "../MFA/adminmfa";
 import Switch from "../Toggle/switch";
 
+function formatFeatureName(id) {
+    const map = {
+        'battles': 'Battles',
+        'coinflip': 'Coinflip',
+        'crash': 'Crash',
+        'roulette': 'Roulette',
+        'mines': 'Mines',
+        'blackjack': 'Blackjack',
+        'slots': 'Slots',
+        'chat': 'Chat',
+        'rain': 'Rain',
+        'leaderboard': 'Leaderboard',
+        'rakeback': 'Rakeback',
+        'promoCodes': 'Promo Codes',
+        'affiliates': 'Affiliates',
+        'surveys': 'Surveys',
+        'cryptoDeposits': 'Crypto Deposits',
+        'cryptoWithdrawals': 'Crypto Withdrawals',
+        'skindeck': 'SkinDeck',
+        'rainCaptcha': 'Rain Captcha',
+        'rainDailyDepositRequirement': 'Rain Daily Deposit Requirement'
+    };
+    return map[id] || id?.toUpperCase();
+}
+
 function AdminSettings(props) {
 
     const [settings, {mutate: mutateSettings, refetch: refetchSettings}] = createResource(fetchSettings)
@@ -45,7 +70,7 @@ function AdminSettings(props) {
                     <For each={Object.entries(settings() || {})}>{(entry) =>
                         <Show when={entry[0] !== 'mfa'}>
                             <div class='setting'>
-                                <p class='setting-label'>{entry[0]?.toUpperCase()}</p>
+                                <p class='setting-label'>{formatFeatureName(entry[0])}</p>
                                 <Switch dark={true} active={entry[1]} toggle={(v) => handleToggle(entry[0], v)}/>
                             </div>
                         </Show>
