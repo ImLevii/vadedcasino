@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.use('/crypto', require('./crypto'));
 router.use('/skindeck', require('./skindeck'));
+router.use('/giftcards', require('./giftcards'));
 
 router.post('/createGiftCards', async (req, res) => {
     const quantity = parseInt(req.body.quantity);

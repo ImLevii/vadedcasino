@@ -211,6 +211,7 @@ function AdminStatistics(props) {
                 align-items: center;
                 gap: 8px;
                 flex: 1 1 0;
+                min-width: 0;
               }
 
               .table-column:nth-of-type(5n), .table-column:nth-of-type(4n) {
@@ -250,6 +251,8 @@ function AdminStatistics(props) {
               .content {
                 display: flex;
                 gap: 35px;
+                width: 100%;
+                min-width: 0;
               }
 
               .filters {
@@ -258,6 +261,7 @@ function AdminStatistics(props) {
 
                 display: flex;
                 flex-direction: column;
+                flex-shrink: 0;
               }
 
               .search-wrapper {
@@ -308,11 +312,19 @@ function AdminStatistics(props) {
                 align-items: center;
                 justify-content: center;
               }
-                cursor: pointer;
-              }
 
               .users-wrapper {
                 width: 100%;
+                min-width: 0;
+              }
+
+              @media only screen and (max-width: 768px) {
+                .content {
+                  flex-direction: column;
+                }
+                .filters {
+                  max-width: 100%;
+                }
               }
             `}</style>
         </>

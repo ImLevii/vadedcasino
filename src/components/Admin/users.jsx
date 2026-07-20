@@ -196,6 +196,7 @@ function AdminUsers(props) {
                 align-items: center;
                 gap: 8px;
                 flex: 1 1 0;
+                min-width: 0;
               }
 
               .table-column:nth-of-type(4n) {
@@ -235,6 +236,8 @@ function AdminUsers(props) {
               .content {
                 display: flex;
                 gap: 35px;
+                width: 100%;
+                min-width: 0;
               }
               
               .filters {
@@ -243,6 +246,7 @@ function AdminUsers(props) {
                 
                 display: flex;
                 flex-direction: column;
+                flex-shrink: 0;
               }
               
               .search-wrapper {
@@ -296,6 +300,19 @@ function AdminUsers(props) {
               
               .users-wrapper {
                 width: 100%;
+                min-width: 0;
+              }
+
+              @media only screen and (max-width: 768px) {
+                .content {
+                  flex-direction: column;
+                }
+                .filters {
+                  max-width: 100%;
+                }
+                .table-column {
+                  font-size: 11px;
+                }
               }
             `}</style>
         </>

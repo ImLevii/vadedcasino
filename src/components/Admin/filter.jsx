@@ -174,6 +174,7 @@ function AdminFilter(props) {
                 align-items: center;
                 gap: 8px;
                 flex: 1 1 0;
+                min-width: 0;
               }
 
               .table-column:nth-of-type(2n) {
@@ -213,6 +214,8 @@ function AdminFilter(props) {
               .content {
                 display: flex;
                 gap: 35px;
+                width: 100%;
+                min-width: 0;
               }
               
               .filters {
@@ -222,6 +225,7 @@ function AdminFilter(props) {
                 display: flex;
                 flex-direction: column;
                 gap: 10px;
+                flex-shrink: 0;
               }
               
               .input-wrapper {
@@ -280,6 +284,7 @@ function AdminFilter(props) {
               
               .phrases-wrapper {
                 width: 100%;
+                min-width: 0;
               }
               
               .remove {
@@ -307,6 +312,15 @@ function AdminFilter(props) {
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 15px;
                 font-weight: 600;
+              }
+
+              @media only screen and (max-width: 768px) {
+                .content {
+                  flex-direction: column;
+                }
+                .filters {
+                  max-width: 100%;
+                }
               }
             `}</style>
         </>
