@@ -48,7 +48,7 @@ function AdminCryptoCashier(props) {
         setIsLoading(true)
         setParams({page: page()})
 
-        let moreData = await authedAPI(`/admin/cashier/crypto?sortBy=coinAmount&sortOrder=DESC&page${page()}${params?.search ? `&search=${params?.search}` : ''}`, 'GET', null)
+        let moreData = await authedAPI(`/admin/cashier/crypto?sortBy=coinAmount&sortOrder=DESC&page=${page()}${params?.search ? `&search=${params?.search}` : ''}`, 'GET', null)
         if (!moreData) return setIsLoading(false)
 
         addPage(moreData.data, page(), setTransactions)
