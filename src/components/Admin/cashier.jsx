@@ -1,8 +1,9 @@
-import {createSignal, createResource, For, Show, onCleanup} from "solid-js";
+import {createSignal, createResource, For, Show, onCleanup, onMount} from "solid-js";
 import {authedAPI, createNotification} from "../../util/api";
 import AdminCryptoCashier from "../Cashier/cryptotxs";
 import AdminSkinDeckCashier from "../Cashier/skindecktxs";
 import {useSearchParams} from "@solidjs/router";
+import {useWebsocket} from "../../contexts/socketprovider";
 
 function AdminCashier(props) {
 
@@ -102,6 +103,37 @@ function AdminCashier(props) {
 
     // Initial fetch
     fetchGiftcards(1, '', 'active')
+
+    // Socket.IO listener for real-time giftcard updates
+    const [socket] = useWebsocket()
+    onMount(() => {
+        if (!socket) return
+        const handler = (data) => {
+            if (!data?.codes?.length) return
+            // Prepend new gift cards to the list
+            setCards(prev => {
+                const newCards = data.codes.map(code => ({
+                    id: 0, // Will be assigned by DB, but we show it optimistically
+                    code,
+                    amount: data.amount,
+                    redeemedAt: null,
+                    redeemedBy: null,
+                    redeemedByUsername: null,
+                    notes: `Generated ${new Date().toLocaleString()}`,
+                    createdAt: new Date().toISOString()
+                }))
+                return [...newCards, ...prev]
+            })
+            // Update total count
+            setGcTotal(prev => prev + (data.quantity || data.codes.length))
+            // Show notification
+            createNotification('success', `Received ${data.codes.length} new gift card(s) worth $${data.amount} each.`)
+        }
+        socket.on('admin:giftcards:created', handler)
+        onCleanup(() => {
+            socket.off('admin:giftcards:created', handler)
+        })
+    })
 
     // Reset to page 1 when filters change
     function onSearch(val) {

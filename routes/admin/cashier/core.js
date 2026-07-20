@@ -2,6 +2,7 @@ const express = require('express');
 
 const { sql } = require('../../../database');
 const { sendLog } = require('../../../utils');
+const io = require('../../../socketio/server');
 
 const router = express.Router();
 
@@ -33,6 +34,10 @@ router.post('/createGiftCards', async (req, res) => {
 
     await sql.query('INSERT INTO giftCards (code, amount, usd) VALUES ?', [values]);
     sendLog('admin', `[\`${req.userId}\`] *${req.user.username}* created \`${quantity}\` gift cards of $\`${amount}\`usd each`);
+
+    // Emit real-time update to admin cashier giftcards page
+    io.emit('admin:giftcards:created', { quantity, amount, codes });
+
     res.json({ success: true, codes, amount });
 });
 
