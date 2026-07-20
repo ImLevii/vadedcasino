@@ -632,8 +632,11 @@ CREATE TABLE IF NOT EXISTS `giftCards` (
     `amount`     INT UNSIGNED NOT NULL DEFAULT 0,
     `usd`        TINYINT(1)   NOT NULL DEFAULT 0,
     `redeemedAt` DATETIME     DEFAULT NULL,
+    `redeemedBy` BIGINT UNSIGNED DEFAULT NULL,
+    `notes`      VARCHAR(500) DEFAULT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uq_giftCards_code` (`code`)
+    UNIQUE KEY `uq_giftCards_code` (`code`),
+    KEY `idx_giftCards_redeemedAt` (`redeemedAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
