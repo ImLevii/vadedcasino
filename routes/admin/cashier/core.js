@@ -1,10 +1,20 @@
 const express = require('express');
+const path = require('path');
 
 const { sql } = require('../../../database');
 const { sendLog } = require('../../../utils');
 const io = require('../../../socketio/server');
 
 const router = express.Router();
+
+// GET /admin/cashier - Serve the cashier SPA page
+router.get('/', (req, res) => {
+    if (process.env.NODE_ENV === 'development') {
+        const frontendUrl = process.env.VITE_SERVER_URL || 'http://localhost:3001';
+        return res.redirect(`${frontendUrl}/admin/cashier`);
+    }
+    res.sendFile(path.join(__dirname, '../../../../dist/index.html'));
+});
 
 router.use('/crypto', require('./crypto'));
 router.use('/skindeck', require('./skindeck'));
