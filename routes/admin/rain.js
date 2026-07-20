@@ -5,7 +5,6 @@ const { sql, doTransaction } = require('../../database');
 const { rains, forceStartSystemRain, forceEndSystemRain, scheduleRain, cancelScheduledRain } = require('../../socketio/rain');
 const io = require('../../socketio/server');
 const { sendLog } = require('../../utils');
-
 const resultsPerPage = 10;
 
 router.get('/', async (req, res) => {
