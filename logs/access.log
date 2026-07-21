@@ -1,0 +1,17 @@
+[21/Jul/2026:06:35:58 +0000] - GET /admin/cashier 401 1.169 ms - curl/8.7.1
+[21/Jul/2026:06:36:29 +0000] - GET /admin/cashier 401 0.257 ms - curl/8.7.1
+[21/Jul/2026:06:37:18 +0000] - GET /admin/cashier 401 0.134 ms - curl/8.7.1
+[21/Jul/2026:06:37:46 +0000] - GET /admin/cashier 401 0.154 ms - curl/8.7.1
+[21/Jul/2026:06:38:44 +0000] - GET /admin/cashier 401 0.152 ms - curl/8.7.1
+[21/Jul/2026:06:39:38 +0000] - GET /admin/cashier 401 0.142 ms - curl/8.7.1
+[21/Jul/2026:06:40:48 +0000] - GET /auth 404 1.592 ms - curl/8.7.1
+[21/Jul/2026:06:51:54 +0000] - POST /auth/login 200 148.787 ms - curl/8.7.1
+[21/Jul/2026:06:53:30 +0000] - GET /admin/cashier 401 0.629 ms - curl/8.7.1
+[21/Jul/2026:06:53:40 +0000] - POST /admin/2fa 401 0.263 ms - curl/8.7.1
+[21/Jul/2026:06:53:46 +0000] - POST /admin/2fa 401 0.201 ms - curl/8.7.1
+[21/Jul/2026:06:54:23 +0000] - POST /admin/2fa 401 0.182 ms - curl/8.7.1
+[21/Jul/2026:06:55:48 +0000] - POST /auth/login 200 114.641 ms - curl/8.7.1
+[21/Jul/2026:06:55:57 +0000] - GET /admin/cashier 401 0.181 ms - curl/8.7.1
+[21/Jul/2026:06:56:14 +0000] - GET /admin/cashier 200 72.056 ms - curl/8.7.1
+[21/Jul/2026:06:56:29 +0000] - POST /admin/2fa 401 0.185 ms - curl/8.7.1
+[21/Jul/2026:06:57:17 +0000] - POST /admin/2fa 401 0.179 ms - curl/8.7.1

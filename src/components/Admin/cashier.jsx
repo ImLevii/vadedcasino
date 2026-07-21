@@ -105,9 +105,10 @@ function AdminCashier(props) {
     fetchGiftcards(1, '', 'active')
 
     // Socket.IO listener for real-time giftcard updates
-    const [socket] = useWebsocket()
+    const [ws] = useWebsocket()
     onMount(() => {
-        if (!socket) return
+      const socket = ws()
+      if (!socket) return
         const handler = (data) => {
             if (!data?.codes?.length) return
             // Prepend new gift cards to the list
