@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
         const frontendUrl = process.env.VITE_SERVER_URL || 'http://localhost:3001';
         return res.redirect(`${frontendUrl}/admin/cashier`);
     }
-    res.sendFile(path.join(__dirname, '../../../../dist/index.html'));
+    res.sendFile(path.join(__dirname, '../../../dist/index.html'));
 });
 
 router.use('/crypto', require('./crypto'));
