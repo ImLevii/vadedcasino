@@ -231,6 +231,32 @@ function CrashGraph(props) {
     }
   }
 
+  function getShipPosition() {
+    const multi = Math.max(1, props.multiplier || 1);
+    const maxMulti = Math.max(2.0, multi * 1.25);
+    const maxTime = Math.max(10000, getTimeFromMultiplier(multi) * 1.25);
+    const currentTime = getTimeFromMultiplier(multi);
+
+    const padLeftPct = 3;
+    const padRightPct = 8;
+    const usableWidthPct = 100 - padLeftPct - padRightPct;
+
+    const xRatio = Math.max(0, Math.min(1, currentTime / maxTime));
+    const yRatio = Math.max(0, Math.min(1, (multi - 1) / (maxMulti - 1)));
+
+    const left = padLeftPct + xRatio * usableWidthPct;
+    const top = 90 - yRatio * 70;
+    const tilt = -10 + (xRatio * 14);
+
+    return {
+      left: `${left.toFixed(3)}%`,
+      top: `${top.toFixed(3)}%`,
+      tilt: `${tilt.toFixed(2)}deg`
+    };
+  }
+
+  const shipPosition = () => getShipPosition();
+
   return (
     <>
       <div class='crash-graph' ref={containerRef}>
@@ -245,6 +271,25 @@ function CrashGraph(props) {
             <span class='amount'>{(props.maxPayout / 1000).toFixed(2)}K</span>
           </div>
         </div>
+
+        <Show when={props.isFlying || props.isCrashed}>
+          <div
+            class={'spaceship ' + (props.isFlying ? 'flying' : 'crashed')}
+            style={{
+              left: shipPosition().left,
+              top: shipPosition().top,
+              '--ship-tilt': shipPosition().tilt
+            }}
+          >
+            <div class='ship-core'>
+              <span class='cockpit'/>
+              <span class='wing wing-left'/>
+              <span class='wing wing-right'/>
+              <span class='engine'/>
+              <span class='thruster'/>
+            </div>
+          </div>
+        </Show>
 
         <div class='graph-center' classList={{ waiting: !props.isFlying && !props.isCrashed }}>
           <Show
@@ -373,6 +418,93 @@ function CrashGraph(props) {
           pointer-events: none;
         }
 
+        .spaceship {
+          position: absolute;
+          width: 46px;
+          height: 46px;
+          z-index: 4;
+          transform: translate(-50%, -50%) rotate(var(--ship-tilt));
+          pointer-events: none;
+          transition: left .11s linear, top .11s linear;
+        }
+
+        .spaceship.flying {
+          animation: ship-drift 1.2s ease-in-out infinite;
+        }
+
+        .spaceship.crashed {
+          opacity: 0.55;
+          filter: grayscale(0.4);
+        }
+
+        .ship-core {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          border-radius: 14px;
+          background: linear-gradient(145deg, #243445 0%, #122130 55%, #0a151f 100%);
+          border: 1px solid rgba(132, 195, 255, 0.35);
+          box-shadow:
+            inset 0 1px 0 rgba(255,255,255,0.24),
+            0 10px 24px rgba(0,0,0,0.45),
+            0 0 20px rgba(31,214,95,0.22);
+        }
+
+        .cockpit {
+          position: absolute;
+          left: 50%;
+          top: 7px;
+          transform: translateX(-50%);
+          width: 17px;
+          height: 14px;
+          border-radius: 9px 9px 6px 6px;
+          background: radial-gradient(circle at 45% 35%, #a8f6ff, #2a6fa3 68%, #173a5c 100%);
+          box-shadow: 0 0 12px rgba(105, 231, 255, 0.4);
+        }
+
+        .wing {
+          position: absolute;
+          top: 19px;
+          width: 16px;
+          height: 12px;
+          border-radius: 3px;
+          background: linear-gradient(180deg, rgba(196,225,255,0.8), rgba(61,111,154,0.9));
+        }
+
+        .wing-left {
+          left: -9px;
+          transform: skewY(14deg) rotate(-7deg);
+        }
+
+        .wing-right {
+          right: -9px;
+          transform: skewY(-14deg) rotate(7deg);
+        }
+
+        .engine {
+          position: absolute;
+          left: 50%;
+          bottom: 8px;
+          transform: translateX(-50%);
+          width: 13px;
+          height: 8px;
+          border-radius: 2px 2px 5px 5px;
+          background: linear-gradient(180deg, #37556f, #162635);
+        }
+
+        .thruster {
+          position: absolute;
+          left: 50%;
+          bottom: -14px;
+          transform: translateX(-50%);
+          width: 11px;
+          height: 18px;
+          border-radius: 2px 2px 8px 8px;
+          background: linear-gradient(180deg, rgba(104,253,185,0.92), rgba(60,196,255,0.7), rgba(40,120,255,0));
+          filter: drop-shadow(0 0 10px rgba(64,226,170,0.5));
+          animation: thruster-flicker .2s ease-in-out infinite alternate;
+        }
+
         .graph-center.waiting {
           top: 50%;
           transform: translate(-50%, -50%);
@@ -433,6 +565,16 @@ function CrashGraph(props) {
           50% { opacity: 0.4; }
         }
 
+        @keyframes ship-drift {
+          0%, 100% { transform: translate(-50%, -50%) rotate(var(--ship-tilt)) translateY(0px); }
+          50% { transform: translate(-50%, -50%) rotate(calc(var(--ship-tilt) + 1.6deg)) translateY(-2px); }
+        }
+
+        @keyframes thruster-flicker {
+          from { opacity: .65; height: 15px; }
+          to { opacity: 1; height: 20px; }
+        }
+
         @media (max-width: 768px) {
           .crash-graph {
             min-height: 500px;
@@ -446,6 +588,11 @@ function CrashGraph(props) {
             font-size: 56px;
           }
 
+          .spaceship {
+            width: 38px;
+            height: 38px;
+          }
+
           .countdown-value {
             font-size: 42px;
           }
@@ -453,6 +600,11 @@ function CrashGraph(props) {
 
         @media (prefers-reduced-motion: reduce) {
           .multiplier-value.crashed {
+            animation: none;
+          }
+
+          .spaceship.flying,
+          .thruster {
             animation: none;
           }
         }

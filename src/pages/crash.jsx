@@ -118,6 +118,11 @@ function Crash(props) {
           minBet: data.minBet || 1, 
           maxBet: data.maxBet || 100000 
         });
+
+        if (!betAmount()) {
+          setBetAmount(String(data.minBet || 1));
+        }
+
         setHistory(data.last || []);
         setPot(data.pot || 0);
         setBets(data.bets || []);
@@ -173,6 +178,7 @@ function Crash(props) {
       });
 
       ws().on('crash:start', (data) => {
+        setRound(prev => ({ ...(prev || {}), id: data?.id || prev?.id, status: 'started' }));
         setCountdown(0);
         startFlight();
       });
@@ -201,6 +207,7 @@ function Crash(props) {
       });
 
       ws().on('crash:end', (data) => {
+        setRound(prev => ({ ...(prev || {}), id: data?.id || prev?.id, status: 'ended' }));
         stopFlight(data.crashPoint);
         setHistory(prev => [data.crashPoint, ...prev].slice(0, 30));
       });
@@ -265,6 +272,10 @@ function Crash(props) {
     return Math.round(numeric * 100) / 100;
   }
 
+  function canEditBetInputs() {
+    return !pendingAction() && !betQueued() && !myBet() && isBettingOpen();
+  }
+
   async function placeBet() {
     if (!props.user) {
       createNotification('info', 'Sign in from the account menu to place a bet.');
@@ -296,6 +307,11 @@ function Crash(props) {
         amount,
         autoCashoutPoint
       }), true);
+
+      if (!response) {
+        createNotification('error', 'Unable to place your bet right now.');
+        return;
+      }
 
       if (response?.success) {
         setBetQueued(true);
@@ -432,17 +448,20 @@ function Crash(props) {
                   placeholder='Play Amount'
                   value={betAmount()}
                   onInput={(e) => setBetAmount(e.target.value)}
-                  disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') placeBet();
+                  }}
+                  disabled={!canEditBetInputs()}
                 />
               </div>
 
               <div class='quick-bets' aria-label='Bet amount shortcuts'>
-                <button class='bet-btn' disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()} onClick={() => adjustBet('min')}>Min</button>
-                <button class='bet-btn' disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()} onClick={() => adjustBet('max')}>Max</button>
-                <button class='bet-btn' disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()} onClick={() => adjustBet('+1')}>+1</button>
-                <button class='bet-btn' disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()} onClick={() => adjustBet('+10')}>+10</button>
-                <button class='bet-btn' disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()} onClick={() => adjustBet('/2')}>1/2</button>
-                <button class='bet-btn' disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()} onClick={() => adjustBet('x2')}>x2</button>
+                <button class='bet-btn' disabled={!canEditBetInputs()} onClick={() => adjustBet('min')}>Min</button>
+                <button class='bet-btn' disabled={!canEditBetInputs()} onClick={() => adjustBet('max')}>Max</button>
+                <button class='bet-btn' disabled={!canEditBetInputs()} onClick={() => adjustBet('+1')}>+1</button>
+                <button class='bet-btn' disabled={!canEditBetInputs()} onClick={() => adjustBet('+10')}>+10</button>
+                <button class='bet-btn' disabled={!canEditBetInputs()} onClick={() => adjustBet('/2')}>1/2</button>
+                <button class='bet-btn' disabled={!canEditBetInputs()} onClick={() => adjustBet('x2')}>x2</button>
               </div>
             </div>
           </div>
@@ -457,7 +476,10 @@ function Crash(props) {
               placeholder='Auto Cashout'
               value={autoCashout()}
               onInput={(e) => setAutoCashout(e.target.value)}
-              disabled={betQueued() || (isFlying() && hasActiveBet()) || isCrashed()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') placeBet();
+              }}
+              disabled={!canEditBetInputs()}
             />
             {autoCashout() ? (
               <button
