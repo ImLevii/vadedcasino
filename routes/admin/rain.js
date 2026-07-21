@@ -105,7 +105,7 @@ router.get('/status', (req, res) => {
     if (!system) return res.json({ active: false });
 
     const endsAt = system.createdAt
-        ? new Date(system.createdAt.valueOf() + rains.systemRainDuration)
+            ? new Date(toTimestampMs(system.createdAt) + rains.systemRainDuration)
         : null;
 
     res.json({
@@ -124,6 +124,12 @@ router.get('/status', (req, res) => {
         }
     });
 });
+
+function toTimestampMs(value) {
+    if (!value) return Date.now();
+    const ms = value instanceof Date ? value.valueOf() : new Date(value).valueOf();
+    return Number.isFinite(ms) ? ms : Date.now();
+}
 
 // ── Force start ───────────────────────────────────────────────
 router.post('/start', async (req, res) => {

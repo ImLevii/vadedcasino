@@ -21,6 +21,12 @@ const emojiRateLimits = {};
 const BATTLE_EMOJI_COOLDOWN_MS = 1500;
 const ALLOWED_BATTLE_EMOJIS = new Set(['🔥', '😂', '💀', '🙏', '🍀', '😤', '👑', '🎰']);
 
+function toTimestampMs(value) {
+    if (!value) return Date.now();
+    const ms = value instanceof Date ? value.valueOf() : new Date(value).valueOf();
+    return Number.isFinite(ms) ? ms : Date.now();
+}
+
 function cleanupAndExit() {
     const m = 'Server is restarting, you will get disconnected for a few seconds..';
     io.emit('toast', 'info', m, {
@@ -38,13 +44,13 @@ async function newSocket(socket) {
     emitTotalWagered(0, socket);
 
     if (rains.system) {
-        const endsIn = rains.system.createdAt.valueOf() + rains.systemRainDuration - Date.now();
+        const endsIn = toTimestampMs(rains.system.createdAt) + rains.systemRainDuration - Date.now();
         const joined = socket.userId && rains.system.users.includes(socket.userId);
         socket.emit('rain', rains.system.amount, endsIn, rains.system.joinable, joined);
     }
 
     if (rains.user) {
-        const endsIn = rains.user.createdAt.valueOf() + rains.joinTime - Date.now();
+        const endsIn = toTimestampMs(rains.user.createdAt) + rains.joinTime - Date.now();
         const joined = socket.userId && rains.user.users.includes(socket.userId);
         socket.emit('rain:user', rains.user.amount, endsIn, rains.user.host, joined);
     }
@@ -266,12 +272,22 @@ io.on('connection', function(socket) {
             round.multiplier = crash.round.crashPoint;
         }
 
+        const createdAtMs = crash.round.createdAt
+            ? (crash.round.createdAt instanceof Date
+                ? crash.round.createdAt.valueOf()
+                : new Date(crash.round.createdAt).valueOf())
+            : Date.now();
+
+        const remainingBetTime = Number.isFinite(createdAtMs)
+            ? Math.max(0, createdAtMs + crash.config.betTime - Date.now())
+            : crash.config.betTime;
+
         socket.join('crash');
         socket.emit('crash:set', {
             serverTime: new Date(),
             last: crash.last,
             pot: crash.pot,
-            betTime: crash.round.createdAt ? Math.max(0, crash.round.createdAt.valueOf() + crash.config.betTime - Date.now()) : 0,
+            betTime: remainingBetTime,
             maxPayout: crash.config.maxPayout,
             minBet: crash.config.minBet,
             maxBet: crash.config.maxBet,

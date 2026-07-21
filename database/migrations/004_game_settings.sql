@@ -34,6 +34,7 @@ INSERT IGNORE INTO `gameSettings` (`game`, `key`, `value`, `type`, `label`, `des
 ('roulette','betTime',            '10000','number','Bet Time (ms)',    'Time players have to place bets',      '1000', '60000', '500'),
 ('roulette','rollTime',           '5000', 'number','Roll Time (ms)',   'Animation time for the roll',          '1000', '15000', '500'),
 ('roulette','maxBet',             '25000','number','Max Bet',          'Maximum bet amount',                   '100', '1000000', '100'),
+('roulette','tripleGreenBonusRake','0.75','number','Triple Green Bonus Rake (%)','Portion of double bets added to Triple Green Bonus pot','0', '5', '0.05'),
 ('roulette','colorsMultipliers',  '{"0":14,"1":2,"2":2,"3":7}', 'json','Color Multipliers','Payout multipliers per color', NULL, NULL, NULL),
 -- Coinflip
 ('coinflip','houseEdge',          '5',    'number','House Edge (%)',   'The house edge percentage for Coinflip','0', '20', '0.5'),

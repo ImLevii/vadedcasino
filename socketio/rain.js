@@ -11,6 +11,12 @@ const rains = {
     systemRainAmount: 200
 }
 
+function toTimestampMs(value) {
+    if (!value) return Date.now();
+    const ms = value instanceof Date ? value.valueOf() : new Date(value).valueOf();
+    return Number.isFinite(ms) ? ms : Date.now();
+}
+
 async function getSystemRain() {
 
     const [[rain]] = await sql.query('SELECT id, createdAt, amount FROM rains WHERE endedAt IS NULL AND host IS NULL ORDER BY createdAt DESC LIMIT 1');
@@ -32,6 +38,8 @@ async function getSystemRain() {
 
     } else {
 
+        rain.createdAt = new Date(rain.createdAt);
+
         const [users] = await sql.query('SELECT userId FROM rainUsers WHERE rainId = ?', [rain.id]);
         rain.users = users.map(user => user.userId);
 
@@ -48,6 +56,7 @@ async function getUserRain() {
 
     const [[host]] = await sql.query('SELECT id, username, xp FROM users WHERE id = ?', [rain.host]);
     rain.host = host;
+    rain.createdAt = new Date(rain.createdAt);
 
     const [users] = await sql.query('SELECT userId FROM rainUsers WHERE rainId = ?', [rain.id]);
     rain.users = users.map(user => user.userId);
@@ -72,7 +81,7 @@ async function cacheRains() {
 async function rainInterval(rain) {
 
     const duration = rain._forceDuration || (rain.host ? rains.joinTime : rains.systemRainDuration);
-    let endsIn = rain.createdAt.valueOf() + duration - Date.now();
+    let endsIn = toTimestampMs(rain.createdAt) + duration - Date.now();
     // console.log(rain.id, rain.host?.id, 'endsIn', endsIn)
 
     if (endsIn > 0) {
@@ -122,6 +131,14 @@ async function rainInterval(rain) {
 
             await connection.query('UPDATE rains SET endedAt = ? WHERE id = ?', [new Date(), rain.id]);
             const [users] = await connection.query('SELECT users.id, users.xp, users.balance FROM rainUsers JOIN users ON rainUsers.userId = users.id WHERE rainId = ?', [rain.id]);
+
+            if (!users.length) {
+                await commit();
+                sendLog('rain', `Rain #${rain.id} ended with no joined users.`);
+                if (rain.host) delete rains.user;
+                return;
+            }
+
             const totalXp = users.reduce((acc, user) => acc + user.xp, 0);
         
             let distribution = rain.amount;
@@ -134,7 +151,7 @@ async function rainInterval(rain) {
             const levelsSplit = distribution * 0.5; // 50% of the total rain amount goes to the users who joined the rain based on their total xp
         
             const generalAmount = roundDecimal(generalSplit / users.length);
-            const levelsAmount = levelsSplit / totalXp;
+            const levelsAmount = totalXp > 0 ? (levelsSplit / totalXp) : 0;
         
             for (const user of users) {
                 user.amount = roundDecimal(generalAmount + levelsAmount * user.xp);

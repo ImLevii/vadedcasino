@@ -83,10 +83,11 @@ function Crash(props) {
       countdownInterval = null;
     }
 
-    setCountdown(ms);
+    const safeMs = Number.isFinite(ms) ? Math.max(0, ms) : 0;
+    setCountdown(safeMs);
     countdownInterval = setInterval(() => {
       setCountdown(prev => {
-        const next = Math.max(0, prev - 100);
+        const next = Math.max(0, (Number.isFinite(prev) ? prev : 0) - 100);
         if (next <= 0) {
           clearInterval(countdownInterval);
           countdownInterval = null;
@@ -254,8 +255,8 @@ function Crash(props) {
   }
 
   function isBettingOpen() {
-    // Betting is open only if: round is created, flight hasn't started, and countdown isn't expired
-    return round()?.status === 'created' && !isFlying() && !isCrashed() && countdown() > 0;
+    // Trust the server round state. Local countdown may drift or arrive late.
+    return round()?.status === 'created' && !isFlying() && !isCrashed();
   }
 
   function normalizeAmount(value) {

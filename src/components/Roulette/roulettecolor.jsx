@@ -42,6 +42,18 @@ function RouletteColor(props) {
         return amount * (ROULETTE_MULTIPLIERS[props?.color] || 1)
     }
 
+    function payoutLabel() {
+      if (props?.color === 'green') {
+        return 'Win 14x | 7x Double'
+      }
+
+      if (props?.color === 'bait') {
+        return 'Double hit only'
+      }
+
+      return `Win ${ROULETTE_MULTIPLIERS[props?.color]}x`
+    }
+
     function numberPrefix() {
         if (props?.state !== 'WINNERS') return ''
         if (isWinningColor()) return '+'
@@ -65,7 +77,7 @@ function RouletteColor(props) {
                 }}>
                     <span class='play-label'>Play {betColorToDisplayName(props.color)}</span>
                     <div class='payout-row'>
-                      <span class='win-label'>Win {ROULETTE_MULTIPLIERS[props?.color]}x</span>
+                      <span class='win-label'>{payoutLabel()}</span>
                       <div class='chip-icons'>
                         <For each={iconNames[props.color] || []}>{(icon, index) => (
                           <img class={'chip-icon icon-' + index()} src={`/assets/${icon}`} alt='' height='34'/>

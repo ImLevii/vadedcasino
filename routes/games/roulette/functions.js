@@ -6,6 +6,9 @@ const { generateServerSeed } = require('../../../fairness');
 const io = require('../../../socketio/server');
 const crypto = require('crypto');
 
+const TRIPLE_GREEN_BONUS_SETTING_ID = 'rouletteTripleGreenBonusPot';
+const TRIPLE_GREEN_STREAK = 3;
+
 function getColorsMultipliers() {
     return getGameConfig('roulette', 'colorsMultipliers', {0:14,1:2,2:2,3:7});
 }
@@ -26,6 +29,7 @@ const roulette = {
     round: {},
     bets: [],
     last: [],
+    tripleGreenBonusPot: 0,
     config: {
         maxBet: getGameConfig('roulette', 'maxBet', 25000),
         betTime: getGameConfig('roulette', 'betTime', 10000),
@@ -34,6 +38,142 @@ const roulette = {
 };
 
 const lastResults = 100;
+
+function getTripleGreenBonusRake() {
+    const configured = Number(getGameConfig('roulette', 'tripleGreenBonusRake', 0.75));
+    if (!Number.isFinite(configured) || configured < 0) return 0.75;
+    return configured;
+}
+
+async function loadTripleGreenBonusPot() {
+    try {
+        const [[row]] = await sql.query('SELECT value FROM settings WHERE id = ?', [TRIPLE_GREEN_BONUS_SETTING_ID]);
+        roulette.tripleGreenBonusPot = row ? roundDecimal(+row.value) || 0 : 0;
+    } catch (error) {
+        roulette.tripleGreenBonusPot = 0;
+    }
+}
+
+async function saveTripleGreenBonusPot() {
+    await sql.query(
+        'INSERT INTO settings (id, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = VALUES(value)',
+        [TRIPLE_GREEN_BONUS_SETTING_ID, String(roulette.tripleGreenBonusPot)]
+    );
+}
+
+async function addToTripleGreenBonus(amount) {
+    const rakePercent = getTripleGreenBonusRake();
+    if (!rakePercent || rakePercent <= 0) return;
+
+    const contribution = roundDecimal(Number(amount) * (rakePercent / 100));
+    if (!contribution || contribution <= 0) return;
+
+    roulette.tripleGreenBonusPot = roundDecimal(roulette.tripleGreenBonusPot + contribution);
+
+    try {
+        await saveTripleGreenBonusPot();
+    } catch (error) {
+        console.error('[roulette] failed to persist triple green bonus pot', error);
+    }
+
+    io.to('roulette').emit('roulette:tripleGreenBonus:pot', roulette.tripleGreenBonusPot);
+}
+
+async function distributeTripleGreenBonus(connection) {
+    if (!roulette.tripleGreenBonusPot || roulette.tripleGreenBonusPot <= 0) return null;
+
+    const [streakRows] = await connection.query(
+        'SELECT id, result FROM roulette WHERE endedAt IS NOT NULL ORDER BY id DESC LIMIT ?',
+        [TRIPLE_GREEN_STREAK]
+    );
+
+    if (streakRows.length < TRIPLE_GREEN_STREAK) return null;
+    if (streakRows.some(round => round.result !== 0)) return null;
+
+    const startingPot = roundDecimal(roulette.tripleGreenBonusPot);
+    if (startingPot <= 0) return null;
+
+    const baseShare = roundDecimal(startingPot / TRIPLE_GREEN_STREAK);
+    const roundShares = [baseShare, baseShare, roundDecimal(startingPot - (baseShare * 2))];
+
+    const userPayoutMap = new Map();
+    const roundSummaries = [];
+    let distributedTotal = 0;
+
+    for (let index = 0; index < streakRows.length; index++) {
+        const streakRound = streakRows[index];
+        const roundShare = roundShares[index] || 0;
+        if (!roundShare || roundShare <= 0) {
+            roundSummaries.push({ roundId: streakRound.id, share: 0, distributed: 0, participants: 0 });
+            continue;
+        }
+
+        const [participants] = await connection.query(
+            'SELECT rb.userId, u.username, rb.amount FROM rouletteBets rb INNER JOIN users u ON u.id = rb.userId WHERE rb.roundId = ? AND rb.color = 0 ORDER BY rb.amount DESC, rb.id ASC',
+            [streakRound.id]
+        );
+
+        if (!participants.length) {
+            roundSummaries.push({ roundId: streakRound.id, share: roundShare, distributed: 0, participants: 0 });
+            continue;
+        }
+
+        const totalRoundBets = participants.reduce((sum, participant) => sum + Number(participant.amount || 0), 0);
+        if (!totalRoundBets) {
+            roundSummaries.push({ roundId: streakRound.id, share: roundShare, distributed: 0, participants: participants.length });
+            continue;
+        }
+
+        let distributedInRound = 0;
+
+        for (let participantIndex = 0; participantIndex < participants.length; participantIndex++) {
+            const participant = participants[participantIndex];
+            const isLast = participantIndex === participants.length - 1;
+
+            let reward = isLast
+                ? roundDecimal(roundShare - distributedInRound)
+                : roundDecimal(roundShare * (Number(participant.amount || 0) / totalRoundBets));
+
+            if (!reward || reward <= 0) continue;
+
+            distributedInRound = roundDecimal(distributedInRound + reward);
+            const existing = userPayoutMap.get(participant.userId) || { userId: participant.userId, username: participant.username, amount: 0 };
+            existing.amount = roundDecimal(existing.amount + reward);
+            userPayoutMap.set(participant.userId, existing);
+        }
+
+        distributedTotal = roundDecimal(distributedTotal + distributedInRound);
+        roundSummaries.push({
+            roundId: streakRound.id,
+            share: roundShare,
+            distributed: distributedInRound,
+            participants: participants.length
+        });
+    }
+
+    const userPayouts = Array.from(userPayoutMap.values()).filter(entry => entry.amount > 0);
+    if (!userPayouts.length) return null;
+
+    for (const payout of userPayouts) {
+        await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [payout.amount, payout.userId]);
+    }
+
+    const carriedOver = roundDecimal(Math.max(0, startingPot - distributedTotal));
+    roulette.tripleGreenBonusPot = carriedOver;
+
+    await connection.query(
+        'INSERT INTO settings (id, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = VALUES(value)',
+        [TRIPLE_GREEN_BONUS_SETTING_ID, String(roulette.tripleGreenBonusPot)]
+    );
+
+    return {
+        total: startingPot,
+        distributed: distributedTotal,
+        carriedOver,
+        rounds: roundSummaries,
+        payouts: userPayouts
+    };
+}
 
 // Provably fair roulette result using server seed
 function computeRouletteResult(serverSeed) {
@@ -114,6 +254,8 @@ async function cacheRoulette() {
     const [last] = await sql.query('SELECT result FROM roulette WHERE endedAt IS NOT NULL ORDER BY id DESC LIMIT ?', [lastResults]);
     roulette.last = last.map(bet => bet.result);
 
+    await loadTripleGreenBonusPot();
+
     await updateRoulette();
     
     // Start the roulette interval loop
@@ -151,6 +293,8 @@ async function rouletteInterval() {
 
         roulette.round.endedAt = new Date();
 
+        let tripleGreenBonusResult = null;
+
         await doTransaction(async (connection, commit) => {
             
             await connection.query('UPDATE roulette SET endedAt = ? WHERE id = ?', [roulette.round.endedAt, roulette.round.id]);
@@ -182,6 +326,29 @@ async function rouletteInterval() {
   
         });
 
+        await doTransaction(async (connection, commit) => {
+            const result = await distributeTripleGreenBonus(connection);
+            if (!result) return await commit();
+
+            tripleGreenBonusResult = result;
+            await commit();
+        });
+
+        if (tripleGreenBonusResult) {
+            for (const payout of tripleGreenBonusResult.payouts) {
+                io.to(payout.userId).emit('balance', 'add', payout.amount);
+            }
+
+            io.to('roulette').emit('roulette:tripleGreenBonus:pot', roulette.tripleGreenBonusPot);
+            io.to('roulette').emit('roulette:tripleGreenBonus:won', {
+                total: tripleGreenBonusResult.total,
+                distributed: tripleGreenBonusResult.distributed,
+                carriedOver: tripleGreenBonusResult.carriedOver,
+                rounds: tripleGreenBonusResult.rounds,
+                payouts: tripleGreenBonusResult.payouts
+            });
+        }
+
     } catch (error) {
         console.error("Roulette err:", error);
     }
@@ -206,5 +373,6 @@ module.exports = {
     resultToColor,
     betWins,
     getColorsMultipliers,
-    cacheRoulette
+    cacheRoulette,
+    addToTripleGreenBonus
 }

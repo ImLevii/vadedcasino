@@ -10,6 +10,22 @@ const LAST_RESULTS = 30;
 const ROUND_COOLDOWN = 4000;
 const BONUS_POT_MIN_CASHOUT = 5.00;
 
+function safeNumber(value, fallback, min = null, max = null) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return fallback;
+
+    let normalized = numeric;
+    if (min !== null && normalized < min) normalized = min;
+    if (max !== null && normalized > max) normalized = max;
+    return normalized;
+}
+
+function timestampMs(value) {
+    if (!value) return Date.now();
+    const ms = value instanceof Date ? value.valueOf() : new Date(value).valueOf();
+    return Number.isFinite(ms) ? ms : Date.now();
+}
+
 const crash = {
     round: {},
     bets: [],
@@ -17,13 +33,13 @@ const crash = {
     pot: 0,
     intervalStarted: false,
     config: {
-        get betTime() { return getGameConfig('crash', 'betTime', 10000); },
-        get tick() { return getGameConfig('crash', 'tickRate', 150); },
-        get maxProfit() { return getGameConfig('crash', 'maxProfit', 1000000); },
-        get maxPayout() { return getGameConfig('crash', 'maxPayout', 50000); },
-        get minBet() { return getGameConfig('crash', 'minBet', 0.1); },
-        get maxBet() { return getGameConfig('crash', 'maxBet', 25000); },
-        get bonusPotRake() { return getGameConfig('crash', 'bonusPotRake', 1); }
+        get betTime() { return safeNumber(getGameConfig('crash', 'betTime', 10000), 10000, 1000, 60000); },
+        get tick() { return safeNumber(getGameConfig('crash', 'tickRate', 150), 150, 50, 2000); },
+        get maxProfit() { return safeNumber(getGameConfig('crash', 'maxProfit', 1000000), 1000000, 1, 1000000000); },
+        get maxPayout() { return safeNumber(getGameConfig('crash', 'maxPayout', 50000), 50000, 1, 1000000000); },
+        get minBet() { return safeNumber(getGameConfig('crash', 'minBet', 0.1), 0.1, 0.01, 1000000); },
+        get maxBet() { return safeNumber(getGameConfig('crash', 'maxBet', 25000), 25000, 0.01, 1000000000); },
+        get bonusPotRake() { return safeNumber(getGameConfig('crash', 'bonusPotRake', 1), 1, 0, 100); }
     }
 };
 
@@ -266,7 +282,8 @@ async function crashInterval() {
 
         if (!crash.round.startedAt) {
 
-            const msUntilStart = Math.max(0, crash.round.createdAt.valueOf() + crash.config.betTime - Date.now());
+            const createdAtMs = timestampMs(crash.round.createdAt);
+            const msUntilStart = Math.max(0, createdAtMs + crash.config.betTime - Date.now());
             await sleep(msUntilStart);
 
             crash.round.startedAt = new Date();

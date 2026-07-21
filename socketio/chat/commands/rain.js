@@ -20,7 +20,10 @@ module.exports = {
             return sendSystemMessage(socket, `There is a system rain in progress, you can't host a rain right now.`);
         }
 
-        const systemRainEndsIn = rains.system.createdAt.valueOf() + rains.systemRainDuration - Date.now();
+        const createdAtMs = rains.system.createdAt instanceof Date
+            ? rains.system.createdAt.valueOf()
+            : new Date(rains.system.createdAt).valueOf();
+        const systemRainEndsIn = createdAtMs + rains.systemRainDuration - Date.now();
 
         if (systemRainEndsIn < (rains.joinTime + 30000)) {
             return sendSystemMessage(socket, `A system rain is incoming, you can't host a rain right now.`);

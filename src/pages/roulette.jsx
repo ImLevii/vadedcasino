@@ -8,6 +8,7 @@ import RouletteColor from "../components/Roulette/roulettecolor";
 import {subscribeToGame, unsubscribeFromGames} from "../util/socket";
 import {Meta, Title} from "@solidjs/meta";
 import {playGameSFX, stopSFXChannel, startAnimationTicker} from "../util/sound";
+import {createNotification} from "../util/api";
 
 function Roulette(props) {
 
@@ -54,6 +55,7 @@ function Roulette(props) {
     const [round, setRound] = createSignal(null)
     const [last10, setLast10] = createSignal([])
     const [state, setState] = createSignal('')
+    const [tripleGreenBonusPot, setTripleGreenBonusPot] = createSignal(0)
 
     const [last100, setLast100] = createSignal([])
     const [stats, setStats] = createSignal({
@@ -75,6 +77,8 @@ function Roulette(props) {
         ws().off('roulette:bet:update')
         ws().off('roulette:new')
         ws().off('roulette:roll')
+        ws().off('roulette:tripleGreenBonus:pot')
+        ws().off('roulette:tripleGreenBonus:won')
 
             ws().on('roulette:set', (data) => {
                 let stats = { green: 0, red: 0, black: 0, bait: 0 }
@@ -95,6 +99,7 @@ function Roulette(props) {
                 setLast10(last10)
                 setConfig(data.config)
                 setBets(data.bets)
+                setTripleGreenBonusPot(Number(data.tripleGreenBonusPot || 0))
 
                 let timeLeftToRoll = new Date(data.round.createdAt).getTime() + data.config.betTime - Date.now()
                 startCountdown(timeLeftToRoll)
@@ -157,6 +162,21 @@ function Roulette(props) {
                 setRound(roll)
             })
 
+              ws().on('roulette:tripleGreenBonus:pot', (amount) => {
+                setTripleGreenBonusPot(Number(amount || 0))
+              })
+
+              ws().on('roulette:tripleGreenBonus:won', (data) => {
+                const distributed = Number(data?.distributed || 0)
+                const userPayout = (data?.payouts || []).find(p => String(p.userId) === String(props.user?.id))
+
+                if (userPayout?.amount) {
+                  createNotification('success', `Triple Green Bonus paid ${Number(userPayout.amount).toFixed(2)} coins to your account.`)
+                } else if (distributed > 0) {
+                  createNotification('info', `Triple Green Bonus triggered: ${distributed.toFixed(2)} coins distributed.`)
+                }
+              })
+
             hasConnected = true
         }
 
@@ -175,6 +195,8 @@ function Roulette(props) {
           ws().off('roulette:bet:update')
           ws().off('roulette:new')
           ws().off('roulette:roll')
+          ws().off('roulette:tripleGreenBonus:pot')
+          ws().off('roulette:tripleGreenBonus:won')
           unsubscribeFromGames(ws())
         }
       })
@@ -264,6 +286,11 @@ function Roulette(props) {
                                 <p>{stats().bait}</p>
                             </div>
                         </div>
+
+                          <div class='bonus-pot'>
+                            <span>TRIPLE GREEN BONUS</span>
+                            <strong>{tripleGreenBonusPot().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                          </div>
                     </div>
                 </div>
 
@@ -370,6 +397,32 @@ function Roulette(props) {
               .stats {
                 display: flex;
                 gap: 6px;
+              }
+
+              .bonus-pot {
+                margin-top: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                min-width: 230px;
+                padding: 7px 10px;
+                border-radius: 8px;
+                border: 1px solid rgba(31, 214, 95, 0.28);
+                background: rgba(31, 214, 95, 0.08);
+              }
+
+              .bonus-pot span {
+                color: #91a69a;
+                font-size: 10px;
+                font-weight: 800;
+                letter-spacing: 0.06em;
+              }
+
+              .bonus-pot strong {
+                color: #1fd65f;
+                font-size: 15px;
+                font-weight: 800;
               }
 
               .stat {

@@ -75,6 +75,29 @@ router.post('/settings/:game', async (req, res) => {
         
         if (!key) return res.status(400).json({ error: 'MISSING_KEY' });
         if (value === undefined) return res.status(400).json({ error: 'MISSING_VALUE' });
+
+        const [[settingMeta]] = await sql.query(
+            'SELECT `type`, `min`, `max` FROM gameSettings WHERE game = ? AND `key` = ? LIMIT 1',
+            [game, key]
+        );
+
+        if (!settingMeta) return res.status(404).json({ error: 'SETTING_NOT_FOUND' });
+
+        if (settingMeta.type === 'number') {
+            const numericValue = Number(value);
+            if (!Number.isFinite(numericValue)) return res.status(400).json({ error: 'INVALID_VALUE' });
+
+            const min = settingMeta.min !== null ? Number(settingMeta.min) : null;
+            const max = settingMeta.max !== null ? Number(settingMeta.max) : null;
+
+            if (min !== null && Number.isFinite(min) && numericValue < min) {
+                return res.status(400).json({ error: 'VALUE_BELOW_MIN', min });
+            }
+
+            if (max !== null && Number.isFinite(max) && numericValue > max) {
+                return res.status(400).json({ error: 'VALUE_ABOVE_MAX', max });
+            }
+        }
         
         await updateGameSetting(game, key, value, req.user);
         

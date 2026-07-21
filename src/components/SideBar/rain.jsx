@@ -11,6 +11,36 @@ function SidebarRain(props) {
     const [token, setToken] = createSignal(null)
     const [showCaptcha, setShowCaptcha] = createSignal(false)
 
+    async function ensureHcaptcha() {
+      if (typeof window !== 'undefined' && window.hcaptcha) {
+        return true
+      }
+
+      const existing = document.querySelector('script[data-hcaptcha="true"]')
+      if (existing) {
+        await new Promise((resolve) => {
+          if (window.hcaptcha) return resolve(true)
+          existing.addEventListener('load', () => resolve(true), { once: true })
+          existing.addEventListener('error', () => resolve(false), { once: true })
+        })
+        return !!window.hcaptcha
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://js.hcaptcha.com/1/api.js?render=explicit'
+      script.async = true
+      script.defer = true
+      script.dataset.hcaptcha = 'true'
+
+      const loaded = await new Promise((resolve) => {
+        script.onload = () => resolve(true)
+        script.onerror = () => resolve(false)
+        document.head.appendChild(script)
+      })
+
+      return loaded && !!window.hcaptcha
+    }
+
     async function joinRain() {
         let res = await authedAPI('/rain/join', 'POST', JSON.stringify({
             'captchaResponse': token()
@@ -42,18 +72,29 @@ function SidebarRain(props) {
         }, false)
     }
 
-    function handleRainJoin() {
+    async function handleRainJoin() {
         if (userRain()?.joined || rain()?.joined) return createNotification('error', 'You have already joined this rain.')
 
+      const hasCaptcha = await ensureHcaptcha()
+      if (!hasCaptcha) {
+        // Fallback path for environments where captcha is disabled or script is blocked.
+        return joinRain()
+      }
+
         setShowCaptcha(true)
-        hcaptcha.render('captcha-div', {
+
+      setTimeout(() => {
+        if (!window.hcaptcha) return
+
+        window.hcaptcha.render('captcha-div', {
             sitekey: '5029f0f4-b80b-42a8-8c0e-3eba4e9edc4c',
             theme: 'dark',
             callback: function (token) {
                 setToken(token)
                 joinRain()
             }
-        });
+      })
+      }, 0)
     }
 
     function formatTimeLeft(ms) {

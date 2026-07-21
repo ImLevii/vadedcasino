@@ -6,7 +6,7 @@ const { doTransaction } = require('../../../database');
 const { isAuthed, apiLimiter } = require('../../auth/functions');
 const { roundDecimal, xpChanged } = require('../../../utils');
 const io = require('../../../socketio/server');
-const { roulette } = require('./functions')
+const { roulette, addToTripleGreenBonus } = require('./functions')
 
 // const clientSeed = '00000000000000000003e5a54c2898a18d262eb5860e696441f8a4ebbff03697'; // btc block hash
 
@@ -76,6 +76,10 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
                     id: existing.id,
                     amount: existing.amount
                 });
+
+                if (color === 3) {
+                    await addToTripleGreenBonus(amount);
+                }
     
             } else {
     
@@ -97,6 +101,10 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
             
                 roulette.bets.push(bet);
                 io.to('roulette').emit('roulette:bets', [bet]);
+
+                if (color === 3) {
+                    await addToTripleGreenBonus(amount);
+                }
     
             }
     
