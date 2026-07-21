@@ -1,5 +1,6 @@
 import {A, Outlet, useLocation, useSearchParams} from "@solidjs/router";
 import {useUser} from "../contexts/usercontextprovider";
+import {createEffect, createSignal, onCleanup} from "solid-js";
 
 const URL_TO_PAGE = {
     '/admin': 'DASHBOARD',
@@ -24,6 +25,29 @@ function Admin(props) {
     const location = useLocation()
     const [user] = useUser()
     const [params, setParams] = useSearchParams()
+    const [openMenu, setOpenMenu] = createSignal(null)
+
+    let pageMenuRef
+    let cashierMenuRef
+
+    createEffect(() => {
+      location.pathname
+      setOpenMenu(null)
+    })
+
+    const closeOnOutsideClick = (e) => {
+      const target = e.target
+
+      if (pageMenuRef && pageMenuRef.contains(target)) return
+      if (cashierMenuRef && cashierMenuRef.contains(target)) return
+
+      setOpenMenu(null)
+    }
+
+    document.addEventListener('click', closeOnOutsideClick)
+    onCleanup(() => {
+      document.removeEventListener('click', closeOnOutsideClick)
+    })
 
     return (
         <>
@@ -49,35 +73,58 @@ function Admin(props) {
 
                     <div class='pages-container'>
                         {URL_TO_PAGE[location?.pathname] === 'CASHIER' && (
-                            <div className='pages bevel-light' onClick={(e) => e.currentTarget.classList.toggle('active')}>
+                          <div
+                            ref={cashierMenuRef}
+                            className={'pages bevel-light ' + (openMenu() === 'cashier' ? 'active' : '')}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setOpenMenu(openMenu() === 'cashier' ? null : 'cashier')
+                            }}
+                          >
                                 <p>{params?.type || 'COINS'}</p>
 
                                 <div className='pages-dropdown' onClick={(e) => e.stopPropagation()}>
-                                    <p onClick={() => setParams({ type: null })}>COINS</p>
-                                    <p onClick={() => setParams({ type: 'crypto' })}>CRYPTO</p>
-                                    <p onClick={() => setParams({ type: 'skindeck' })}>SKINDECK</p>
+                              <p onClick={() => {
+                                setParams({ type: null })
+                                setOpenMenu(null)
+                              }}>COINS</p>
+                              <p onClick={() => {
+                                setParams({ type: 'crypto' })
+                                setOpenMenu(null)
+                              }}>CRYPTO</p>
+                              <p onClick={() => {
+                                setParams({ type: 'skindeck' })
+                                setOpenMenu(null)
+                              }}>SKINDECK</p>
                                 </div>
                             </div>
                         )}
 
-                        <div class='pages bevel-light' onClick={(e) => e.currentTarget.classList.toggle('active')}>
+                        <div
+                          ref={pageMenuRef}
+                          class={'pages bevel-light ' + (openMenu() === 'pages' ? 'active' : '')}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setOpenMenu(openMenu() === 'pages' ? null : 'pages')
+                          }}
+                        >
                             <p>{URL_TO_PAGE[location?.pathname]}</p>
 
                             <div class='pages-dropdown' onClick={(e) => e.stopPropagation()}>
-                                <A href='/admin' class='admin-link'>DASHBOARD</A>
-                                <A href='/admin/users' class='admin-link'>USERS</A>
-                                <A href='/admin/statistics' class='admin-link'>STATISTICS</A>
-                                <A href='/admin/filter' class='admin-link'>FILTER</A>
-                                <A href='/admin/cashier' class='admin-link'>CASHIER</A>
-                                <A href='/admin/rain' class='admin-link'>RAIN</A>
-                                <A href='/admin/announcements' class='admin-link'>ANNOUNCEMENTS</A>
-                                <A href='/admin/cases' class='admin-link'>CASES</A>
-                                <A href='/admin/rewards' class='admin-link'>REWARDS</A>
-                                <A href='/admin/slides' class='admin-link'>SLIDER</A>
-                                <A href='/admin/statsbook' class='admin-link'>STATSBOOK</A>
-                                <A href='/admin/settings' class='admin-link'>SETTINGS</A>
-                                <A href='/admin/games' class='admin-link'>GAME CONTROL</A>
-                                <A href='/admin/games/probability' class='admin-link'>FAIRNESS</A>
+                            <A href='/admin' class='admin-link' onClick={() => setOpenMenu(null)}>DASHBOARD</A>
+                            <A href='/admin/users' class='admin-link' onClick={() => setOpenMenu(null)}>USERS</A>
+                            <A href='/admin/statistics' class='admin-link' onClick={() => setOpenMenu(null)}>STATISTICS</A>
+                            <A href='/admin/filter' class='admin-link' onClick={() => setOpenMenu(null)}>FILTER</A>
+                            <A href='/admin/cashier' class='admin-link' onClick={() => setOpenMenu(null)}>CASHIER</A>
+                            <A href='/admin/rain' class='admin-link' onClick={() => setOpenMenu(null)}>RAIN</A>
+                            <A href='/admin/announcements' class='admin-link' onClick={() => setOpenMenu(null)}>ANNOUNCEMENTS</A>
+                            <A href='/admin/cases' class='admin-link' onClick={() => setOpenMenu(null)}>CASES</A>
+                            <A href='/admin/rewards' class='admin-link' onClick={() => setOpenMenu(null)}>REWARDS</A>
+                            <A href='/admin/slides' class='admin-link' onClick={() => setOpenMenu(null)}>SLIDER</A>
+                            <A href='/admin/statsbook' class='admin-link' onClick={() => setOpenMenu(null)}>STATSBOOK</A>
+                            <A href='/admin/settings' class='admin-link' onClick={() => setOpenMenu(null)}>SETTINGS</A>
+                            <A href='/admin/games' class='admin-link' onClick={() => setOpenMenu(null)}>GAME CONTROL</A>
+                            <A href='/admin/games/probability' class='admin-link' onClick={() => setOpenMenu(null)}>FAIRNESS</A>
                             </div>
                         </div>
                     </div>
@@ -171,8 +218,21 @@ function Admin(props) {
                 transition: background .15s, color .15s;
                 text-decoration: none;
               }
+
+              .pages-dropdown p {
+                margin: 0;
+                color: #6b7280;
+                font-size: 11px;
+                font-weight: 700;
+                padding: 6px 10px;
+                border-radius: 4px;
+                transition: background .15s, color .15s;
+                text-decoration: none;
+                cursor: pointer;
+              }
               
-              .pages-dropdown a:hover {
+              .pages-dropdown a:hover,
+              .pages-dropdown p:hover {
                 background: rgba(255,255,255,0.06);
                 color: #c3cad6;
               }

@@ -1,4 +1,4 @@
-import {createResource, Show} from "solid-js";
+import {createResource, For, Show} from "solid-js";
 import {authedAPI, createNotification} from "../../util/api";
 import Loader from "../Loader/loader";
 import AdminMFA from "../MFA/adminmfa";
@@ -48,6 +48,9 @@ function AdminSettings(props) {
     }
 
     async function handleToggle(id, value) {
+        const previous = settings()?.[id]
+        mutateSettings(prev => ({ ...(prev || {}), [id]: value }))
+
         let res = await authedAPI(`/admin/features/${id}`, 'POST', JSON.stringify({
             enable: value
         }), true)
@@ -55,6 +58,7 @@ function AdminSettings(props) {
         if (res?.success) {
             createNotification('success', 'Setting updated.')
         } else {
+            mutateSettings(prev => ({ ...(prev || {}), [id]: previous }))
             createNotification('error', res?.error || 'Failed to update.')
         }
     }
@@ -71,7 +75,7 @@ function AdminSettings(props) {
                         <Show when={entry[0] !== 'mfa'}>
                             <div class='setting'>
                                 <p class='setting-label'>{formatFeatureName(entry[0])}</p>
-                                <Switch dark={true} active={entry[1]} toggle={(v) => handleToggle(entry[0], v)}/>
+                                <Switch dark={true} active={!!entry[1]} toggle={() => handleToggle(entry[0], !entry[1])}/>
                             </div>
                         </Show>
                     }</For>
