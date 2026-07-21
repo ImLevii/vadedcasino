@@ -131,31 +131,33 @@ function App() {
     }
   })
 
-  createEffect(async () => {
-    try {
-      if (!hasFetched()) return
+  createEffect(() => {
+    ;(async () => {
+      try {
+        if (!hasFetched()) return
 
-      if (!user() && searchParams.a)  {
-        setSearchParams({ a: null, modal: 'login' })
-        localStorage.setItem('aff', searchParams.a)
-        return
-      }
-
-      if (user() && searchParams.a) {
-        setSearchParams({a: null})
-
-        let res = await authedAPI('/user/affiliate', 'POST', JSON.stringify({
-          code: searchParams.a
-        }), true)
-
-        if (res.success) {
-          createNotification('success', `Successfully redeemed affiliate code ${searchParams.a}.`)
+        if (!user() && searchParams.a)  {
+          setSearchParams({ a: null, modal: 'login' })
+          localStorage.setItem('aff', searchParams.a)
+          return
         }
+
+        if (user() && searchParams.a) {
+          setSearchParams({a: null})
+
+          let res = await authedAPI('/user/affiliate', 'POST', JSON.stringify({
+            code: searchParams.a
+          }), true)
+
+          if (res.success) {
+            createNotification('success', `Successfully redeemed affiliate code ${searchParams.a}.`)
+          }
+        }
+      } catch (e) {
+        console.error(e)
+        setSearchParams({a: null})
       }
-    } catch (e) {
-      console.error(e)
-      setSearchParams({a: null})
-    }
+    })()
   })
 
   return (
@@ -392,12 +394,6 @@ function App() {
                         <Route path='/rewards/supercharge' element={
                           <Suspense fallback={<Loader/>}>
                             <Rewards/>
-                          </Suspense>
-                        }/>
-
-                        <Route path='/deposit' element={
-                          <Suspense fallback={<Loader/>}>
-                            <Deposit/>
                           </Suspense>
                         }/>
 

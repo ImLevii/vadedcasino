@@ -104,19 +104,24 @@ function BattleSpinnerItem(props) {
                                 inset: 3px;
                                 z-index: -1;
                                 border-radius: 8px;
-                                background: radial-gradient(78% 72% at 50% 38%, color-mix(in srgb, var(--rarity, #A9B5D2) 22%, transparent), transparent 74%), linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.022));
-                                border: 1px solid color-mix(in srgb, var(--rarity, #A9B5D2) 28%, rgba(255,255,255,.08));
-                                border-bottom: 2px solid var(--rarity, #A9B5D2);
-                                box-shadow: inset 0 1px 0 rgba(255,255,255,0.055), 0 8px 20px rgba(0,0,0,.22), 0 0 18px -8px var(--rarity, #A9B5D2);
+                                                                background:
+                                                                    radial-gradient(70% 65% at 50% 36%, color-mix(in srgb, var(--rarity, #A9B5D2) 20%, transparent), transparent 76%),
+                                                                    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.012));
+                                                                border: 1px solid color-mix(in srgb, var(--rarity, #A9B5D2) 24%, rgba(255,255,255,.08));
+                                                                border-bottom: 2px solid var(--rarity, #A9B5D2);
+                                                                box-shadow:
+                                                                    inset 0 1px 0 rgba(255,255,255,0.05),
+                                                                    0 8px 20px rgba(0,0,0,.24),
+                                                                    0 0 22px -8px var(--rarity, #A9B5D2);
               }
 
               .item-image {
                 position: relative;
                 user-select: none;
                                 z-index: 1;
-                                width: 118px;
-                                height: 82px;
-                                margin-bottom: 25px;
+                                width: 116px;
+                                height: 80px;
+                                margin-bottom: 26px;
                                 object-fit: contain;
                                 opacity: .96;
                                 filter: drop-shadow(0 9px 13px rgba(0,0,0,0.58));
@@ -159,12 +164,14 @@ function BattleSpinnerItem(props) {
                                 align-items: center;
                                 justify-content: space-between;
                                 gap: 7px;
+                                padding-top: 7px;
+                                border-top: 1px solid rgba(255,255,255,0.06);
                             }
 
                             .item-name {
                                 min-width: 0;
                                 overflow: hidden;
-                                color: #dce2e9;
+                                color: #e5ebf5;
                                 font-family: "Geogrotesque Wide", sans-serif;
                                 font-size: 8px;
                                 font-weight: 700;

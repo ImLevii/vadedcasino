@@ -1,10 +1,10 @@
 import {A, useSearchParams} from "@solidjs/router";
 import {ADMIN_ROLES} from "../../resources/users";
-import {createNotification, logout} from "../../util/api";
+import {logout} from "../../util/api";
 
 function UserDropdown(props) {
 
-    const [searchParams, setSearchParams] = useSearchParams()
+    const [, setSearchParams] = useSearchParams()
 
     return (
         <>
@@ -21,7 +21,7 @@ function UserDropdown(props) {
                     )}
 
                   <div class='menu-group'>
-                    <A href='/profile/transactions' class='user-dropdown-link' onClick={() => props.setActive(false)}>
+                    <A href='/profile' class='user-dropdown-link' onClick={() => props.setActive(false)}>
                       <img src='/assets/icons/user.svg' height='12' alt=''/>
                       Profile
                     </A>

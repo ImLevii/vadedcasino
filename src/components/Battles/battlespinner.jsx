@@ -28,6 +28,7 @@ function BattleSpinner(props) {
   const SPIN_DURATION = 5000
 
   function startBattleTicking(duration = SPIN_DURATION) {
+    if (props?.index !== 0) return
     if (tickerHandle) tickerHandle.cancel()
     tickerHandle = startAnimationTicker(
       () => {
@@ -44,6 +45,7 @@ function BattleSpinner(props) {
   }
 
   function stopBattleTicking() {
+    if (props?.index !== 0) return
     if (tickerHandle) {
       tickerHandle.cancel()
       tickerHandle = null
@@ -56,6 +58,7 @@ function BattleSpinner(props) {
   const [showFlash, setShowFlash] = createSignal(false)
 
   function playCosmicChargeSFX() {
+    if (props?.index !== 0) return
     if (typeof window === 'undefined') return;
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -83,6 +86,9 @@ function BattleSpinner(props) {
       
       osc.start();
       osc.stop(ctx.currentTime + 1.5);
+      setTimeout(() => {
+        ctx.close().catch(() => {})
+      }, 1700)
       
       for (let i = 0; i < 7; i++) {
         const time = ctx.currentTime + i * 0.10;
@@ -211,11 +217,13 @@ function BattleSpinner(props) {
       // Stop ticking when animation finishes, then play win sound
       setTimeout(() => {
         stopBattleTicking()
-        playGameSFX('battle-win', '/assets/sfx/winorcashout.mp3', {
-          channel: 'battle-result-win',
-          volume: 0.58,
-          fadeInMs: 80,
-        })
+        if (props?.index === 0) {
+          playGameSFX('battle-win', '/assets/sfx/winorcashout.mp3', {
+            channel: 'battle-result-win',
+            volume: 0.58,
+            fadeInMs: 80,
+          })
+        }
       }, SPIN_DURATION)
 
       if (cosmic && isRareItem(winningItem, battleCase?.price)) {

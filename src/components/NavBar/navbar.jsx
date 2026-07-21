@@ -1,7 +1,7 @@
 import Games from "./games";
 import Cases from "./cases";
 import {A, useSearchParams} from "@solidjs/router";
-import {createEffect, createSignal} from "solid-js";
+import {createEffect, createSignal, onCleanup} from "solid-js";
 import {progressToNextLevel, getUserLevel} from "../../resources/levels";
 import BottomNavBar from "./mobilenav";
 import UserDropdown from "./userdropdown";
@@ -21,9 +21,16 @@ function NavBar(props) {
     addDropdown(setUserDropdown)
 
     createEffect(() => {
-        if (ws() && ws().connected) {
-            ws().on('totalWagered', (amt) => setWagered(amt))
-        }
+      const socket = ws()
+      if (!socket || !socket.connected) return
+
+      const onTotalWagered = (amt) => setWagered(amt)
+      socket.off('totalWagered', onTotalWagered)
+      socket.on('totalWagered', onTotalWagered)
+
+      onCleanup(() => {
+        socket.off('totalWagered', onTotalWagered)
+      })
     })
 
     return (
@@ -68,7 +75,7 @@ function NavBar(props) {
                                 </button>
 
                                 <div class='balance'>
-                                    <img class='coin' src='/assets/icons/coin.svg' height='18'/>
+                                  <img class='coin' src='/assets/icons/coin.svg' height='18' alt='Coin'/>
                                     <div class='balance-hover'>
                                         <p class='coins'><Countup end={props?.user?.balance} gray={true}/></p>
                                         <p class='fiat'><span class='gold'>$ </span><Countup

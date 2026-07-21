@@ -53,7 +53,7 @@ function AdminUserModal(props) {
           <Show when={!props?.loading && props?.user?.id} fallback={<Loader/>}>
             <>
               <div className='user-header'>
-                <p className='close bevel-light' onClick={() => navigate('/')}>X</p>
+                <p className='close bevel-light' onClick={() => props?.close?.()}>X</p>
                 <h1><img src='/assets/icons/user.svg' style={{margin: '0 8px 0 0'}}/>ADMIN SETTINGS</h1>
 
                 <div className='user-info'>

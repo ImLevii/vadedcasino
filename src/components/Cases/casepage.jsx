@@ -4,7 +4,7 @@ import CaseTitle from "./casetitle";
 import Loader from "../Loader/loader";
 import CaseItem from "./caseitem";
 import CaseSpinner from "./casespinner";
-import {authedAPI} from "../../util/api";
+import {authedAPI, createNotification} from "../../util/api";
 import {useUser} from "../../contexts/usercontextprovider";
 import {generateRandomItems, generateRareItems, getRareItems, isRareItem, maskRareItems} from "../../resources/cases";
 import Toggle from "../Toggle/toggle";
@@ -30,6 +30,19 @@ function CasePage(props) {
   const [showPreview, setShowPreview] = createSignal(false)
 
   let tickerHandle = null
+
+  async function shareCurrentCase() {
+    if (typeof window === 'undefined') return
+    const url = window.location.href
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url)
+        createNotification('success', 'Case link copied to clipboard.')
+      }
+    } catch {
+      createNotification('error', 'Unable to copy the case link.')
+    }
+  }
 
   // CSS spin easing control points: cubic-bezier(.08,.78,.16,1)
   const CASE_SPIN_BEZIER = [0.08, 0.78, 0.16, 1]
@@ -206,7 +219,7 @@ function CasePage(props) {
           </A>
 
           <div class='header-actions'>
-            <button class='action-btn share-btn'>
+            <button class='action-btn share-btn' onClick={shareCurrentCase}>
               <svg width='13' height='13' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
                 <path d='M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
               </svg>
@@ -501,7 +514,7 @@ function CasePage(props) {
           align-items: center;
           gap: 8px;
           padding: 0 14px;
-          height: 62px;
+          min-height: 62px;
           flex-wrap: nowrap;
           background: linear-gradient(180deg, rgba(13,19,28,.95), rgba(8,13,20,.99));
           border-top: 1px solid rgba(255,255,255,.04);
@@ -537,7 +550,8 @@ function CasePage(props) {
           display: flex;
           align-items: center;
           gap: 10px;
-          flex-wrap: wrap;
+          flex-wrap: nowrap;
+          min-width: 0;
         }
 
         .controls-right {
@@ -545,6 +559,7 @@ function CasePage(props) {
           align-items: center;
           gap: 14px;
           margin-left: auto;
+          flex-wrap: nowrap;
         }
 
         .amount-group {
@@ -822,9 +837,20 @@ function CasePage(props) {
             gap: 8px;
           }
 
+          .controls-left,
+          .controls-right {
+            width: 100%;
+            flex-wrap: wrap;
+          }
+
+          .controls-right {
+            margin-left: 0;
+          }
+
           .case-info-mini {
             border-right: none;
             padding-right: 0;
+            width: 100%;
           }
         }
 

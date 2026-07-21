@@ -9,7 +9,7 @@ import {subscribeToGame, unsubscribeFromGames} from "../util/socket";
 import {calculateWinnings, convertItems, fillEmptySlots, getRoundWinner, getWonItems} from "../util/battleutil";
 import {Title} from "@solidjs/meta";
 import {resolveImageSrc} from "../util/image";
-import {playGameSFX, stopSFXChannel, startAnimationTicker} from "../util/sound";
+import {playGameSFX} from "../util/sound";
 import IndicatorLine from "../components/IndicatorLine/indicatorline";
 import GameFairnessButton from "../components/GameFairness/gamefairnessbutton";
 
@@ -35,32 +35,6 @@ function Battle(props) {
     const BATTLE_EMOJIS = ['🔥', '😂', '💀', '🙏', '🍀', '😤', '👑', '🎰']
     const [floatingEmojis, setFloatingEmojis] = createSignal([])
     let emojiLastSent = 0
-
-    // Spin sounds — driven by requestAnimationFrame for drift-free sync
-    let battleTicker = null
-
-    function startBattleTicking(spinPhase) {
-        if (battleTicker) battleTicker.cancel()
-
-        battleTicker = startAnimationTicker(
-          () => {
-            playGameSFX('battle-tick', '/assets/sfx/casetick.wav', {
-              channel: 'spin-tick',
-              volume: 0.5,
-              minIntervalMs: 30,
-            })
-          },
-          spinPhase,
-          30 // min interval
-        )
-    }
-
-    function stopBattleTicking() {
-        if (battleTicker) {
-            battleTicker.cancel()
-            battleTicker = null
-        }
-    }
 
     // Winning
     const [winnerTeam, setWinnerTeam] = createSignal(0)
@@ -141,15 +115,11 @@ function Battle(props) {
                 setState('ROLLING')
                 setRound(roundNum)
 
-                // Tick for the active spin phase (90 % of the 5 000 ms spinner duration)
-                startBattleTicking(5000 * 0.9)
-
                 let itemsInRound = wonItems().slice((roundNum - 1) * players(), roundNum * players())
                 setRoundWinners(getRoundWinner(itemsInRound, battle().playersPerTeam))
             })
 
             ws().on('battle:ended', (battleId, { winnerTeam, serverSeed, clientSeed }) => {
-                stopBattleTicking()
               playGameSFX('battle-win', '/assets/sfx/winorcashout.mp3', {
                 channel: 'result-win',
                 volume: 0.62,
@@ -169,16 +139,14 @@ function Battle(props) {
     })
 
     onCleanup(() => {
-        stopBattleTicking()
-      stopSFXChannel('spin-tick', { fadeOutMs: 70 })
         if (ws() && ws().connected) {
             ws().emit('battles:unsubscribe', prevBattle)
             ws().off('battle')
             ws().off('battle:join')
             ws().off('battle:commit')
             ws().off('battle:start')
+            ws().off('battle:round')
             ws().off('battle:ended')
-            ws().off('battle:start')
             ws().off('battle:emoji')
         }
     })
@@ -463,12 +431,13 @@ function Battle(props) {
                 position: relative;
                 border-radius: 10px;
                 border: 1px solid rgba(255,255,255,0.06);
-                background: #111720;
+                background: linear-gradient(180deg, #141b27 0%, #0f151f 100%);
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 gap: 10px;
                 padding: 6px 14px;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 22px rgba(0,0,0,0.26);
               }
 
               .topbar-left, .topbar-right {
@@ -671,6 +640,9 @@ function Battle(props) {
                 width: 100%;
                 max-width: 485px;
                 position: relative;
+                border-left: 1px solid rgba(255,255,255,0.05);
+                border-right: 1px solid rgba(255,255,255,0.05);
+                padding: 0 10px;
               }
                
               .cases {
@@ -695,15 +667,16 @@ function Battle(props) {
                 height: 74px;
                 flex-shrink: 0;
                 border-radius: 6px;
-                background: rgba(255,255,255,.02);
+                background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
                 border: 1px solid rgba(255,255,255,.06);
                 transition: all 0.3s ease;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
               }
 
               .case-thumb.active {
                 background: rgba(31,214,95,.06);
                 border-color: rgba(31,214,95,.3);
-                box-shadow: 0 0 18px rgba(31,214,95,.12);
+                box-shadow: 0 0 18px rgba(31,214,95,.12), inset 0 1px 0 rgba(255,255,255,0.05);
               }
 
               .case-thumb-img {

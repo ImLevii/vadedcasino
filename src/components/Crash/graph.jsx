@@ -1,9 +1,29 @@
-import { createEffect, onCleanup, onMount, Show } from 'solid-js';
+import { createEffect, createMemo, createSignal, For, onCleanup, onMount, Show } from 'solid-js';
 import GameFairnessButton from '../GameFairness/gamefairnessbutton';
 
 function CrashGraph(props) {
   let canvasRef;
   let containerRef;
+  let impactTimeout;
+
+  const [impactShake, setImpactShake] = createSignal(false);
+
+  const lineTier = createMemo(() => {
+    const multi = props.multiplier || 1;
+    if (multi >= 10) return 'tier-4';
+    if (multi >= 5) return 'tier-3';
+    if (multi >= 2) return 'tier-2';
+    return 'tier-1';
+  });
+
+  const lineCount = createMemo(() => {
+    if (!props.isFlying) return 0;
+    const tier = lineTier();
+    if (tier === 'tier-4') return 18;
+    if (tier === 'tier-3') return 14;
+    if (tier === 'tier-2') return 10;
+    return 6;
+  });
 
   onMount(() => {
     window.addEventListener('resize', resizeCanvas);
@@ -12,6 +32,15 @@ function CrashGraph(props) {
 
   onCleanup(() => {
     window.removeEventListener('resize', resizeCanvas);
+    clearTimeout(impactTimeout);
+  });
+
+  createEffect(() => {
+    if (!props.isCrashed) return;
+
+    setImpactShake(true);
+    clearTimeout(impactTimeout);
+    impactTimeout = setTimeout(() => setImpactShake(false), 380);
   });
 
   function resizeCanvas() {
@@ -232,6 +261,14 @@ function CrashGraph(props) {
   }
 
   function getShipPosition() {
+    if (!props.isFlying && !props.isCrashed) {
+      return {
+        left: '7.300%',
+        top: '84.000%',
+        tilt: '-12.00deg'
+      };
+    }
+
     const multi = Math.max(1, props.multiplier || 1);
     const maxMulti = Math.max(2.0, multi * 1.25);
     const maxTime = Math.max(10000, getTimeFromMultiplier(multi) * 1.25);
@@ -259,8 +296,25 @@ function CrashGraph(props) {
 
   return (
     <>
-      <div class='crash-graph' ref={containerRef}>
+      <div class='crash-graph' classList={{ 'impact-shake': impactShake() }} ref={containerRef}>
         <canvas ref={canvasRef} class='graph-canvas-el' />
+
+        <Show when={props.isFlying}>
+          <div class={'speed-lines ' + lineTier()}>
+            <For each={Array.from({ length: lineCount() })}>
+              {(_, index) => (
+                <span
+                  class='speed-line'
+                  style={{
+                    top: `${6 + ((index() * 73) % 74)}%`,
+                    '--line-delay': `${(index() % 9) * 0.08}s`,
+                    '--line-width': `${20 + (index() % 6) * 7}px`
+                  }}
+                />
+              )}
+            </For>
+          </div>
+        </Show>
 
         <div class='graph-header'>
           <GameFairnessButton/>
@@ -272,9 +326,9 @@ function CrashGraph(props) {
           </div>
         </div>
 
-        <Show when={props.isFlying || props.isCrashed}>
+        <Show when={props.isFlying || props.isCrashed || (!props.isFlying && !props.isCrashed && props.countdown > 0)}>
           <div
-            class={'spaceship ' + (props.isFlying ? 'flying' : 'crashed')}
+            class={'spaceship ' + (props.isFlying ? 'flying' : props.isCrashed ? 'crashed' : 'charging')}
             style={{
               left: shipPosition().left,
               top: shipPosition().top,
@@ -287,6 +341,8 @@ function CrashGraph(props) {
               <span class='wing wing-right'/>
               <span class='engine'/>
               <span class='thruster'/>
+              <span class='charge-ring charge-ring-a'/>
+              <span class='charge-ring charge-ring-b'/>
             </div>
           </div>
         </Show>
@@ -345,6 +401,48 @@ function CrashGraph(props) {
           height: 100%;
           z-index: 1;
           pointer-events: none;
+        }
+
+        .speed-lines {
+          position: absolute;
+          inset: 0;
+          z-index: 2;
+          pointer-events: none;
+          overflow: hidden;
+          mask-image: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.85) 18%, rgba(0,0,0,0.85) 86%, transparent 100%);
+        }
+
+        .speed-line {
+          position: absolute;
+          left: 0;
+          width: var(--line-width);
+          height: 2px;
+          opacity: 0;
+          border-radius: 99px;
+          animation-name: speed-line-fly;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+          animation-delay: var(--line-delay);
+        }
+
+        .speed-lines.tier-1 .speed-line {
+          background: linear-gradient(90deg, rgba(31,214,95,0), rgba(31,214,95,0.45), rgba(31,214,95,0));
+          animation-duration: 1.85s;
+        }
+
+        .speed-lines.tier-2 .speed-line {
+          background: linear-gradient(90deg, rgba(31,214,95,0), rgba(31,214,95,0.64), rgba(31,214,95,0));
+          animation-duration: 1.35s;
+        }
+
+        .speed-lines.tier-3 .speed-line {
+          background: linear-gradient(90deg, rgba(0,210,180,0), rgba(0,210,180,0.74), rgba(0,210,180,0));
+          animation-duration: 1.03s;
+        }
+
+        .speed-lines.tier-4 .speed-line {
+          background: linear-gradient(90deg, rgba(245,200,66,0), rgba(245,200,66,0.82), rgba(245,200,66,0));
+          animation-duration: 0.78s;
         }
 
         .graph-header {
@@ -432,6 +530,10 @@ function CrashGraph(props) {
           animation: ship-drift 1.2s ease-in-out infinite;
         }
 
+        .spaceship.charging {
+          animation: ship-charge 0.8s ease-in-out infinite;
+        }
+
         .spaceship.crashed {
           opacity: 0.55;
           filter: grayscale(0.4);
@@ -505,6 +607,33 @@ function CrashGraph(props) {
           animation: thruster-flicker .2s ease-in-out infinite alternate;
         }
 
+        .spaceship.charging .thruster {
+          height: 11px;
+          opacity: 0.75;
+          animation: thruster-charge .65s ease-in-out infinite;
+        }
+
+        .charge-ring {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          width: 50px;
+          height: 50px;
+          transform: translate(-50%, -50%);
+          border-radius: 50%;
+          border: 1px solid rgba(31,214,95,0.28);
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        .spaceship.charging .charge-ring-a {
+          animation: charge-ping 1.4s ease-out infinite;
+        }
+
+        .spaceship.charging .charge-ring-b {
+          animation: charge-ping 1.4s ease-out .5s infinite;
+        }
+
         .graph-center.waiting {
           top: 50%;
           transform: translate(-50%, -50%);
@@ -565,14 +694,50 @@ function CrashGraph(props) {
           50% { opacity: 0.4; }
         }
 
+        @keyframes speed-line-fly {
+          0% { transform: translateX(-8%); opacity: 0; }
+          18% { opacity: .55; }
+          82% { opacity: .24; }
+          100% { transform: translateX(118%); opacity: 0; }
+        }
+
         @keyframes ship-drift {
           0%, 100% { transform: translate(-50%, -50%) rotate(var(--ship-tilt)) translateY(0px); }
           50% { transform: translate(-50%, -50%) rotate(calc(var(--ship-tilt) + 1.6deg)) translateY(-2px); }
         }
 
+        @keyframes ship-charge {
+          0%, 100% { transform: translate(-50%, -50%) rotate(var(--ship-tilt)) scale(1); }
+          50% { transform: translate(-50%, -50%) rotate(calc(var(--ship-tilt) + 1deg)) scale(1.03); }
+        }
+
         @keyframes thruster-flicker {
           from { opacity: .65; height: 15px; }
           to { opacity: 1; height: 20px; }
+        }
+
+        @keyframes thruster-charge {
+          0%, 100% { height: 9px; opacity: .46; }
+          50% { height: 14px; opacity: .92; }
+        }
+
+        @keyframes charge-ping {
+          0% { transform: translate(-50%, -50%) scale(0.75); opacity: .62; }
+          75% { opacity: .12; }
+          100% { transform: translate(-50%, -50%) scale(1.48); opacity: 0; }
+        }
+
+        .impact-shake {
+          animation: crash-impact-shake .32s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes crash-impact-shake {
+          0% { transform: translate3d(0,0,0); }
+          20% { transform: translate3d(-1px, 1px, 0); }
+          40% { transform: translate3d(2px, -1px, 0); }
+          60% { transform: translate3d(-2px, 1px, 0); }
+          80% { transform: translate3d(1px, -1px, 0); }
+          100% { transform: translate3d(0,0,0); }
         }
 
         @media (max-width: 768px) {
@@ -604,8 +769,15 @@ function CrashGraph(props) {
           }
 
           .spaceship.flying,
+          .spaceship.charging,
           .thruster {
             animation: none;
+          }
+
+          .charge-ring,
+          .speed-line,
+          .impact-shake {
+            animation: none !important;
           }
         }
       `}</style>

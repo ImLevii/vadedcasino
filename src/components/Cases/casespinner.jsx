@@ -46,6 +46,9 @@ function CaseSpinner(props) {
       
       osc.start();
       osc.stop(ctx.currentTime + 1.5);
+      setTimeout(() => {
+        ctx.close().catch(() => {})
+      }, 1700)
       
       for (let i = 0; i < 7; i++) {
         const time = ctx.currentTime + i * 0.10;
@@ -273,6 +276,16 @@ function CaseSpinner(props) {
                 box-shadow: inset 0 1px 0 var(--glass-highlight), 0 10px 28px rgba(0, 0, 0, 0.24);
                 backdrop-filter: var(--glass-blur);
                 -webkit-backdrop-filter: var(--glass-blur);
+                isolation: isolate;
+              }
+
+              .case-spinner-container::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent 18%, transparent 82%, rgba(255,255,255,0.015));
+                z-index: 0;
               }
 
               .case-spinner-container.multi {
@@ -397,6 +410,8 @@ function CaseSpinner(props) {
                 pointer-events: none;
                 box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.08), inset -1px 0 0 rgba(31, 214, 95, 0.08), 0 0 24px rgba(31, 214, 95, 0.08);
                 animation: centerGlow 2.8s ease-in-out infinite;
+                border-left: 1px solid rgba(31, 214, 95, 0.22);
+                border-right: 1px solid rgba(31, 214, 95, 0.22);
               }
 
               .case-spinner-container.multi .center-indicator {
@@ -439,6 +454,7 @@ function CaseSpinner(props) {
                 transform: translateX(-869px);
                 transform: translateX(-${idleStart}px);
                 will-change: transform;
+                z-index: 2;
               }
 
               .spinner-items.idle-track {

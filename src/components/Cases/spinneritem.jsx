@@ -1,8 +1,5 @@
-import BezierEasing from 'bezier-easing';
 import {createEffect} from "solid-js";
-import {findTimeForOffset} from "../../util/cases";
 import {resolveImageSrc} from "../../util/image";
-import {playGameSFX} from "../../util/sound";
 
 function SpinnerItem(props) {
 
@@ -12,23 +9,6 @@ function SpinnerItem(props) {
     let opacityAnim
     let swords
     const spinEasing = 'cubic-bezier(.08,.78,.16,1)'
-
-    let start
-    function playSound(timeStamp, delay, index) {
-        if (!start) { start = timeStamp }
-        let elapsed = timeStamp - start
-
-        if (elapsed > delay) {
-            start = null
-            playGameSFX('case-item-tick', '/assets/sfx/casetick.wav', {
-                channel: 'item-tick',
-                volume: 0.45,
-                minIntervalMs: 50,
-            })
-            return
-        }
-        window.requestAnimationFrame((ts) => playSound(ts, delay, index))
-    }
 
     createEffect(() => {
         if (props?.spinning === 'spinning') {
@@ -45,8 +25,6 @@ function SpinnerItem(props) {
         if (opacityAnim) opacityAnim.cancel()
         scaleAnim = null
         opacityAnim = null
-        start = null
-
         if (image) image.style.transform = ''
         if (item) item.style.opacity = ''
         if (swords) swords.style.opacity = ''
@@ -80,10 +58,7 @@ function SpinnerItem(props) {
             fill: 'forwards',
         }
 
-        if (props?.position === 0) {
-            let delay = findTimeForOffset(startOffset, ...[0.08, 0.78, 0.16, 1]) * config.duration
-            requestAnimationFrame((ts) => playSound(ts, delay, props?.index))
-        }
+        // Spinner tick SFX is handled once at the reel level to avoid stacked sounds.
 
         scaleAnim = image.animate(
             {
@@ -166,7 +141,7 @@ function SpinnerItem(props) {
                 align-items: center;
                 justify-content: center;
                 
-                opacity: 0.42;
+                                opacity: 0.46;
                 transition: opacity var(--transition-smooth);
               }
 
@@ -175,13 +150,14 @@ function SpinnerItem(props) {
                 inset: 6px 4px;
                 border-radius: 8px;
                 background:
-                  radial-gradient(80% 60% at 50% 100%, color-mix(in srgb, var(--rarity, #A9B5D2) 18%, transparent), transparent 70%),
-                  linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.018));
+                                    radial-gradient(78% 58% at 50% 100%, color-mix(in srgb, var(--rarity, #A9B5D2) 20%, transparent), transparent 72%),
+                                    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.012));
                 border: 1px solid rgba(255,255,255,0.07);
                 border-bottom: 2px solid var(--rarity, #A9B5D2);
                 box-shadow:
                   inset 0 1px 0 rgba(255,255,255,0.06),
-                  0 0 22px -4px var(--rarity, #A9B5D2);
+                                    0 0 18px -6px var(--rarity, #A9B5D2),
+                                    0 8px 16px rgba(0,0,0,0.2);
                 opacity: 0.72;
                 backdrop-filter: blur(4px);
                 -webkit-backdrop-filter: blur(4px);
@@ -213,6 +189,8 @@ function SpinnerItem(props) {
                                 gap: 5px;
                                 pointer-events: none;
                                 animation: itemMetaIn .18s ease-out both;
+                                                padding-top: 6px;
+                                                border-top: 1px solid rgba(255,255,255,0.06);
                             }
 
                             .item-name {
