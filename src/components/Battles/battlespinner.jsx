@@ -391,9 +391,9 @@ function BattleSpinner(props) {
             <div class='center-band'/>
             <IndicatorLine
               orientation='horizontal'
-              length='calc(100% - 44px)'
-              thickness='3px'
-              style={{ position: 'absolute', top: '50%', left: '22px', transform: 'translateY(-50%)', 'z-index': 4 }}
+              length='calc(100% - 56px)'
+              thickness='2px'
+              style={{ position: 'absolute', top: '50%', left: '28px', transform: 'translateY(-50%)', 'z-index': 4 }}
             />
             <div class='fade-top'/>
             <div class='fade-bottom'/>
@@ -461,19 +461,19 @@ function BattleSpinner(props) {
       <style jsx>{`
         .spinner {
           flex: 1;
-          height: 375px;
+          height: 352px;
           position: relative;
           z-index: 0;
 
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 12px;
+          border-radius: 8px;
           overflow: hidden;
 
-          background: linear-gradient(180deg, rgba(22, 30, 44, 0.95), rgba(13, 20, 31, 0.98));
-          border: 1px solid rgba(151, 171, 198, 0.2);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 30px rgba(0, 0, 0, 0.32);
+          background: #111720;
+          border: 1px solid rgba(255,255,255,0.06);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
           backdrop-filter: var(--glass-blur);
           -webkit-backdrop-filter: var(--glass-blur);
           transition: all var(--transition-smooth);
@@ -668,7 +668,7 @@ function BattleSpinner(props) {
           align-items: center;
 
           overflow: hidden;
-          background: linear-gradient(180deg, #101722, #0c131f);
+          background: #0d1219;
         }
 
         .center-band {
@@ -676,14 +676,14 @@ function BattleSpinner(props) {
           left: 0;
           right: 0;
           top: 50%;
-          height: 122px;
-          transform: translateY(-61px);
+          height: 102px;
+          transform: translateY(-51px);
           pointer-events: none;
           z-index: 1;
-          border-top: 1px solid rgba(31,214,95,.18);
-          border-bottom: 1px solid rgba(31,214,95,.18);
-          background: linear-gradient(180deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.10) 48%, rgba(31, 214, 95, 0));
-          box-shadow: inset 0 1px 0 rgba(31, 214, 95, 0.06), inset 0 -1px 0 rgba(31, 214, 95, 0.06), 0 0 42px rgba(31, 214, 95, 0.12);
+          border-top: 1px solid rgba(31,214,95,.14);
+          border-bottom: 1px solid rgba(31,214,95,.14);
+          background: linear-gradient(180deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.08) 48%, rgba(31, 214, 95, 0));
+          box-shadow: inset 0 1px 0 rgba(31, 214, 95, 0.05), inset 0 -1px 0 rgba(31, 214, 95, 0.05), 0 0 30px rgba(31, 214, 95, 0.08);
           animation: battleCenterGlow 2.8s ease-in-out infinite;
         }
 
@@ -721,7 +721,7 @@ function BattleSpinner(props) {
 
           display: flex;
           flex-direction: column;
-          gap: 18px;
+          gap: 12px;
 
           position: absolute;
           top: 0px;
@@ -829,8 +829,8 @@ function BattleSpinner(props) {
         @media only screen and (max-width: 1040px) {
           .spinner {
             width: 100%;
-            min-height: 375px;
-            height: 375px;
+            min-height: 352px;
+            height: 352px;
           }
         }
 

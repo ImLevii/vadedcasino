@@ -89,13 +89,13 @@ function BattleHeader(props) {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                min-height: 60px;
-                padding: 10px 14px;
+                min-height: 48px;
+                padding: 7px 10px;
                 box-sizing: border-box;
-                border: 1px solid rgba(148, 164, 189, 0.2);
-                border-radius: 14px;
-                background: linear-gradient(180deg, rgba(20, 27, 38, 0.95), rgba(13, 19, 29, 0.95));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 14px 30px rgba(0,0,0,0.34);
+                border: 1px solid rgba(255,255,255,0.05);
+                border-radius: 8px;
+                background: #111720;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
                 position: relative;
                 overflow: hidden;
               }
@@ -107,7 +107,7 @@ function BattleHeader(props) {
                 left: 8%;
                 right: 8%;
                 height: 1px;
-                background: linear-gradient(90deg, transparent, rgba(31, 214, 95, 0.18), transparent);
+                background: linear-gradient(90deg, transparent, rgba(31, 214, 95, 0.05), transparent);
                 pointer-events: none;
               }
 
@@ -115,7 +115,7 @@ function BattleHeader(props) {
                 display: flex;
                 align-items: center;
                 flex: 1;
-                gap: 12px;
+                gap: 8px;
                 justify-content: center;
                 position: relative;
                 z-index: 1;
@@ -132,30 +132,30 @@ function BattleHeader(props) {
               .case-info {
                 display: flex;
                 align-items: center;
-                gap: 12px;
+                gap: 8px;
 
-                color: #eaf2ff;
-                font-size: 15px;
+                color: #fff;
+                font-size: 13px;
                 font-weight: 700;
               }
                
               .back {
-                height: 34px;
-                padding: 0 12px;
+                height: 28px;
+                padding: 0 9px;
                 font-weight: 700;
                 font-family: Geogrotesque Wide;
                 position: relative;
-                border: 1px solid rgba(255,255,255,0.08);
-                border-radius: 8px;
-                background: linear-gradient(180deg, rgba(37,45,58,0.65), rgba(22,28,39,0.65));
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 6px;
+                background: rgba(255,255,255,0.02);
                 display: flex;
                 align-items: center;
                 transition: all .2s ease;
               }
 
               .back:hover {
-                background: linear-gradient(180deg, rgba(28,99,62,0.45), rgba(20,65,41,0.45));
-                border-color: rgba(31,214,95,0.36);
+                background: rgba(255,255,255,0.03);
+                border-color: rgba(255,255,255,0.08);
               }
 
               .back p {
@@ -163,34 +163,31 @@ function BattleHeader(props) {
               }
                
               .back svg {
-                margin-right: 8px;
+                margin-right: 6px;
               }
                
               .state {
-                color: #c9d7ec;
-                font-size: 16px;
+                color: #FFF;
+                font-size: 13px;
                 font-weight: 600;
                 text-align: center;
               }
                
               .total {
-                color: #97a4b9;
-                font-size: 11px;
+                color: #6b7280;
+                font-size: 9px;
                 font-weight: 800;
                 letter-spacing: .5px;
                 margin-bottom: 2px;
               }
 
               .cost {
-                height: 32px;
-                font-size: 14px;
-                padding: 0 12px;
-                min-width: 100px;
-                gap: 6px;
-                border-radius: 8px;
-                border: 1px solid rgba(31,214,95,0.32);
-                background: linear-gradient(180deg, rgba(25,115,69,0.4), rgba(18,78,48,0.28));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+                height: 28px;
+                font-size: 12px;
+                padding: 0 9px;
+                min-width: 86px;
+                gap: 4px;
+                border-radius: 6px;
               }
 
               .cost img {
@@ -203,10 +200,10 @@ function BattleHeader(props) {
               }
 
               .mode, .crazy {
-                height: 30px;
-                padding: 0 12px;
-                background: linear-gradient(180deg, rgba(34,44,57,0.65), rgba(20,27,37,0.65));
-                border: 1px solid rgba(255,255,255,0.1);
+                height: 26px;
+                padding: 0 9px;
+                background: rgba(26, 31, 41, 0.5);
+                border: 1px solid rgba(255,255,255,0.06);
 
                 display: flex;
                 align-items: center;
@@ -215,7 +212,7 @@ function BattleHeader(props) {
                 border-radius: 6px;
 
                 color: #8b92a0;
-                font-size: 13px;
+                font-size: 11px;
                 font-weight: 700;
                 backdrop-filter: blur(4px);
                 transition: all .2s ease;

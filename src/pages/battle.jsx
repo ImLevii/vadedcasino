@@ -218,8 +218,6 @@ function Battle(props) {
             <Title>Cosmic Luck | Battle</Title>
 
             <div class='battle-container fadein'>
-              <div class='battle-bg-grid'/>
-              <div class='battle-bg-aurora'/>
                 <BattleHeader battle={battle()} round={round()} state={state()} block={block()}/>
 
                 {!battle() ? (
@@ -434,53 +432,27 @@ function Battle(props) {
                 isolation: isolate;
               }
 
-              .battle-bg-grid,
-              .battle-bg-aurora {
-                position: absolute;
-                inset: 0;
-                pointer-events: none;
-                z-index: -1;
-              }
-
-              .battle-bg-grid {
-                background-image:
-                  linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
-                  linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
-                background-size: 34px 34px;
-                mask-image: linear-gradient(180deg, rgba(0,0,0,0.55), transparent 80%);
-              }
-
-              .battle-bg-aurora {
-                background:
-                  radial-gradient(70% 45% at 12% 0%, rgba(26, 224, 106, 0.2), transparent 62%),
-                  radial-gradient(58% 34% at 90% 6%, rgba(99, 172, 255, 0.16), transparent 62%),
-                  radial-gradient(70% 55% at 50% 100%, rgba(31, 214, 95, 0.09), transparent 68%);
-              }
-
               /* ── Top bar — tight flat bar matching CSGOLuck reference ── */
               .battle-topbar {
                 width: 100%;
-                min-height: 68px;
+                min-height: 56px;
                 box-sizing: border-box;
                 position: relative;
-                border-radius: 14px;
-                border: 1px solid var(--battle-border);
-                background: linear-gradient(180deg, rgba(21, 29, 42, 0.95), rgba(15, 22, 34, 0.95));
+                border-radius: 8px;
+                border: 1px solid rgba(255,255,255,0.06);
+                background: #111720;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 10px;
-                padding: 6px 14px;
-                box-shadow:
-                  inset 0 1px 0 rgba(255,255,255,0.05),
-                  0 14px 32px rgba(0,0,0,0.34),
-                  0 0 0 1px rgba(255,255,255,0.02);
+                gap: 8px;
+                padding: 5px 10px;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
               }
 
               .topbar-left, .topbar-right {
                 display: flex;
                 align-items: center;
-                gap: 8px;
+                gap: 6px;
                 flex: 0 0 auto;
               }
 
@@ -493,61 +465,61 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 12px;
+                gap: 9px;
                 overflow: hidden;
               }
 
               .battle-cost-pill {
                 display: flex;
                 align-items: center;
-                gap: 6px;
-                height: 34px;
-                padding: 0 12px;
-                border-radius: 8px;
-                border: 1px solid rgba(31,214,95,0.42);
-                background: linear-gradient(135deg, rgba(31,214,95,0.2), rgba(31,214,95,0.08));
+                gap: 5px;
+                height: 30px;
+                padding: 0 9px;
+                border-radius: 6px;
+                border: 1px solid rgba(31,214,95,0.32);
+                background: rgba(31,214,95,0.12);
                 font-family: "Geogrotesque Wide", sans-serif;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 8px 20px rgba(7, 150, 70, 0.2);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
               }
 
               .cost-label {
-                color: #a2afc2;
-                font-size: 9px;
+                color: #8b92a0;
+                font-size: 8px;
                 font-weight: 800;
                 text-transform: uppercase;
               }
 
               .cost-value {
-                color: #79f0a5;
-                font-size: 13px;
-                font-weight: 800;
+                color: #1fd65f;
+                font-size: 12px;
+                font-weight: 700;
               }
 
               .action-cluster {
                 display: flex;
                 align-items: center;
-                gap: 4px;
+                gap: 3px;
               }
 
               .cluster-btn {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 32px;
-                height: 32px;
-                border-radius: 8px;
-                border: 1px solid rgba(255,255,255,0.11);
-                background: linear-gradient(180deg, rgba(37,45,58,0.72), rgba(25,31,42,0.72));
-                color: #90a0b8;
+                width: 28px;
+                height: 28px;
+                border-radius: 6px;
+                border: 1px solid rgba(255,255,255,0.08);
+                background: rgba(255,255,255,0.02);
+                color: #6b7280;
                 cursor: pointer;
                 transition: all var(--transition-fast);
                 text-decoration: none;
               }
 
               .cluster-btn:hover {
-                border-color: rgba(31,214,95,0.45);
-                color: #9ef6bc;
-                background: linear-gradient(180deg, rgba(27,86,54,0.45), rgba(17,42,28,0.45));
+                border-color: rgba(31,214,95,0.25);
+                color: #1fd65f;
+                background: rgba(31,214,95,0.06);
               }
 
               /* ── Columns wrapper with center spine ── */
@@ -609,8 +581,8 @@ function Battle(props) {
               .emoji-bar {
                 display: flex;
                 align-items: center;
-                gap: 4px;
-                max-width: 268px;
+                gap: 3px;
+                max-width: 220px;
                 overflow-x: auto;
                 scrollbar-width: none;
               }
@@ -618,12 +590,12 @@ function Battle(props) {
               .emoji-bar::-webkit-scrollbar { display: none; }
 
               .emoji-btn {
-                background: linear-gradient(180deg, rgba(33,42,56,0.82), rgba(22,29,40,0.82));
-                border: 1px solid rgba(255,255,255,0.1);
-                border-radius: 8px;
-                width: 30px;
-                height: 28px;
-                font-size: 15px;
+                background: rgba(255,255,255,0.02);
+                border: 1px solid rgba(255,255,255,0.07);
+                border-radius: 6px;
+                width: 25px;
+                height: 24px;
+                font-size: 13px;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
@@ -637,10 +609,10 @@ function Battle(props) {
               }
 
               .emoji-btn:hover {
-                background: linear-gradient(180deg, rgba(28,100,62,0.55), rgba(21,67,43,0.55));
-                border-color: rgba(31, 214, 95, 0.45);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 12px rgba(0,0,0,0.18), var(--green-glow);
-                transform: scale(1.15);
+                background: rgba(31, 214, 95, 0.08);
+                border-color: rgba(31, 214, 95, 0.3);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 2px 8px rgba(0,0,0,0.12);
+                transform: scale(1.08);
               }
 
               .emoji-btn:active {
@@ -676,10 +648,10 @@ function Battle(props) {
                 overflow: hidden;
                 height: 100%;
                 width: 100%;
-                max-width: 485px;
+                max-width: 440px;
                 position: relative;
-                border-left: 1px solid rgba(255,255,255,0.08);
-                border-right: 1px solid rgba(255,255,255,0.08);
+                border-left: 1px solid rgba(255,255,255,0.05);
+                border-right: 1px solid rgba(255,255,255,0.05);
                 padding: 0 10px;
               }
                
@@ -688,7 +660,7 @@ function Battle(props) {
                 justify-content: center;
                 align-items: center;
                 height: 100%;
-                gap: 14px;
+                gap: 10px;
                  
                 position: absolute;
                 transform: translateX(-30px);
@@ -701,27 +673,27 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 74px;
-                height: 74px;
+                width: 62px;
+                height: 62px;
                 flex-shrink: 0;
-                border-radius: 8px;
-                background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
-                border: 1px solid rgba(255,255,255,.1);
+                border-radius: 6px;
+                background: rgba(255,255,255,.02);
+                border: 1px solid rgba(255,255,255,.06);
                 transition: all 0.3s ease;
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
               }
 
               .case-thumb.active {
                 background: rgba(31,214,95,.06);
-                border-color: rgba(31,214,95,.52);
-                box-shadow: 0 0 24px rgba(31,214,95,.22), inset 0 1px 0 rgba(255,255,255,0.08);
+                border-color: rgba(31,214,95,.3);
+                box-shadow: 0 0 18px rgba(31,214,95,.12), inset 0 1px 0 rgba(255,255,255,0.05);
               }
 
               .case-thumb-img {
                 object-fit: contain;
                 opacity: 0.4;
                 filter: grayscale(1) brightness(0.7);
-                transform: scale(0.9);
+                transform: scale(0.86);
                 transition: all 0.3s ease;
               }
 
@@ -744,12 +716,12 @@ function Battle(props) {
                 align-items: start;
                 gap: 0;
                 padding: 0;
-                border-radius: 14px;
-                border: 1px solid var(--battle-border);
-                background: linear-gradient(180deg, #101722, #0c131e);
+                border-radius: 8px;
+                border: 1px solid rgba(255,255,255,0.06);
+                background: #0d1219;
                 position: relative;
                 overflow: hidden;
-                box-shadow: 0 20px 42px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.04);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
               }
 
               /* Team Totals Bar */
@@ -758,17 +730,17 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 14px 18px;
-                border-radius: 14px;
-                border: 1px solid var(--battle-border);
-                background: linear-gradient(180deg, #151d29, #111924);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 26px rgba(0,0,0,0.28);
+                padding: 10px 14px;
+                border-radius: 8px;
+                border: 1px solid rgba(255,255,255,0.06);
+                background: #111720;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
               }
 
               .team-side {
                 display: flex;
                 align-items: center;
-                gap: 12px;
+                gap: 9px;
                 flex: 1;
               }
 
@@ -780,7 +752,7 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 gap: 8px;
-                color: var(--battle-text-dim);
+                color: #8b92a0;
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 11px;
                 font-weight: 800;
@@ -807,13 +779,13 @@ function Battle(props) {
               }
 
               .team-avatar-dot {
-                width: 24px;
-                height: 24px;
+                width: 20px;
+                height: 20px;
                 border-radius: 50%;
                 background: rgba(31,214,95,0.15);
                 border: 2px solid rgba(31,214,95,0.3);
                 color: #1fd65f;
-                font-size: 10px;
+                font-size: 9px;
                 font-weight: 700;
                 display: flex;
                 align-items: center;
@@ -833,10 +805,10 @@ function Battle(props) {
               .team-value {
                 display: flex;
                 align-items: center;
-                gap: 6px;
-                color: var(--battle-text);
+                gap: 4px;
+                color: #ffffff;
                 font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 15px;
+                font-size: 13px;
                 font-weight: 700;
               }
 
@@ -848,14 +820,14 @@ function Battle(props) {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 6px;
-                padding: 0 24px;
+                gap: 4px;
+                padding: 0 18px;
                 border-left: 1px solid rgba(255,255,255,0.06);
                 border-right: 1px solid rgba(255,255,255,0.06);
               }
 
               .total-drops span:first-child {
-                color: var(--battle-text-dim);
+                color: #6b7280;
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 10px;
                 font-weight: 800;
@@ -866,10 +838,10 @@ function Battle(props) {
               .total-drops-value {
                 display: flex;
                 align-items: center;
-                gap: 6px;
-                color: var(--battle-text);
+                gap: 4px;
+                color: #ffffff;
                 font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 16px;
+                font-size: 14px;
                 font-weight: 700;
               }
 

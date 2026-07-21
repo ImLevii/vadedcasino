@@ -155,21 +155,21 @@ function BattleUser(props) {
                 flex: 1;
                 position: relative;
                 height: fit-content;
-                background: linear-gradient(180deg, #111925, #0d141f);
-                border-top: 1px solid rgba(255,255,255,0.08);
+                background: #0d1219;
+                border-top: 1px solid rgba(255,255,255,0.04);
               }
 
               .user-info {
                 width: 100%;
-                height: 62px;
-                background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
-                border-bottom: 1px solid rgba(255,255,255,0.08);
-                padding: 0 16px;
+                height: 52px;
+                background: rgba(255,255,255,0.02);
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+                padding: 0 10px;
                 display: flex;
                 align-items: center;
-                gap: 10px;
-                color: #94a1b7;
-                font-size: 14px;
+                gap: 8px;
+                color: #6b7280;
+                font-size: 12px;
                 font-weight: 700;
               }
 
@@ -182,7 +182,7 @@ function BattleUser(props) {
                 overflow: hidden;
                 text-overflow: ellipsis;
                 font-weight: 700;
-                font-size: 13px;
+                font-size: 12px;
                 margin: 0;
               }
 
@@ -198,15 +198,15 @@ function BattleUser(props) {
               .balance {
                 display: flex;
                 align-items: center;
-                gap: 5px;
-                height: 30px;
-                padding: 0 10px;
-                border-radius: 8px;
-                border: 1px solid rgba(31,214,95,0.38);
-                background: linear-gradient(180deg, rgba(31,214,95,0.2), rgba(31,214,95,0.08));
+                gap: 4px;
+                height: 26px;
+                padding: 0 8px;
+                border-radius: 5px;
+                border: 1px solid rgba(31,214,95,0.2);
+                background: rgba(31,214,95,0.07);
                 color: #ffffff;
                 font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 13px;
+                font-size: 11px;
                 font-weight: 700;
                 margin-left: auto;
                 flex-shrink: 0;
@@ -217,8 +217,8 @@ function BattleUser(props) {
               }
 
               .join-btn {
-                min-width: 82px;
-                height: 30px;
+                min-width: 72px;
+                height: 26px;
                 margin-left: auto;
                 flex-shrink: 0;
                 border: none;
@@ -227,7 +227,7 @@ function BattleUser(props) {
                 box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 4px 12px rgba(31,214,95,.28);
                 color: #021a09;
                 font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 800;
                 letter-spacing: 0.3px;
                 cursor: pointer;
@@ -243,11 +243,10 @@ function BattleUser(props) {
               .items {
                 width: 100%;
                 min-height: 200px;
-                padding: 14px 14px 8px;
+                padding: 10px 10px 6px;
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
-                background: radial-gradient(50% 80% at 50% 0%, rgba(31,214,95,0.06), transparent 60%);
+                gap: 7px;
               }
 
               .items-empty {
@@ -275,24 +274,24 @@ function BattleUser(props) {
               .item-card {
                 display: flex;
                 align-items: center;
-                gap: 10px;
-                padding: 8px 10px;
-                border-radius: 10px;
-                border: 1px solid rgba(255,255,255,0.12);
-                background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012));
+                gap: 8px;
+                padding: 6px 8px;
+                border-radius: 7px;
+                border: 1px solid rgba(255,255,255,0.06);
+                background: rgba(255,255,255,0.02);
                 position: relative;
                 transition: border-color .2s;
               }
 
               .item-card:hover {
-                border-color: color-mix(in srgb, var(--rarity, #A9B5D2) 54%, transparent);
+                border-color: color-mix(in srgb, var(--rarity, #A9B5D2) 30%, transparent);
               }
 
               .item-img-wrap {
                 position: relative;
                 flex-shrink: 0;
-                width: 64px;
-                height: 52px;
+                width: 54px;
+                height: 44px;
                 border-radius: 5px;
                 background: radial-gradient(70% 60% at 50% 100%, color-mix(in srgb, var(--rarity, #A9B5D2) 16%, transparent), transparent), rgba(255,255,255,0.03);
                 border: 1px solid rgba(255,255,255,0.06);
@@ -303,8 +302,8 @@ function BattleUser(props) {
               }
 
               .item-img {
-                width: 46px;
-                height: 38px;
+                width: 39px;
+                height: 32px;
                 object-fit: contain;
                 filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
               }
@@ -330,7 +329,7 @@ function BattleUser(props) {
 
               .item-name {
                 font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 700;
                 color: #c6ccd8;
                 white-space: nowrap;
@@ -343,25 +342,25 @@ function BattleUser(props) {
                 align-items: center;
                 gap: 4px;
                 font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 12px;
+                font-size: 10px;
                 font-weight: 700;
                 color: #1fd65f;
               }
 
               .round-tag {
                 flex-shrink: 0;
-                width: 22px;
-                height: 22px;
-                border-radius: 6px;
-                background: rgba(255,255,255,0.08);
-                border: 1px solid rgba(255,255,255,0.14);
+                width: 18px;
+                height: 18px;
+                border-radius: 4px;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.08);
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 9px;
+                font-size: 8px;
                 font-weight: 700;
-                color: #9aa6bc;
+                color: #6b7280;
               }
 
               /* ── Round slots row at the bottom ── */
@@ -369,14 +368,14 @@ function BattleUser(props) {
                 display: flex;
                 gap: 4px;
                 flex-wrap: wrap;
-                padding: 6px 0 4px;
+                padding: 4px 0 2px;
                 border-top: 1px solid rgba(255,255,255,0.04);
                 margin-top: 2px;
               }
 
               .round-slot {
-                width: 34px;
-                height: 34px;
+                width: 28px;
+                height: 28px;
                 border-radius: 5px;
                 border: 1px solid rgba(255,255,255,0.06);
                 background: rgba(255,255,255,0.02);
@@ -386,15 +385,15 @@ function BattleUser(props) {
                 overflow: hidden;
                 flex-shrink: 0;
                 font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 11px;
+                font-size: 9px;
                 font-weight: 700;
                 color: #3a4255;
                 transition: border-color .2s, background .2s;
               }
 
               .round-slot img {
-                width: 28px;
-                height: 28px;
+                width: 22px;
+                height: 22px;
                 object-fit: contain;
               }
 

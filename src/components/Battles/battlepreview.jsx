@@ -183,18 +183,18 @@ function BattlePreview(props) {
       <style jsx>{`
         .battle-preview-container {
           width: 100%;
-          min-height: 130px;
+          min-height: 120px;
 
           display: flex;
           align-items: stretch;
-          gap: 14px;
-          padding: 14px;
+          gap: 10px;
+          padding: 10px;
           box-sizing: border-box;
 
           background: linear-gradient(180deg, rgba(17, 22, 32, 0.95), rgba(10, 14, 22, 0.98));
-          border: 1px solid rgba(148, 166, 192, 0.22);
-          border-radius: 14px;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 14px 34px rgba(0,0,0,0.32);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 10px;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 30px rgba(0,0,0,0.2);
           position: relative;
           overflow: hidden;
           transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
@@ -213,29 +213,29 @@ function BattlePreview(props) {
         }
         
         .battle-preview-container:hover {
-          border-color: rgba(31, 214, 95, 0.34);
+          border-color: rgba(31, 214, 95, 0.15);
           transform: translateY(-2px);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 16px 38px rgba(0,0,0,0.35), 0 0 0 1px rgba(31, 214, 95, 0.12);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 14px 36px rgba(0,0,0,0.25), 0 0 0 1px rgba(31, 214, 95, 0.05);
         }
 
         .left-col {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          gap: 10px;
-          min-width: 260px;
+          gap: 8px;
+          min-width: 232px;
           flex-shrink: 0;
         }
 
         .slots-box {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
 
           background: linear-gradient(180deg, rgba(8, 12, 18, 0.95), rgba(5, 8, 13, 0.98));
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-          padding: 8px 12px;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 8px;
+          padding: 6px 9px;
           flex: 1;
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
           overflow-x: auto;
@@ -245,8 +245,8 @@ function BattlePreview(props) {
         .slots-box::-webkit-scrollbar { display: none; }
 
         .slot {
-          width: 40px;
-          height: 40px;
+          width: 34px;
+          height: 34px;
 
           display: flex;
           align-items: center;
@@ -301,25 +301,25 @@ function BattlePreview(props) {
         .bottom-row {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
         }
 
         .drops-box {
           flex: 1;
-          height: 40px;
+          height: 34px;
 
           display: flex;
           align-items: center;
-          gap: 7px;
-          padding: 0 12px;
+          gap: 5px;
+          padding: 0 8px;
 
           background: linear-gradient(180deg, rgba(8, 12, 18, 0.95), rgba(5, 8, 13, 0.98));
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 8px;
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
 
           font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 700;
           transition: border-color .2s ease;
         }
@@ -346,23 +346,23 @@ function BattlePreview(props) {
         }
 
         .action-btn {
-          height: 40px;
-          padding: 0 18px;
+          height: 34px;
+          padding: 0 12px;
 
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 7px;
+          gap: 5px;
 
           outline: unset;
-          border-radius: 10px;
+          border-radius: 8px;
           background: linear-gradient(180deg, rgba(30, 36, 47, 0.9), rgba(22, 27, 37, 0.95));
-          border: 1px solid rgba(255, 255, 255, 0.12);
+          border: 1px solid rgba(255, 255, 255, 0.07);
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
 
           color: #c3cad6;
           font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 12px;
+          font-size: 11px;
           font-weight: 700;
           white-space: nowrap;
 
@@ -402,13 +402,13 @@ function BattlePreview(props) {
           min-width: 0;
 
           display: flex;
-          gap: 10px;
-          padding: 10px;
+          gap: 8px;
+          padding: 8px;
           box-sizing: border-box;
 
           background: linear-gradient(180deg, rgba(18, 22, 32, 0.92), rgba(12, 16, 24, 0.96));
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 8px;
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
         }
 
@@ -416,13 +416,13 @@ function BattlePreview(props) {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          gap: 8px;
+          gap: 6px;
           flex-shrink: 0;
         }
 
         .inspect {
-          height: 38px;
-          padding: 0 26px;
+          height: 32px;
+          padding: 0 16px;
 
           outline: unset;
           border-radius: 6px;
@@ -432,7 +432,7 @@ function BattlePreview(props) {
 
           color: #c3cad6;
           font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 12px;
+          font-size: 11px;
           font-weight: 700;
 
           position: relative;
@@ -450,24 +450,24 @@ function BattlePreview(props) {
 
         .mode-chips {
           display: flex;
-          gap: 6px;
+          gap: 4px;
         }
 
         .chip {
-          width: 32px;
-          height: 32px;
+          width: 28px;
+          height: 28px;
 
           display: flex;
           align-items: center;
           justify-content: center;
 
-          border-radius: 8px;
+          border-radius: 5px;
           background: rgba(30, 36, 47, 0.8);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.06);
 
           color: #8b92a0;
           font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 9px;
+          font-size: 8px;
           font-weight: 700;
           transition: all .2s ease;
         }
@@ -479,8 +479,8 @@ function BattlePreview(props) {
 
         .chip.text {
           width: auto;
-          padding: 0 8px;
-          font-size: 10px;
+          padding: 0 6px;
+          font-size: 9px;
         }
 
         .chip.crazy {
@@ -510,7 +510,7 @@ function BattlePreview(props) {
 
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
 
           overflow-x: auto;
           scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
@@ -518,17 +518,17 @@ function BattlePreview(props) {
         }
 
         .case-tile {
-          width: 96px;
-          height: 96px;
+          width: 78px;
+          height: 78px;
           flex-shrink: 0;
 
           display: flex;
           align-items: center;
           justify-content: center;
 
-          border-radius: 10px;
+          border-radius: 8px;
           background: linear-gradient(180deg, rgba(22, 28, 38, 0.95), rgba(15, 20, 28, 0.98));
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.05);
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
           transition: all .25s ease;
         }
@@ -540,8 +540,8 @@ function BattlePreview(props) {
         }
 
         .case-tile img {
-          max-width: 86px;
-          max-height: 86px;
+          max-width: 68px;
+          max-height: 68px;
           object-fit: contain;
           filter: drop-shadow(0 8px 12px rgba(0,0,0,.35));
           transition: filter .25s ease;

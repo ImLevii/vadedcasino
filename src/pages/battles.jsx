@@ -248,11 +248,11 @@ function Battles(props) {
                 align-items: center;
                 gap: 24px;
                 margin-bottom: 18px;
-                padding: 16px 18px;
-                border-radius: 14px;
-                border: 1px solid var(--b-border);
-                background: linear-gradient(180deg, rgba(24, 34, 49, 0.86), rgba(15, 22, 34, 0.92));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 14px 34px rgba(0,0,0,0.32);
+                padding: 12px 14px;
+                border-radius: 8px;
+                border: 1px solid rgba(255,255,255,.06);
+                background: #111720;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
               }
 
               .header-copy h1, .header-copy p {
@@ -261,24 +261,23 @@ function Battles(props) {
 
               .eyebrow {
                 margin-bottom: 6px;
-                color: #73e8a0;
+                color: #1fd65f;
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 10px;
                 font-weight: 700;
                 text-transform: uppercase;
-                letter-spacing: 0.8px;
               }
 
               .header-copy h1 {
-                color: var(--b-text);
+                color: #fff;
                 font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 29px;
+                font-size: 27px;
                 font-weight: 800;
               }
 
               .header-copy p {
                 margin-top: 7px;
-                color: var(--b-text-dim);
+                color: #7d8796;
                 font-size: 12px;
               }
 
@@ -289,10 +288,10 @@ function Battles(props) {
                 align-items: flex-end;
                 justify-content: space-between;
                 gap: 14px;
-                border: 1px solid var(--b-border);
-                border-radius: 14px;
-                background: linear-gradient(180deg, rgba(24, 34, 49, 0.9), rgba(15, 22, 34, 0.95));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 14px 36px rgba(0,0,0,.28);
+                border: 1px solid rgba(255,255,255,.06);
+                border-radius: 8px;
+                background: linear-gradient(180deg, rgba(18,23,31,.9), rgba(10,14,20,.95));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 10px 30px rgba(0,0,0,.16);
               }
 
               .filters {
@@ -309,7 +308,7 @@ function Battles(props) {
 
               .filter-label {
                 margin: 0 0 0 2px;
-                color: #98a4bb;
+                color: #697382;
                 font-size: 9px;
                 font-weight: 700;
                 text-transform: uppercase;
@@ -321,12 +320,12 @@ function Battles(props) {
                 padding: 0 31px 0 11px;
 
                 outline: unset;
-                border-radius: 8px;
-                background-color: rgba(8,12,18,.8);
-                border: 1px solid rgba(255, 255, 255, 0.12);
+                border-radius: 6px;
+                background-color: rgba(7,10,15,.66);
+                border: 1px solid rgba(255, 255, 255, 0.06);
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.025);
 
-                color: #e5edf8;
+                color: #FFF;
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 11px;
                 font-weight: 700;
@@ -339,11 +338,11 @@ function Battles(props) {
               }
 
               .filter select:hover {
-                border-color: rgba(31, 214, 95, 0.45);
+                border-color: rgba(31, 214, 95, 0.3);
               }
               
               .filter select:focus {
-                border-color: rgba(31, 214, 95, 0.6);
+                border-color: rgba(31, 214, 95, 0.5);
                 box-shadow: 0 0 0 2px rgba(31, 214, 95, 0.12), inset 0 1px 0 rgba(255,255,255,0.035);
               }
 
@@ -357,7 +356,7 @@ function Battles(props) {
 
                 outline: unset;
                 border: unset;
-                border-radius: 10px;
+                border-radius: 8px;
                 background: #1fd65f;
 
                 color: #04240f;
@@ -394,10 +393,10 @@ function Battles(props) {
                 align-items: center;
                 justify-content: center;
                 gap: 7px;
-                border: 1px solid rgba(31,214,95,.28);
-                border-radius: 8px;
-                background: rgba(31,214,95,.1);
-                color: #b6c4d9;
+                border: 1px solid rgba(31,214,95,.14);
+                border-radius: 6px;
+                background: rgba(31,214,95,.04);
+                color: #8c96a4;
                 font-size: 10px;
                 font-weight: 700;
                 white-space: nowrap;
@@ -425,10 +424,10 @@ function Battles(props) {
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
-                border: 1px dashed rgba(120,137,162,.32);
-                border-radius: 12px;
-                background: linear-gradient(180deg, rgba(19, 27, 39, 0.78), rgba(14, 21, 32, 0.88));
-                color: #8e9ab0;
+                border: 1px dashed rgba(255,255,255,.07);
+                border-radius: 8px;
+                background: rgba(255,255,255,.018);
+                color: #747e8c;
                 font-size: 11px;
               }
 
