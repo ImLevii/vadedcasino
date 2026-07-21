@@ -7,11 +7,13 @@ const io = require('../../../socketio/server');
 
 const router = express.Router();
 
-// GET /admin/cashier - Serve the cashier SPA page
+// GET /admin/cashier - Serve the cashier SPA page (production only)
+// In development, Vite proxy bypass handles browser navigations (Accept: text/html) by
+// returning req.url — letting Vite serve its own index.html with HMR and dev assets.
+// Production SPA fallback is handled by the catch-all in app.js:175-180.
 router.get('/', (req, res) => {
     if (process.env.NODE_ENV === 'development') {
-        const frontendUrl = process.env.VITE_SERVER_URL || 'http://localhost:3001';
-        return res.redirect(`${frontendUrl}/admin/cashier`);
+        return res.status(404).send('Use Vite dev server');
     }
     res.sendFile(path.join(__dirname, '../../../dist/index.html'));
 });
