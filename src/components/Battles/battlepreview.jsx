@@ -192,9 +192,9 @@ function BattlePreview(props) {
           box-sizing: border-box;
 
           background: linear-gradient(180deg, rgba(17, 22, 32, 0.95), rgba(10, 14, 22, 0.98));
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          border-radius: 12px;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 30px rgba(0,0,0,0.2);
+          border: 1px solid rgba(148, 166, 192, 0.22);
+          border-radius: 14px;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 14px 34px rgba(0,0,0,0.32);
           position: relative;
           overflow: hidden;
           transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
@@ -213,9 +213,9 @@ function BattlePreview(props) {
         }
         
         .battle-preview-container:hover {
-          border-color: rgba(31, 214, 95, 0.15);
+          border-color: rgba(31, 214, 95, 0.34);
           transform: translateY(-2px);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 14px 36px rgba(0,0,0,0.25), 0 0 0 1px rgba(31, 214, 95, 0.05);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 16px 38px rgba(0,0,0,0.35), 0 0 0 1px rgba(31, 214, 95, 0.12);
         }
 
         .left-col {
@@ -233,8 +233,8 @@ function BattlePreview(props) {
           gap: 8px;
 
           background: linear-gradient(180deg, rgba(8, 12, 18, 0.95), rgba(5, 8, 13, 0.98));
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
           padding: 8px 12px;
           flex: 1;
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
@@ -314,8 +314,8 @@ function BattlePreview(props) {
           padding: 0 12px;
 
           background: linear-gradient(180deg, rgba(8, 12, 18, 0.95), rgba(5, 8, 13, 0.98));
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
 
           font-family: "Geogrotesque Wide", sans-serif;
@@ -355,9 +355,9 @@ function BattlePreview(props) {
           gap: 7px;
 
           outline: unset;
-          border-radius: 8px;
+          border-radius: 10px;
           background: linear-gradient(180deg, rgba(30, 36, 47, 0.9), rgba(22, 27, 37, 0.95));
-          border: 1px solid rgba(255, 255, 255, 0.07);
+          border: 1px solid rgba(255, 255, 255, 0.12);
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
 
           color: #c3cad6;
@@ -407,8 +407,8 @@ function BattlePreview(props) {
           box-sizing: border-box;
 
           background: linear-gradient(180deg, rgba(18, 22, 32, 0.92), rgba(12, 16, 24, 0.96));
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
         }
 
@@ -461,9 +461,9 @@ function BattlePreview(props) {
           align-items: center;
           justify-content: center;
 
-          border-radius: 6px;
+          border-radius: 8px;
           background: rgba(30, 36, 47, 0.8);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.1);
 
           color: #8b92a0;
           font-family: "Geogrotesque Wide", sans-serif;
@@ -526,9 +526,9 @@ function BattlePreview(props) {
           align-items: center;
           justify-content: center;
 
-          border-radius: 8px;
+          border-radius: 10px;
           background: linear-gradient(180deg, rgba(22, 28, 38, 0.95), rgba(15, 20, 28, 0.98));
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
           transition: all .25s ease;
         }

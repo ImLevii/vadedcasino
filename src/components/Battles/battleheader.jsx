@@ -92,10 +92,10 @@ function BattleHeader(props) {
                 min-height: 60px;
                 padding: 10px 14px;
                 box-sizing: border-box;
-                border: 1px solid rgba(255,255,255,0.05);
-                border-radius: 10px;
-                background: linear-gradient(180deg, rgba(16, 21, 30, 0.82), rgba(7, 10, 17, 0.92));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 8px 24px rgba(0,0,0,0.22);
+                border: 1px solid rgba(148, 164, 189, 0.2);
+                border-radius: 14px;
+                background: linear-gradient(180deg, rgba(20, 27, 38, 0.95), rgba(13, 19, 29, 0.95));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 14px 30px rgba(0,0,0,0.34);
                 position: relative;
                 overflow: hidden;
               }
@@ -107,7 +107,7 @@ function BattleHeader(props) {
                 left: 8%;
                 right: 8%;
                 height: 1px;
-                background: linear-gradient(90deg, transparent, rgba(31, 214, 95, 0.05), transparent);
+                background: linear-gradient(90deg, transparent, rgba(31, 214, 95, 0.18), transparent);
                 pointer-events: none;
               }
 
@@ -134,7 +134,7 @@ function BattleHeader(props) {
                 align-items: center;
                 gap: 12px;
 
-                color: #FFF;
+                color: #eaf2ff;
                 font-size: 15px;
                 font-weight: 700;
               }
@@ -145,16 +145,17 @@ function BattleHeader(props) {
                 font-weight: 700;
                 font-family: Geogrotesque Wide;
                 position: relative;
-                 
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 8px;
+                background: linear-gradient(180deg, rgba(37,45,58,0.65), rgba(22,28,39,0.65));
                 display: flex;
                 align-items: center;
-                border-radius: 6px;
                 transition: all .2s ease;
               }
 
               .back:hover {
-                background: rgba(255,255,255,0.03);
-                border-color: rgba(255,255,255,0.08);
+                background: linear-gradient(180deg, rgba(28,99,62,0.45), rgba(20,65,41,0.45));
+                border-color: rgba(31,214,95,0.36);
               }
 
               .back p {
@@ -166,14 +167,14 @@ function BattleHeader(props) {
               }
                
               .state {
-                color: #FFF;
+                color: #c9d7ec;
                 font-size: 16px;
                 font-weight: 600;
                 text-align: center;
               }
                
               .total {
-                color: #6b7280;
+                color: #97a4b9;
                 font-size: 11px;
                 font-weight: 800;
                 letter-spacing: .5px;
@@ -186,7 +187,10 @@ function BattleHeader(props) {
                 padding: 0 12px;
                 min-width: 100px;
                 gap: 6px;
-                border-radius: 6px;
+                border-radius: 8px;
+                border: 1px solid rgba(31,214,95,0.32);
+                background: linear-gradient(180deg, rgba(25,115,69,0.4), rgba(18,78,48,0.28));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
               }
 
               .cost img {
@@ -201,8 +205,8 @@ function BattleHeader(props) {
               .mode, .crazy {
                 height: 30px;
                 padding: 0 12px;
-                background: rgba(26, 31, 41, 0.5);
-                border: 1px solid rgba(255,255,255,0.06);
+                background: linear-gradient(180deg, rgba(34,44,57,0.65), rgba(20,27,37,0.65));
+                border: 1px solid rgba(255,255,255,0.1);
 
                 display: flex;
                 align-items: center;

@@ -388,6 +388,12 @@ function CreateBattle(props) {
 
             <style jsx>{`
               .create-battle-container {
+                --cb-panel: #121b28;
+                --cb-panel-soft: #1a2434;
+                --cb-border: rgba(147, 166, 191, 0.24);
+                --cb-text: #e6eefb;
+                --cb-text-dim: #99a8be;
+
                 width: 100%;
                 max-width: 1175px;
                 height: fit-content;
@@ -399,12 +405,18 @@ function CreateBattle(props) {
                 box-sizing: border-box;
                 padding: 30px 0;
                 margin: 0 auto;
+                position: relative;
               }
 
               .header {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
+                padding: 12px 14px;
+                border-radius: 14px;
+                border: 1px solid var(--cb-border);
+                background: linear-gradient(180deg, rgba(24, 34, 49, 0.88), rgba(14, 21, 32, 0.94));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 14px 34px rgba(0,0,0,0.3);
               }
 
               .header-section {
@@ -415,7 +427,7 @@ function CreateBattle(props) {
               }
 
               .title {
-                color: #FFF;
+                color: var(--cb-text);
                 font-size: 18px;
                 font-weight: 700;
 
@@ -438,7 +450,9 @@ function CreateBattle(props) {
                 font-weight: 700;
                 font-family: Geogrotesque Wide;
                 position: relative;
-
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 8px;
+                background: linear-gradient(180deg, rgba(39,47,60,0.68), rgba(23,30,42,0.68));
                 display: flex;
                 align-items: center;
               }
@@ -460,9 +474,9 @@ function CreateBattle(props) {
               .num-cases {
                 height: 30px;
                 padding: 0 10px;
-                border-radius: 4px;
+                border-radius: 8px;
                 background: linear-gradient(180deg, rgba(31, 214, 95, 0.13), rgba(31, 214, 95, 0.06));
-                border: 1px solid rgba(31, 214, 95, 0.16);
+                border: 1px solid rgba(31, 214, 95, 0.34);
 
                 display: flex;
                 align-items: center;
@@ -482,6 +496,7 @@ function CreateBattle(props) {
               .create {
                 height: 30px;
                 width: 130px;
+                border-radius: 8px;
               }
 
               .cost {
@@ -491,9 +506,9 @@ function CreateBattle(props) {
                 min-width: 100px;
                 gap: 6px;
                 font-variant-numeric: tabular-nums;
-                border-radius: 4px;
+                border-radius: 8px;
                 background: linear-gradient(180deg, rgba(31, 214, 95, 0.13), rgba(31, 214, 95, 0.06));
-                border: 1px solid rgba(31, 214, 95, 0.16);
+                border: 1px solid rgba(31, 214, 95, 0.34);
               }
 
               .cost p {
@@ -510,8 +525,8 @@ function CreateBattle(props) {
                 min-height: 262px;
                 padding: 16px;
                 background: radial-gradient(80% 55% at 50% 0%, rgba(31, 214, 95, 0.042), rgba(31, 214, 95, 0)), linear-gradient(180deg, rgba(11, 15, 22, 0.94), rgba(7, 10, 16, 0.98));
-                border-radius: 10px;
-                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 14px;
+                border: 1px solid var(--cb-border);
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 12px 36px rgba(0,0,0,0.24);
 
                 display: grid;
@@ -568,7 +583,7 @@ function CreateBattle(props) {
                 height: 230px;
                 background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.012));
                 border: 1px solid rgba(31, 214, 95, 0.14);
-                border-radius: 8px;
+                border-radius: 10px;
 
                 display: flex;
                 align-items: center;
@@ -596,7 +611,7 @@ function CreateBattle(props) {
                 background: radial-gradient(80% 60% at 50% 48%, rgba(31,214,95,0.09), rgba(31,214,95,0) 70%), #0b0f17;
                 top: 0;
                 left: 0;
-                border-radius: 8px;
+                border-radius: 10px;
                 z-index: -1;
               }
 
@@ -615,7 +630,7 @@ function CreateBattle(props) {
                 align-items: center;
                 justify-content: center;
 
-                border-radius: 8px;
+                border-radius: 10px;
                 background: linear-gradient(180deg, rgba(31,214,95,0.2), rgba(31,214,95,0.07));
                 border: 1px solid rgba(31,214,95,0.2);
                 position: relative;
@@ -630,7 +645,7 @@ function CreateBattle(props) {
                 background: radial-gradient(90% 80% at 50% 50%, rgba(31,214,95,0.14), rgba(31,214,95,0)), rgba(0, 0, 0, 0.24);
                 top: 0;
                 left: 0;
-                border-radius: 8px;
+                border-radius: 10px;
                 z-index: -1;
               }
 
@@ -641,9 +656,9 @@ function CreateBattle(props) {
                 width: 100%;
                 height: 45px;
 
-                border-radius: 7px;
+                border-radius: 12px;
                 background: linear-gradient(90deg, rgba(31, 214, 95, 0.12) -30%, rgba(17, 23, 34, 0.94) 18%, rgba(7, 10, 16, 0.32) 100%);
-                border: 1px solid rgba(255,255,255,0.04);
+                border: 1px solid var(--cb-border);
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
 
                 color: #8b92a0;
@@ -658,6 +673,10 @@ function CreateBattle(props) {
                 gap: 20px;
                 transition: border-color 0.2s ease;
               }
+
+              .settings-section:hover {
+                border-color: rgba(31,214,95,0.36);
+              }
               
               .nomargin {
                 margin-right: unset !important;
@@ -668,7 +687,7 @@ function CreateBattle(props) {
                 align-items: center;
                 gap: 12px;
 
-                color: #FFF;
+                color: var(--cb-text);
                 font-size: 18px;
                 font-weight: 700;
 
@@ -684,7 +703,7 @@ function CreateBattle(props) {
                 padding: unset;
                 cursor: pointer;
 
-                color: #8b92a0;
+                color: var(--cb-text-dim);
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 15px;
                 font-weight: 600;
@@ -694,7 +713,7 @@ function CreateBattle(props) {
               }
               
               .setting:hover:not(:disabled) {
-                color: #c3cad6;
+                color: #d3deef;
               }
               
               .setting:disabled {
@@ -706,7 +725,7 @@ function CreateBattle(props) {
                 display: flex;
                 gap: 8px;
 
-                color: #8b92a0;
+                color: var(--cb-text-dim);
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 15px;
                 font-weight: 600;
@@ -727,7 +746,7 @@ function CreateBattle(props) {
                 max-width: 30px;
                 padding: unset;
 
-                color: white;
+                color: #f1f6ff;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 15px;
                 font-weight: 600;

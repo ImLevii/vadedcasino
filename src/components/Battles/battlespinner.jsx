@@ -468,12 +468,12 @@ function BattleSpinner(props) {
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: var(--glass-radius);
+          border-radius: 12px;
           overflow: hidden;
 
-          background: var(--btn-glass-bg);
-          border: 1px solid var(--glass-border);
-          box-shadow: inset 0 1px 0 var(--glass-highlight), 0 8px 24px rgba(0, 0, 0, 0.24);
+          background: linear-gradient(180deg, rgba(22, 30, 44, 0.95), rgba(13, 20, 31, 0.98));
+          border: 1px solid rgba(151, 171, 198, 0.2);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 12px 30px rgba(0, 0, 0, 0.32);
           backdrop-filter: var(--glass-blur);
           -webkit-backdrop-filter: var(--glass-blur);
           transition: all var(--transition-smooth);
@@ -493,14 +493,14 @@ function BattleSpinner(props) {
 
         .spinner.green {
           background: radial-gradient(92% 95% at 50.00% 100.00%, rgba(31, 214, 95, 0.20) 0%, rgba(0, 0, 0, 0.00) 70%), var(--btn-glass-bg);
-          border-color: rgba(31, 214, 95, 0.25);
+          border-color: rgba(31, 214, 95, 0.45);
           border-bottom: 2px solid #1fd65f;
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 24px rgba(31, 214, 95, 0.15), 0 8px 24px rgba(0, 0, 0, 0.26), var(--green-glow);
         }
 
         .spinner.red {
           background: radial-gradient(92% 95% at 50.00% 100.00%, rgba(249, 81, 81, 0.15) 0%, rgba(0, 0, 0, 0.00) 70%), var(--btn-glass-bg);
-          border-color: rgba(249, 81, 81, 0.18);
+          border-color: rgba(249, 81, 81, 0.34);
           border-bottom: 2px solid #F95151;
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 24px rgba(249, 81, 81, 0.12), 0 8px 24px rgba(0, 0, 0, 0.26);
         }
@@ -668,7 +668,7 @@ function BattleSpinner(props) {
           align-items: center;
 
           overflow: hidden;
-          background: #0d1219;
+          background: linear-gradient(180deg, #101722, #0c131f);
         }
 
         .center-band {

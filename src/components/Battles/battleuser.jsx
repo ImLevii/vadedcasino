@@ -155,20 +155,20 @@ function BattleUser(props) {
                 flex: 1;
                 position: relative;
                 height: fit-content;
-                background: #0d1219;
-                border-top: 1px solid rgba(255,255,255,0.04);
+                background: linear-gradient(180deg, #111925, #0d141f);
+                border-top: 1px solid rgba(255,255,255,0.08);
               }
 
               .user-info {
                 width: 100%;
                 height: 62px;
-                background: rgba(255,255,255,0.02);
-                border-bottom: 1px solid rgba(255,255,255,0.05);
+                background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+                border-bottom: 1px solid rgba(255,255,255,0.08);
                 padding: 0 16px;
                 display: flex;
                 align-items: center;
                 gap: 10px;
-                color: #6b7280;
+                color: #94a1b7;
                 font-size: 14px;
                 font-weight: 700;
               }
@@ -201,9 +201,9 @@ function BattleUser(props) {
                 gap: 5px;
                 height: 30px;
                 padding: 0 10px;
-                border-radius: 5px;
-                border: 1px solid rgba(31,214,95,0.2);
-                background: rgba(31,214,95,0.07);
+                border-radius: 8px;
+                border: 1px solid rgba(31,214,95,0.38);
+                background: linear-gradient(180deg, rgba(31,214,95,0.2), rgba(31,214,95,0.08));
                 color: #ffffff;
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-size: 13px;
@@ -247,6 +247,7 @@ function BattleUser(props) {
                 display: flex;
                 flex-direction: column;
                 gap: 10px;
+                background: radial-gradient(50% 80% at 50% 0%, rgba(31,214,95,0.06), transparent 60%);
               }
 
               .items-empty {
@@ -276,15 +277,15 @@ function BattleUser(props) {
                 align-items: center;
                 gap: 10px;
                 padding: 8px 10px;
-                border-radius: 7px;
-                border: 1px solid rgba(255,255,255,0.06);
-                background: rgba(255,255,255,0.02);
+                border-radius: 10px;
+                border: 1px solid rgba(255,255,255,0.12);
+                background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012));
                 position: relative;
                 transition: border-color .2s;
               }
 
               .item-card:hover {
-                border-color: color-mix(in srgb, var(--rarity, #A9B5D2) 30%, transparent);
+                border-color: color-mix(in srgb, var(--rarity, #A9B5D2) 54%, transparent);
               }
 
               .item-img-wrap {
@@ -351,16 +352,16 @@ function BattleUser(props) {
                 flex-shrink: 0;
                 width: 22px;
                 height: 22px;
-                border-radius: 4px;
-                background: rgba(255,255,255,0.05);
-                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 6px;
+                background: rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.14);
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-size: 9px;
                 font-weight: 700;
-                color: #6b7280;
+                color: #9aa6bc;
               }
 
               /* ── Round slots row at the bottom ── */

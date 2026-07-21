@@ -218,6 +218,8 @@ function Battle(props) {
             <Title>Cosmic Luck | Battle</Title>
 
             <div class='battle-container fadein'>
+              <div class='battle-bg-grid'/>
+              <div class='battle-bg-aurora'/>
                 <BattleHeader battle={battle()} round={round()} state={state()} block={block()}/>
 
                 {!battle() ? (
@@ -410,6 +412,13 @@ function Battle(props) {
 
             <style jsx>{`
               .battle-container {
+                --battle-panel: #101722;
+                --battle-panel-soft: #151d2a;
+                --battle-border: rgba(140, 156, 180, 0.2);
+                --battle-border-strong: rgba(31, 214, 95, 0.35);
+                --battle-text-dim: #8792a4;
+                --battle-text: #dbe4f2;
+
                 width: 100%;
                 max-width: 1175px;
                 height: fit-content;
@@ -421,6 +430,31 @@ function Battle(props) {
                 box-sizing: border-box;
                 padding: 18px 18px 96px;
                 margin: 0 auto;
+                position: relative;
+                isolation: isolate;
+              }
+
+              .battle-bg-grid,
+              .battle-bg-aurora {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                z-index: -1;
+              }
+
+              .battle-bg-grid {
+                background-image:
+                  linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+                background-size: 34px 34px;
+                mask-image: linear-gradient(180deg, rgba(0,0,0,0.55), transparent 80%);
+              }
+
+              .battle-bg-aurora {
+                background:
+                  radial-gradient(70% 45% at 12% 0%, rgba(26, 224, 106, 0.2), transparent 62%),
+                  radial-gradient(58% 34% at 90% 6%, rgba(99, 172, 255, 0.16), transparent 62%),
+                  radial-gradient(70% 55% at 50% 100%, rgba(31, 214, 95, 0.09), transparent 68%);
               }
 
               /* ── Top bar — tight flat bar matching CSGOLuck reference ── */
@@ -429,15 +463,18 @@ function Battle(props) {
                 min-height: 68px;
                 box-sizing: border-box;
                 position: relative;
-                border-radius: 10px;
-                border: 1px solid rgba(255,255,255,0.06);
-                background: linear-gradient(180deg, #141b27 0%, #0f151f 100%);
+                border-radius: 14px;
+                border: 1px solid var(--battle-border);
+                background: linear-gradient(180deg, rgba(21, 29, 42, 0.95), rgba(15, 22, 34, 0.95));
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 gap: 10px;
                 padding: 6px 14px;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 22px rgba(0,0,0,0.26);
+                box-shadow:
+                  inset 0 1px 0 rgba(255,255,255,0.05),
+                  0 14px 32px rgba(0,0,0,0.34),
+                  0 0 0 1px rgba(255,255,255,0.02);
               }
 
               .topbar-left, .topbar-right {
@@ -466,23 +503,24 @@ function Battle(props) {
                 gap: 6px;
                 height: 34px;
                 padding: 0 12px;
-                border-radius: var(--glass-radius-sm);
-                border: 1px solid rgba(31,214,95,0.25);
-                background: linear-gradient(135deg, rgba(31,214,95,0.12), rgba(31,214,95,0.05));
+                border-radius: 8px;
+                border: 1px solid rgba(31,214,95,0.42);
+                background: linear-gradient(135deg, rgba(31,214,95,0.2), rgba(31,214,95,0.08));
                 font-family: "Geogrotesque Wide", sans-serif;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 8px 20px rgba(7, 150, 70, 0.2);
               }
 
               .cost-label {
-                color: #8b92a0;
+                color: #a2afc2;
                 font-size: 9px;
                 font-weight: 800;
                 text-transform: uppercase;
               }
 
               .cost-value {
-                color: #1fd65f;
+                color: #79f0a5;
                 font-size: 13px;
-                font-weight: 700;
+                font-weight: 800;
               }
 
               .action-cluster {
@@ -497,19 +535,19 @@ function Battle(props) {
                 justify-content: center;
                 width: 32px;
                 height: 32px;
-                border-radius: var(--glass-radius-xs);
-                border: 1px solid var(--btn-glass-border);
-                background: var(--btn-glass-bg);
-                color: #6b7280;
+                border-radius: 8px;
+                border: 1px solid rgba(255,255,255,0.11);
+                background: linear-gradient(180deg, rgba(37,45,58,0.72), rgba(25,31,42,0.72));
+                color: #90a0b8;
                 cursor: pointer;
                 transition: all var(--transition-fast);
                 text-decoration: none;
               }
 
               .cluster-btn:hover {
-                border-color: rgba(31,214,95,0.25);
-                color: #1fd65f;
-                background: rgba(31,214,95,0.06);
+                border-color: rgba(31,214,95,0.45);
+                color: #9ef6bc;
+                background: linear-gradient(180deg, rgba(27,86,54,0.45), rgba(17,42,28,0.45));
               }
 
               /* ── Columns wrapper with center spine ── */
@@ -580,9 +618,9 @@ function Battle(props) {
               .emoji-bar::-webkit-scrollbar { display: none; }
 
               .emoji-btn {
-                background: var(--btn-glass-bg);
-                border: 1px solid var(--btn-glass-border);
-                border-radius: var(--glass-radius-xs);
+                background: linear-gradient(180deg, rgba(33,42,56,0.82), rgba(22,29,40,0.82));
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 8px;
                 width: 30px;
                 height: 28px;
                 font-size: 15px;
@@ -599,8 +637,8 @@ function Battle(props) {
               }
 
               .emoji-btn:hover {
-                background: rgba(31, 214, 95, 0.08);
-                border-color: rgba(31, 214, 95, 0.25);
+                background: linear-gradient(180deg, rgba(28,100,62,0.55), rgba(21,67,43,0.55));
+                border-color: rgba(31, 214, 95, 0.45);
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 12px rgba(0,0,0,0.18), var(--green-glow);
                 transform: scale(1.15);
               }
@@ -640,8 +678,8 @@ function Battle(props) {
                 width: 100%;
                 max-width: 485px;
                 position: relative;
-                border-left: 1px solid rgba(255,255,255,0.05);
-                border-right: 1px solid rgba(255,255,255,0.05);
+                border-left: 1px solid rgba(255,255,255,0.08);
+                border-right: 1px solid rgba(255,255,255,0.08);
                 padding: 0 10px;
               }
                
@@ -666,17 +704,17 @@ function Battle(props) {
                 width: 74px;
                 height: 74px;
                 flex-shrink: 0;
-                border-radius: 6px;
-                background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
-                border: 1px solid rgba(255,255,255,.06);
+                border-radius: 8px;
+                background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+                border: 1px solid rgba(255,255,255,.1);
                 transition: all 0.3s ease;
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
               }
 
               .case-thumb.active {
                 background: rgba(31,214,95,.06);
-                border-color: rgba(31,214,95,.3);
-                box-shadow: 0 0 18px rgba(31,214,95,.12), inset 0 1px 0 rgba(255,255,255,0.05);
+                border-color: rgba(31,214,95,.52);
+                box-shadow: 0 0 24px rgba(31,214,95,.22), inset 0 1px 0 rgba(255,255,255,0.08);
               }
 
               .case-thumb-img {
@@ -706,11 +744,12 @@ function Battle(props) {
                 align-items: start;
                 gap: 0;
                 padding: 0;
-                border-radius: 10px;
-                border: 1px solid rgba(255,255,255,0.06);
-                background: #0d1219;
+                border-radius: 14px;
+                border: 1px solid var(--battle-border);
+                background: linear-gradient(180deg, #101722, #0c131e);
                 position: relative;
                 overflow: hidden;
+                box-shadow: 0 20px 42px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.04);
               }
 
               /* Team Totals Bar */
@@ -720,9 +759,10 @@ function Battle(props) {
                 align-items: center;
                 justify-content: space-between;
                 padding: 14px 18px;
-                border-radius: 10px;
-                border: 1px solid rgba(255,255,255,0.06);
-                background: #111720;
+                border-radius: 14px;
+                border: 1px solid var(--battle-border);
+                background: linear-gradient(180deg, #151d29, #111924);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 26px rgba(0,0,0,0.28);
               }
 
               .team-side {
@@ -740,7 +780,7 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 gap: 8px;
-                color: #8b92a0;
+                color: var(--battle-text-dim);
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 11px;
                 font-weight: 800;
@@ -794,7 +834,7 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 gap: 6px;
-                color: #FFFFFF;
+                color: var(--battle-text);
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 15px;
                 font-weight: 700;
@@ -815,7 +855,7 @@ function Battle(props) {
               }
 
               .total-drops span:first-child {
-                color: #6b7280;
+                color: var(--battle-text-dim);
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 10px;
                 font-weight: 800;
@@ -827,7 +867,7 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 gap: 6px;
-                color: #FFFFFF;
+                color: var(--battle-text);
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 16px;
                 font-weight: 700;

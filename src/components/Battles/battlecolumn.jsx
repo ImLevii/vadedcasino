@@ -45,11 +45,27 @@ function BattleColumn(props) {
                 flex-direction: column;
                 gap: 0;
                 min-width: 0;
-                border-right: 1px solid rgba(255,255,255,0.05);
+                border-right: 1px solid rgba(255,255,255,0.1);
+                position: relative;
+              }
+
+              .column::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                right: -1px;
+                width: 1px;
+                background: linear-gradient(180deg, transparent, rgba(31,214,95,0.2), transparent);
+                pointer-events: none;
               }
 
               .column:last-child {
                 border-right: none;
+              }
+
+              .column:last-child::after {
+                display: none;
               }
               
               .container {
