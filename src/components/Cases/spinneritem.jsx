@@ -207,6 +207,13 @@ function SpinnerItem(props) {
                 transition: transform var(--transition-smooth);
               }
 
+                            .case-item-container.vertical .item-image {
+                                width: min(90px, calc(100% - 12px));
+                                height: auto;
+                                max-height: 90px;
+                                object-fit: contain;
+                            }
+
               .winning-item .card-bg {
                 opacity: 1;
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 24px -4px var(--rarity, #A9B5D2);

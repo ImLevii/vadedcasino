@@ -59,7 +59,7 @@ function BattleUser(props) {
 
     return (
         <>
-            <div class='battle-user-container'>
+            <div class={'battle-user-container ' + (props?.compact ? 'compact ' : '') + (props?.side || '')}>
                 {/* ── User info header ── */}
                 <div class={'user-info ' + (props?.player ? 'active' : '')}>
                     <Avatar height='36' id={props?.player?.id || '?'} xp={props?.player?.xp || 'purple'} dark={!props.player}/>
@@ -159,6 +159,64 @@ function BattleUser(props) {
                 border-top: 1px solid rgba(255,255,255,0.05);
                 padding: 10px 10px 8px;
                 box-sizing: border-box;
+              }
+
+              .battle-user-container.compact {
+                height: 56px;
+                min-height: 56px;
+                padding: 7px 12px 5px;
+                background: #0f131b;
+                border-top: 0;
+              }
+
+              .battle-user-container.compact .user-info {
+                height: 44px;
+                padding: 0;
+                background: transparent;
+                border: 0;
+                position: relative;
+              }
+
+              .battle-user-container.compact.right .user-info {
+                flex-direction: row-reverse;
+                text-align: right;
+              }
+
+              .battle-user-container.compact.right .balance {
+                margin-left: 0;
+                margin-right: auto;
+              }
+
+              .battle-user-container.compact .balance {
+                height: 20px;
+                padding: 0;
+                border: 0;
+                background: transparent;
+                color: #f4f7fb;
+                position: absolute;
+                left: 44px;
+                bottom: 0;
+              }
+
+              .battle-user-container.compact .name-container {
+                align-self: flex-start;
+                flex-direction: row-reverse;
+                justify-content: flex-end;
+                padding-top: 2px;
+              }
+
+              .battle-user-container.compact.right .name-container {
+                flex-direction: row;
+                justify-content: flex-start;
+              }
+
+              .battle-user-container.compact.right .balance {
+                left: auto;
+                right: 44px;
+              }
+
+              .battle-user-container.compact .items {
+                display: none;
               }
 
               .user-info {

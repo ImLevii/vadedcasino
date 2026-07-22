@@ -340,15 +340,16 @@ function CasePage(props) {
         <div class='spinner-section'>
           <Show when={!caseObj.loading} fallback={<div class='spinner-loader'><Loader/></div>}>
             <div class={'spinner-track amount-' + amount()}>
-              <For each={Array(amount())}>{(spinner, index) =>
-                <CaseSpinner spinTime={spinTime()} offset={offset()}
-                             items={spinnerItems()[index()]}
-                             spinning={spinning()}
-                             layout={amount() > 1 ? 'multi' : 'row'}
-                             sideArrows={amount() > 1}
-                             position={index()}/>
-              }</For>
-
+              <div class='spinner-grid'>
+                <For each={Array(amount())}>{(spinner, index) =>
+                  <CaseSpinner spinTime={spinTime()} offset={offset()}
+                               items={spinnerItems()[index()]}
+                               spinning={spinning()}
+                               layout={amount() > 1 ? 'multi' : 'row'}
+                               sideArrows={amount() > 1}
+                               position={index()}/>
+                }</For>
+              </div>
             </div>
           </Show>
         </div>
@@ -558,35 +559,85 @@ function CasePage(props) {
           position: relative;
         }
 
+        .spinner-grid {
+          display: contents;
+        }
+
         .spinner-track.amount-2,
         .spinner-track.amount-3,
         .spinner-track.amount-4 {
           min-height: 290px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 12px 24px;
+          background: #171a20;
+          border: 0;
+          border-radius: 8px;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.015);
+        }
+
+        .spinner-track.amount-2 .spinner-grid,
+        .spinner-track.amount-3 .spinner-grid,
+        .spinner-track.amount-4 .spinner-grid {
+          width: min(100%, var(--reel-grid-width));
+          height: 258px;
           display: grid;
           grid-auto-rows: 258px;
           align-items: stretch;
-          gap: 0;
-          padding: 12px;
-          overflow-x: hidden;
-          overflow-y: hidden;
-          background: linear-gradient(180deg, rgba(10, 14, 22, 0.96), rgba(5, 8, 14, 0.98));
-          border-top: 1px solid rgba(255, 255, 255, 0.03);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), inset 0 0 80px rgba(0, 0, 0, 0.35);
+          gap: 8px;
+          position: relative;
+        }
+
+        .spinner-track.amount-2 .spinner-grid::before,
+        .spinner-track.amount-2 .spinner-grid::after,
+        .spinner-track.amount-3 .spinner-grid::before,
+        .spinner-track.amount-3 .spinner-grid::after,
+        .spinner-track.amount-4 .spinner-grid::before,
+        .spinner-track.amount-4 .spinner-grid::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          width: 3px;
+          height: 9px;
+          border-radius: 1px;
+          background: #14f195;
+          box-shadow: 0 0 8px rgba(20, 241, 149, 0.72);
+          transform: translateY(-50%);
+          z-index: 8;
+          pointer-events: none;
+        }
+
+        .spinner-track .spinner-grid::before {
+          left: -12px;
+        }
+
+        .spinner-track .spinner-grid::after {
+          right: -12px;
         }
 
         .spinner-track.amount-2 {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 12px;
+          --reel-grid-width: 272px;
+        }
+
+        .spinner-track.amount-2 .spinner-grid {
+          grid-template-columns: repeat(2, minmax(0, 132px));
         }
 
         .spinner-track.amount-3 {
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 10px;
+          --reel-grid-width: 412px;
+        }
+
+        .spinner-track.amount-3 .spinner-grid {
+          grid-template-columns: repeat(3, minmax(0, 132px));
         }
 
         .spinner-track.amount-4 {
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 8px;
+          --reel-grid-width: 552px;
+        }
+
+        .spinner-track.amount-4 .spinner-grid {
+          grid-template-columns: repeat(4, minmax(0, 132px));
         }
 
         .spinner-track::-webkit-scrollbar {

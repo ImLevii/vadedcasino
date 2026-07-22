@@ -5,9 +5,24 @@ function BattleColumn(props) {
 
     return (
         <>
-            <div class='column'>
-                <div class='container'>
-                    <BattleSpinner index={props?.index}
+            <div class={'column ' + (props?.compact ? 'compact ' : '') + (props?.side || '')}>
+              <div class='container user-container'>
+                    <BattleUser index={props?.index}
+                                players={props?.players}
+                                battle={props?.battle}
+                                state={props?.state}
+                                round={props?.round}
+                                rounds={props?.rounds}
+                                player={props?.player}
+                                creator={props?.creator}
+                                wonItems={props?.wonItems}
+                                compact={props?.compact}
+                                side={props?.side}
+                    />
+                </div>
+
+                        <div class='container spinner-container'>
+                          <BattleSpinner index={props?.index}
                                    battle={props?.battle}
                                    player={props?.player}
                                    team={props?.team}
@@ -21,40 +36,36 @@ function BattleColumn(props) {
                                    wonItems={props?.wonItems}
                                    total={props?.total}
                                    roundWinners={props?.roundWinners}
-                    />
-                </div>
-
-                <div class='container'>
-                    <BattleUser index={props?.index}
-                                players={props?.players}
-                                battle={props?.battle}
-                                state={props?.state}
-                                round={props?.round}
-                                rounds={props?.rounds}
-                                player={props?.player}
-                                creator={props?.creator}
-                                wonItems={props?.wonItems}
-                    />
-                </div>
+                          />
+                        </div>
             </div>
 
             <style jsx>{`
               .column {
-                flex: 1 0 0;
+                width: 100%;
                 display: flex;
                 flex-direction: column;
                 gap: 0;
                 min-width: 0;
-                border-right: 1px solid rgba(255,255,255,0.05);
+                border-bottom: 1px solid rgba(255,255,255,0.045);
               }
 
               .column:last-child {
-                border-right: none;
+                border-bottom: none;
               }
               
               .container {
                 width: 100%;
                 height: fit-content;
+                min-width: 0;
+              }
+
+              .compact .user-container {
+                order: 0;
+              }
+
+              .compact .spinner-container {
+                order: 1;
               }
             `}</style>
         </>

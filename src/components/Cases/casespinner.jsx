@@ -12,6 +12,7 @@ function CaseSpinner(props) {
   const itemCenter = itemWidth / 2
   const idleItemIndex = 6
   const idleStart = idleItemIndex * itemStep + itemCenter
+  const verticalIdleStart = idleItemIndex * itemStep
   const idleEnd = idleStart + itemStep
   const spinEasing = 'cubic-bezier(.08,.78,.16,1)'
 
@@ -141,6 +142,7 @@ function CaseSpinner(props) {
 
   const isIdle = () => props?.spinning === '' || props?.spinning === 'loading'
   const isVertical = () => props?.layout === 'multi'
+  const idleOffset = () => isVertical() ? verticalIdleStart : idleStart
   const loopWidth = () => (props?.items?.length || 0) * itemStep
   const loopDuration = () => Math.max(20, (props?.items?.length || 0) * 1.4)
 
@@ -166,7 +168,7 @@ function CaseSpinner(props) {
 
       const vertical = isVertical()
       const currentPosition = getCurrentTranslateX()
-      const firstItem = Math.abs(currentPosition || -idleStart)
+      const firstItem = Math.abs(currentPosition || -idleOffset())
       const lastItem = 50 * itemStep + itemCenter
 
         spinAnimation?.cancel()
@@ -198,13 +200,13 @@ function CaseSpinner(props) {
         }
 
     function getCurrentTranslateX() {
-      if (!spinner) return -idleStart
+      if (!spinner) return -idleOffset()
 
       const transform = getComputedStyle(spinner).transform
-      if (!transform || transform === 'none') return -idleStart
+      if (!transform || transform === 'none') return -idleOffset()
 
       const matrix = new DOMMatrixReadOnly(transform)
-      return (isVertical() ? matrix.m42 : matrix.m41) || -idleStart
+      return (isVertical() ? matrix.m42 : matrix.m41) || -idleOffset()
     }
 
     return (
@@ -221,15 +223,7 @@ function CaseSpinner(props) {
                   <div class='fade-right'/>
                 </Show>
                 <div class='center-indicator'/>
-                <Show when={!isVertical()} fallback={
-                  <IndicatorLine
-                    orientation='horizontal'
-                    length='10px'
-                    thickness='2px'
-                    pulse={false}
-                    style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', 'z-index': 5 }}
-                  />
-                }>
+                <Show when={!isVertical()}>
                   <IndicatorLine
                     orientation='horizontal'
                     length='10px'
@@ -271,8 +265,8 @@ function CaseSpinner(props) {
                 </div>
                 <div class={'spinner-items ' + (isVertical() ? 'vertical ' : '') + (isIdle() ? 'idle-track' : '')} ref={spinner}
                      style={{
-                       '--idle-from': `-${idleStart}px`,
-                       '--idle-to': `-${idleStart + loopWidth()}px`,
+                       '--idle-from': `-${idleOffset()}px`,
+                       '--idle-to': `-${idleOffset() + loopWidth()}px`,
                        '--idle-duration': `${loopDuration()}s`
                      }}>
                     <For each={props?.items || []}>{(item, index) => <SpinnerItem spinTime={props?.spinTime} offset={props.offset} img={item.img}
@@ -326,13 +320,10 @@ function CaseSpinner(props) {
                 min-width: 0;
                 flex: unset;
                 height: 252px;
+                border: 0;
                 border-radius: 0;
-                border-top: 0;
-                border-bottom: 0;
-                border-left: 1px solid var(--glass-border);
-                border-right: 0;
-                background: radial-gradient(55% 80% at 50% 50%, rgba(31, 214, 95, 0.045), rgba(31, 214, 95, 0) 54%), var(--btn-glass-bg);
-                box-shadow: inset 1px 0 0 rgba(255,255,255,0.018), inset -1px 0 0 rgba(0,0,0,0.24);
+                background: transparent;
+                box-shadow: none;
               }
 
               .case-spinner-container.multi:first-child {
@@ -450,7 +441,7 @@ function CaseSpinner(props) {
                 flex-direction: column;
                 left: 0;
                 top: 50%;
-                transform: translateY(-${idleStart}px);
+                transform: translateY(-${verticalIdleStart}px);
               }
 
               .spinner-items.idle-track {

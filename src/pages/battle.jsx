@@ -314,7 +314,8 @@ function Battle(props) {
                         <div class='columns-wrapper'>
                           <div class='columns'>
                             {/* Left half */}
-                            <For each={new Array(Math.ceil(players() / 2))}>{(_, idx) =>
+                            <div class='team-lanes left'>
+                              <For each={new Array(Math.ceil(players() / 2))}>{(_, idx) =>
                                 <BattleColumn
                                     index={idx()}
                                     battle={battle()}
@@ -331,12 +332,15 @@ function Battle(props) {
                                     total={won()}
                                     wonItems={wonItems()}
                                     roundWinners={roundWinners()}
+                                    compact={battle()?.teams === 2}
+                                    side='left'
                                 />
-                            }</For>
+                              }</For>
+                            </div>
 
                             {/* Center case reel — mirrors csgoluck.com/case-battle center rail */}
                             <Show when={players() > 1}>
-                              <div class='center-display'>
+                              <div class={'center-display ' + String(state() || '').toLowerCase()}>
                                 <Show when={state() === 'WINNERS'} fallback={
                                   <>
                                     <div class='center-dashes'>
@@ -410,28 +414,32 @@ function Battle(props) {
                             </Show>
 
                             {/* Right half */}
-                            <For each={new Array(Math.floor(players() / 2))}>{(_, idx) => {
-                              const colIdx = Math.ceil(players() / 2) + idx()
-                              return (
-                                <BattleColumn
-                                    index={colIdx}
-                                    battle={battle()}
-                                    player={battle()?.players[colIdx]}
-                                    players={players()}
-                                    team={Math.floor(colIdx / battle()?.playersPerTeam)}
-                                    startOfTeam={colIdx % battle()?.playersPerTeam === 0}
-                                    state={state()}
-                                    round={round()}
-                                    rounds={rounds()}
-                                    winnerTeam={winnerTeam()}
-                                    max={players() - 1}
-                                    creator={isCreator()}
-                                    total={won()}
-                                    wonItems={wonItems()}
-                                    roundWinners={roundWinners()}
-                                />
-                              )
-                            }}</For>
+                            <div class='team-lanes right'>
+                              <For each={new Array(Math.floor(players() / 2))}>{(_, idx) => {
+                                const colIdx = Math.ceil(players() / 2) + idx()
+                                return (
+                                  <BattleColumn
+                                      index={colIdx}
+                                      battle={battle()}
+                                      player={battle()?.players[colIdx]}
+                                      players={players()}
+                                      team={Math.floor(colIdx / battle()?.playersPerTeam)}
+                                      startOfTeam={colIdx % battle()?.playersPerTeam === 0}
+                                      state={state()}
+                                      round={round()}
+                                      rounds={rounds()}
+                                      winnerTeam={winnerTeam()}
+                                      max={players() - 1}
+                                      creator={isCreator()}
+                                      total={won()}
+                                      wonItems={wonItems()}
+                                      roundWinners={roundWinners()}
+                                      compact={battle()?.teams === 2}
+                                      side='right'
+                                  />
+                                )
+                              }}</For>
+                            </div>
                           </div>
                         </div>
 
@@ -450,8 +458,8 @@ function Battle(props) {
                                     </div>
                                     <div class='team-avatars'>
                                         <For each={battle()?.players?.slice(0, battle()?.playersPerTeam)}>{(p) => (
-                                            <div class='team-avatar-dot' title={p?.username || 'Bot'}>
-                                                {p?.username ? p.username.charAt(0).toUpperCase() : '?'}
+                                          <div class='team-avatar-dot' title={p?.username || 'Bot'}>
+                                            <Avatar height='28' id={p?.id} xp={p?.xp || 0}/>
                                             </div>
                                         )}</For>
                                     </div>
@@ -471,7 +479,7 @@ function Battle(props) {
                                     <div class='team-avatars'>
                                         <For each={battle()?.players?.slice(battle()?.playersPerTeam)}>{(p) => (
                                             <div class='team-avatar-dot right-side' title={p?.username || 'Bot'}>
-                                                {p?.username ? p.username.charAt(0).toUpperCase() : '?'}
+                                            <Avatar height='28' id={p?.id} xp={p?.xp || 0}/>
                                             </div>
                                         )}</For>
                                     </div>
@@ -500,7 +508,7 @@ function Battle(props) {
                 --battle-text: #dbe4f2;
 
                 width: 100%;
-                max-width: 1175px;
+                max-width: 1920px;
                 height: fit-content;
 
                 display: flex;
@@ -517,7 +525,7 @@ function Battle(props) {
               /* Live strip styled after reference */
               .battle-topbar {
                 width: 100%;
-                min-height: 76px;
+                min-height: 104px;
                 box-sizing: border-box;
                 position: relative;
                 border-radius: 8px;
@@ -545,7 +553,7 @@ function Battle(props) {
 
               .stat-panel {
                 width: 122px;
-                height: 28px;
+                height: 38px;
                 border-radius: 4px;
                 border: 1px solid rgba(255,255,255,0.07);
                 background: #0f141c;
@@ -590,7 +598,7 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                height: 36px;
+                height: 42px;
                 border-radius: 4px;
                 border: 1px solid rgba(255,255,255,0.08);
                 background: #1f2530;
@@ -656,7 +664,7 @@ function Battle(props) {
 
               .back-btn {
                 width: 122px;
-                height: 28px;
+                height: 38px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -683,7 +691,7 @@ function Battle(props) {
                 overflow: hidden;
                 height: 100%;
                 width: 100%;
-                min-height: 52px;
+                min-height: 74px;
                 position: relative;
                 border: 1px solid rgba(255,255,255,0.06);
                 border-radius: 4px;
@@ -709,8 +717,8 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 52px;
-                height: 52px;
+                width: 70px;
+                height: 70px;
                 flex-shrink: 0;
                 border-radius: 4px;
                 background: #1b212c;
@@ -746,7 +754,8 @@ function Battle(props) {
               .columns {
                 width: 100%;
                 box-sizing: border-box;
-                display: flex;
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) 184px minmax(0, 1fr);
                 align-items: stretch;
                 gap: 0;
                 padding: 0;
@@ -758,17 +767,34 @@ function Battle(props) {
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
               }
 
+              .team-lanes {
+                min-width: 0;
+                display: flex;
+                flex-direction: column;
+                background: #0f131b;
+              }
+
+              .team-lanes.left {
+                border-right: 1px solid rgba(255,255,255,0.035);
+              }
+
+              .team-lanes.right {
+                border-left: 1px solid rgba(255,255,255,0.035);
+              }
+
               /* Center case reel — mirrors csgoluck.com/case-battle center rail */
               .center-display {
-                width: 176px;
-                flex-shrink: 0;
+                width: 184px;
+                min-height: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
                 gap: 10px;
                 position: relative;
-                background: #0c111a;
+                background:
+                  linear-gradient(180deg, rgba(255,255,255,0.018), transparent 18%, transparent 82%, rgba(255,255,255,0.012)),
+                  #090d13;
                 padding: 18px 12px 18px;
                 box-sizing: border-box;
                 border-left: 1px solid rgba(31,214,95,0.18);
@@ -811,6 +837,11 @@ function Battle(props) {
 
               .reel-bar.left { left: 0; }
               .reel-bar.right { right: 0; }
+
+              .center-display.rolling .reel-bar {
+                background: linear-gradient(to bottom, transparent 0%, #ffe600 22%, #ffe600 78%, transparent 100%);
+                box-shadow: 0 0 8px rgba(255,230,0,.55);
+              }
 
               .reel-case {
                 position: relative;
@@ -934,6 +965,7 @@ function Battle(props) {
               /* Team Totals Bar */
               .team-totals {
                 width: 100%;
+                min-height: 72px;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
@@ -963,8 +995,7 @@ function Battle(props) {
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 11px;
                 font-weight: 800;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
+                letter-spacing: 0;
               }
 
               .team-dot {
@@ -986,19 +1017,21 @@ function Battle(props) {
               }
 
               .team-avatar-dot {
-                width: 20px;
-                height: 20px;
+                width: 30px;
+                height: 30px;
                 border-radius: 50%;
-                background: rgba(31,214,95,0.15);
-                border: 2px solid rgba(31,214,95,0.3);
-                color: #1fd65f;
-                font-size: 9px;
-                font-weight: 700;
+                background: #0b1017;
+                border: 1px solid rgba(31,214,95,0.25);
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 margin-right: -6px;
-                font-family: "Geogrotesque Wide", sans-serif;
+                overflow: hidden;
+              }
+
+              .team-avatar-dot :global(img) {
+                width: 28px;
+                height: 28px;
               }
 
               .team-avatar-dot.right-side {
@@ -1055,6 +1088,8 @@ function Battle(props) {
               @media only screen and (max-width: 1040px) {
                 .battle-topbar { min-height: auto; padding: 10px; }
                 .topbar-center { grid-template-columns: 108px 92px minmax(180px, 1fr); }
+                .columns { grid-template-columns: minmax(0, 1fr) 150px minmax(0, 1fr); }
+                .center-display { width: 150px; }
                 .team-totals { flex-wrap: wrap; gap: 12px; }
                 .total-drops { border-left: none; border-right: none; padding: 12px 0; width: 100%; justify-content: center; }
               }
@@ -1067,7 +1102,8 @@ function Battle(props) {
                 .topbar-center { width: 100%; order: 3; grid-template-columns: 88px 82px 1fr; }
                 .inspect-btn { height: 34px; }
                 .center-icons { gap: 4px; }
-                .columns { grid-template-columns: 1fr; padding: 8px; }
+                .columns { grid-template-columns: 1fr; }
+                .center-display { display: none; }
                 .team-totals { flex-direction: column; gap: 12px; }
                 .total-drops { border-left: none; border-right: none; padding: 12px 0; width: 100%; justify-content: center; }
               }

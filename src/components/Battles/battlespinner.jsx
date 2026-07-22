@@ -266,10 +266,10 @@ function BattleSpinner(props) {
     const viewport = spinner.parentElement
     if (!winnerItem || !startItem || !viewport) return
 
-    const center = viewport.clientHeight / 2
-    const startPosition = Math.max(0, startItem.offsetTop + (startItem.offsetHeight / 2) - center)
+    const center = viewport.clientWidth / 2
+    const startPosition = Math.max(0, startItem.offsetLeft + (startItem.offsetWidth / 2) - center)
     const landingOffset = getRandomNumber(-20, 20, chanceObj)
-    const endPosition = winnerItem.offsetTop + (winnerItem.offsetHeight / 2) - center + landingOffset
+    const endPosition = winnerItem.offsetLeft + (winnerItem.offsetWidth / 2) - center + landingOffset
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const duration = reducedMotion ? 1 : 5000
 
@@ -279,9 +279,9 @@ function BattleSpinner(props) {
 
     spinner.animate(
       [
-        { transform: `translateY(-${startPosition}px)` },
-        { transform: `translateY(-${endPosition + 10}px)`, offset: .94 },
-        { transform: `translateY(-${endPosition}px)` }
+        { transform: `translateX(-${startPosition}px)` },
+        { transform: `translateX(-${endPosition + 10}px)`, offset: .94 },
+        { transform: `translateX(-${endPosition}px)` }
       ],
       {
         duration,
@@ -403,8 +403,8 @@ function BattleSpinner(props) {
               pulse={false}
               style={{ position: 'absolute', top: 'calc(50% + 49px)', left: '50%', transform: 'translateX(-50%)', 'z-index': 4 }}
             />
-            <div class='fade-top'/>
-            <div class='fade-bottom'/>
+            <div class='fade-left'/>
+            <div class='fade-right'/>
 
             {/* Particle and Shockwave Effects */}
             <Show when={showShockwave()}>
@@ -469,7 +469,7 @@ function BattleSpinner(props) {
       <style jsx>{`
         .spinner {
           flex: 1;
-          height: 338px;
+          height: 138px;
           position: relative;
           z-index: 0;
 
@@ -669,7 +669,7 @@ function BattleSpinner(props) {
           z-index: 0;
 
           display: flex;
-          flex-direction: column;
+          flex-direction: row;
           justify-content: center;
           align-items: center;
 
@@ -693,23 +693,23 @@ function BattleSpinner(props) {
           animation: none;
         }
 
-        .fade-top, .fade-bottom {
+        .fade-left, .fade-right {
           position: absolute;
-          left: 0;
-          width: 100%;
-          height: 20%;
+          top: 0;
+          width: 14%;
+          height: 100%;
           z-index: 3;
           pointer-events: none;
         }
 
-        .fade-top {
-          top: 0;
-          background: linear-gradient(180deg, #141922 0%, rgba(20, 25, 34, 0.86) 45%, transparent 100%);
+        .fade-left {
+          left: 0;
+          background: linear-gradient(90deg, #141922 0%, rgba(20, 25, 34, 0.86) 45%, transparent 100%);
         }
 
-        .fade-bottom {
-          bottom: 0;
-          background: linear-gradient(0deg, #141922 0%, rgba(20, 25, 34, 0.86) 45%, transparent 100%);
+        .fade-right {
+          right: 0;
+          background: linear-gradient(270deg, #141922 0%, rgba(20, 25, 34, 0.86) 45%, transparent 100%);
         }
 
         .bar {
@@ -723,14 +723,16 @@ function BattleSpinner(props) {
         }
 
         .spinner-items {
+          width: max-content;
           height: 100%;
 
           display: flex;
-          flex-direction: column;
+          flex-direction: row;
           gap: 10px;
 
           position: absolute;
-          top: 0px;
+          top: 0;
+          left: 0;
           z-index: 2;
         }
 
@@ -824,15 +826,15 @@ function BattleSpinner(props) {
         @media only screen and (max-width: 1040px) {
           .spinner {
             width: 100%;
-            min-height: 338px;
-            height: 338px;
+            min-height: 138px;
+            height: 138px;
           }
         }
 
         @media only screen and (max-width: 620px) {
           .spinner, .spinner-column {
-            min-height: 324px;
-            height: 324px;
+            min-height: 128px;
+            height: 128px;
           }
 
           .spinner-column { max-width: none; }

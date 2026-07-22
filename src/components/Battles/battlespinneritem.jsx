@@ -135,6 +135,8 @@ function BattleSpinnerItem(props) {
                                 display: flex;
                                 align-items: center;
                                 gap: 3px;
+                                opacity: 0;
+                                transition: opacity .2s ease;
                             }
 
                             .ext-badge {
@@ -166,6 +168,9 @@ function BattleSpinnerItem(props) {
                                 gap: 7px;
                                 padding-top: 7px;
                                 border-top: 1px solid rgba(255,255,255,0.06);
+                                opacity: 0;
+                                transform: translateY(3px);
+                                transition: opacity .2s ease, transform .2s ease;
                             }
 
                             .item-name {
@@ -200,6 +205,12 @@ function BattleSpinnerItem(props) {
                             .winning-item .item-image {
                                 opacity: 1;
                                 transform: scale(1.04);
+                            }
+
+                            .winning-item .item-top-badges,
+                            .winning-item .item-details {
+                                opacity: 1;
+                                transform: translateY(0);
                             }
 
                             .winning-item .card-bg {
