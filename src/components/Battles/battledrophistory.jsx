@@ -1,4 +1,4 @@
-import {For} from "solid-js";
+import {For, Show} from "solid-js";
 import Avatar from "../Level/avatar";
 import {resolveImageSrc} from "../../util/image";
 
@@ -35,10 +35,29 @@ function BattleDropHistory(props) {
     function getExteriorColor(ext) {
         if (ext === 'FN') return '#4DFFA0'
         if (ext === 'MW') return '#7AB8FF'
-        if (ext === 'FT') return '#B8D4FF'
+        if (ext === 'FT') return '#FFD462'
         if (ext === 'WW') return '#FF9E7A'
         if (ext === 'BS') return '#FF6B6B'
         return '#8b92a0'
+    }
+
+    function formatChance(value) {
+      const num = Number(value || 0)
+      if (!Number.isFinite(num) || num <= 0) return '--'
+      return `${num.toFixed(2).replace(/\.?0+$/, '')}%`
+    }
+
+    function formatPrice(value) {
+      return Number(value || 0).toFixed(2)
+    }
+
+    function getSkinName(name) {
+      if (!name) return 'Pending Drop'
+      const sanitized = String(name)
+        .replace(/stattrak™?\s*/gi, '')
+        .replace(/souvenir\s+/gi, '')
+      const pipePart = sanitized.includes('|') ? sanitized.split('|').pop() : sanitized
+      return (pipePart || sanitized).replace(/\s*\(.*?\)\s*/g, '').trim()
     }
 
     function useImageFallback(e) {
@@ -52,42 +71,50 @@ function BattleDropHistory(props) {
                 <For each={props?.players || []}>{(player) => (
                     <div class='player-column'>
                         <div class='player-header-compact'>
-                      <Avatar height='20' id={player?.id || '?'} xp={player?.xp || 0} dark={!player}/>
-                      <span class='player-name-compact'>{player?.username || 'Waiting...'}</span>
+                          <Avatar height='22' id={player?.id || '?'} xp={player?.xp || 0} dark={!player}/>
+                          <span class='player-name-compact'>{player?.username || 'Waiting...'}</span>
                         </div>
+
                         <div class='player-drops'>
-                      <For each={roundSlots()}>{(_, roundIndex) => {
-                        const item = () => getRoundItem(player?.id, roundIndex() + 1)
-                        return (
-                          <div class={'drop-card ' + (item() ? 'filled' : 'pending')} style={{ '--rarity': getRarityColor(item()?.price || 0) }}>
-                                        <div class='drop-img-wrap'>
-                              {item() ? (
-                                <>
-                                  <img
-                                    class='drop-img'
-                                    src={resolveImageSrc(item()?.img)}
-                                    alt={item()?.name || ''}
-                                    draggable={false}
-                                    onError={useImageFallback}
-                                  />
-                                  {getExterior(item()?.name) && (
-                                    <span class='drop-ext' style={{ color: getExteriorColor(getExterior(item()?.name)) }}>
-                                      {getExterior(item()?.name)}
-                                    </span>
-                                  )}
-                                </>
-                              ) : <span class='round-number'>{roundIndex() + 1}</span>}
-                                        </div>
-                                        <div class='drop-info'>
-                              <span class='drop-name'>{item()?.name || 'Pending'}</span>
-                                            <div class='drop-price'>
-                                                <img src='/assets/chips/chip-green.png' height='10' width='10' alt=''/>
-                                <span>{Number(item()?.price || 0).toFixed(2)}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                        )
-                      }}</For>
+                          <For each={roundSlots()}>{(_, roundIndex) => {
+                            const item = () => getRoundItem(player?.id, roundIndex() + 1)
+                            const exterior = () => getExterior(item()?.name)
+
+                            return (
+                              <div class={'drop-card ' + (item() ? 'filled' : 'pending')} style={{ '--rarity': getRarityColor(item()?.price || 0) }}>
+                                <div class='drop-img-wrap'>
+                                  <Show when={item()} fallback={<span class='round-watermark'>R{roundIndex() + 1}</span>}>
+                                    <img
+                                      class='drop-img'
+                                      src={resolveImageSrc(item()?.img)}
+                                      alt={item()?.name || ''}
+                                      draggable={false}
+                                      onError={useImageFallback}
+                                    />
+                                  </Show>
+                                  <div class='rarity-line'/>
+                                </div>
+
+                                <div class='drop-body'>
+                                  <span class='drop-ext' style={{ color: getExteriorColor(exterior()) }}>
+                                    {exterior() || 'CS2'}
+                                  </span>
+
+                                  <h5 class='drop-name'>{item() ? getSkinName(item()?.name) : 'Pending Drop'}</h5>
+
+                                  <div class='drop-price'>
+                                    <img src='/assets/chips/chip-green.png' height='13' width='13' alt=''/>
+                                    <span>{formatPrice(item()?.price)}</span>
+                                  </div>
+
+                                  <div class='drop-meta'>
+                                    <span class='meta-chip'>{formatChance(item()?.probability)}</span>
+                                    <span class='meta-chip round'>{roundIndex() + 1}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          }}</For>
                         </div>
                     </div>
                 )}</For>
@@ -96,35 +123,46 @@ function BattleDropHistory(props) {
             <style jsx>{`
               .drop-history {
                 width: 100%;
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 1px;
-                background: rgba(255,255,255,0.03);
-                border-radius: 5px;
-                border: 1px solid rgba(255,255,255,0.05);
-                overflow: hidden;
+                display: flex;
+                gap: 10px;
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding: 2px;
+                scrollbar-width: thin;
+                scrollbar-color: rgba(255,255,255,0.12) transparent;
+              }
+
+              .drop-history::-webkit-scrollbar {
+                height: 6px;
+              }
+
+              .drop-history::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,0.12);
+                border-radius: 999px;
               }
 
               .player-column {
                 display: flex;
                 flex-direction: column;
-                background: #0f131b;
-                min-height: 103px;
+                min-width: 168px;
+                width: 168px;
+                gap: 8px;
               }
 
               .player-header-compact {
                 display: flex;
                 align-items: center;
-                height: 25px;
-                gap: 5px;
-                padding: 2px 7px;
-                background: #141a24;
-                border-bottom: 1px solid rgba(255,255,255,0.04);
+                height: 28px;
+                gap: 6px;
+                padding: 0 3px;
+                border-radius: 6px;
+                background: rgba(255,255,255,0.03);
+                border: 1px solid rgba(255,255,255,0.05);
               }
 
               .player-name-compact {
                 font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 8px;
+                font-size: 9px;
                 font-weight: 700;
                 color: #c7d0df;
                 overflow: hidden;
@@ -134,134 +172,198 @@ function BattleDropHistory(props) {
 
               .player-drops {
                 display: flex;
-                flex-direction: row;
-                gap: 4px;
-                padding: 5px;
-                overflow-x: auto;
-                overflow-y: hidden;
-                scrollbar-width: thin;
-                scrollbar-color: rgba(255,255,255,0.1) transparent;
-              }
-
-              .player-drops::-webkit-scrollbar {
-                height: 3px;
-              }
-
-              .player-drops::-webkit-scrollbar-thumb {
-                background: rgba(255,255,255,0.1);
-                border-radius: 999px;
+                flex-direction: column;
+                gap: 10px;
               }
 
               .drop-card {
-                display: grid;
-                grid-template-columns: 54px;
-                grid-template-rows: 49px 18px;
-                width: 54px;
-                min-width: 54px;
-                height: 67px;
-                background: #0a0e14;
-                border-radius: 3px;
+                width: 100%;
+                min-width: 0;
+                min-height: 224px;
+                display: flex;
+                flex-direction: column;
+                background: #212630;
+                border-radius: 6px;
                 border: 1px solid rgba(255,255,255,0.06);
-                border-bottom-color: var(--rarity, #A9B5D2);
                 overflow: hidden;
-                transition: border-color .2s ease;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+                transition: transform .16s ease, border-color .16s ease;
               }
 
               .drop-card:hover {
                 border-color: var(--rarity, #A9B5D2);
+                transform: translateY(-1px);
               }
 
               .drop-img-wrap {
                 position: relative;
-                width: 54px;
-                height: 49px;
+                width: calc(100% - 18px);
+                height: 96px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background: #141922;
-                border-radius: 3px;
+                margin: 10px 9px 0;
+                background: #0f141c;
+                border-radius: 4px;
+                border: 1px solid rgba(255,255,255,0.06);
               }
 
               .drop-img {
-                max-width: 48px;
-                max-height: 43px;
+                width: 88%;
+                max-width: 138px;
+                max-height: 78px;
                 object-fit: contain;
-                filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+                filter: drop-shadow(0 8px 10px rgba(0,0,0,0.42));
+              }
+
+              .rarity-line {
+                position: absolute;
+                left: 12px;
+                right: 12px;
+                bottom: 10px;
+                height: 2px;
+                border-radius: 999px;
+                background: var(--rarity, #A9B5D2);
+                box-shadow: 0 0 8px color-mix(in srgb, var(--rarity, #A9B5D2) 55%, transparent);
+              }
+
+              .drop-body {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                padding: 9px 11px 10px;
+                min-height: 0;
               }
 
               .drop-ext {
-                position: absolute;
-                top: 2px;
-                left: 3px;
                 font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 6px;
+                font-size: 10px;
                 font-weight: 800;
-                text-shadow: 0 0 4px currentColor;
-              }
-
-              .drop-info {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 2px;
-                padding: 0 3px;
-                min-width: 0;
+                line-height: 1;
+                text-transform: uppercase;
+                margin-bottom: 6px;
               }
 
               .drop-name {
+                margin: 0;
                 font-family: 'Geogrotesque', sans-serif;
-                font-size: 6px;
-                font-weight: 600;
-                color: #c7d0df;
+                font-size: 11px;
+                font-weight: 700;
+                color: #f2f6ff;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
-                line-height: 1.2;
+                line-height: 1.25;
+                margin-bottom: 6px;
               }
 
               .drop-price {
                 display: flex;
                 align-items: center;
-                gap: 3px;
+                gap: 5px;
                 font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 6px;
-                font-weight: 700;
+                font-size: 12px;
+                font-weight: 800;
                 color: #1fd65f;
+                line-height: 1;
+                margin-bottom: 10px;
               }
 
               .drop-price img {
-                width: 7px;
-                height: 7px;
+                width: 13px;
+                height: 13px;
+              }
+
+              .drop-meta {
+                margin-top: auto;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 7px;
+              }
+
+              .meta-chip {
+                min-height: 24px;
+                min-width: 48px;
+                padding: 0 8px;
+                border-radius: 5px;
+                border: 1px solid rgba(255,255,255,0.08);
+                background: #191f28;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                color: #97a2b4;
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-size: 9px;
+                font-weight: 700;
+                line-height: 1;
+              }
+
+              .meta-chip.round {
+                min-width: 32px;
+                color: #bcc5d4;
               }
 
               .pending {
-                border-bottom-color: rgba(255,255,255,0.06);
+                border-color: rgba(255,255,255,0.05);
               }
 
               .pending .drop-img-wrap {
-                background: #10151d;
+                background: #111722;
               }
 
-              .pending .drop-info {
-                opacity: .36;
+              .pending .rarity-line {
+                opacity: 0.35;
               }
 
-              .round-number {
-                color: #303848;
+              .pending .drop-price,
+              .pending .drop-name,
+              .pending .drop-ext {
+                color: #8b92a0;
+              }
+
+              .round-watermark {
                 font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 10px;
+                font-size: 17px;
                 font-weight: 800;
+                color: rgba(139, 146, 160, 0.35);
               }
 
               @media only screen and (max-width: 768px) {
-                .drop-history {
-                  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                .player-column {
+                  min-width: 154px;
+                  width: 154px;
+                }
+
+                .drop-card {
+                  min-height: 212px;
+                }
+
+                .drop-name {
+                  font-size: 10px;
+                }
+
+                .drop-price {
+                  font-size: 11px;
                 }
               }
 
-              @media only screen and (max-width: 390px) {
-                .drop-history {
-                  grid-template-columns: repeat(2, 1fr);
+              @media only screen and (max-width: 520px) {
+                .player-column {
+                  min-width: 146px;
+                  width: 146px;
+                }
+
+                .drop-card {
+                  min-height: 206px;
+                }
+
+                .drop-name {
+                  font-size: 10px;
+                }
+
+                .drop-price {
+                  font-size: 11px;
                 }
               }
             `}</style>
