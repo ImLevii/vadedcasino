@@ -1,6 +1,4 @@
 import {A, useParams, useSearchParams, useNavigate} from "@solidjs/router";
-import BattleHeader from "../components/Battles/battleheader";
-import GreenCount from "../components/Count/greencount";
 import {createEffect, createResource, createSignal, For, onCleanup, Show} from "solid-js";
 import {useWebsocket} from "../contexts/socketprovider";
 import Loader from "../components/Loader/loader";
@@ -11,7 +9,6 @@ import {Title} from "@solidjs/meta";
 import {resolveImageSrc} from "../util/image";
 import {playGameSFX} from "../util/sound";
 import IndicatorLine from "../components/IndicatorLine/indicatorline";
-import GameFairnessButton from "../components/GameFairness/gamefairnessbutton";
 
 function Battle(props) {
 
@@ -218,44 +215,54 @@ function Battle(props) {
             <Title>Cosmic Luck | Battle</Title>
 
             <div class='battle-container fadein'>
-                <BattleHeader battle={battle()} round={round()} state={state()} block={block()}/>
-
                 {!battle() ? (
                     <Loader/>
                 ) : (
                     <>
-                        {/* ── Enhanced top bar ── */}
+                        {/* Live controls strip */}
                         <div class='battle-topbar'>
-                          {/* Left: back + battle cost */}
-                          <div class='topbar-left'>
-                            <button class='back-btn glass-btn' onClick={() => navigate('/battles')}>
-                              <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5'>
-                                <polyline points='15 18 9 12 15 6'/>
-                              </svg>
-                              Back
-                            </button>
-                            <div class='battle-cost-pill'>
-                              <img src='/assets/chips/chip-green.png' height='16' width='16' alt=''/>
+                          <div class='topbar-left-stack'>
+                            <div class='battle-cost-pill stat-panel'>
                               <span class='cost-label'>Battle Cost</span>
+                              <img src='/assets/chips/chip-green.png' height='16' width='16' alt=''/>
                               <span class='cost-value'>
                                 {battle()?.cases?.reduce((s, c) => s + (c?.price || 0), 0).toFixed(2)}
                               </span>
                             </div>
+
+                            <div class='round-pill stat-panel'>
+                              <span class='cost-label'>Game</span>
+                              <span class='round-value'>{round() || 0} OF {battle()?.rounds?.length || 0}</span>
+                            </div>
                           </div>
 
-                          {/* Center: game X of Y + case strip */}
                           <div class='topbar-center'>
-                            <GreenCount number={round()} max={battle()?.rounds?.length} active={round() > 0} css={{width: '90px'}}/>
+                            <button class='inspect-btn'>Inspect</button>
+
+                            <div class='center-icons'>
+                              <button class='icon-btn' title='Live'><svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='8'/><circle cx='12' cy='12' r='1'/></svg></button>
+                              <button class='icon-btn' title='Round'><svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M12 6v6l4 2'/><circle cx='12' cy='12' r='9'/></svg></button>
+                              <button class='icon-btn' title='Loading'><svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M21 12a9 9 0 1 1-6.22-8.56'/></svg></button>
+                            </div>
+
                             <div class='cases-container'>
+                              <IndicatorLine
+                                orientation='horizontal'
+                                length='10px'
+                                thickness='2px'
+                                pulse={false}
+                                style={{ position: 'absolute', top: '2px', left: '50%', transform: 'translateX(-50%)', 'z-index': 4 }}
+                              />
+                              <IndicatorLine
+                                orientation='horizontal'
+                                length='10px'
+                                thickness='2px'
+                                pulse={false}
+                                style={{ position: 'absolute', bottom: '2px', left: '50%', transform: 'translateX(-50%)', 'z-index': 4 }}
+                              />
                               <div class='cases' style={{'transform': `translateX(-${74 * Math.max(0, round() - 1) + 30}px)`}}>
                                 <For each={battle()?.rounds}>{(c, index) => (
                                   <div class={'case-thumb ' + (round() - 1 === index() ? 'active' : '')}>
-                                    <IndicatorLine
-                                      orientation='horizontal'
-                                      length='60%'
-                                      thickness='3px'
-                                      style={{ position: 'absolute', top: '-2px', left: '50%', transform: 'translateX(-50%)' }}
-                                    />
                                     <img
                                       class='case-thumb-img'
                                       src={resolveImageSrc(getCase(c?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
@@ -263,73 +270,42 @@ function Battle(props) {
                                       alt={getCase(c?.caseId)?.name || 'Battle case'}
                                       onError={useImageFallback}
                                     />
-                                    <IndicatorLine
-                                      orientation='horizontal'
-                                      length='60%'
-                                      thickness='3px'
-                                      style={{ position: 'absolute', bottom: '-2px', left: '50%', transform: 'translateX(-50%)' }}
-                                    />
                                   </div>
                                 )}</For>
                               </div>
                             </div>
                           </div>
 
-                          {/* Right: emoji bar + actions */}
                           <div class='topbar-right'>
-                            <div class='emoji-bar'>
-                              <For each={BATTLE_EMOJIS}>{(emoji) => (
-                                <button class='emoji-btn' onClick={() => sendEmoji(emoji)}>{emoji}</button>
-                              )}</For>
-                            </div>
-                            <div class='action-cluster'>
-                              <GameFairnessButton compact/>
-                              <button class='cluster-btn' title='Share' onClick={() => {
+                            <button class='back-btn stat-panel' onClick={() => navigate('/battles')}>
+                              <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><polyline points='15 18 9 12 15 6'/></svg>
+                              <span>Back</span>
+                            </button>
+
+                            <div class='right-icons'>
+                              <A href='/fairness' class='icon-btn' title='Provably Fair'>
+                                <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z'/><path d='M9 12l2 2 4-4'/></svg>
+                              </A>
+                              <button class='icon-btn' title='Share' onClick={() => {
                                 if (navigator.clipboard) navigator.clipboard.writeText(window.location.href)
                               }}>
-                                <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'>
-                                  <path d='M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8'/>
-                                  <polyline points='16 6 12 2 8 6'/>
-                                  <line x1='12' y1='2' x2='12' y2='15'/>
-                                </svg>
+                                <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='18' cy='5' r='3'/><circle cx='6' cy='12' r='3'/><circle cx='18' cy='19' r='3'/><line x1='8.6' y1='13.5' x2='15.4' y2='17.5'/><line x1='15.4' y1='6.5' x2='8.6' y2='10.5'/></svg>
                               </button>
-                              <button class='cluster-btn' title='Fullscreen' onClick={() => {
+                              <button class='icon-btn' title='Fullscreen' onClick={() => {
                                 if (!document.fullscreenElement) document.documentElement.requestFullscreen?.()
                                 else document.exitFullscreen?.()
                               }}>
-                                <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'>
-                                  <polyline points='15 3 21 3 21 9'/><polyline points='9 21 3 21 3 15'/>
-                                  <line x1='21' y1='3' x2='14' y2='10'/><line x1='3' y1='21' x2='10' y2='14'/>
-                                </svg>
+                                <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><polyline points='15 3 21 3 21 9'/><polyline points='9 21 3 21 3 15'/><line x1='21' y1='3' x2='14' y2='10'/><line x1='3' y1='21' x2='10' y2='14'/></svg>
+                              </button>
+                              <button class='icon-btn' title='Open battle link'>
+                                <A href={`/battle/${battle()?.id}${battle()?.privKey ? `?pk=${battle()?.privKey}` : ''}`} class='gamemode-link'></A>
+                                <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M14 3h7v7'/><path d='M10 14L21 3'/><path d='M21 14v7h-7'/><path d='M3 10V3h7'/><path d='M3 3l7 7'/></svg>
                               </button>
                             </div>
                           </div>
                         </div>
 
-                        {/* Floating emoji overlay */}
-                        <div class='emoji-overlay'>
-                            <For each={floatingEmojis()}>{(e) => (
-                                <span class='float-emoji' style={{ left: `${e.x}%` }}>{e.emoji}</span>
-                            )}</For>
-                        </div>
-
                         <div class='columns-wrapper'>
-                          {/* Center pointer ticks (top + bottom of spinner area) */}
-                          <div class='center-spine'>
-                            <IndicatorLine
-                              orientation='vertical'
-                              length='22px'
-                              thickness='4px'
-                              style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)' }}
-                            />
-                            <IndicatorLine
-                              orientation='vertical'
-                              length='22px'
-                              thickness='4px'
-                              style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)' }}
-                            />
-                          </div>
-
                           <div class='columns'>
                             <For each={new Array(players())}>{(column, index) =>
                                 <BattleColumn
@@ -432,54 +408,108 @@ function Battle(props) {
                 isolation: isolate;
               }
 
-              /* ── Top bar — tight flat bar matching CSGOLuck reference ── */
+              /* Live strip styled after reference */
               .battle-topbar {
                 width: 100%;
-                min-height: 56px;
+                min-height: 76px;
                 box-sizing: border-box;
                 position: relative;
                 border-radius: 8px;
                 border: 1px solid rgba(255,255,255,0.06);
-                background: #111720;
+                background: #131821;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 gap: 8px;
-                padding: 5px 10px;
+                padding: 8px;
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
               }
 
-              .topbar-left, .topbar-right {
+              .topbar-left-stack, .topbar-right {
                 display: flex;
-                align-items: center;
-                gap: 6px;
+                flex-direction: column;
+                justify-content: center;
+                gap: 8px;
                 flex: 0 0 auto;
               }
 
               .topbar-right {
-                justify-content: flex-end;
+                align-items: flex-end;
               }
 
-              .topbar-center {
-                flex: 1;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 9px;
-                overflow: hidden;
+              .stat-panel {
+                width: 122px;
+                height: 28px;
+                border-radius: 4px;
+                border: 1px solid rgba(255,255,255,0.07);
+                background: #0f141c;
+                font-family: "Geogrotesque Wide", sans-serif;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
               }
 
               .battle-cost-pill {
                 display: flex;
                 align-items: center;
-                gap: 5px;
-                height: 30px;
-                padding: 0 9px;
-                border-radius: 6px;
-                border: 1px solid rgba(31,214,95,0.32);
-                background: rgba(31,214,95,0.12);
+                gap: 4px;
+                padding: 0 8px;
+              }
+
+              .round-pill {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 8px;
+                color: #ccd5e3;
+                font-size: 11px;
+                font-weight: 700;
+              }
+
+              .round-value {
+                color: #eef3ff;
+                font-size: 11px;
+                font-weight: 800;
+              }
+
+              .topbar-center {
+                flex: 1;
+                min-width: 0;
+                display: grid;
+                grid-template-columns: 112px 96px minmax(220px, 1fr);
+                gap: 8px;
+                align-items: center;
+                overflow: hidden;
+              }
+
+              .inspect-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 36px;
+                border-radius: 4px;
+                border: 1px solid rgba(255,255,255,0.08);
+                background: #1f2530;
+                color: #cdd6e5;
                 font-family: "Geogrotesque Wide", sans-serif;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+                font-size: 12px;
+                font-weight: 700;
+                cursor: pointer;
+              }
+
+              .inspect-btn:hover {
+                border-color: rgba(255,255,255,0.14);
+                background: #252c38;
+              }
+
+              .center-icons {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+              }
+
+              .right-icons {
+                display: flex;
+                align-items: center;
+                gap: 6px;
               }
 
               .cost-label {
@@ -495,152 +525,51 @@ function Battle(props) {
                 font-weight: 700;
               }
 
-              .action-cluster {
-                display: flex;
-                align-items: center;
-                gap: 3px;
-              }
-
-              .cluster-btn {
+              .icon-btn {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 28px;
-                height: 28px;
-                border-radius: 6px;
+                width: 24px;
+                height: 24px;
+                border-radius: 4px;
                 border: 1px solid rgba(255,255,255,0.08);
-                background: rgba(255,255,255,0.02);
+                background: #1a202a;
                 color: #6b7280;
                 cursor: pointer;
                 transition: all var(--transition-fast);
                 text-decoration: none;
+                padding: 0;
+                position: relative;
               }
 
-              .cluster-btn:hover {
-                border-color: rgba(31,214,95,0.25);
-                color: #1fd65f;
-                background: rgba(31,214,95,0.06);
+              .icon-btn:hover {
+                border-color: rgba(255,255,255,0.14);
+                color: #e8eefc;
+                background: #222a35;
               }
 
-              /* ── Columns wrapper with center spine ── */
+              .back-btn {
+                width: 122px;
+                height: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                color: #b8c3d6;
+                font-size: 11px;
+                font-weight: 700;
+                cursor: pointer;
+              }
+
+              .back-btn:hover {
+                border-color: rgba(255,255,255,0.14);
+                background: #1a2029;
+                color: #ffffff;
+              }
+
               .columns-wrapper {
                 width: 100%;
                 position: relative;
-              }
-
-              .center-spine {
-                position: absolute;
-                top: 0;
-                bottom: 0;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 4px;
-                z-index: 5;
-                pointer-events: none;
-              }
-
-              .provably {
-                width: auto;
-                min-width: 142px;
-                height: 36px;
-                padding: 0 14px;
-                box-sizing: border-box;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                border-radius: var(--glass-radius-sm);
-                border: 1px solid rgba(31, 214, 95, 0.3);
-                background: linear-gradient(135deg, rgba(31, 214, 95, 0.15), rgba(31, 214, 95, 0.06));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 8px 24px rgba(0,0,0,.25), var(--green-glow);
-                color: #42e77d;
-                font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 11px;
-                font-weight: 800;
-                text-decoration: none;
-                text-transform: uppercase;
-                white-space: nowrap;
-                backdrop-filter: var(--glass-blur);
-                -webkit-backdrop-filter: var(--glass-blur);
-                transition: all var(--transition-smooth);
-              }
-
-              .provably:hover {
-                color: #72f2a3;
-                border-color: rgba(31, 214, 95, 0.5);
-                background: linear-gradient(135deg, rgba(31, 214, 95, 0.22), rgba(31, 214, 95, 0.1));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 10px 28px rgba(0,0,0,.3), var(--green-glow-strong);
-                transform: translateY(-1px);
-              }
-
-              .provably:focus-visible {
-                outline: 2px solid rgba(31, 214, 95, 0.75);
-                outline-offset: 2px;
-              }
-
-              .emoji-bar {
-                display: flex;
-                align-items: center;
-                gap: 3px;
-                max-width: 220px;
-                overflow-x: auto;
-                scrollbar-width: none;
-              }
-
-              .emoji-bar::-webkit-scrollbar { display: none; }
-
-              .emoji-btn {
-                background: rgba(255,255,255,0.02);
-                border: 1px solid rgba(255,255,255,0.07);
-                border-radius: 6px;
-                width: 25px;
-                height: 24px;
-                font-size: 13px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                backdrop-filter: var(--glass-blur);
-                -webkit-backdrop-filter: var(--glass-blur);
-                transition: all var(--transition-fast);
-                line-height: 1;
-                padding: 0;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 2px 6px rgba(0,0,0,0.12);
-              }
-
-              .emoji-btn:hover {
-                background: rgba(31, 214, 95, 0.08);
-                border-color: rgba(31, 214, 95, 0.3);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 2px 8px rgba(0,0,0,0.12);
-                transform: scale(1.08);
-              }
-
-              .emoji-btn:active {
-                transform: scale(0.92);
-              }
-
-              /* Floating emoji overlay */
-              .emoji-overlay {
-                position: relative;
-                height: 0;
-                overflow: visible;
-                pointer-events: none;
-              }
-
-              @keyframes floatUp {
-                0%   { transform: translateY(0)    scale(1);    opacity: 1;   }
-                70%  { transform: translateY(-140px) scale(1.1); opacity: 0.9; }
-                100% { transform: translateY(-220px) scale(0.7); opacity: 0;   }
-              }
-
-              .float-emoji {
-                position: absolute;
-                bottom: 0;
-                font-size: 32px;
-                animation: floatUp 2.8s ease-out forwards;
-                pointer-events: none;
-                user-select: none;
-                filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
               }
 
               .cases-container {
@@ -648,11 +577,12 @@ function Battle(props) {
                 overflow: hidden;
                 height: 100%;
                 width: 100%;
-                max-width: 440px;
+                min-height: 52px;
                 position: relative;
-                border-left: 1px solid rgba(255,255,255,0.05);
-                border-right: 1px solid rgba(255,255,255,0.05);
-                padding: 0 10px;
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 4px;
+                background: #10151d;
+                padding: 0 7px;
               }
                
               .cases {
@@ -660,7 +590,7 @@ function Battle(props) {
                 justify-content: center;
                 align-items: center;
                 height: 100%;
-                gap: 10px;
+                gap: 7px;
                  
                 position: absolute;
                 transform: translateX(-30px);
@@ -673,27 +603,27 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 62px;
-                height: 62px;
+                width: 52px;
+                height: 52px;
                 flex-shrink: 0;
-                border-radius: 6px;
-                background: rgba(255,255,255,.02);
-                border: 1px solid rgba(255,255,255,.06);
+                border-radius: 4px;
+                background: #1b212c;
+                border: 1px solid rgba(255,255,255,.07);
                 transition: all 0.3s ease;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+                box-shadow: none;
               }
 
               .case-thumb.active {
-                background: rgba(31,214,95,.06);
+                background: #212834;
                 border-color: rgba(31,214,95,.3);
-                box-shadow: 0 0 18px rgba(31,214,95,.12), inset 0 1px 0 rgba(255,255,255,0.05);
+                box-shadow: none;
               }
 
               .case-thumb-img {
                 object-fit: contain;
                 opacity: 0.4;
                 filter: grayscale(1) brightness(0.7);
-                transform: scale(0.86);
+                transform: scale(0.9);
                 transition: all 0.3s ease;
               }
 
@@ -846,28 +776,27 @@ function Battle(props) {
               }
 
               @media only screen and (max-width: 1040px) {
-                .battle-topbar { flex-wrap: wrap; min-height: auto; padding: 10px; }
-                .topbar-right { width: 100%; justify-content: space-between; }
-                .cases-container { max-width: none; min-width: 220px; }
+                .battle-topbar { min-height: auto; padding: 10px; }
+                .topbar-center { grid-template-columns: 108px 92px minmax(180px, 1fr); }
                 .team-totals { flex-wrap: wrap; gap: 12px; }
                 .total-drops { border-left: none; border-right: none; padding: 12px 0; width: 100%; justify-content: center; }
-                .center-spine { display: none; }
               }
 
               @media only screen and (max-width: 620px) {
                 .battle-container { padding: 20px 12px 90px; gap: 18px; }
                 .battle-topbar { padding: 8px; gap: 8px; }
-                .topbar-center { order: 3; flex-basis: 100%; min-width: 0; }
-                .emoji-bar { max-width: 178px; }
-                .action-cluster { display: none; }
+                .topbar-left-stack { width: 100%; flex-direction: row; }
+                .topbar-right { width: 100%; align-items: center; flex-direction: row; justify-content: space-between; }
+                .topbar-center { width: 100%; order: 3; grid-template-columns: 88px 82px 1fr; }
+                .inspect-btn { height: 34px; }
+                .center-icons { gap: 4px; }
                 .columns { grid-template-columns: 1fr; padding: 8px; }
                 .team-totals { flex-direction: column; gap: 12px; }
                 .total-drops { border-left: none; border-right: none; padding: 12px 0; width: 100%; justify-content: center; }
-                .center-spine { display: none; }
               }
 
               @media (prefers-reduced-motion: reduce) {
-                .cases, .case, .float-emoji {
+                .cases, .case {
                   transition: none;
                   animation-duration: .01ms;
                 }

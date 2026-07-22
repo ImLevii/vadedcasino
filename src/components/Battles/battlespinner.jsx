@@ -469,19 +469,19 @@ function BattleSpinner(props) {
       <style jsx>{`
         .spinner {
           flex: 1;
-          height: 352px;
+          height: 338px;
           position: relative;
           z-index: 0;
 
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 8px;
+          border-radius: 0;
           overflow: hidden;
 
-          background: #111720;
-          border: 1px solid rgba(255,255,255,0.06);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+          background: #141922;
+          border: 0;
+          box-shadow: none;
           backdrop-filter: var(--glass-blur);
           -webkit-backdrop-filter: var(--glass-blur);
           transition: all var(--transition-smooth);
@@ -500,17 +500,15 @@ function BattleSpinner(props) {
         }
 
         .spinner.green {
-          background: radial-gradient(92% 95% at 50.00% 100.00%, rgba(31, 214, 95, 0.20) 0%, rgba(0, 0, 0, 0.00) 70%), var(--btn-glass-bg);
-          border-color: rgba(31, 214, 95, 0.45);
-          border-bottom: 2px solid #1fd65f;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 24px rgba(31, 214, 95, 0.15), 0 8px 24px rgba(0, 0, 0, 0.26), var(--green-glow);
+          background: #141922;
+          border-bottom: 1px solid rgba(31,214,95,0.48);
+          box-shadow: none;
         }
 
         .spinner.red {
-          background: radial-gradient(92% 95% at 50.00% 100.00%, rgba(249, 81, 81, 0.15) 0%, rgba(0, 0, 0, 0.00) 70%), var(--btn-glass-bg);
-          border-color: rgba(249, 81, 81, 0.34);
-          border-bottom: 2px solid #F95151;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 24px rgba(249, 81, 81, 0.12), 0 8px 24px rgba(0, 0, 0, 0.26);
+          background: #141922;
+          border-bottom: 1px solid rgba(249,81,81,0.44);
+          box-shadow: none;
         }
 
         .gold {
@@ -676,7 +674,7 @@ function BattleSpinner(props) {
           align-items: center;
 
           overflow: hidden;
-          background: #0d1219;
+          background: #141922;
         }
 
         .center-band {
@@ -706,12 +704,12 @@ function BattleSpinner(props) {
 
         .fade-top {
           top: 0;
-          background: linear-gradient(180deg, #0d1219 0%, rgba(13, 18, 25, 0.72) 42%, transparent 100%);
+          background: linear-gradient(180deg, #141922 0%, rgba(20, 25, 34, 0.86) 45%, transparent 100%);
         }
 
         .fade-bottom {
           bottom: 0;
-          background: linear-gradient(0deg, #0d1219 0%, rgba(13, 18, 25, 0.72) 42%, transparent 100%);
+          background: linear-gradient(0deg, #141922 0%, rgba(20, 25, 34, 0.86) 45%, transparent 100%);
         }
 
         .bar {
@@ -729,7 +727,7 @@ function BattleSpinner(props) {
 
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 10px;
 
           position: absolute;
           top: 0px;
@@ -826,15 +824,15 @@ function BattleSpinner(props) {
         @media only screen and (max-width: 1040px) {
           .spinner {
             width: 100%;
-            min-height: 352px;
-            height: 352px;
+            min-height: 338px;
+            height: 338px;
           }
         }
 
         @media only screen and (max-width: 620px) {
           .spinner, .spinner-column {
-            min-height: 340px;
-            height: 340px;
+            min-height: 324px;
+            height: 324px;
           }
 
           .spinner-column { max-width: none; }

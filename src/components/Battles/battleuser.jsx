@@ -155,16 +155,19 @@ function BattleUser(props) {
                 flex: 1;
                 position: relative;
                 height: fit-content;
-                background: #0d1219;
-                border-top: 1px solid rgba(255,255,255,0.04);
+                background: #141922;
+                border-top: 1px solid rgba(255,255,255,0.05);
+                padding: 10px 10px 8px;
+                box-sizing: border-box;
               }
 
               .user-info {
                 width: 100%;
-                height: 52px;
-                background: rgba(255,255,255,0.02);
-                border-bottom: 1px solid rgba(255,255,255,0.05);
-                padding: 0 10px;
+                height: 50px;
+                background: #11161f;
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 6px;
+                padding: 0 9px;
                 display: flex;
                 align-items: center;
                 gap: 8px;
@@ -199,14 +202,14 @@ function BattleUser(props) {
                 display: flex;
                 align-items: center;
                 gap: 4px;
-                height: 26px;
-                padding: 0 8px;
-                border-radius: 5px;
-                border: 1px solid rgba(31,214,95,0.2);
-                background: rgba(31,214,95,0.07);
+                height: 24px;
+                padding: 0 7px;
+                border-radius: 4px;
+                border: 1px solid rgba(255,255,255,0.08);
+                background: #0d1219;
                 color: #ffffff;
                 font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 700;
                 margin-left: auto;
                 flex-shrink: 0;
@@ -218,49 +221,53 @@ function BattleUser(props) {
 
               .join-btn {
                 min-width: 72px;
-                height: 26px;
+                height: 24px;
                 margin-left: auto;
                 flex-shrink: 0;
-                border: none;
-                border-radius: 5px;
-                background: linear-gradient(135deg, #1fd65f, #14b04a);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 4px 12px rgba(31,214,95,.28);
-                color: #021a09;
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 4px;
+                background: #1f2530;
+                color: #c7d0df;
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-size: 10px;
                 font-weight: 800;
                 letter-spacing: 0.3px;
                 cursor: pointer;
-                transition: filter .18s, transform .18s;
+                transition: background .18s, border-color .18s;
               }
 
               .join-btn:hover {
-                filter: brightness(1.08);
-                transform: translateY(-1px);
+                border-color: rgba(255,255,255,0.14);
+                background: #252c38;
               }
 
-              /* ── Items area ── */
               .items {
                 width: 100%;
-                min-height: 200px;
-                padding: 10px 10px 6px;
+                min-height: 150px;
+                padding: 10px 0 2px;
                 display: flex;
-                flex-direction: column;
-                gap: 7px;
+                flex-direction: row;
+                gap: 8px;
+                overflow-x: auto;
+                overflow-y: hidden;
+                scrollbar-width: thin;
+                scrollbar-color: rgba(255,255,255,0.12) transparent;
               }
+
+              .items::-webkit-scrollbar { height: 4px; }
+              .items::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 999px; }
 
               .items-empty {
                 display: flex;
-                gap: 6px;
-                flex-wrap: wrap;
+                gap: 8px;
               }
 
               .empty-slot {
-                width: 38px;
-                height: 38px;
-                border-radius: 5px;
+                width: 92px;
+                height: 130px;
+                border-radius: 6px;
                 border: 1px solid rgba(255,255,255,0.06);
-                background: rgba(255,255,255,0.02);
+                background: #11161f;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -268,19 +275,26 @@ function BattleUser(props) {
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-size: 11px;
                 font-weight: 700;
+                flex-shrink: 0;
               }
 
-              /* ── Per-item card matching CSGOLuck style ── */
               .item-card {
                 display: flex;
-                align-items: center;
-                gap: 8px;
-                padding: 6px 8px;
-                border-radius: 7px;
+                flex-direction: column;
+                align-items: stretch;
+                justify-content: flex-start;
+                gap: 6px;
+                width: 92px;
+                min-width: 92px;
+                height: 130px;
+                padding: 6px;
+                box-sizing: border-box;
+                border-radius: 6px;
                 border: 1px solid rgba(255,255,255,0.06);
-                background: rgba(255,255,255,0.02);
+                background: #11161f;
                 position: relative;
                 transition: border-color .2s;
+                flex-shrink: 0;
               }
 
               .item-card:hover {
@@ -290,10 +304,10 @@ function BattleUser(props) {
               .item-img-wrap {
                 position: relative;
                 flex-shrink: 0;
-                width: 54px;
-                height: 44px;
+                width: 100%;
+                height: 62px;
                 border-radius: 5px;
-                background: radial-gradient(70% 60% at 50% 100%, color-mix(in srgb, var(--rarity, #A9B5D2) 16%, transparent), transparent), rgba(255,255,255,0.03);
+                background: #171d27;
                 border: 1px solid rgba(255,255,255,0.06);
                 display: flex;
                 align-items: center;
@@ -302,8 +316,8 @@ function BattleUser(props) {
               }
 
               .item-img {
-                width: 39px;
-                height: 32px;
+                width: 62px;
+                height: 48px;
                 object-fit: contain;
                 filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
               }
@@ -320,16 +334,15 @@ function BattleUser(props) {
               }
 
               .item-details {
-                flex: 1;
-                min-width: 0;
                 display: flex;
                 flex-direction: column;
-                gap: 4px;
+                gap: 2px;
+                min-width: 0;
               }
 
               .item-name {
                 font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 10px;
+                font-size: 9px;
                 font-weight: 700;
                 color: #c6ccd8;
                 white-space: nowrap;
@@ -340,17 +353,19 @@ function BattleUser(props) {
               .item-price {
                 display: flex;
                 align-items: center;
-                gap: 4px;
+                gap: 3px;
                 font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 10px;
+                font-size: 11px;
                 font-weight: 700;
                 color: #1fd65f;
               }
 
               .round-tag {
-                flex-shrink: 0;
-                width: 18px;
-                height: 18px;
+                position: absolute;
+                right: 5px;
+                bottom: 5px;
+                width: 16px;
+                height: 16px;
                 border-radius: 4px;
                 background: rgba(255,255,255,0.05);
                 border: 1px solid rgba(255,255,255,0.08);
@@ -358,19 +373,13 @@ function BattleUser(props) {
                 align-items: center;
                 justify-content: center;
                 font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 8px;
+                font-size: 7px;
                 font-weight: 700;
                 color: #6b7280;
               }
 
-              /* ── Round slots row at the bottom ── */
               .round-slots {
-                display: flex;
-                gap: 4px;
-                flex-wrap: wrap;
-                padding: 4px 0 2px;
-                border-top: 1px solid rgba(255,255,255,0.04);
-                margin-top: 2px;
+                display: none;
               }
 
               .round-slot {
