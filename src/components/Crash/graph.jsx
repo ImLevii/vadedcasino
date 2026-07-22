@@ -317,7 +317,16 @@ function CrashGraph(props) {
         </Show>
 
         <div class='graph-header'>
-          <GameFairnessButton/>
+          <div class='header-left'>
+            <GameFairnessButton/>
+
+            <button class='expand-btn' title='Fullscreen' onClick={() => {
+              if (!document.fullscreenElement) containerRef?.requestFullscreen?.()
+              else document.exitFullscreen?.()
+            }}>
+              <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><polyline points='15 3 21 3 21 9'/><polyline points='9 21 3 21 3 15'/><line x1='21' y1='3' x2='14' y2='10'/><line x1='3' y1='21' x2='10' y2='14'/></svg>
+            </button>
+          </div>
 
           <div class='max-payout'>
             <img src='/assets/chips/chip-green.png' height='14' width='14' alt='' />
@@ -387,6 +396,8 @@ function CrashGraph(props) {
           min-width: 0;
           min-height: 560px;
           background: #0b1017;
+          border: 1px solid rgba(255,255,255,.06);
+          border-radius: 8px;
           position: relative;
           overflow: hidden;
           display: flex;
@@ -453,6 +464,32 @@ function CrashGraph(props) {
           position: relative;
           z-index: 4;
           border-bottom: 1px solid rgba(255,255,255,.04);
+        }
+
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .expand-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 30px;
+          height: 30px;
+          color: #8b92a0;
+          background: rgba(255,255,255,.025);
+          border: 1px solid rgba(255,255,255,.05);
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .expand-btn:hover {
+          color: #c3cad6;
+          border-color: rgba(31, 214, 95, 0.4);
+          background: rgba(31, 214, 95, 0.08);
         }
 
         .fairness-link {

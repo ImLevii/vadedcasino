@@ -140,6 +140,7 @@ function CaseSpinner(props) {
   }
 
   const isIdle = () => props?.spinning === '' || props?.spinning === 'loading'
+  const isVertical = () => props?.layout === 'multi'
   const loopWidth = () => (props?.items?.length || 0) * itemStep
   const loopDuration = () => Math.max(20, (props?.items?.length || 0) * 1.4)
 
@@ -163,18 +164,23 @@ function CaseSpinner(props) {
 
     function animate() {
 
+      const vertical = isVertical()
       const currentPosition = getCurrentTranslateX()
       const firstItem = Math.abs(currentPosition || -idleStart)
       const lastItem = 50 * itemStep + itemCenter
 
         spinAnimation?.cancel()
         spinner?.getAnimations()?.forEach(animation => {
-          if (animation.animationName !== 'idleCarousel') animation.cancel()
+          if (animation.animationName !== 'idleCarousel' && animation.animationName !== 'idleCarouselVertical') animation.cancel()
         })
-      spinner.style.transform = `translateX(-${firstItem}px)`
+      spinner.style.transform = vertical ? `translateY(-${firstItem}px)` : `translateX(-${firstItem}px)`
 
         spinAnimation = spinner.animate(
-            [
+          vertical ? [
+            {transform: `translateY(-${firstItem}px)`, offset: 0, easing: spinEasing},
+            {transform: `translateY(${-lastItem - props?.offset}px)`, offset: 0.88, easing: spinEasing},
+            {transform: `translateY(-${lastItem}px)`, offset: 1, easing: 'cubic-bezier(.18,.72,.22,1)'}
+          ] : [
           {transform: `translateX(-${firstItem}px)`, offset: 0, easing: spinEasing},
           {transform: `translateX(${-lastItem - props?.offset}px)`, offset: 0.88, easing: spinEasing},
           {transform: `translateX(-${lastItem}px)`, offset: 1, easing: 'cubic-bezier(.18,.72,.22,1)'}
@@ -198,30 +204,47 @@ function CaseSpinner(props) {
       if (!transform || transform === 'none') return -idleStart
 
       const matrix = new DOMMatrixReadOnly(transform)
-      return matrix.m41 || -idleStart
+      return (isVertical() ? matrix.m42 : matrix.m41) || -idleStart
     }
 
     return (
         <>
-            <div class={'case-spinner-container ' + (props?.spinning === '' || props?.spinning === 'loading' ? 'idle ' : '') + (props?.layout === 'multi' ? 'multi ' : '') + (props?.sideArrows ? 'side-arrows' : '')}>
+            <div class={'case-spinner-container ' + (props?.spinning === '' || props?.spinning === 'loading' ? 'idle ' : '') + (props?.layout === 'multi' ? 'multi vertical ' : '') + (props?.sideArrows ? 'side-arrows' : '')}>
                 {/* Side fade masks */}
-                <div class='fade-left'/>
-                <div class='fade-right'/>
+                <Show when={!isVertical()} fallback={
+                  <>
+                    <div class='fade-top'/>
+                    <div class='fade-bottom'/>
+                  </>
+                }>
+                  <div class='fade-left'/>
+                  <div class='fade-right'/>
+                </Show>
                 <div class='center-indicator'/>
-                <IndicatorLine
-                  orientation='horizontal'
-                  length='10px'
-                  thickness='2px'
-                  pulse={false}
-                  style={{ position: 'absolute', left: '50%', top: '11px', transform: 'translateX(-50%)', 'z-index': 5 }}
-                />
-                <IndicatorLine
-                  orientation='horizontal'
-                  length='10px'
-                  thickness='2px'
-                  pulse={false}
-                  style={{ position: 'absolute', left: '50%', bottom: '11px', transform: 'translateX(-50%)', 'z-index': 5 }}
-                />
+                <Show when={!isVertical()} fallback={
+                  <IndicatorLine
+                    orientation='horizontal'
+                    length='10px'
+                    thickness='2px'
+                    pulse={false}
+                    style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', 'z-index': 5 }}
+                  />
+                }>
+                  <IndicatorLine
+                    orientation='horizontal'
+                    length='10px'
+                    thickness='2px'
+                    pulse={false}
+                    style={{ position: 'absolute', left: '50%', top: '11px', transform: 'translateX(-50%)', 'z-index': 5 }}
+                  />
+                  <IndicatorLine
+                    orientation='horizontal'
+                    length='10px'
+                    thickness='2px'
+                    pulse={false}
+                    style={{ position: 'absolute', left: '50%', bottom: '11px', transform: 'translateX(-50%)', 'z-index': 5 }}
+                  />
+                </Show>
 
                 {/* Particle and Shockwave Effects */}
                 <Show when={showShockwave()}>
@@ -246,7 +269,7 @@ function CaseSpinner(props) {
                     />
                   }</For>
                 </div>
-                <div class={'spinner-items ' + (isIdle() ? 'idle-track' : '')} ref={spinner}
+                <div class={'spinner-items ' + (isVertical() ? 'vertical ' : '') + (isIdle() ? 'idle-track' : '')} ref={spinner}
                      style={{
                        '--idle-from': `-${idleStart}px`,
                        '--idle-to': `-${idleStart + loopWidth()}px`,
@@ -256,6 +279,7 @@ function CaseSpinner(props) {
                                                                                   name={item?.name}
                                                                                   spinning={props?.spinning}
                                                                                   price={item?.price}
+                                                                                  vertical={isVertical()}
                                                                                   index={index()} position={props?.position}/>}</For>
                     {/* duplicated strip for seamless infinite idle loop */}
                     <Show when={isIdle()}>
@@ -263,6 +287,7 @@ function CaseSpinner(props) {
                                                                                       name={item?.name}
                                                                                       spinning={props?.spinning}
                                                                                       price={item?.price}
+                                                                                      vertical={isVertical()}
                                                                                       index={index()} position={props?.position}/>}</For>
                     </Show>
                 </div>
@@ -312,6 +337,43 @@ function CaseSpinner(props) {
 
               .case-spinner-container.multi:first-child {
                 border-left: 0;
+              }
+
+              .case-spinner-container.vertical {
+                height: 258px;
+              }
+
+              .case-spinner-container.vertical .fade-left,
+              .case-spinner-container.vertical .fade-right {
+                display: none;
+              }
+
+              .case-spinner-container.vertical .fade-top,
+              .case-spinner-container.vertical .fade-bottom {
+                position: absolute;
+                left: 0;
+                width: 100%;
+                height: 26%;
+                z-index: 2;
+                pointer-events: none;
+              }
+
+              .case-spinner-container.vertical .fade-top {
+                top: 0;
+                background: linear-gradient(to bottom, #080a10 0%, rgba(8,10,16,0.85) 40%, transparent 100%);
+              }
+
+              .case-spinner-container.vertical .fade-bottom {
+                bottom: 0;
+                background: linear-gradient(to top, #080a10 0%, rgba(8,10,16,0.85) 40%, transparent 100%);
+              }
+
+              .case-spinner-container.vertical .center-indicator {
+                left: 0;
+                top: 50%;
+                transform: translateY(-65px);
+                width: 100%;
+                height: 130px;
               }
 
               .case-spinner-container.idle {
@@ -382,8 +444,21 @@ function CaseSpinner(props) {
                 z-index: 2;
               }
 
+              .spinner-items.vertical {
+                width: 100%;
+                height: fit-content;
+                flex-direction: column;
+                left: 0;
+                top: 50%;
+                transform: translateY(-${idleStart}px);
+              }
+
               .spinner-items.idle-track {
                 animation: idleCarousel var(--idle-duration, 60s) linear infinite;
+              }
+
+              .spinner-items.vertical.idle-track {
+                animation: idleCarouselVertical var(--idle-duration, 60s) linear infinite;
               }
 
               .case-spinner-container:hover .spinner-items.idle-track {
@@ -393,6 +468,11 @@ function CaseSpinner(props) {
               @keyframes idleCarousel {
                 0% { transform: translateX(var(--idle-from, -${idleStart}px)); }
                 100% { transform: translateX(var(--idle-to, -${idleEnd}px)); }
+              }
+
+              @keyframes idleCarouselVertical {
+                0% { transform: translateY(var(--idle-from, -${idleStart}px)); }
+                100% { transform: translateY(var(--idle-to, -${idleEnd}px)); }
               }
 
               /* Cosmic Spin Particle & Shockwave Styles */

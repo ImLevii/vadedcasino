@@ -69,7 +69,8 @@ function CrashPlayerList(props) {
           min-width: 0;
           width: 100%;
           background: #0d1117;
-          border-right: 1px solid rgba(255,255,255,.04);
+          border: 1px solid rgba(255,255,255,.06);
+          border-radius: 8px;
           overflow: hidden;
           display: flex;
           flex-direction: column;

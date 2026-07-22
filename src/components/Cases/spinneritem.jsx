@@ -111,13 +111,40 @@ function SpinnerItem(props) {
         return Number(price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     }
 
+    function getExterior(name) {
+        if (!name) return null
+        const n = name.toLowerCase()
+        if (n.includes('factory new') || n.includes('fn)')) return 'FN'
+        if (n.includes('minimal wear') || n.includes('mw)')) return 'MW'
+        if (n.includes('field-tested') || n.includes('field tested') || n.includes('ft)')) return 'FT'
+        if (n.includes('well-worn') || n.includes('well worn') || n.includes('ww)')) return 'WW'
+        if (n.includes('battle-scarred') || n.includes('battle scarred') || n.includes('bs)')) return 'BS'
+        if (n.includes('souvenir')) return 'SV'
+        if (n.includes('stattrak') || n.includes('stat trak')) return 'ST'
+        return null
+    }
+
+    function getExteriorColor(ext) {
+        if (ext === 'FN') return '#4DFFA0'
+        if (ext === 'MW') return '#7AB8FF'
+        if (ext === 'FT') return '#B8D4FF'
+        if (ext === 'WW') return '#FF9E7A'
+        if (ext === 'BS') return '#FF6B6B'
+        if (ext === 'SV') return '#FFD87A'
+        if (ext === 'ST') return '#FF9224'
+        return '#8b92a0'
+    }
+
     return (
         <>
-            <div class='case-item-container' ref={item} style={{ '--rarity': rarityColor(props?.price) }}>
+            <div class={'case-item-container' + (props?.vertical ? ' vertical' : '')} ref={item} style={{ '--rarity': rarityColor(props?.price) }}>
                 <div class='card-bg'/>
                 <img ref={image} class='item-image' src={resolveImageSrc(props.img)} height='90' alt='' draggable={false}/>
                 {props?.spinning === 'win' && props?.index === 50 ? (
                     <div class='item-meta'>
+                        {getExterior(props?.name) ? (
+                            <span class='item-exterior' style={{ color: getExteriorColor(getExterior(props?.name)) }}>{getExterior(props?.name)}</span>
+                        ) : null}
                         <p class='item-name'>{props?.name}</p>
                         <div class='item-price'>
                             <img src='/assets/icons/coin.svg' height='11' alt=''/>
@@ -143,6 +170,14 @@ function SpinnerItem(props) {
                 
                                 opacity: 0.46;
                 transition: opacity var(--transition-smooth);
+              }
+
+              .case-item-container.vertical {
+                height: 130px;
+                min-height: 130px;
+                width: 100%;
+                min-width: 0;
+                flex-shrink: 0;
               }
 
               .card-bg {
@@ -205,6 +240,14 @@ function SpinnerItem(props) {
                                 -webkit-line-clamp: 2;
                                 -webkit-box-orient: vertical;
                                 overflow: hidden;
+                                text-shadow: 0 1px 8px rgba(0,0,0,0.9);
+                            }
+
+                            .item-exterior {
+                                font-size: 8px;
+                                font-weight: 900;
+                                letter-spacing: .4px;
+                                text-transform: uppercase;
                                 text-shadow: 0 1px 8px rgba(0,0,0,0.9);
                             }
 

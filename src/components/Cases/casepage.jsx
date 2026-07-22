@@ -203,29 +203,136 @@ function CasePage(props) {
     stopSFXChannel('spin-tick', { fadeOutMs: 80 })
   })
 
+  function getRiskLabel(items) {
+    if (!items?.length) return { label: 'Unknown', color: '#8b92a0' }
+    const max = Math.max(...items.map(i => i.price))
+    const min = Math.min(...items.map(i => i.price))
+    const ratio = max / (min || 1)
+    if (ratio > 500) return { label: 'Very High Risk', color: '#FF5141' }
+    if (ratio > 100) return { label: 'High Risk', color: '#FF9224' }
+    if (ratio > 20) return { label: 'Medium Risk', color: '#FFB84A' }
+    return { label: 'Low Risk', color: '#1fd65f' }
+  }
+
   return (
     <>
       <div class='case-page fadein'>
 
         {/* ── Top header bar ── */}
-        <div class='page-header'>
+        <div class='case-header'>
+          <div class='case-header-main'>
+            <Show when={!caseObj.loading}>
+              <img src={resolveImageSrc(caseObj()?.img, '/public/cases/radiation-case.png')} class='case-hero-img' alt=''/>
+            </Show>
+
+            <div class='case-header-info'>
+              <div class='case-title-row'>
+                <h1 class='case-title'>{caseObj()?.name}</h1>
+                <Show when={!caseObj.loading && caseObj()?.items?.length}>
+                  <span
+                    class='risk-tag'
+                    style={{
+                      color: getRiskLabel(caseObj()?.items).color,
+                      'border-color': getRiskLabel(caseObj()?.items).color + '40',
+                      background: getRiskLabel(caseObj()?.items).color + '14'
+                    }}
+                  >{getRiskLabel(caseObj()?.items).label}</span>
+                </Show>
+              </div>
+
+              <div class='case-header-controls'>
+                {/* Amount selectors */}
+                <div class='amount-group'>
+                  {[1,2,3,4].map(n => (
+                    <button
+                      class={'amt-btn ' + (amount() === n ? 'active' : '')}
+                      onClick={() => setCasesToOpen(n)}
+                    >{n}</button>
+                  ))}
+                </div>
+
+                {/* Demo spin */}
+                <button class='demo-btn' onClick={() => demoSpin()}>Demo</button>
+
+                {/* Open Case button with price inline */}
+                <button
+                  class={'open-btn ' + (spinning() !== '' ? 'loading' : '')}
+                  onClick={async () => {
+                    if (spinning() !== '') return
+                    setSpinning('loading')
+                    let res = await authedAPI(`/cases/${caseObj()?.id}/open`, 'POST', JSON.stringify({ amount: amount() }), true)
+                    if (!res.results) return setSpinning('')
+                    buyCases(res.results, res.balance)
+                  }}
+                >
+                  {spinning() !== '' ? (
+                    <div class='open-loader-row'>
+                      <div class='open-loader'/>
+                      OPENING...
+                    </div>
+                  ) : (
+                    <>
+                      Open for
+                      <img src='/assets/icons/coin.svg' height='14'/>
+                      <Show when={!caseObj.loading}>
+                        <span>{(caseObj()?.price * amount())?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </Show>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+
           <A href='/cases' class='back-btn'>
             <svg xmlns="http://www.w3.org/2000/svg" width="5" height="8" viewBox="0 0 5 8" fill="none">
               <path
                 d="M0.4976 4.00267C0.4976 3.87722 0.545618 3.75178 0.641454 3.65613L3.65872 0.646285C3.85066 0.454819 4.16185 0.454819 4.35371 0.646285C4.54556 0.837673 4.4976 1.00269 4.4976 1.33952L4.4976 4.00267L4.4976 6.50269C4.4976 7.00269 4.54547 7.16764 4.35361 7.35902C4.16175 7.55057 3.85056 7.55057 3.65863 7.35902L0.641361 4.34921C0.545509 4.25352 0.4976 4.12808 0.4976 4.00267Z"
                 fill="#8b92a0"/>
             </svg>
-            Return to Case Opening
+            Back
           </A>
+        </div>
 
-          <div class='header-actions'>
+        {/* ── Secondary toolbar ── */}
+        <div class='case-toolbar'>
+          {/* Cosmic Spin */}
+          <div class='fast-toggle cosmic-toggle' onClick={() => {
+            if (spinning() !== '') return
+            setCosmicSpin(!cosmicSpin())
+          }}>
+            <Toggle active={cosmicSpin()} toggle={() => null}/>
+            <img src='/assets/icons/cosmic-spin.png' class='cosmic-icon' alt='' height='16' width='16'/>
+            <span>COSMIC SPIN</span>
+          </div>
+
+          {/* Fast open */}
+          <div class='fast-toggle' onClick={() => {
+            if (spinning() !== '') return
+            setItemTime(itemTime() === 1100 ? 2200 : 1100)
+            setSpinTime(spinTime() === 2400 ? 4800 : 2400)
+          }}>
+            <Toggle active={spinTime() === 2400} toggle={() => null}/>
+            <span>QUICK UNBOX</span>
+          </div>
+
+          <GameFairnessButton/>
+
+          <div class='toolbar-right'>
+            {/* Preview button */}
+            <button class='preview-btn' onClick={() => setShowPreview(true)} aria-label='Preview'>
+              <svg width='13' height='13' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                <path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+                <circle cx='12' cy='12' r='3' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+              </svg>
+            </button>
+
             <button class='action-btn share-btn' onClick={shareCurrentCase}>
               <svg width='13' height='13' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
                 <path d='M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
               </svg>
               Share Case
             </button>
-            <GameFairnessButton/>
           </div>
         </div>
 
@@ -237,95 +344,13 @@ function CasePage(props) {
                 <CaseSpinner spinTime={spinTime()} offset={offset()}
                              items={spinnerItems()[index()]}
                              spinning={spinning()}
-                             layout={amount() >= 3 ? 'multi' : 'row'}
+                             layout={amount() > 1 ? 'multi' : 'row'}
                              sideArrows={amount() > 1}
                              position={index()}/>
               }</For>
 
             </div>
           </Show>
-        </div>
-
-        {/* ── Controls bar ── */}
-        <div class='controls-bar'>
-          <Show when={!caseObj.loading}>
-            <div class='case-info-mini'>
-              <img src={resolveImageSrc(caseObj()?.img, '/public/cases/radiation-case.png')} class='case-img-mini' alt=''/>
-              <p class='case-name-mini'>{caseObj()?.name}</p>
-            </div>
-          </Show>
-
-          <div class='controls-left'>
-            {/* Amount selectors */}
-            <div class='amount-group'>
-              {[1,2,3,4].map(n => (
-                <button
-                  class={'amt-btn ' + (amount() === n ? 'active' : '')}
-                  onClick={() => setCasesToOpen(n)}
-                >{n}</button>
-              ))}
-            </div>
-
-            {/* Open Case button with price inline */}
-            <button
-              class={'open-btn ' + (spinning() !== '' ? 'loading' : '')}
-              onClick={async () => {
-                if (spinning() !== '') return
-                setSpinning('loading')
-                let res = await authedAPI(`/cases/${caseObj()?.id}/open`, 'POST', JSON.stringify({ amount: amount() }), true)
-                if (!res.results) return setSpinning('')
-                buyCases(res.results, res.balance)
-              }}
-            >
-              {spinning() !== '' ? (
-                <div class='open-loader-row'>
-                  <div class='open-loader'/>
-                  OPENING...
-                </div>
-              ) : (
-                <>
-                  Open for
-                  <img src='/assets/icons/coin.svg' height='14'/>
-                  <Show when={!caseObj.loading}>
-                    <span>{(caseObj()?.price * amount())?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                  </Show>
-                </>
-              )}
-            </button>
-
-            {/* Demo spin */}
-            <button class='demo-btn' onClick={() => demoSpin()}>Demo</button>
-          </div>
-
-          <div class='controls-right'>
-            {/* Preview button */}
-            <button class='preview-btn' onClick={() => setShowPreview(true)} aria-label='Preview'>
-              <svg width='13' height='13' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                <path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
-                <circle cx='12' cy='12' r='3' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
-              </svg>
-            </button>
-
-            {/* Cosmic Spin */}
-            <div class='fast-toggle cosmic-toggle' onClick={() => {
-              if (spinning() !== '') return
-              setCosmicSpin(!cosmicSpin())
-            }}>
-              <Toggle active={cosmicSpin()} toggle={() => null}/>
-              <img src='/assets/icons/cosmic-spin.png' class='cosmic-icon' alt='' height='16' width='16'/>
-              <span>COSMIC SPIN</span>
-            </div>
-
-            {/* Fast open */}
-            <div class='fast-toggle' onClick={() => {
-              if (spinning() !== '') return
-              setItemTime(itemTime() === 1100 ? 2200 : 1100)
-              setSpinTime(spinTime() === 2400 ? 4800 : 2400)
-            }}>
-              <Toggle active={spinTime() === 2400} toggle={() => null}/>
-              <span>QUICK UNBOX</span>
-            </div>
-          </div>
         </div>
 
         {/* ── Case contains grid ── */}
@@ -357,13 +382,72 @@ function CasePage(props) {
           gap: 0;
         }
 
-        /* ── Page header ── */
-        .page-header {
+        /* ── Case header ── */
+        .case-header {
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           justify-content: space-between;
           gap: 12px;
-          padding: 14px 0 12px;
+          padding: 16px 0 14px;
+          flex-wrap: wrap;
+        }
+
+        .case-header-main {
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          min-width: 0;
+        }
+
+        .case-hero-img {
+          width: 92px;
+          height: 92px;
+          flex-shrink: 0;
+          object-fit: contain;
+          filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5));
+        }
+
+        .case-header-info {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          min-width: 0;
+        }
+
+        .case-title-row {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+
+        .case-title {
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 20px;
+          font-weight: 800;
+          color: #fff;
+          margin: 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .risk-tag {
+          flex-shrink: 0;
+          padding: 4px 10px;
+          border-radius: 5px;
+          border: 1px solid;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 10px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: .3px;
+        }
+
+        .case-header-controls {
+          display: flex;
+          align-items: center;
+          gap: 10px;
           flex-wrap: wrap;
         }
 
@@ -371,6 +455,7 @@ function CasePage(props) {
           display: flex;
           align-items: center;
           gap: 10px;
+          flex-shrink: 0;
           font-family: 'Geogrotesque Wide', sans-serif;
           font-size: 13px;
           font-weight: 700;
@@ -388,10 +473,21 @@ function CasePage(props) {
           border-color: rgba(255,255,255,0.06);
         }
 
-        .header-actions {
+        /* ── Secondary toolbar ── */
+        .case-toolbar {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 0 0 14px;
+          flex-wrap: wrap;
+          border-bottom: 1px solid rgba(255,255,255,.04);
+        }
+
+        .toolbar-right {
           display: flex;
           align-items: center;
           gap: 8px;
+          margin-left: auto;
         }
 
         .action-btn {
@@ -462,6 +558,7 @@ function CasePage(props) {
           position: relative;
         }
 
+        .spinner-track.amount-2,
         .spinner-track.amount-3,
         .spinner-track.amount-4 {
           min-height: 290px;
@@ -475,6 +572,11 @@ function CasePage(props) {
           background: linear-gradient(180deg, rgba(10, 14, 22, 0.96), rgba(5, 8, 14, 0.98));
           border-top: 1px solid rgba(255, 255, 255, 0.03);
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), inset 0 0 80px rgba(0, 0, 0, 0.35);
+        }
+
+        .spinner-track.amount-2 {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 12px;
         }
 
         .spinner-track.amount-3 {
@@ -506,60 +608,6 @@ function CasePage(props) {
           justify-content: center;
           min-height: 180px;
           width: 100%;
-        }
-
-        /* ── Controls bar ── */
-        .controls-bar {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 0 14px;
-          min-height: 62px;
-          flex-wrap: nowrap;
-          background: linear-gradient(180deg, rgba(13,19,28,.95), rgba(8,13,20,.99));
-          border-top: 1px solid rgba(255,255,255,.04);
-          border-bottom: 1px solid rgba(255,255,255,.04);
-          box-sizing: border-box;
-        }
-
-        .case-info-mini {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          flex-shrink: 0;
-          padding-right: 14px;
-          border-right: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .case-img-mini {
-          width: 46px;
-          height: 46px;
-          object-fit: contain;
-          filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
-        }
-
-        .case-name-mini {
-          font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 14px;
-          font-weight: 700;
-          color: #fff;
-          white-space: nowrap;
-        }
-
-        .controls-left {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          flex-wrap: nowrap;
-          min-width: 0;
-        }
-
-        .controls-right {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          margin-left: auto;
-          flex-wrap: nowrap;
         }
 
         .amount-group {
@@ -825,32 +873,22 @@ function CasePage(props) {
             gap: 8px;
           }
 
-          .header-actions {
-            display: none;
+          .case-hero-img {
+            width: 64px;
+            height: 64px;
           }
 
-          .controls-bar {
-            height: auto;
-            min-height: 54px;
-            flex-wrap: wrap;
-            padding: 10px 14px;
-            gap: 8px;
+          .case-title {
+            font-size: 16px;
           }
 
-          .controls-left,
-          .controls-right {
-            width: 100%;
-            flex-wrap: wrap;
-          }
-
-          .controls-right {
+          .toolbar-right {
             margin-left: 0;
+            width: 100%;
           }
 
-          .case-info-mini {
-            border-right: none;
-            padding-right: 0;
-            width: 100%;
+          .case-toolbar {
+            flex-wrap: wrap;
           }
         }
 
@@ -859,11 +897,17 @@ function CasePage(props) {
             grid-template-columns: repeat(2, 1fr);
           }
 
-          .controls-right {
-            margin-left: 0;
+          .case-header-main {
             width: 100%;
-            justify-content: flex-start;
-            flex-wrap: wrap;
+          }
+
+          .case-header-controls {
+            width: 100%;
+          }
+
+          .open-btn {
+            flex: 1;
+            justify-content: center;
           }
         }
       `}</style>

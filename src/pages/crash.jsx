@@ -419,7 +419,6 @@ function Crash(props) {
         </header>
 
         <section class='history-panel'>
-          <span class='section-label'>Recent rounds</span>
           <CrashHistory history={history()} />
         </section>
 
@@ -525,24 +524,17 @@ function Crash(props) {
         }
 
         .history-panel {
-          height: 42px;
+          height: 44px;
           padding: 0 12px;
+          margin-bottom: 12px;
           display: flex;
           align-items: center;
           gap: 12px;
           overflow: hidden;
           background: #0d1117;
-          border-bottom: 1px solid rgba(255,255,255,.04);
+          border: 1px solid rgba(255,255,255,.06);
+          border-radius: 8px;
           flex-shrink: 0;
-        }
-
-        .section-label {
-          flex: 0 0 auto;
-          color: #4a5568;
-          font-family: 'Geogrotesque Wide', sans-serif;
-          font-size: 9px;
-          font-weight: 700;
-          text-transform: uppercase;
         }
 
         .crash-main {
@@ -550,7 +542,7 @@ function Crash(props) {
           min-height: 560px;
           display: grid;
           grid-template-columns: 260px minmax(0, 1fr);
-          border-bottom: 1px solid rgba(255,255,255,.04);
+          gap: 12px;
         }
 
         .crash-bet-bar {
