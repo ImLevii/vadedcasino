@@ -10,7 +10,6 @@ import {Title} from "@solidjs/meta";
 import {resolveImageSrc} from "../util/image";
 import {playGameSFX} from "../util/sound";
 import Avatar from "../components/Level/avatar";
-import {authedAPI} from "../util/api";
 
 function Battle(props) {
 
@@ -217,29 +216,6 @@ function Battle(props) {
         return battle()?.players?.filter((p, idx) => Math.floor(idx / battle()?.playersPerTeam) === winnerTeam()) || []
     }
 
-    async function recreateBattle() {
-      if (!battle()) return
-
-      const res = await authedAPI('/battles/create', 'POST', JSON.stringify({
-        cases: battle()?.rounds?.map(r => r?.caseId),
-        teams: battle()?.teams,
-        playersPerTeam: battle()?.playersPerTeam,
-        gamemode: battle()?.gamemode,
-        cosmicSpin: !!battle()?.cosmicSpin,
-        funding: battle()?.ownerFunding || 0,
-        minLvl: battle()?.minLevel || 0,
-        isPrivate: !!battle()?.privKey,
-      }), true)
-
-      if (res?.success) {
-        let link = `/battle/${res?.battleId}`
-        if (res?.privKey) {
-          link += `?pk=${res?.privKey}`
-        }
-        navigate(link)
-      }
-    }
-
     return (
         <>
             <Title>Cosmic Luck | Battle</Title>
@@ -251,26 +227,48 @@ function Battle(props) {
                     <>
                         {/* Live controls strip */}
                         <div class='battle-topbar'>
-                          <div class='topbar-left'>
-                            <button class='recreate-btn' onClick={() => recreateBattle()}>
-                              <span>Recreate</span>
-                              <img src='/assets/chips/chip-green.png' height='14' width='14' alt=''/>
-                              <span>{(battle()?.entryPrice || 0).toFixed(2)}</span>
-                            </button>
+                          <div class='topbar-left-block'>
+                            <div class='topbar-row'>
+                              <div class='battle-cost-pill'>
+                                <span class='pill-label'>Battle Cost</span>
+                                <img src='/assets/chips/chip-green.png' height='12' width='12' alt=''/>
+                                <span class='pill-value'>{((battle()?.entryPrice || 0) > 0 ? battle()?.entryPrice : battle()?.cases?.reduce((sum, c) => sum + (c?.price || 0), 0) || 0).toFixed(2)}</span>
+                              </div>
+                              <button class='inspect-btn' type='button' disabled>Inspect</button>
+                            </div>
 
-                            <button class='replay-btn' type='button'>
-                              <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M21 12a9 9 0 1 1-2.64-6.36'/><polyline points='21 3 21 9 15 9'/></svg>
-                              <span>Replay</span>
-                            </button>
+                            <div class='topbar-row'>
+                              <button class='replay-btn' type='button'>
+                                <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M21 12a9 9 0 1 1-2.64-6.36'/><polyline points='21 3 21 9 15 9'/></svg>
+                                <span>Replay</span>
+                              </button>
+                              <div class='round-pill'>{Math.max(1, round() || 0)} OF {battle()?.rounds?.length || 0}</div>
+                            </div>
                           </div>
 
-                          <div class='topbar-right'>
+                          <div class='topbar-cases'>
+                            <div class='topbar-cases-viewport'>
+                              <div class='cases-track' style={{ transform: `translateX(-${56 * Math.max(0, (round() || 1) - 1) + 30}px)` }}>
+                                <For each={battle()?.rounds || []}>{(r, index) => (
+                                  <div class={'case-mini ' + (Math.max(0, (round() || 1) - 1) === index() ? 'active' : '')}>
+                                    <img
+                                      src={resolveImageSrc(getCase(r?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
+                                      alt={getCase(r?.caseId)?.name || 'Battle case'}
+                                      onError={useImageFallback}
+                                    />
+                                  </div>
+                                )}</For>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class='topbar-right-block'>
                             <div class='topbar-row'>
                               <button class='back-btn' onClick={() => navigate('/battles')}>
                                 <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><polyline points='15 18 9 12 15 6'/></svg>
                                 <span>Back</span>
                               </button>
-                              <button class='utility-btn' title='Help' type='button'>
+                              <button class='utility-btn' title='Help' type='button' disabled>
                                 <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='9'/><path d='M9.5 9a2.5 2.5 0 0 1 5 0c0 1.8-2.5 2-2.5 4'/><circle cx='12' cy='17' r='0.8'/></svg>
                               </button>
                             </div>
@@ -286,6 +284,12 @@ function Battle(props) {
                                 if (navigator.clipboard) navigator.clipboard.writeText(window.location.href)
                               }}>
                                 <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M10 13a5 5 0 0 1 0-7l2-2a5 5 0 1 1 7 7l-1 1'/><path d='M14 11a5 5 0 0 1 0 7l-2 2a5 5 0 1 1-7-7l1-1'/></svg>
+                              </button>
+                              <button class='utility-btn' type='button' title='Fullscreen' onClick={() => {
+                                if (!document.fullscreenElement) document.documentElement.requestFullscreen?.()
+                                else document.exitFullscreen?.()
+                              }}>
+                                <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><polyline points='15 3 21 3 21 9'/><polyline points='9 21 3 21 3 15'/><line x1='21' y1='3' x2='14' y2='10'/><line x1='3' y1='21' x2='10' y2='14'/></svg>
                               </button>
                             </div>
                           </div>
@@ -426,29 +430,39 @@ function Battle(props) {
                         {/* Team Totals Footer */}
                         {battle() && battle().teams === 2 && (
                             <div class='team-totals'>
-                              <article class='totals-card left'>
-                                <h4>Left</h4>
+                              <div class='team-side'>
+                                <div class='team-label'>Left Team</div>
+                                <div class='team-avatars'>
+                                  <For each={battle()?.players?.slice(0, battle()?.playersPerTeam) || []}>{(p) => (
+                                    <Avatar height='20' id={p?.id || '?'} xp={p?.xp || 0}/>
+                                  )}</For>
+                                </div>
                                 <div class='totals-value'>
-                                  <img src='/assets/chips/chip-green.png' height='14' width='14' alt=''/>
+                                  <img src='/assets/chips/chip-green.png' height='12' width='12' alt=''/>
                                   <span>{getTeamTotal(0).toFixed(2)}</span>
                                 </div>
-                              </article>
+                              </div>
 
-                              <article class='totals-card center'>
-                                <h4>Total</h4>
+                              <div class='total-drops'>
+                                <span class='team-label'>Total Drops</span>
                                 <div class='totals-value'>
-                                  <img src='/assets/chips/chip-green.png' height='14' width='14' alt=''/>
+                                  <img src='/assets/chips/chip-green.png' height='12' width='12' alt=''/>
                                   <span>{(getTeamTotal(0) + getTeamTotal(1)).toFixed(2)}</span>
                                 </div>
-                              </article>
+                              </div>
 
-                              <article class='totals-card right'>
-                                <h4>Right</h4>
+                              <div class='team-side right'>
                                 <div class='totals-value'>
-                                  <img src='/assets/chips/chip-green.png' height='14' width='14' alt=''/>
+                                  <img src='/assets/chips/chip-green.png' height='12' width='12' alt=''/>
                                   <span>{getTeamTotal(1).toFixed(2)}</span>
                                 </div>
-                              </article>
+                                <div class='team-avatars'>
+                                  <For each={battle()?.players?.slice(battle()?.playersPerTeam) || []}>{(p) => (
+                                    <Avatar height='20' id={p?.id || '?'} xp={p?.xp || 0}/>
+                                  )}</For>
+                                </div>
+                                <div class='team-label'>Right Team</div>
+                              </div>
                             </div>
                         )}
 
@@ -501,66 +515,82 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 9px;
+                gap: 10px;
                 padding: 7px 10px;
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
               }
 
-              .topbar-left {
+              .topbar-left-block,
+              .topbar-right-block {
                 display: flex;
-                align-items: center;
-                gap: 7px;
+                flex-direction: column;
+                justify-content: center;
+                gap: 4px;
                 flex: 0 0 auto;
               }
 
-              .topbar-right {
-                display: flex;
-                flex-direction: column;
+              .topbar-right-block {
                 align-items: flex-end;
-                justify-content: center;
-                gap: 4px;
-                margin-left: auto;
               }
 
               .topbar-row {
                 display: flex;
                 align-items: center;
-                gap: 6px;
+                gap: 5px;
               }
 
-              .recreate-btn {
-                height: 31px;
-                min-width: 134px;
-                padding: 0 11px;
+              .battle-cost-pill {
+                min-width: 126px;
+                height: 26px;
                 border-radius: 4px;
-                border: 1px solid rgba(66, 237, 133, 0.52);
-                background: linear-gradient(180deg, #21cc5e 0%, #11a84d 100%);
+                border: 1px solid rgba(255,255,255,0.08);
+                background: #121824;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 4px;
+                padding: 0 8px;
+              }
+
+              .pill-label {
+                color: #8b92a0;
+                font-family: "Geogrotesque Wide", sans-serif;
+                font-size: 8px;
+                font-weight: 700;
+              }
+
+              .pill-value {
+                color: #1fd65f;
+                font-family: "Geogrotesque Wide", sans-serif;
+                font-size: 10px;
+                font-weight: 800;
+              }
+
+              .inspect-btn,
+              .round-pill {
+                min-width: 86px;
+                height: 26px;
+                padding: 0 8px;
+                border-radius: 4px;
+                border: 1px solid rgba(255,255,255,0.08);
+                background: #1a202a;
                 font-family: "Geogrotesque Wide", sans-serif;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 5px;
-                color: #f6fff8;
+                color: #aeb8ca;
                 font-size: 10px;
                 font-weight: 700;
-                text-shadow: 0 1px 0 rgba(0,0,0,0.35);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.23);
-                cursor: pointer;
-                transition: filter .16s ease;
-              }
-
-              .recreate-btn:hover {
-                filter: brightness(1.06);
               }
 
               .replay-btn {
-                height: 31px;
-                min-width: 102px;
-                padding: 0 11px;
+                min-width: 86px;
+                height: 26px;
+                padding: 0 8px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 6px;
+                gap: 5px;
                 border-radius: 4px;
                 border: 1px solid rgba(255,255,255,0.08);
                 background: #1a202b;
@@ -574,6 +604,67 @@ function Battle(props) {
               .replay-btn:hover {
                 border-color: rgba(255,255,255,0.14);
                 background: #242c39;
+              }
+
+              .topbar-cases {
+                flex: 1;
+                min-width: 0;
+                height: 60px;
+                border: 1px solid rgba(255,255,255,0.06);
+                border-radius: 5px;
+                background: #101622;
+                display: flex;
+                align-items: center;
+                padding: 0 6px;
+                overflow: hidden;
+              }
+
+              .topbar-cases-viewport {
+                width: 100%;
+                height: 100%;
+                position: relative;
+                overflow: hidden;
+              }
+
+              .cases-track {
+                height: 100%;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                position: absolute;
+                left: 50%;
+                top: 0;
+                transform: translateX(-30px);
+                transition: transform .35s ease;
+              }
+
+              .case-mini {
+                width: 50px;
+                height: 44px;
+                border-radius: 4px;
+                border: 1px solid rgba(255,255,255,0.08);
+                background: #1a202a;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                position: relative;
+              }
+
+              .case-mini img {
+                width: 86%;
+                height: 86%;
+                object-fit: contain;
+                opacity: .8;
+              }
+
+              .case-mini.active {
+                border-color: rgba(31,214,95,0.46);
+                box-shadow: inset 0 -1px 0 rgba(31,214,95,0.7);
+              }
+
+              .case-mini.active img {
+                opacity: 1;
               }
 
               .utility-btn {
@@ -605,12 +696,12 @@ function Battle(props) {
               }
 
               .back-btn {
-                min-width: 92px;
-                height: 27px;
+                min-width: 90px;
+                height: 26px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 6px;
+                gap: 5px;
                 border-radius: 4px;
                 border: 1px solid rgba(255,255,255,0.08);
                 background: #1a202a;
@@ -618,7 +709,7 @@ function Battle(props) {
                 font-size: 10px;
                 font-weight: 700;
                 cursor: pointer;
-                padding: 0 9px;
+                padding: 0 8px;
               }
 
               .back-btn:hover {
@@ -854,40 +945,55 @@ function Battle(props) {
                 align-items: center;
                 justify-content: space-between;
                 gap: 8px;
-                padding: 6px;
+                padding: 5px 8px;
                 border-radius: 8px;
                 border: 1px solid rgba(255,255,255,0.06);
                 background: #111720;
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
               }
 
-              .totals-card {
+              .team-side {
                 flex: 1;
                 height: 100%;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 8px;
-                border-radius: 6px;
-                border: 1px solid rgba(255,255,255,0.05);
-                background: #0f151e;
-                padding: 0 10px;
+                gap: 7px;
+                min-width: 0;
               }
 
-              .totals-card.center {
+              .team-side.right {
+                justify-content: flex-end;
+              }
+
+              .total-drops {
+                width: min(300px, 34%);
+                height: 100%;
+                display: flex;
+                align-items: center;
                 justify-content: center;
-                gap: 12px;
+                gap: 8px;
+                border-radius: 5px;
                 border-color: rgba(31,214,95,0.2);
                 background: linear-gradient(180deg, rgba(31,214,95,0.08), rgba(15,21,30,0.95));
+                border: 1px solid rgba(31,214,95,0.2);
+                padding: 0 9px;
               }
 
-              .totals-card h4 {
-                margin: 0;
+              .team-label {
                 color: #8b92a0;
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 10px;
                 font-weight: 800;
                 text-transform: uppercase;
+                white-space: nowrap;
+              }
+
+              .team-avatars {
+                display: flex;
+                align-items: center;
+                gap: 3px;
+                min-width: 0;
               }
 
               .totals-value {
@@ -896,8 +1002,9 @@ function Battle(props) {
                 gap: 4px;
                 color: #ffffff;
                 font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 13px;
+                font-size: 12px;
                 font-weight: 700;
+                white-space: nowrap;
               }
 
               .totals-value img {
@@ -906,29 +1013,26 @@ function Battle(props) {
 
               @media only screen and (max-width: 1040px) {
                 .columns { min-width: 860px; }
-                .topbar-left {
-                  gap: 6px;
-                }
-                .recreate-btn {
-                  min-width: 126px;
+                .topbar-cases {
+                  min-width: 260px;
                 }
               }
 
               @media only screen and (max-width: 620px) {
                 .battle-container { padding: 8px 6px 24px; gap: 8px; }
                 .battle-topbar { min-height: 92px; padding: 7px; gap: 8px; flex-wrap: wrap; align-items: stretch; }
-                .topbar-left { order: 1; width: 100%; justify-content: flex-start; }
-                .recreate-btn, .replay-btn { height: 30px; min-width: 0; }
-                .topbar-right { order: 2; width: 100%; align-items: stretch; gap: 6px; }
+                .topbar-left-block { order: 1; width: auto; }
+                .topbar-cases { order: 3; width: 100%; flex-basis: 100%; min-height: 48px; }
+                .topbar-right-block { order: 2; margin-left: auto; align-items: stretch; }
                 .topbar-row { justify-content: space-between; }
                 .back-btn { min-width: 88px; }
                 .columns { min-width: 760px; grid-template-columns: minmax(0, 1fr) 112px minmax(0, 1fr); }
                 .center-display { width: 112px; }
                 .team-totals { min-height: 40px; height: 40px; gap: 5px; padding: 5px; }
-                .totals-card { padding: 0 7px; }
-                .totals-card h4 { font-size: 9px; }
+                .team-label { font-size: 8px; }
                 .totals-value { font-size: 10px; }
                 .totals-value img { width: 12px; height: 12px; }
+                .total-drops { width: 34%; padding: 0 4px; }
               }
 
               @media (prefers-reduced-motion: reduce) {
