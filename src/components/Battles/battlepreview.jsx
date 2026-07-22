@@ -64,13 +64,19 @@ function BattlePreview(props) {
     if (!rounds.length) return []
 
     const currentIdx = currentRoundIndex()
-    const visible = [{ ...rounds[currentIdx], _roundIndex: currentIdx, _view: 'current' }]
+    return rounds.map((r, idx) => ({
+      ...r,
+      _roundIndex: idx,
+      _view: idx === currentIdx ? 'current' : (idx < currentIdx ? 'past' : 'next')
+    }))
+  }
 
-    if (currentIdx + 1 < rounds.length) {
-      visible.push({ ...rounds[currentIdx + 1], _roundIndex: currentIdx + 1, _view: 'next' })
-    }
+  function getCasesOffset() {
+    const rounds = props?.battle?.rounds || []
+    if (!rounds.length) return -36
 
-    return visible
+    const idx = currentRoundIndex()
+    return -((idx * 77) + 36)
   }
 
   return (
@@ -113,7 +119,7 @@ function BattlePreview(props) {
 
             <div class='bottom-row'>
               <div class='drops-box'>
-                <span class='drops-label'>{state() === 'finished' ? 'Drops' : 'Price'}</span>
+                <span class='drops-label'>Drops</span>
                 <img class='price-chip' src='/assets/chips/chip-green.png' height='17' width='17' alt=''/>
                 <span class='drops-amount'>
                   {Math.floor(props?.battle?.entryPrice) || '0'}<span class='gray'>.{getCents(props?.battle?.entryPrice)}</span>
@@ -163,36 +169,25 @@ function BattlePreview(props) {
               </button>
 
               <div class='mode-chips'>
-                <div class='chip' title={getType()}>
+                <div class='chip icon' title={getType()}>
                   {props?.battle?.gamemode === 'group' ? (
                     <img src='/assets/icons/hands.svg' height='12' alt='group'/>
                   ) : (
                     <img src='/assets/icons/battles.svg' height='12' alt=''/>
                   )}
                 </div>
-                <div class='chip text'>{getType()}</div>
-                {props?.battle?.gamemode === 'crazy' && (
-                  <div class='chip crazy' title='Crazy mode'>
-                    <img src='/assets/icons/crazy.svg' height='12' alt='crazy'/>
-                  </div>
-                )}
-                {props?.battle?.ownerFunding > 0 && (
-                  <div class='chip funding' title='Owner funded'>-{props?.battle?.ownerFunding}%</div>
-                )}
-                {state() === 'rolling' && (
-                  <div class='chip rolling'>
-                    <ActiveGame/>
-                  </div>
-                )}
+                <div class='chip ghost'>{props?.battle?.ownerFunding > 0 ? `-${props?.battle?.ownerFunding}%` : ''}</div>
+                <div class='chip ghost'>{props?.battle?.gamemode === 'crazy' ? <img src='/assets/icons/crazy.svg' height='11' alt='crazy'/> : ''}</div>
+                <div class='chip state'>{state() === 'rolling' ? <ActiveGame/> : getType()}</div>
               </div>
             </div>
 
             <div class='cases-track'>
               <div class='marker marker-top'/>
               <div class='marker marker-bottom'/>
-              <div class='cases'>
+              <div class='cases' style={{ transform: `translate(${getCasesOffset()}px, -50%)` }}>
                 <For each={visibleRounds()}>{(c) => (
-                  <div class={'case-tile ' + (c._view === 'current' ? 'live' : 'next')}>
+                  <div class={'case-tile ' + (c._view === 'current' ? 'live' : c._view === 'past' ? 'past' : 'next')}>
                     <img
                       src={resolveImageSrc(getCase(c?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
                       alt={getCase(c?.caseId)?.name || 'Battle case'}
@@ -209,7 +204,7 @@ function BattlePreview(props) {
       <style jsx>{`
         .battle-preview-container {
           width: 100%;
-          min-height: 102px;
+          min-height: 124px;
 
           display: flex;
           align-items: stretch;
@@ -248,7 +243,7 @@ function BattlePreview(props) {
           flex-direction: column;
           justify-content: space-between;
           gap: 6px;
-          min-width: 292px;
+          min-width: 330px;
           flex-shrink: 0;
         }
 
@@ -270,8 +265,8 @@ function BattlePreview(props) {
         .slots-box::-webkit-scrollbar { display: none; }
 
         .slot {
-          width: 30px;
-          height: 30px;
+          width: 34px;
+          height: 34px;
 
           display: flex;
           align-items: center;
@@ -445,8 +440,8 @@ function BattlePreview(props) {
         }
 
         .inspect {
-          height: 32px;
-          width: 132px;
+          height: 34px;
+          width: 184px;
           padding: 0 10px;
 
           outline: unset;
@@ -479,8 +474,8 @@ function BattlePreview(props) {
         }
 
         .chip {
-          width: 28px;
-          height: 28px;
+          width: 40px;
+          height: 34px;
 
           display: flex;
           align-items: center;
@@ -492,7 +487,7 @@ function BattlePreview(props) {
 
           color: #8b92a0;
           font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 7px;
+          font-size: 8px;
           font-weight: 700;
           transition: all .2s ease;
         }
@@ -502,30 +497,15 @@ function BattlePreview(props) {
           background: rgba(31, 214, 95, 0.04);
         }
 
-        .chip.text {
+        .chip.ghost {
+          color: #5f6878;
+        }
+
+        .chip.state {
           width: auto;
-          padding: 0 8px;
-          font-size: 8px;
-        }
-
-        .chip.crazy {
-          border-color: rgba(232, 161, 74, 0.35);
-        }
-
-        .chip.crazy:hover {
-          border-color: rgba(232, 161, 74, 0.5);
-        }
-
-        .chip.funding {
-          width: auto;
-          padding: 0 7px;
-          color: #1fd65f;
-          border-color: rgba(31, 214, 95, 0.3);
-        }
-
-        .chip.rolling {
-          width: auto;
-          padding: 0 6px;
+          min-width: 40px;
+          padding: 0 9px;
+          color: #8e99aa;
           border-color: rgba(31, 214, 95, 0.3);
         }
 
@@ -536,7 +516,7 @@ function BattlePreview(props) {
           background: #10151d;
           border: 1px solid rgba(255,255,255,0.06);
           border-radius: 5px;
-          padding: 4px;
+          padding: 6px;
           box-sizing: border-box;
           overflow: hidden;
         }
@@ -566,11 +546,12 @@ function BattlePreview(props) {
           left: 50%;
           top: 50%;
           transform: translate(-36px, -50%);
+          transition: transform .35s cubic-bezier(.2,.8,.2,1);
         }
 
         .case-tile {
-          width: 72px;
-          height: 62px;
+          width: 92px;
+          height: 72px;
           flex-shrink: 0;
 
           display: flex;
@@ -591,8 +572,8 @@ function BattlePreview(props) {
         }
 
         .case-tile img {
-          width: 64px;
-          height: 54px;
+          width: 82px;
+          height: 62px;
           object-fit: contain;
         }
 
@@ -602,7 +583,11 @@ function BattlePreview(props) {
         }
 
         .case-tile.next {
-          opacity: .88;
+          opacity: .92;
+        }
+
+        .case-tile.past {
+          opacity: .72;
         }
 
         .case-tile.live img {
@@ -610,8 +595,8 @@ function BattlePreview(props) {
         }
 
         .case-tile img {
-          max-width: 64px;
-          max-height: 54px;
+          max-width: 82px;
+          max-height: 62px;
           object-fit: contain;
           filter: drop-shadow(0 8px 12px rgba(0,0,0,.32));
           transition: filter .25s ease;
@@ -652,7 +637,7 @@ function BattlePreview(props) {
           }
 
           .inspect {
-            width: 116px;
+            width: 148px;
             height: 30px;
           }
         }
@@ -665,8 +650,8 @@ function BattlePreview(props) {
           .panel-side { flex-direction: row; align-items: center; }
           .inspect { width: auto; padding: 0 18px; }
           .cases { width: 100%; }
-          .case-tile { width: 72px; height: 62px; }
-          .case-tile img { max-width: 64px; max-height: 54px; }
+          .case-tile { width: 80px; height: 66px; }
+          .case-tile img { max-width: 72px; max-height: 56px; }
         }
       `}</style>
     </>

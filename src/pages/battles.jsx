@@ -159,20 +159,6 @@ function Battles(props) {
             <Meta name='description' content='Wager Coins On Cosmic Luck Battles And Win Big Versus Other Players!'></Meta>
 
             <div class='battles-container fadein'>
-                <div class='battles-header'>
-                <div class='header-copy'>
-                  <div class='eyebrow'>Live arena</div>
-                  <h1>Case Battles</h1>
-                  <p>Join an open lineup or watch the latest rounds resolve live.</p>
-                </div>
-
-                <button class='create-battle'>
-                  <img src='/assets/icons/battles.svg' height='15' alt=''/>
-                  Create Battle
-                  <A href='/battle/create' class='gamemode-link'></A>
-                </button>
-              </div>
-
               <div class='filter-panel'>
                     <div class='filters'>
                         <div class='filter'>
@@ -226,10 +212,11 @@ function Battles(props) {
                         </div>
                     </div>
 
-                    <div class='filter-summary'>
-                      <span class='live-dot'/>
-                      <span>{(battles() || []).filter((battle) => !battle.startedAt).length} open</span>
-                    </div>
+                    <button class='create-battle'>
+                      <img src='/assets/icons/battles.svg' height='15' alt=''/>
+                      Create Battle
+                      <A href='/battle/create' class='gamemode-link'></A>
+                    </button>
                 </div>
 
                 {battles() ? (
@@ -267,54 +254,14 @@ function Battles(props) {
                 margin: 0 auto;
                 position: relative;
               }
-              
-              .battles-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                gap: 16px;
-                min-height: 58px;
-                margin-bottom: 10px;
-                padding: 8px 10px;
-                border-radius: 8px;
-                border: 1px solid rgba(255,255,255,.06);
-                background: #111720;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
-              }
-
-              .header-copy h1, .header-copy p {
-                margin: 0;
-              }
-
-              .eyebrow {
-                margin-bottom: 2px;
-                color: #1fd65f;
-                font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 8px;
-                font-weight: 700;
-                text-transform: uppercase;
-              }
-
-              .header-copy h1 {
-                color: #fff;
-                font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 18px;
-                font-weight: 800;
-              }
-
-              .header-copy p {
-                margin-top: 3px;
-                color: #7d8796;
-                font-size: 10px;
-              }
 
               .filter-panel {
                 margin-bottom: 10px;
-                padding: 8px;
+                padding: 10px;
                 display: flex;
                 align-items: flex-end;
                 justify-content: space-between;
-                gap: 8px;
+                gap: 10px;
                 border: 1px solid rgba(255,255,255,.06);
                 border-radius: 8px;
                 background: #111720;
@@ -325,6 +272,7 @@ function Battles(props) {
                 display: flex;
                 gap: 6px;
                 flex-wrap: wrap;
+                flex: 1;
               }
 
               .filter {
@@ -342,8 +290,8 @@ function Battles(props) {
               }
 
               .filter select {
-                height: 30px;
-                min-width: 104px;
+                height: 40px;
+                min-width: 132px;
                 padding: 0 26px 0 9px;
 
                 outline: unset;
@@ -374,8 +322,8 @@ function Battles(props) {
               }
 
               .create-battle {
-                height: 32px;
-                padding: 0 14px;
+                height: 40px;
+                padding: 0 16px;
 
                 display: flex;
                 align-items: center;
@@ -388,8 +336,8 @@ function Battles(props) {
 
                 color: #04240f;
                 font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 10px;
-                font-weight: 700;
+                font-size: 12px;
+                font-weight: 800;
                 white-space: nowrap;
 
                 position: relative;
@@ -409,32 +357,6 @@ function Battles(props) {
               
               .create-battle:active {
                 transform: translateY(0);
-              }
-
-              .filter-summary {
-                min-width: 70px;
-                height: 30px;
-                padding: 0 9px;
-                box-sizing: border-box;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 7px;
-                border: 1px solid rgba(31,214,95,.14);
-                border-radius: 6px;
-                background: rgba(31,214,95,.04);
-                color: #8c96a4;
-                font-size: 8px;
-                font-weight: 700;
-                white-space: nowrap;
-              }
-
-              .live-dot {
-                width: 6px;
-                height: 6px;
-                border-radius: 50%;
-                background: #1fd65f;
-                box-shadow: 0 0 10px rgba(31,214,95,.7);
               }
 
               .battles {
@@ -471,10 +393,6 @@ function Battles(props) {
               }
 
               @media only screen and (max-width: 800px) {
-                .battles-header {
-                  align-items: flex-end;
-                }
-
                 .filter {
                   flex: 1;
                   min-width: calc(33.33% - 9px);
@@ -490,16 +408,18 @@ function Battles(props) {
                   flex-direction: column;
                 }
 
-                .filter-summary {
+                .create-battle {
                   width: 100%;
+                  justify-content: center;
                 }
               }
 
               @media only screen and (max-width: 560px) {
                 .battles-container { padding: 10px 7px 70px; }
-                .battles-header { align-items: stretch; flex-direction: column; }
-                .create-battle { width: 100%; justify-content: center; }
                 .filter { min-width: calc(50% - 9px); }
+                .filter select {
+                  min-width: 0;
+                }
               }
             `}</style>
         </>
