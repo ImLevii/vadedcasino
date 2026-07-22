@@ -71,12 +71,12 @@ function BattlePreview(props) {
     }))
   }
 
-  function getCasesOffset() {
+  function getMarkerLeft() {
     const rounds = props?.battle?.rounds || []
-    if (!rounds.length) return -36
+    if (!rounds.length) return 52
 
     const idx = currentRoundIndex()
-    return -((idx * 77) + 36)
+    return 52 + (idx * 97)
   }
 
   return (
@@ -178,14 +178,14 @@ function BattlePreview(props) {
                 </div>
                 <div class='chip ghost'>{props?.battle?.ownerFunding > 0 ? `-${props?.battle?.ownerFunding}%` : ''}</div>
                 <div class='chip ghost'>{props?.battle?.gamemode === 'crazy' ? <img src='/assets/icons/crazy.svg' height='11' alt='crazy'/> : ''}</div>
-                <div class='chip state'>{state() === 'rolling' ? <ActiveGame/> : getType()}</div>
+                <div class='chip status'>{state() === 'rolling' ? <ActiveGame/> : ''}</div>
               </div>
             </div>
 
             <div class='cases-track'>
-              <div class='marker marker-top'/>
-              <div class='marker marker-bottom'/>
-              <div class='cases' style={{ transform: `translate(${getCasesOffset()}px, -50%)` }}>
+              <div class='marker marker-top' style={{ left: `${getMarkerLeft()}px` }}/>
+              <div class='marker marker-bottom' style={{ left: `${getMarkerLeft()}px` }}/>
+              <div class='cases'>
                 <For each={visibleRounds()}>{(c) => (
                   <div class={'case-tile ' + (c._view === 'current' ? 'live' : c._view === 'past' ? 'past' : 'next')}>
                     <img
@@ -474,7 +474,7 @@ function BattlePreview(props) {
         }
 
         .chip {
-          width: 40px;
+          width: 34px;
           height: 34px;
 
           display: flex;
@@ -501,12 +501,8 @@ function BattlePreview(props) {
           color: #5f6878;
         }
 
-        .chip.state {
-          width: auto;
-          min-width: 40px;
-          padding: 0 9px;
+        .chip.status {
           color: #8e99aa;
-          border-color: rgba(31, 214, 95, 0.3);
         }
 
         .cases-track {
@@ -523,7 +519,7 @@ function BattlePreview(props) {
 
         .marker {
           position: absolute;
-          left: 50%;
+          left: 52px;
           width: 10px;
           height: 2px;
           transform: translateX(-50%);
@@ -532,6 +528,7 @@ function BattlePreview(props) {
           border-radius: 999px;
           z-index: 3;
           pointer-events: none;
+          transition: left .35s cubic-bezier(.2,.8,.2,1);
         }
 
         .marker-top { top: 3px; }
@@ -543,10 +540,9 @@ function BattlePreview(props) {
           gap: 5px;
 
           position: absolute;
-          left: 50%;
+          left: 6px;
           top: 50%;
-          transform: translate(-36px, -50%);
-          transition: transform .35s cubic-bezier(.2,.8,.2,1);
+          transform: translateY(-50%);
         }
 
         .case-tile {
