@@ -1,5 +1,5 @@
 import {authedAPI, getRandomNumber} from "../../util/api"
-import {createEffect, createSignal, Index, onCleanup} from "solid-js"
+import {createEffect, createSignal, For, Index, onCleanup, Show} from "solid-js"
 import BattleSpinnerItem from "./battlespinneritem"
 import {generateRandomItems, generateRareItems, getRareItems, isRareItem, maskRareItems} from "../../resources/cases"
 import Avatar from "../Level/avatar"
@@ -183,6 +183,20 @@ function BattleSpinner(props) {
     return props?.winnerTeam >= props?.index - 1 && props?.winnerTeam < props?.index + 1
   }
 
+  function getRecentPulls() {
+    if (!Array.isArray(props?.wonItems) || !props?.player?.id) return []
+
+    return props.wonItems
+      .filter(item => item?.userId === props.player.id)
+      .slice()
+      .sort((a, b) => (a?.round || 0) - (b?.round || 0))
+      .slice(-5)
+  }
+
+  function latestPullRound() {
+    return getRecentPulls().reduce((latest, item) => Math.max(latest, item?.round || 0), 0)
+  }
+
   createEffect(() => {
     if (!props?.player) return setColor('')
     if (props.state === 'WAITING' || props?.state === 'EOS') return setColor('gold')
@@ -354,37 +368,18 @@ function BattleSpinner(props) {
     <>
       <div class={'spinner ' + (color())}>
 
-        {props?.state === 'WINNERS' ? (
-          <div class='spinner-content user-summary'>
-            {color() === 'green' && (
-              <div class='winner'>
-                <p>WINNER</p>
-              </div>
-            )}
-
-            <div class='avatar'>
-              <Avatar id={props?.player?.id} xp={props?.player?.xp} height='50'/>
-
-              {color() === 'green' && (
-                <img class='crown' src='/assets/icons/crown.svg' height='31' width='50'/>
-              )}
-            </div>
-
-            <div class='username'>
-              <p>{props?.player?.username}</p>
-              <Level xp={props?.player?.xp}/>
-            </div>
-
-            <div class='cost'>
-              <img src='/assets/chips/chip-green.png' height='18' width='18' alt=''/>
-              <p>
-                <Countup end={color() === 'green' ? props?.total : 0} duration={1000} steps={30} gray={true}/>
-              </p>
-            </div>
-
-            {color() === 'green' && (
-              <button class='bevel-gold recreate' onClick={() => recreateBattle()}>RE-CREATE BATTLE</button>
-            )}
+        {props?.player && props?.state === 'WINNERS' ? (
+          <div class='result-lane'>
+            <Show when={getRecentPulls().length > 0} fallback={<span class='result-empty'>No drops</span>}>
+              <For each={getRecentPulls()}>{(item) => (
+                <BattleSpinnerItem
+                  img={item?.img}
+                  name={item?.name}
+                  price={item?.price}
+                  index={item?.round === latestPullRound() ? 50 : -1}
+                />
+              )}</For>
+            </Show>
           </div>
         ) : props?.player && props?.state === 'ROLLING' ? (
           <div class='spinner-column'>
@@ -454,14 +449,16 @@ function BattleSpinner(props) {
           </div>
         )}
 
-        <SpinnerDiamond
-          index={props?.index}
-          teams={props?.battle?.teams}
-          startOfTeam={props?.startOfTeam}
-          team={props?.team}
-          gamemode={props?.battle?.gamemode}
-          adjacentTeamIsWinner={adjacentTeamIsWinner()}
-        />
+        <Show when={!props?.compact}>
+          <SpinnerDiamond
+            index={props?.index}
+            teams={props?.battle?.teams}
+            startOfTeam={props?.startOfTeam}
+            team={props?.team}
+            gamemode={props?.battle?.gamemode}
+            adjacentTeamIsWinner={adjacentTeamIsWinner()}
+          />
+        </Show>
 
         <div class='bar' ref={bar}/>
       </div>
@@ -542,6 +539,30 @@ function BattleSpinner(props) {
 
           width: 100%;
           height: 100%;
+        }
+
+        .result-lane {
+          width: 100%;
+          height: 100%;
+          box-sizing: border-box;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 6px 14px;
+          overflow: hidden;
+          background:
+            linear-gradient(90deg, rgba(20,25,34,1), transparent 12%, transparent 88%, rgba(20,25,34,1)),
+            #141922;
+          animation: revealResult .35s ease-out both;
+        }
+
+        .result-empty {
+          color: #596273;
+          font-family: "Geogrotesque Wide", sans-serif;
+          font-size: 10px;
+          font-weight: 700;
+          text-transform: uppercase;
         }
 
         .waiting img {

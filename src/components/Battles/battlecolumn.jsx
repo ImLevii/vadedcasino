@@ -36,6 +36,7 @@ function BattleColumn(props) {
                                    wonItems={props?.wonItems}
                                    total={props?.total}
                                    roundWinners={props?.roundWinners}
+                                   compact={props?.compact}
                           />
                         </div>
             </div>
