@@ -389,14 +389,14 @@ function BattleSpinner(props) {
               length='10px'
               thickness='2px'
               pulse={false}
-              style={{ position: 'absolute', top: 'calc(50% - 51px)', left: '50%', transform: 'translateX(-50%)', 'z-index': 4 }}
+              style={{ position: 'absolute', top: '2px', left: '50%', transform: 'translateX(-50%)', 'z-index': 4 }}
             />
             <IndicatorLine
               orientation='horizontal'
               length='10px'
               thickness='2px'
               pulse={false}
-              style={{ position: 'absolute', top: 'calc(50% + 49px)', left: '50%', transform: 'translateX(-50%)', 'z-index': 4 }}
+              style={{ position: 'absolute', bottom: '2px', left: '50%', transform: 'translateX(-50%)', 'z-index': 4 }}
             />
             <div class='fade-left'/>
             <div class='fade-right'/>
@@ -466,7 +466,7 @@ function BattleSpinner(props) {
       <style jsx>{`
         .spinner {
           flex: 1;
-          height: 138px;
+          height: 82px;
           position: relative;
           z-index: 0;
 
@@ -479,8 +479,6 @@ function BattleSpinner(props) {
           background: #141922;
           border: 0;
           box-shadow: none;
-          backdrop-filter: var(--glass-blur);
-          -webkit-backdrop-filter: var(--glass-blur);
           transition: all var(--transition-smooth);
         }
 
@@ -492,7 +490,7 @@ function BattleSpinner(props) {
           width: 100%;
           height: 100%;
           opacity: 0.12;
-          border-radius: var(--glass-radius);
+          border-radius: 0;
           background-image: url("/assets/icons/battlestripes.png");
         }
 
@@ -529,10 +527,10 @@ function BattleSpinner(props) {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 12px;
+          gap: 5px;
 
           color: #9296D6;
-          font-size: 18px;
+          font-size: 10px;
           font-weight: 700;
 
           position: relative;
@@ -547,14 +545,26 @@ function BattleSpinner(props) {
           box-sizing: border-box;
           display: flex;
           align-items: center;
-          justify-content: center;
-          gap: 8px;
-          padding: 6px 14px;
-          overflow: hidden;
+          justify-content: flex-start;
+          gap: 4px;
+          padding: 2px 5px;
+          overflow-x: auto;
+          overflow-y: hidden;
           background:
             linear-gradient(90deg, rgba(20,25,34,1), transparent 12%, transparent 88%, rgba(20,25,34,1)),
             #141922;
           animation: revealResult .35s ease-out both;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255,255,255,0.1) transparent;
+        }
+
+        .result-lane::-webkit-scrollbar {
+          height: 4px;
+        }
+
+        .result-lane::-webkit-scrollbar-thumb {
+          background: rgba(255,255,255,0.1);
+          border-radius: 999px;
         }
 
         .result-empty {
@@ -660,8 +670,8 @@ function BattleSpinner(props) {
         }
 
         .call {
-          width: 147px;
-          height: 34px;
+          width: 92px;
+          height: 24px;
         }
 
         .call, .recreate {
@@ -703,8 +713,8 @@ function BattleSpinner(props) {
           left: 0;
           right: 0;
           top: 50%;
-          height: 102px;
-          transform: translateY(-51px);
+          height: 76px;
+          transform: translateY(-38px);
           pointer-events: none;
           z-index: 1;
           border-top: 0;
@@ -749,7 +759,7 @@ function BattleSpinner(props) {
 
           display: flex;
           flex-direction: row;
-          gap: 10px;
+          gap: 4px;
 
           position: absolute;
           top: 0;
@@ -847,15 +857,15 @@ function BattleSpinner(props) {
         @media only screen and (max-width: 1040px) {
           .spinner {
             width: 100%;
-            min-height: 138px;
-            height: 138px;
+            min-height: 82px;
+            height: 82px;
           }
         }
 
         @media only screen and (max-width: 620px) {
           .spinner, .spinner-column {
-            min-height: 128px;
-            height: 128px;
+            min-height: 82px;
+            height: 82px;
           }
 
           .spinner-column { max-width: none; }

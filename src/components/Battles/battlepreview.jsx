@@ -209,12 +209,12 @@ function BattlePreview(props) {
       <style jsx>{`
         .battle-preview-container {
           width: 100%;
-          min-height: 132px;
+          min-height: 102px;
 
           display: flex;
           align-items: stretch;
-          gap: 10px;
-          padding: 12px;
+          gap: 7px;
+          padding: 7px;
           box-sizing: border-box;
 
           background: #141922;
@@ -247,20 +247,20 @@ function BattlePreview(props) {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          gap: 10px;
-          min-width: 336px;
+          gap: 6px;
+          min-width: 292px;
           flex-shrink: 0;
         }
 
         .slots-box {
           display: flex;
           align-items: center;
-          gap: 7px;
+          gap: 5px;
 
           background: #0f131a;
           border: 1px solid rgba(255, 255, 255, 0.06);
           border-radius: 4px;
-          padding: 8px 11px;
+          padding: 5px 8px;
           flex: 1;
           box-shadow: none;
           overflow-x: auto;
@@ -270,14 +270,14 @@ function BattlePreview(props) {
         .slots-box::-webkit-scrollbar { display: none; }
 
         .slot {
-          width: 34px;
-          height: 34px;
+          width: 30px;
+          height: 30px;
 
           display: flex;
           align-items: center;
           justify-content: center;
 
-          border-radius: 8px;
+          border-radius: 5px;
           background: #1d232e;
           border: 1px solid rgba(255,255,255,0.08);
           box-shadow: none;
@@ -313,24 +313,24 @@ function BattlePreview(props) {
         .sep {
           color: #5f6878;
           font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 12px;
+          font-size: 9px;
           font-weight: 700;
         }
 
         .sep.vs {
-          font-size: 11px;
+          font-size: 8px;
           text-transform: lowercase;
         }
 
         .bottom-row {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
         }
 
         .drops-box {
           flex: 1;
-          height: 34px;
+          height: 28px;
 
           display: flex;
           align-items: center;
@@ -343,7 +343,7 @@ function BattlePreview(props) {
           box-shadow: none;
 
           font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 12px;
+          font-size: 9px;
           font-weight: 700;
           transition: border-color .2s ease;
         }
@@ -370,8 +370,8 @@ function BattlePreview(props) {
         }
 
         .action-btn {
-          height: 34px;
-          padding: 0 13px;
+          height: 28px;
+          padding: 0 10px;
 
           display: flex;
           align-items: center;
@@ -386,7 +386,7 @@ function BattlePreview(props) {
 
           color: #c3cad6;
           font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 11px;
+          font-size: 9px;
           font-weight: 700;
           white-space: nowrap;
 
@@ -426,7 +426,7 @@ function BattlePreview(props) {
           min-width: 0;
 
           display: flex;
-          gap: 8px;
+          gap: 6px;
           padding: 0;
           box-sizing: border-box;
 
@@ -440,14 +440,14 @@ function BattlePreview(props) {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          gap: 8px;
+          gap: 5px;
           flex-shrink: 0;
         }
 
         .inspect {
-          height: 44px;
-          width: 188px;
-          padding: 0 16px;
+          height: 32px;
+          width: 132px;
+          padding: 0 10px;
 
           outline: unset;
           border-radius: 4px;
@@ -457,7 +457,7 @@ function BattlePreview(props) {
 
           color: #c3cad6;
           font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 11px;
+          font-size: 9px;
           font-weight: 700;
 
           position: relative;
@@ -475,24 +475,24 @@ function BattlePreview(props) {
 
         .mode-chips {
           display: flex;
-          gap: 7px;
+          gap: 4px;
         }
 
         .chip {
-          width: 40px;
-          height: 40px;
+          width: 28px;
+          height: 28px;
 
           display: flex;
           align-items: center;
           justify-content: center;
 
-          border-radius: 6px;
+          border-radius: 4px;
           background: #1d2330;
           border: 1px solid rgba(255, 255, 255, 0.06);
 
           color: #8b92a0;
           font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 9px;
+          font-size: 7px;
           font-weight: 700;
           transition: all .2s ease;
         }
@@ -504,8 +504,8 @@ function BattlePreview(props) {
 
         .chip.text {
           width: auto;
-          padding: 0 11px;
-          font-size: 10px;
+          padding: 0 8px;
+          font-size: 8px;
         }
 
         .chip.crazy {
@@ -535,8 +535,8 @@ function BattlePreview(props) {
           position: relative;
           background: #10151d;
           border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 7px;
-          padding: 7px;
+          border-radius: 5px;
+          padding: 4px;
           box-sizing: border-box;
           overflow: hidden;
         }
@@ -560,24 +560,24 @@ function BattlePreview(props) {
         .cases {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 5px;
 
           position: absolute;
           left: 50%;
           top: 50%;
-          transform: translate(-47px, -50%);
+          transform: translate(-36px, -50%);
         }
 
         .case-tile {
-          width: 94px;
-          height: 74px;
+          width: 72px;
+          height: 62px;
           flex-shrink: 0;
 
           display: flex;
           align-items: center;
           justify-content: center;
 
-          border-radius: 6px;
+          border-radius: 4px;
           background: #1a202b;
           border: 1px solid rgba(255, 255, 255, 0.07);
           box-shadow: none;
@@ -591,8 +591,8 @@ function BattlePreview(props) {
         }
 
         .case-tile img {
-          width: 80px;
-          height: 62px;
+          width: 64px;
+          height: 54px;
           object-fit: contain;
         }
 
@@ -610,8 +610,8 @@ function BattlePreview(props) {
         }
 
         .case-tile img {
-          max-width: 74px;
-          max-height: 60px;
+          max-width: 64px;
+          max-height: 54px;
           object-fit: contain;
           filter: drop-shadow(0 8px 12px rgba(0,0,0,.32));
           transition: filter .25s ease;
@@ -644,7 +644,7 @@ function BattlePreview(props) {
         @media only screen and (max-width: 800px) {
           .battle-preview-container {
             flex-direction: column;
-            border-radius: 10px;
+            border-radius: 8px;
           }
 
           .left-col {
@@ -652,8 +652,8 @@ function BattlePreview(props) {
           }
 
           .inspect {
-            width: 136px;
-            height: 38px;
+            width: 116px;
+            height: 30px;
           }
         }
 
@@ -665,8 +665,8 @@ function BattlePreview(props) {
           .panel-side { flex-direction: row; align-items: center; }
           .inspect { width: auto; padding: 0 18px; }
           .cases { width: 100%; }
-          .case-tile { width: 84px; height: 70px; }
-          .case-tile img { max-width: 66px; max-height: 54px; }
+          .case-tile { width: 72px; height: 62px; }
+          .case-tile img { max-width: 64px; max-height: 54px; }
         }
       `}</style>
     </>

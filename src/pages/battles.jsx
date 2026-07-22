@@ -263,7 +263,7 @@ function Battles(props) {
                 height: fit-content;
 
                 box-sizing: border-box;
-                padding: 30px 18px 96px;
+                padding: 14px 12px 70px;
                 margin: 0 auto;
                 position: relative;
               }
@@ -272,9 +272,10 @@ function Battles(props) {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                gap: 24px;
-                margin-bottom: 18px;
-                padding: 12px 14px;
+                gap: 16px;
+                min-height: 58px;
+                margin-bottom: 10px;
+                padding: 8px 10px;
                 border-radius: 8px;
                 border: 1px solid rgba(255,255,255,.06);
                 background: #111720;
@@ -286,10 +287,10 @@ function Battles(props) {
               }
 
               .eyebrow {
-                margin-bottom: 6px;
+                margin-bottom: 2px;
                 color: #1fd65f;
                 font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 10px;
+                font-size: 8px;
                 font-weight: 700;
                 text-transform: uppercase;
               }
@@ -297,53 +298,53 @@ function Battles(props) {
               .header-copy h1 {
                 color: #fff;
                 font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 27px;
+                font-size: 18px;
                 font-weight: 800;
               }
 
               .header-copy p {
-                margin-top: 7px;
+                margin-top: 3px;
                 color: #7d8796;
-                font-size: 12px;
+                font-size: 10px;
               }
 
               .filter-panel {
-                margin-bottom: 18px;
-                padding: 14px;
+                margin-bottom: 10px;
+                padding: 8px;
                 display: flex;
                 align-items: flex-end;
                 justify-content: space-between;
-                gap: 14px;
+                gap: 8px;
                 border: 1px solid rgba(255,255,255,.06);
                 border-radius: 8px;
-                background: linear-gradient(180deg, rgba(18,23,31,.9), rgba(10,14,20,.95));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 10px 30px rgba(0,0,0,.16);
+                background: #111720;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
               }
 
               .filters {
                 display: flex;
-                gap: 9px;
+                gap: 6px;
                 flex-wrap: wrap;
               }
 
               .filter {
                 display: flex;
                 flex-direction: column;
-                gap: 6px;
+                gap: 3px;
               }
 
               .filter-label {
                 margin: 0 0 0 2px;
                 color: #697382;
-                font-size: 9px;
+                font-size: 7px;
                 font-weight: 700;
                 text-transform: uppercase;
               }
 
               .filter select {
-                height: 40px;
-                min-width: 112px;
-                padding: 0 31px 0 11px;
+                height: 30px;
+                min-width: 104px;
+                padding: 0 26px 0 9px;
 
                 outline: unset;
                 border-radius: 6px;
@@ -353,14 +354,14 @@ function Battles(props) {
 
                 color: #FFF;
                 font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 11px;
+                font-size: 9px;
                 font-weight: 700;
 
                 cursor: pointer;
                 appearance: none;
                 background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' stroke='%238b92a0' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
                 background-repeat: no-repeat;
-                background-position: right 12px center;
+                background-position: right 9px center;
               }
 
               .filter select:hover {
@@ -373,8 +374,8 @@ function Battles(props) {
               }
 
               .create-battle {
-                height: 40px;
-                padding: 0 20px;
+                height: 32px;
+                padding: 0 14px;
 
                 display: flex;
                 align-items: center;
@@ -382,12 +383,12 @@ function Battles(props) {
 
                 outline: unset;
                 border: unset;
-                border-radius: 8px;
+                border-radius: 5px;
                 background: #1fd65f;
 
                 color: #04240f;
                 font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 12px;
+                font-size: 10px;
                 font-weight: 700;
                 white-space: nowrap;
 
@@ -403,7 +404,7 @@ function Battles(props) {
               .create-battle:hover {
                 background: #45e57f;
                 transform: translateY(-1px);
-                box-shadow: 0 0 24px rgba(31, 214, 95, 0.5), 0 0 0 1px rgba(31, 214, 95, 0.2);
+                box-shadow: 0 7px 18px rgba(31, 214, 95, 0.15);
               }
               
               .create-battle:active {
@@ -412,8 +413,8 @@ function Battles(props) {
 
               .filter-summary {
                 min-width: 70px;
-                height: 40px;
-                padding: 0 12px;
+                height: 30px;
+                padding: 0 9px;
                 box-sizing: border-box;
                 display: flex;
                 align-items: center;
@@ -423,7 +424,7 @@ function Battles(props) {
                 border-radius: 6px;
                 background: rgba(31,214,95,.04);
                 color: #8c96a4;
-                font-size: 10px;
+                font-size: 8px;
                 font-weight: 700;
                 white-space: nowrap;
               }
@@ -440,7 +441,7 @@ function Battles(props) {
                 display: flex;
                 flex-direction: column;
                 width: 100%;
-                gap: 12px;
+                gap: 7px;
               }
 
               .empty-battles {
@@ -495,7 +496,7 @@ function Battles(props) {
               }
 
               @media only screen and (max-width: 560px) {
-                .battles-container { padding: 20px 12px 90px; }
+                .battles-container { padding: 10px 7px 70px; }
                 .battles-header { align-items: stretch; flex-direction: column; }
                 .create-battle { width: 100%; justify-content: center; }
                 .filter { min-width: calc(50% - 9px); }

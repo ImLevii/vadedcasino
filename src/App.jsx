@@ -86,6 +86,8 @@ function App() {
   const [ws] = useWebsocket()
   const [chat, setChat] = createSignal(false)
 
+  const isImmersiveBattle = () => location.pathname !== '/battle/create' && /^\/battle\/[^/]+$/.test(location.pathname)
+
   onMount(() => {
     const recoveryReset = setTimeout(() => {
       sessionStorage.removeItem('chunk-recovery-attempted')
@@ -219,13 +221,13 @@ function App() {
                 </>
               )
             }}>
-            <div class='app' onClick={() => closeDropdowns()}>
-              <Sidebar chat={chat()} setChat={setChat}/>
-              <div class='center' ref={pageContent}>
-                <Navbar user={user()} chat={chat()} setChat={setChat}/>
-                <GameFairnessDock pathname={location.pathname}/>
+            <div class={'app ' + (isImmersiveBattle() ? 'battle-immersive' : '')} onClick={() => closeDropdowns()}>
+              {!isImmersiveBattle() && <Sidebar chat={chat()} setChat={setChat}/>}
+              <div class={'center ' + (isImmersiveBattle() ? 'battle-immersive-center' : '')} ref={pageContent}>
+                {!isImmersiveBattle() && <Navbar user={user()} chat={chat()} setChat={setChat}/>}
+                {!isImmersiveBattle() && <GameFairnessDock pathname={location.pathname}/>}
 
-                <div class='content'>
+                <div class={'content ' + (isImmersiveBattle() ? 'battle-immersive-content' : '')}>
                   <Routes>
                     <Route path='/' element={
                       <Suspense fallback={<Loader/>}>
@@ -513,7 +515,7 @@ function App() {
                   <div class='background'/>
                 </div>
 
-                <Footer/>
+                {!isImmersiveBattle() && <Footer/>}
               </div>
             </div>
           </ErrorBoundary>
@@ -565,6 +567,22 @@ function App() {
             0 24px 60px rgba(0, 0, 0, 0.36);
           backdrop-filter: blur(10px) saturate(130%);
           -webkit-backdrop-filter: blur(10px) saturate(130%);
+        }
+
+        .battle-immersive-center {
+          overflow: auto;
+          background: #0c0f15;
+        }
+
+        .battle-immersive-content {
+          min-height: 100vh;
+          padding: 0;
+          border: 0;
+          border-radius: 0;
+          background: #0c0f15;
+          box-shadow: none;
+          backdrop-filter: none;
+          -webkit-backdrop-filter: none;
         }
 
         .background {

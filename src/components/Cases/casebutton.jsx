@@ -447,6 +447,67 @@ function CaseButton(props) {
               .case-button:hover .bg:after {
                 opacity: 1;
               }
+
+              .case-button.creator {
+                min-height: 172px;
+                height: 172px;
+                padding: 10px 8px 8px;
+                border-radius: 6px;
+                background: #111720;
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+              }
+
+              .creator:hover {
+                transform: translateY(-1px);
+                border-color: rgba(31,214,95,.28);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+              }
+
+              .creator .image {
+                width: 92px;
+                height: 68px;
+                margin-top: 1px;
+              }
+
+              .creator .cost {
+                min-width: 82px;
+                min-height: 23px;
+                margin: 5px 0 3px;
+                padding: 0 8px;
+                border-radius: 4px;
+                font-size: 9px;
+              }
+
+              .creator .controls {
+                gap: 12px;
+                font-size: 10px;
+              }
+
+              .creator .add {
+                width: 88px;
+                height: 25px;
+                font-size: 9px;
+              }
+
+              .creator .adder {
+                width: 25px;
+                height: 25px;
+              }
+
+              .creator .preview-btn-case {
+                right: 6px;
+                bottom: 38px;
+                width: 24px;
+                height: 24px;
+                border-radius: 4px;
+              }
+
+              .creator .community-badge {
+                top: 5px;
+                left: 5px;
+                padding: 2px 4px;
+                font-size: 6px;
+              }
             `}</style>
         </>
     );

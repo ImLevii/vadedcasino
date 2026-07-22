@@ -15,19 +15,6 @@ function BattleSpinnerItem(props) {
         event.currentTarget.classList.add('fallback')
     }
 
-    function backImage(price) {
-        if (price >= 250000) {
-            return '/assets/icons/rarity-gold.svg' // Gold
-        } else if (price >= 50000) {
-            return '/assets/icons/rarity-red.svg' // Red
-        } else if (price >= 10000) {
-            return '/assets/icons/rarity-pink.svg' // Pink
-        } else if (price >= 1000) {
-            return '/assets/icons/rarity-blue.svg'
-        }
-        return '/assets/icons/rarity-gray.svg' // Gray
-    }
-
     function getRarity(price) {
         if (price >= 250000) {
             return '#FFB84A' // Gold/Covert
@@ -68,7 +55,6 @@ function BattleSpinnerItem(props) {
     return (
         <>
             <div class={'case-item-container ' + (props.index === 50 ? 'winning-item' : '')} style={{ '--rarity': getRarity(props?.price) }}>
-                <div class='card-bg'/>
                 <div class='item-top-badges'>
                     {getExterior(props.name) && (
                         <span class='ext-badge' style={{ color: getExteriorColor(getExterior(props.name)) }}>
@@ -76,152 +62,130 @@ function BattleSpinnerItem(props) {
                         </span>
                     )}
                 </div>
-                <img class='item-image' src={resolveImageSrc(props.img, '/assets/logo/cosmic-luck-logo.png')} height='100' alt='' draggable={false} onError={useImageFallback}/>
-                <img class='back-img' src={backImage(props?.price)} height='70' alt=''/>
+                <img class='item-image' src={resolveImageSrc(props.img, '/assets/logo/cosmic-luck-logo.png')} height='80' alt='' draggable={false} onError={useImageFallback}/>
                 <div class='item-details'>
                     <span class='item-name'>{props.name || 'Mystery reward'}</span>
                     <span class='item-price'>
-                        <img src='/assets/chips/chip-green.png' alt=''/>
+                        <img src='/assets/chips/chip-green.png' alt='' height='10' width='10'/>
                         {formatPrice(props.price)}
                     </span>
                 </div>
+                <div class='rarity-underline'/>
             </div>
 
             <style jsx>{`
               .case-item-container {
-                                height: 124px;
-                                width: 156px;
-
+                height: 78px;
+                width: 82px;
                 position: relative;
                 display: flex;
+                flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                                isolation: isolate;
+                isolation: isolate;
+                background: #0d1116;
+                border-radius: 3px;
+                border: 1px solid rgba(255,255,255,0.06);
+                padding: 3px;
+                box-sizing: border-box;
               }
 
-                            .card-bg {
-                                position: absolute;
-                                inset: 3px;
-                                z-index: -1;
-                                border-radius: 8px;
-                                                                background:
-                                                                    radial-gradient(70% 65% at 50% 36%, color-mix(in srgb, var(--rarity, #A9B5D2) 20%, transparent), transparent 76%),
-                                                                    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.012));
-                                                                border: 1px solid color-mix(in srgb, var(--rarity, #A9B5D2) 24%, rgba(255,255,255,.08));
-                                                                border-bottom: 2px solid var(--rarity, #A9B5D2);
-                                                                box-shadow:
-                                                                    inset 0 1px 0 rgba(255,255,255,0.05),
-                                                                    0 8px 20px rgba(0,0,0,.24),
-                                                                    0 0 22px -8px var(--rarity, #A9B5D2);
+              .winning-item {
+                border-color: color-mix(in srgb, var(--rarity, #A9B5D2) 40%, transparent);
+                box-shadow: inset 0 -1px 0 var(--rarity, #A9B5D2);
               }
 
               .item-image {
                 position: relative;
                 user-select: none;
-                                z-index: 1;
-                                width: 116px;
-                                height: 80px;
-                                margin-bottom: 26px;
-                                object-fit: contain;
-                                opacity: .96;
-                                filter: drop-shadow(0 9px 13px rgba(0,0,0,0.58));
+                z-index: 1;
+                width: 68px;
+                height: 47px;
+                object-fit: contain;
+                opacity: .95;
+                filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+                margin-bottom: 1px;
               }
 
               .item-top-badges {
-                                position: absolute;
-                                top: 6px;
-                                left: 8px;
-                                z-index: 3;
-                                display: flex;
-                                align-items: center;
-                                gap: 3px;
-                                opacity: 0;
-                                transition: opacity .2s ease;
-                            }
-
-                            .ext-badge {
-                                font-family: "Geogrotesque Wide", sans-serif;
-                                font-size: 7px;
-                                font-weight: 800;
-                                letter-spacing: 0.3px;
-                                line-height: 1;
-                                text-shadow: 0 0 6px currentColor;
-                            }
-
-              .back-img {
                 position: absolute;
-                z-index: -1;
-                                top: 17px;
-                                opacity: 0.25;
-                                filter: drop-shadow(0 8px 14px rgba(0,0,0,0.4));
-                            }
+                top: 3px;
+                left: 4px;
+                z-index: 3;
+                display: flex;
+                align-items: center;
+                gap: 3px;
+              }
 
-                            .item-details {
-                                position: absolute;
-                                z-index: 2;
-                                left: 11px;
-                                right: 11px;
-                                bottom: 9px;
-                                display: flex;
-                                align-items: center;
-                                justify-content: space-between;
-                                gap: 7px;
-                                padding-top: 7px;
-                                border-top: 1px solid rgba(255,255,255,0.06);
-                                opacity: 0;
-                                transform: translateY(3px);
-                                transition: opacity .2s ease, transform .2s ease;
-                            }
+              .ext-badge {
+                font-family: "Geogrotesque Wide", sans-serif;
+                font-size: 5px;
+                font-weight: 800;
+                letter-spacing: 0.3px;
+                line-height: 1;
+                text-shadow: 0 0 4px currentColor;
+              }
 
-                            .item-name {
-                                min-width: 0;
-                                overflow: hidden;
-                                color: #e5ebf5;
-                                font-family: "Geogrotesque Wide", sans-serif;
-                                font-size: 8px;
-                                font-weight: 700;
-                                text-overflow: ellipsis;
-                                white-space: nowrap;
-                            }
+              .item-details {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1px;
+                width: 100%;
+                padding: 0 4px;
+                z-index: 2;
+              }
 
-                            .item-price {
-                                flex: 0 0 auto;
-                                display: flex;
-                                align-items: center;
-                                gap: 3px;
-                                color: #fff;
-                                font-family: "Geogrotesque Wide", sans-serif;
-                                font-size: 8px;
-                                font-weight: 700;
-                                font-variant-numeric: tabular-nums;
-                            }
+              .item-name {
+                font-family: "Geogrotesque", sans-serif;
+                font-size: 6px;
+                font-weight: 600;
+                color: #c7d0df;
+                text-align: center;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                width: 100%;
+                line-height: 1.2;
+              }
 
-                            .item-price img {
-                                width: 11px;
-                                height: 11px;
-                                object-fit: contain;
-                            }
+              .item-price {
+                display: flex;
+                align-items: center;
+                gap: 3px;
+                font-family: "Geogrotesque Wide", sans-serif;
+                font-size: 7px;
+                font-weight: 700;
+                color: #1fd65f;
+              }
 
-                            .winning-item .item-image {
-                                opacity: 1;
-                                transform: scale(1.04);
-                            }
+              .rarity-underline {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 1px;
+                background: linear-gradient(90deg, transparent 0%, var(--rarity, #A9B5D2) 50%, transparent 100%);
+                opacity: 0.7;
+              }
 
-                            .winning-item .item-top-badges,
-                            .winning-item .item-details {
-                                opacity: 1;
-                                transform: translateY(0);
-                            }
+              @media only screen and (max-width: 620px) {
+                .case-item-container {
+                  width: 82px;
+                  height: 78px;
+                }
 
-                            .winning-item .card-bg {
-                                box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 10px 24px rgba(0,0,0,.28), 0 0 28px -4px var(--rarity, #A9B5D2);
-                            }
+                .item-image {
+                  width: 68px;
+                  height: 47px;
+                }
+              }
 
-                            .item-image.fallback {
-                                width: 42px;
-                                height: 42px;
-                                opacity: .3;
-                                filter: grayscale(1);
+              .item-image.fallback {
+                width: 42px;
+                height: 42px;
+                opacity: .3;
+                filter: grayscale(1);
               }
             `}</style>
         </>

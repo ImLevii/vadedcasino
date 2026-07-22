@@ -7,7 +7,7 @@ function BattleColumn(props) {
         <>
             <div class={'column ' + (props?.compact ? 'compact ' : '') + (props?.side || '')}>
               <div class='container user-container'>
-                    <BattleUser index={props?.index}
+                <BattleUser index={props?.index}
                                 players={props?.players}
                                 battle={props?.battle}
                                 state={props?.state}
@@ -18,27 +18,28 @@ function BattleColumn(props) {
                                 wonItems={props?.wonItems}
                                 compact={props?.compact}
                                 side={props?.side}
-                    />
-                </div>
+                />
+              </div>
 
-                        <div class='container spinner-container'>
-                          <BattleSpinner index={props?.index}
-                                   battle={props?.battle}
-                                   player={props?.player}
-                                   team={props?.team}
-                                   startOfTeam={props?.startOfTeam}
-                                   state={props?.state}
-                                   round={props?.round}
-                                   rounds={props?.rounds}
-                                   winnerTeam={props?.winnerTeam}
-                                   max={props?.max}
-                                   creator={props?.creator}
-                                   wonItems={props?.wonItems}
-                                   total={props?.total}
-                                   roundWinners={props?.roundWinners}
-                                   compact={props?.compact}
-                          />
-                        </div>
+              <div class='container spinner-container'>
+                <BattleSpinner index={props?.index}
+                             battle={props?.battle}
+                             player={props?.player}
+                             team={props?.team}
+                             startOfTeam={props?.startOfTeam}
+                             state={props?.state}
+                             round={props?.round}
+                             rounds={props?.rounds}
+                             winnerTeam={props?.winnerTeam}
+                             max={props?.max}
+                             creator={props?.creator}
+                             wonItems={props?.wonItems}
+                             total={props?.total}
+                             roundWinners={props?.roundWinners}
+                             compact={props?.compact}
+                             side={props?.side}
+                />
+              </div>
             </div>
 
             <style jsx>{`
@@ -68,6 +69,7 @@ function BattleColumn(props) {
               .compact .spinner-container {
                 order: 1;
               }
+
             `}</style>
         </>
     );

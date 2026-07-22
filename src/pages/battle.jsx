@@ -3,6 +3,7 @@ import {createEffect, createResource, createSignal, For, onCleanup, Show} from "
 import {useWebsocket} from "../contexts/socketprovider";
 import Loader from "../components/Loader/loader";
 import BattleColumn from "../components/Battles/battlecolumn";
+import BattleDropHistory from "../components/Battles/battledrophistory";
 import {subscribeToGame, unsubscribeFromGames} from "../util/socket";
 import {calculateWinnings, convertItems, fillEmptySlots, getRoundWinner, getWonItems} from "../util/battleutil";
 import {Title} from "@solidjs/meta";
@@ -243,7 +244,7 @@ function Battle(props) {
                           </div>
 
                           <div class='topbar-center'>
-                            <button class='inspect-btn'>Inspect</button>
+                            <button class='inspect-btn' type='button' disabled aria-label='Inspect battle'>Inspect</button>
 
                             <div class='center-icons'>
                               <button class='icon-btn' title='Live'><svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='8'/><circle cx='12' cy='12' r='1'/></svg></button>
@@ -494,6 +495,16 @@ function Battle(props) {
                                 </div>
                             </div>
                         )}
+
+                        {/* Drop History */}
+                        <Show when={battle()?.players?.length > 0}>
+                          <BattleDropHistory
+                            players={battle()?.players || []}
+                            wonItems={wonItems()}
+                            rounds={battle()?.rounds || []}
+                            round={round()}
+                          />
+                        </Show>
                     </>
                 )}
             </div>
@@ -513,10 +524,10 @@ function Battle(props) {
 
                 display: flex;
                 flex-direction: column;
-                gap: 14px;
+                gap: 10px;
 
                 box-sizing: border-box;
-                padding: 18px 18px 96px;
+                padding: 14px 7px 40px;
                 margin: 0 auto;
                 position: relative;
                 isolation: isolate;
@@ -525,7 +536,8 @@ function Battle(props) {
               /* Live strip styled after reference */
               .battle-topbar {
                 width: 100%;
-                min-height: 104px;
+                height: 76px;
+                min-height: 76px;
                 box-sizing: border-box;
                 position: relative;
                 border-radius: 8px;
@@ -534,8 +546,8 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 8px;
-                padding: 8px;
+                gap: 10px;
+                padding: 7px 9px;
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
               }
 
@@ -543,7 +555,7 @@ function Battle(props) {
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-                gap: 8px;
+                gap: 4px;
                 flex: 0 0 auto;
               }
 
@@ -552,8 +564,8 @@ function Battle(props) {
               }
 
               .stat-panel {
-                width: 122px;
-                height: 38px;
+                width: 116px;
+                height: 27px;
                 border-radius: 4px;
                 border: 1px solid rgba(255,255,255,0.07);
                 background: #0f141c;
@@ -565,14 +577,14 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 gap: 4px;
-                padding: 0 8px;
+                padding: 0 7px;
               }
 
               .round-pill {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 0 8px;
+                padding: 0 7px;
                 color: #ccd5e3;
                 font-size: 11px;
                 font-weight: 700;
@@ -580,7 +592,7 @@ function Battle(props) {
 
               .round-value {
                 color: #eef3ff;
-                font-size: 11px;
+                font-size: 9px;
                 font-weight: 800;
               }
 
@@ -588,8 +600,9 @@ function Battle(props) {
                 flex: 1;
                 min-width: 0;
                 display: grid;
-                grid-template-columns: 112px 96px minmax(220px, 1fr);
-                gap: 8px;
+                grid-template-columns: 82px minmax(220px, 1fr);
+                grid-template-rows: 28px 24px;
+                gap: 4px 7px;
                 align-items: center;
                 overflow: hidden;
               }
@@ -598,13 +611,13 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                height: 42px;
+                height: 28px;
                 border-radius: 4px;
                 border: 1px solid rgba(255,255,255,0.08);
                 background: #1f2530;
                 color: #cdd6e5;
                 font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 12px;
+                font-size: 9px;
                 font-weight: 700;
                 cursor: pointer;
               }
@@ -614,10 +627,17 @@ function Battle(props) {
                 background: #252c38;
               }
 
+              .inspect-btn:disabled {
+                cursor: default;
+                opacity: .72;
+              }
+
               .center-icons {
                 display: flex;
                 align-items: center;
                 gap: 6px;
+                grid-column: 1;
+                grid-row: 2;
               }
 
               .right-icons {
@@ -628,14 +648,14 @@ function Battle(props) {
 
               .cost-label {
                 color: #8b92a0;
-                font-size: 8px;
+                font-size: 7px;
                 font-weight: 800;
                 text-transform: uppercase;
               }
 
               .cost-value {
                 color: #1fd65f;
-                font-size: 12px;
+                font-size: 10px;
                 font-weight: 700;
               }
 
@@ -643,8 +663,8 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 24px;
-                height: 24px;
+                width: 22px;
+                height: 22px;
                 border-radius: 4px;
                 border: 1px solid rgba(255,255,255,0.08);
                 background: #1a202a;
@@ -663,8 +683,8 @@ function Battle(props) {
               }
 
               .back-btn {
-                width: 122px;
-                height: 38px;
+                width: 116px;
+                height: 27px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -684,6 +704,8 @@ function Battle(props) {
               .columns-wrapper {
                 width: 100%;
                 position: relative;
+                overflow-x: auto;
+                overflow-y: hidden;
               }
 
               .cases-container {
@@ -691,12 +713,14 @@ function Battle(props) {
                 overflow: hidden;
                 height: 100%;
                 width: 100%;
-                min-height: 74px;
+                min-height: 56px;
                 position: relative;
                 border: 1px solid rgba(255,255,255,0.06);
                 border-radius: 4px;
                 background: #10151d;
                 padding: 0 7px;
+                grid-column: 2;
+                grid-row: 1 / 3;
               }
                
               .cases {
@@ -717,8 +741,8 @@ function Battle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 70px;
-                height: 70px;
+                width: 46px;
+                height: 46px;
                 flex-shrink: 0;
                 border-radius: 4px;
                 background: #1b212c;
@@ -734,6 +758,8 @@ function Battle(props) {
               }
 
               .case-thumb-img {
+                width: 38px;
+                height: 38px;
                 object-fit: contain;
                 opacity: 0.4;
                 filter: grayscale(1) brightness(0.7);
@@ -755,7 +781,7 @@ function Battle(props) {
                 width: 100%;
                 box-sizing: border-box;
                 display: grid;
-                grid-template-columns: minmax(0, 1fr) 184px minmax(0, 1fr);
+                grid-template-columns: minmax(0, 1fr) 126px minmax(0, 1fr);
                 align-items: stretch;
                 gap: 0;
                 padding: 0;
@@ -784,18 +810,18 @@ function Battle(props) {
 
               /* Center case reel — mirrors csgoluck.com/case-battle center rail */
               .center-display {
-                width: 184px;
+                width: 126px;
                 min-height: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                gap: 10px;
+                gap: 6px;
                 position: relative;
                 background:
                   linear-gradient(180deg, rgba(255,255,255,0.018), transparent 18%, transparent 82%, rgba(255,255,255,0.012)),
                   #090d13;
-                padding: 18px 12px 18px;
+                padding: 12px 7px;
                 box-sizing: border-box;
                 border-left: 1px solid rgba(31,214,95,0.18);
                 border-right: 1px solid rgba(31,214,95,0.18);
@@ -808,7 +834,7 @@ function Battle(props) {
               }
 
               .center-dashes span {
-                width: 10px;
+                width: 8px;
                 height: 2px;
                 border-radius: 999px;
                 background: rgba(31,214,95,0.75);
@@ -819,7 +845,7 @@ function Battle(props) {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 8px;
+                gap: 5px;
                 position: relative;
                 padding: 0 10px;
               }
@@ -856,20 +882,20 @@ function Battle(props) {
               }
 
               .reel-case.dim {
-                width: 64px;
-                height: 48px;
+                width: 50px;
+                height: 38px;
                 opacity: 0.32;
                 filter: grayscale(0.4);
               }
 
               .reel-case.dim img {
-                width: 52px;
-                height: 40px;
+                width: 42px;
+                height: 34px;
               }
 
               .reel-case.current img {
-                width: 108px;
-                height: 108px;
+                width: 92px;
+                height: 92px;
                 filter: drop-shadow(0 6px 24px rgba(0,0,0,0.55));
               }
 
@@ -898,7 +924,7 @@ function Battle(props) {
                 font-weight: 600;
                 color: #6b7280;
                 text-align: center;
-                max-width: 150px;
+                max-width: 108px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
@@ -965,11 +991,12 @@ function Battle(props) {
               /* Team Totals Bar */
               .team-totals {
                 width: 100%;
-                min-height: 72px;
+                min-height: 46px;
+                height: 46px;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 10px 14px;
+                padding: 6px 12px;
                 border-radius: 8px;
                 border: 1px solid rgba(255,255,255,0.06);
                 background: #111720;
@@ -1086,26 +1113,32 @@ function Battle(props) {
               }
 
               @media only screen and (max-width: 1040px) {
-                .battle-topbar { min-height: auto; padding: 10px; }
-                .topbar-center { grid-template-columns: 108px 92px minmax(180px, 1fr); }
-                .columns { grid-template-columns: minmax(0, 1fr) 150px minmax(0, 1fr); }
-                .center-display { width: 150px; }
-                .team-totals { flex-wrap: wrap; gap: 12px; }
-                .total-drops { border-left: none; border-right: none; padding: 12px 0; width: 100%; justify-content: center; }
+                .columns { min-width: 860px; }
+                .team-totals { gap: 8px; }
+                .total-drops { padding: 0 10px; }
               }
 
               @media only screen and (max-width: 620px) {
-                .battle-container { padding: 20px 12px 90px; gap: 18px; }
-                .battle-topbar { padding: 8px; gap: 8px; }
-                .topbar-left-stack { width: 100%; flex-direction: row; }
-                .topbar-right { width: 100%; align-items: center; flex-direction: row; justify-content: space-between; }
-                .topbar-center { width: 100%; order: 3; grid-template-columns: 88px 82px 1fr; }
-                .inspect-btn { height: 34px; }
+                .battle-container { padding: 8px 6px 24px; gap: 8px; }
+                .battle-topbar { height: auto; min-height: 104px; padding: 7px; gap: 6px; flex-wrap: wrap; align-items: stretch; }
+                .topbar-left-stack { order: 1; width: auto; flex: 1; flex-direction: row; }
+                .topbar-left-stack .stat-panel { width: auto; min-width: 0; flex: 1; }
+                .topbar-right { order: 2; width: 76px; align-items: stretch; }
+                .back-btn { width: 76px; }
+                .right-icons { display: none; }
+                .topbar-center { order: 3; width: 100%; flex-basis: 100%; grid-template-columns: 70px minmax(0, 1fr); grid-template-rows: 27px 23px; }
+                .inspect-btn { height: 27px; }
                 .center-icons { gap: 4px; }
-                .columns { grid-template-columns: 1fr; }
-                .center-display { display: none; }
-                .team-totals { flex-direction: column; gap: 12px; }
-                .total-drops { border-left: none; border-right: none; padding: 12px 0; width: 100%; justify-content: center; }
+                .columns { min-width: 760px; grid-template-columns: minmax(0, 1fr) 112px minmax(0, 1fr); }
+                .center-display { width: 112px; }
+                .team-totals { height: 42px; min-height: 42px; flex-direction: row; gap: 4px; padding: 5px 8px; }
+                .team-side { gap: 5px; }
+                .team-label { gap: 4px; font-size: 0; }
+                .team-avatar-dot { width: 25px; height: 25px; }
+                .team-avatar-dot :global(img) { width: 23px; height: 23px; }
+                .team-value { font-size: 10px; }
+                .team-value img { width: 12px; height: 12px; }
+                .total-drops { display: none; }
               }
 
               @media (prefers-reduced-motion: reduce) {

@@ -213,7 +213,7 @@ function CreateBattle(props) {
                                 }
                                 navigate(link)
                             }
-                        }}>CREATE CASE</button>
+                        }}>CREATE BATTLE</button>
                     </div>
                 </div>
 
@@ -400,10 +400,10 @@ function CreateBattle(props) {
 
                 display: flex;
                 flex-direction: column;
-                gap: 25px;
+                gap: 10px;
 
                 box-sizing: border-box;
-                padding: 30px 0;
+                padding: 14px 10px 70px;
                 margin: 0 auto;
                 position: relative;
               }
@@ -412,7 +412,8 @@ function CreateBattle(props) {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 10px 12px;
+                min-height: 54px;
+                padding: 7px 9px;
                 border-radius: 8px;
                 border: 1px solid rgba(255,255,255,0.05);
                 background: #111720;
@@ -422,13 +423,13 @@ function CreateBattle(props) {
               .header-section {
                 display: flex;
                 align-items: center;
-                gap: 15px;
+                gap: 7px;
                 justify-content: center;
               }
 
               .title {
                 color: #FFF;
-                font-size: 18px;
+                font-size: 12px;
                 font-weight: 700;
 
                 display: flex;
@@ -445,8 +446,8 @@ function CreateBattle(props) {
               }
 
               .back {
-                height: 30px;
-                padding: 0 10px;
+                height: 27px;
+                padding: 0 8px;
                 font-weight: 700;
                 font-family: Geogrotesque Wide;
                 position: relative;
@@ -472,8 +473,8 @@ function CreateBattle(props) {
               }
 
               .num-cases {
-                height: 30px;
-                padding: 0 10px;
+                height: 27px;
+                padding: 0 8px;
                 border-radius: 4px;
                 background: linear-gradient(180deg, rgba(31, 214, 95, 0.13), rgba(31, 214, 95, 0.06));
                 border: 1px solid rgba(31, 214, 95, 0.16);
@@ -483,26 +484,27 @@ function CreateBattle(props) {
                 gap: 6px;
 
                 color: #FFF;
-                font-size: 14px;
+                font-size: 10px;
                 font-weight: 600;
               }
 
               .num-cases span {
                 color: #8b92a0;
-                font-size: 11px;
+                font-size: 8px;
                 font-weight: 600;
               }
 
               .create {
-                height: 30px;
-                width: 130px;
+                height: 27px;
+                width: 112px;
+                font-size: 9px;
               }
 
               .cost {
-                height: 30px;
-                font-size: 14px;
-                padding: 0 10px;
-                min-width: 100px;
+                height: 27px;
+                font-size: 10px;
+                padding: 0 8px;
+                min-width: 86px;
                 gap: 6px;
                 font-variant-numeric: tabular-nums;
                 border-radius: 4px;
@@ -521,22 +523,22 @@ function CreateBattle(props) {
               }
 
               .cases {
-                min-height: 262px;
-                padding: 16px;
-                background: radial-gradient(80% 55% at 50% 0%, rgba(31, 214, 95, 0.042), rgba(31, 214, 95, 0)), linear-gradient(180deg, rgba(11, 15, 22, 0.94), rgba(7, 10, 16, 0.98));
-                border-radius: 10px;
+                min-height: 202px;
+                padding: 9px;
+                background: #0b0f16;
+                border-radius: 8px;
                 border: 1px solid rgba(255,255,255,0.06);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 12px 36px rgba(0,0,0,0.24);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
 
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-                grid-gap: 12px;
+                grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+                grid-gap: 7px;
               }
 
               .case-drag-wrapper {
                 position: relative;
                 cursor: grab;
-                border-radius: 9px;
+                border-radius: 6px;
                 transition: opacity 0.15s ease, transform 0.15s ease, outline-color 0.1s ease;
                 outline: 2px solid transparent;
               }
@@ -579,8 +581,8 @@ function CreateBattle(props) {
                 border: unset;
                 cursor: pointer;
 
-                height: 230px;
-                background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.012));
+                height: 172px;
+                background: #10151d;
                 border: 1px solid rgba(31, 214, 95, 0.14);
                 border-radius: 8px;
 
@@ -607,7 +609,7 @@ function CreateBattle(props) {
                 height: 100%;
                 position: absolute;
                 content: '';
-                background: radial-gradient(80% 60% at 50% 48%, rgba(31,214,95,0.09), rgba(31,214,95,0) 70%), #0b0f17;
+                background: radial-gradient(70% 60% at 50% 48%, rgba(31,214,95,0.06), transparent 70%), #0b0f17;
                 top: 0;
                 left: 0;
                 border-radius: 8px;
@@ -615,15 +617,15 @@ function CreateBattle(props) {
               }
 
               .add-case:hover {
-                transform: translateY(-2px);
+                transform: translateY(-1px);
                 color: #fff;
                 border-color: rgba(31, 214, 95, 0.4);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.045), 0 0 32px rgba(31,214,95,0.14);
+                box-shadow: inset 0 1px 0 rgba(255,255,255,0.045);
               }
 
               .plus {
-                width: 70px;
-                height: 70px;
+                width: 44px;
+                height: 44px;
 
                 display: flex;
                 align-items: center;
@@ -653,23 +655,24 @@ function CreateBattle(props) {
                 border: unset;
 
                 width: 100%;
-                height: 45px;
+                min-height: 40px;
+                height: auto;
 
                 border-radius: 7px;
-                background: linear-gradient(90deg, rgba(31, 214, 95, 0.12) -30%, rgba(17, 23, 34, 0.94) 18%, rgba(7, 10, 16, 0.32) 100%);
+                background: #111720;
                 border: 1px solid rgba(255,255,255,0.04);
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
 
                 color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
-                font-size: 15px;
+                font-size: 10px;
                 font-weight: 600;
                 border-bottom: 2px solid transparent;
 
-                padding: 0 15px;
+                padding: 0 10px;
                 display: flex;
                 align-items: center;
-                gap: 20px;
+                gap: 14px;
                 transition: border-color 0.2s ease;
               }
 
@@ -680,10 +683,10 @@ function CreateBattle(props) {
               .settings-title {
                 display: flex;
                 align-items: center;
-                gap: 12px;
+                gap: 7px;
 
                 color: #FFF;
-                font-size: 18px;
+                font-size: 11px;
                 font-weight: 700;
 
                 margin-right: auto;
@@ -694,13 +697,13 @@ function CreateBattle(props) {
                 outline: unset;
                 background: unset;
 
-                height: 100%;
-                padding: unset;
+                height: 38px;
+                padding: 0 3px;
                 cursor: pointer;
 
                 color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
-                font-size: 15px;
+                font-size: 9px;
                 font-weight: 600;
                 border-bottom: 2px solid transparent;
 
@@ -722,7 +725,7 @@ function CreateBattle(props) {
 
                 color: #8b92a0;
                 font-family: Geogrotesque Wide, sans-serif;
-                font-size: 15px;
+                font-size: 9px;
                 font-weight: 600;
               }
 
@@ -743,7 +746,7 @@ function CreateBattle(props) {
 
                 color: white;
                 font-family: Geogrotesque Wide, sans-serif;
-                font-size: 15px;
+                font-size: 9px;
                 font-weight: 600;
                 text-align: right;
 
@@ -766,8 +769,8 @@ function CreateBattle(props) {
 
                 border-radius: 25px;
                 background: linear-gradient(to right, #1fd65f 0%, #1fd65f 0%, #131a24 0%, #131a24 100%);
-                max-width: 190px;
-                height: 9px;
+                max-width: 150px;
+                height: 6px;
                 border: 1px solid rgba(255,255,255,0.045);
                 box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
                 transition: border-color 0.2s ease;
@@ -810,20 +813,49 @@ function CreateBattle(props) {
                 align-items: center;
                 gap: 6px;
                 font-variant-numeric: tabular-nums;
+                font-size: 9px;
               }
 
               @media only screen and (max-width: 1000px) {
                 .create-battle-container {
-                  padding-bottom: 90px;
+                  padding-bottom: 70px;
+                }
+
+                .settings-section {
+                  flex-wrap: wrap;
+                  padding: 7px 10px;
+                }
+
+                .settings-title {
+                  width: 100%;
                 }
               }
 
-              @media only screen and (max-width: 540px) {
-                .battles-header {
-                  justify-content: center;
-                  flex-direction: column;
-                  align-items: center;
-                  gap: 25px;
+              @media only screen and (max-width: 680px) {
+                .header {
+                  flex-wrap: wrap;
+                  gap: 7px;
+                }
+
+                .header-section:first-child,
+                .header-section:last-child {
+                  width: 100%;
+                }
+
+                .header-section:last-child {
+                  justify-content: space-between;
+                }
+
+                .header-section:nth-child(2) {
+                  display: none;
+                }
+
+                .cases {
+                  grid-template-columns: repeat(2, minmax(0, 1fr));
+                }
+
+                .settings-section {
+                  gap: 9px;
                 }
               }
             `}</style>

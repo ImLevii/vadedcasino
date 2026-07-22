@@ -15,3 +15,24 @@
 [21/Jul/2026:06:56:14 +0000] - GET /admin/cashier 200 72.056 ms - curl/8.7.1
 [21/Jul/2026:06:56:29 +0000] - POST /admin/2fa 401 0.185 ms - curl/8.7.1
 [21/Jul/2026:06:57:17 +0000] - POST /admin/2fa 401 0.179 ms - curl/8.7.1
+[22/Jul/2026:04:21:34 +0000] - GET /battles 404 2.064 ms - Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.19041.7548
+[22/Jul/2026:04:22:39 +0000] - GET /cases/beast-bonanza.png 404 219.048 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36
+[22/Jul/2026:04:22:39 +0000] - GET /cases/americans-dream.png 404 218.299 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36
+[22/Jul/2026:04:22:39 +0000] - GET /cases/blingbling-case.png 404 218.148 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36
+[22/Jul/2026:04:23:42 +0000] - GET /cases/beast-bonanza.png 404 198.364 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36
+[22/Jul/2026:04:23:42 +0000] - GET /cases/americans-dream.png 404 197.104 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36
+[22/Jul/2026:04:23:42 +0000] - GET /cases/blingbling-case.png 404 195.727 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36
+[22/Jul/2026:04:24:30 +0000] - GET /cases/americans-dream.png 404 200.578 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36
+[22/Jul/2026:04:24:53 +0000] - GET /cases/americans-dream.png 404 198.215 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36
+[22/Jul/2026:04:25:00 +0000] - GET /cases/americans-dream.png 404 0.501 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36
+[22/Jul/2026:04:25:07 +0000] - GET /cases/americans-dream.png 404 211.465 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36
+[22/Jul/2026:04:25:07 +0000] - GET /cases/beast-bonanza.png 404 211.231 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36
+[22/Jul/2026:04:25:07 +0000] - GET /cases/blingbling-case.png 404 0.336 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36
+[22/Jul/2026:04:27:12 +0000] - GET /cases/americans-dream.png 404 194.295 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36
+[22/Jul/2026:04:27:16 +0000] - GET /cases/americans-dream.png 404 0.213 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/145.0.7632.6 Safari/537.36
+[22/Jul/2026:04:31:19 +0000] - GET /cases/beast-bonanza.png 404 187.359 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[22/Jul/2026:04:31:19 +0000] - GET /cases/americans-dream.png 404 185.083 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[22/Jul/2026:04:31:19 +0000] - GET /cases/blingbling-case.png 404 179.441 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[22/Jul/2026:04:31:33 +0000] - GET /cases/blingbling-case.png 404 199.772 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[22/Jul/2026:04:31:33 +0000] - GET /cases/beast-bonanza.png 404 194.939 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36
+[22/Jul/2026:04:31:33 +0000] - GET /cases/americans-dream.png 404 194.906 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36

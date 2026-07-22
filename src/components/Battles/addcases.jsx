@@ -113,19 +113,19 @@ function AddCases(props) {
         .filter-tabs {
           display: flex;
           gap: 4px;
-          margin-left: 14px;
+          margin-left: 6px;
         }
 
         .filter-tab {
-          height: 28px;
-          padding: 0 12px;
+          height: 25px;
+          padding: 0 8px;
           outline: unset;
           border-radius: 4px;
           background: transparent;
           border: 1px solid transparent;
           color: #8b92a0;
           font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 11px;
+          font-size: 8px;
           font-weight: 800;
           cursor: pointer;
           transition: all .2s;
@@ -150,8 +150,7 @@ function AddCases(props) {
           height: 100vh;
 
           background: rgba(5, 7, 12, 0.72);
-          backdrop-filter: blur(6px);
-          cubic-bezier(0, 1, 0, 1);
+          backdrop-filter: blur(5px);
 
           display: flex;
           align-items: center;
@@ -161,51 +160,51 @@ function AddCases(props) {
         }
 
         .cases-container {
-          max-width: 1010px;
-          width: 100%;
-          height: 100%;
-          max-height: 650px;
-          background: linear-gradient(180deg, rgba(11, 15, 22, 0.98), rgba(7, 10, 16, 0.98));
+          max-width: 940px;
+          width: calc(100% - 24px);
+          height: calc(100% - 32px);
+          max-height: 620px;
+          background: #090d13;
 
           display: flex;
           flex-direction: column;
-          border-radius: 12px;
+          border-radius: 8px;
           border: 1px solid rgba(255,255,255,0.06);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 24px 80px rgba(0,0,0,0.5);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 20px 60px rgba(0,0,0,0.45);
           overflow: hidden;
         }
 
         .header, .footer {
           width: 100%;
-          min-height: 70px;
+          min-height: 54px;
 
           display: flex;
           align-items: center;
           gap: 10px;
 
-          padding: 0 20px;
+          padding: 0 12px;
 
-          background: linear-gradient(180deg, rgba(20, 27, 39, 0.98), rgba(11, 15, 23, 0.98));
+          background: #111720;
           border-bottom: 1px solid rgba(255,255,255,0.06);
         }
 
         .footer {
-          min-height: 60px;
+          min-height: 48px;
           border-top: 1px solid rgba(255,255,255,0.06);
           border-bottom: unset;
         }
 
         .info {
-          height: 30px;
-          padding: 0 10px;
+          height: 27px;
+          padding: 0 8px;
 
           border-radius: 4px;
           background: linear-gradient(180deg, rgba(31, 214, 95, 0.1), rgba(31, 214, 95, 0.04));
           border: 1px solid rgba(31, 214, 95, 0.12);
-          line-height: 30px;
+          line-height: 27px;
 
           color: #8b92a0;
-          font-size: 11px;
+          font-size: 9px;
           font-weight: 600;
         }
 
@@ -214,13 +213,13 @@ function AddCases(props) {
         }
 
         .cost {
-          height: 30px;
+          height: 27px;
           padding: 0 7px;
         }
 
         .done {
-          height: 30px;
-          width: 95px;
+          height: 27px;
+          width: 82px;
         }
 
         .bar {
@@ -243,24 +242,24 @@ function AddCases(props) {
 
         .title {
           color: #FFF;
-          font-size: 20px;
+          font-size: 12px;
           font-weight: 700;
 
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 7px;
 
           margin-right: auto;
         }
 
         .cases {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-          grid-gap: 15px;
+          grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+          grid-gap: 7px;
           flex: 1;
           overflow-y: scroll;
-          padding: 20px;
-          background: radial-gradient(80% 55% at 50% 0%, rgba(31,214,95,0.035), rgba(31,214,95,0)), #070a10;
+          padding: 9px;
+          background: #070a10;
           scrollbar-color: transparent transparent;
         }
 
@@ -270,18 +269,18 @@ function AddCases(props) {
 
         .inputs {
           display: flex;
-          gap: 10px;
+          gap: 6px;
         }
 
         .search-container {
-          width: 198px;
-          height: 40px;
+          width: 168px;
+          height: 30px;
 
           border-radius: 5px;
           background: rgba(255, 255, 255, 0.035);
           border: 1px solid rgba(255,255,255,0.06);
 
-          padding: 0 0 0 15px;
+          padding: 0 0 0 9px;
 
           display: flex;
           transition: border-color 0.2s ease, background 0.2s ease;
@@ -301,14 +300,14 @@ function AddCases(props) {
           outline: unset;
 
           color: #8b92a0;
-          font-size: 12px;
+          font-size: 9px;
           font-family: Geogrotesque Wide, sans-serif;
           font-weight: 600;
         }
 
         .search::placeholder {
           color: #8b92a0;
-          font-size: 12px;
+          font-size: 9px;
           font-family: Geogrotesque Wide, sans-serif;
           font-weight: 600;
         }
@@ -318,7 +317,7 @@ function AddCases(props) {
           border: unset;
           cursor: pointer;
 
-          width: 40px;
+          width: 30px;
           border-radius: 0px 5px 5px 0px;
           background: rgba(31, 214, 95, 0.08);
           transition: background 0.2s ease;
@@ -329,11 +328,11 @@ function AddCases(props) {
         }
 
         .sort-by {
-          width: 160px;
+          width: 132px;
 
           font-family: Geogrotesque Wide;
           color: #8b92a0;
-          font-size: 12px;
+          font-size: 9px;
           font-weight: 600;
 
           outline: unset;
@@ -367,14 +366,64 @@ function AddCases(props) {
         }
 
         @media only screen and (max-width: 830px) {
-          .small {
-            display: none;
+          .header {
+            flex-wrap: wrap;
+            padding: 8px 10px;
+          }
+
+          .title {
+            margin-right: 0;
+          }
+
+          .inputs {
+            width: 100%;
+            order: 3;
+          }
+
+          .search-container {
+            flex: 1;
           }
         }
 
         @media only screen and (max-width: 560px) {
           .sort-by {
             display: none;
+          }
+
+          .cases-container {
+            width: calc(100% - 12px);
+            height: calc(100% - 12px);
+          }
+
+          .filter-tabs {
+            width: 100%;
+            margin-left: 0;
+            order: 2;
+          }
+
+          .filter-tab {
+            flex: 1;
+          }
+
+          .cases {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .footer {
+            flex-wrap: wrap;
+            padding: 7px 9px;
+          }
+
+          .selected {
+            margin-right: 0;
+          }
+
+          .footer .bar {
+            display: none;
+          }
+
+          .done {
+            margin-left: auto;
           }
         }
       `}</style>
