@@ -307,14 +307,15 @@ function Battle(props) {
 
                         <div class='columns-wrapper'>
                           <div class='columns'>
-                            <For each={new Array(players())}>{(column, index) =>
+                            {/* Left half */}
+                            <For each={new Array(Math.ceil(players() / 2))}>{(_, idx) =>
                                 <BattleColumn
-                                    index={index()}
+                                    index={idx()}
                                     battle={battle()}
-                                    player={battle()?.players[index()]}
+                                    player={battle()?.players[idx()]}
                                     players={players()}
-                                    team={Math.floor(index() / battle()?.playersPerTeam )}
-                                    startOfTeam={index() % battle()?.playersPerTeam === 0}
+                                    team={Math.floor(idx() / battle()?.playersPerTeam)}
+                                    startOfTeam={idx() % battle()?.playersPerTeam === 0}
                                     state={state()}
                                     round={round()}
                                     rounds={rounds()}
@@ -326,6 +327,56 @@ function Battle(props) {
                                     roundWinners={roundWinners()}
                                 />
                             }</For>
+
+                            {/* Center case display */}
+                            <Show when={players() > 1}>
+                              <div class='center-display'>
+                                <div class='center-vline'/>
+                                <div class='center-dashes'>
+                                  <span/><span/><span/>
+                                </div>
+                                <img
+                                  class='center-case-img'
+                                  src={resolveImageSrc(
+                                    getCase(rounds()?.[Math.max(0, round() - 1)]?.caseId)?.img,
+                                    '/assets/logo/cosmic-luck-logo.png'
+                                  )}
+                                  alt={getCase(rounds()?.[Math.max(0, round() - 1)]?.caseId)?.name || 'Case'}
+                                  onError={useImageFallback}
+                                />
+                                <div class='center-footer'>
+                                  <div class='center-price'>
+                                    <img src='/assets/chips/chip-green.png' height='14' width='14' alt=''/>
+                                    <span>{(getCase(rounds()?.[Math.max(0, round() - 1)]?.caseId)?.price || 0).toFixed(2)}</span>
+                                  </div>
+                                  <span class='center-name'>{getCase(rounds()?.[Math.max(0, round() - 1)]?.caseId)?.name || ''}</span>
+                                </div>
+                              </div>
+                            </Show>
+
+                            {/* Right half */}
+                            <For each={new Array(Math.floor(players() / 2))}>{(_, idx) => {
+                              const colIdx = Math.ceil(players() / 2) + idx()
+                              return (
+                                <BattleColumn
+                                    index={colIdx}
+                                    battle={battle()}
+                                    player={battle()?.players[colIdx]}
+                                    players={players()}
+                                    team={Math.floor(colIdx / battle()?.playersPerTeam)}
+                                    startOfTeam={colIdx % battle()?.playersPerTeam === 0}
+                                    state={state()}
+                                    round={round()}
+                                    rounds={rounds()}
+                                    winnerTeam={winnerTeam()}
+                                    max={players() - 1}
+                                    creator={isCreator()}
+                                    total={won()}
+                                    wonItems={wonItems()}
+                                    roundWinners={roundWinners()}
+                                />
+                              )
+                            }}</For>
                           </div>
                         </div>
 
@@ -639,11 +690,9 @@ function Battle(props) {
 
               .columns {
                 width: 100%;
-                overflow: visible;
                 box-sizing: border-box;
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-                align-items: start;
+                display: flex;
+                align-items: stretch;
                 gap: 0;
                 padding: 0;
                 border-radius: 8px;
@@ -652,6 +701,93 @@ function Battle(props) {
                 position: relative;
                 overflow: hidden;
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+              }
+
+              /* Center case display */
+              .center-display {
+                width: 176px;
+                flex-shrink: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                position: relative;
+                background: #0c111a;
+                padding: 22px 12px 18px;
+                box-sizing: border-box;
+                border-left: 1px solid rgba(31,214,95,0.18);
+                border-right: 1px solid rgba(31,214,95,0.18);
+              }
+
+              .center-vline {
+                position: absolute;
+                left: 50%;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                transform: translateX(-50%);
+                background: linear-gradient(to bottom, transparent 0%, rgba(31,214,95,0.65) 18%, rgba(31,214,95,0.65) 82%, transparent 100%);
+                pointer-events: none;
+                z-index: 0;
+              }
+
+              .center-dashes {
+                position: absolute;
+                top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                display: flex;
+                gap: 4px;
+                z-index: 2;
+              }
+
+              .center-dashes span {
+                width: 10px;
+                height: 2px;
+                border-radius: 999px;
+                background: rgba(31,214,95,0.75);
+                box-shadow: 0 0 6px rgba(31,214,95,0.5);
+              }
+
+              .center-case-img {
+                width: 116px;
+                height: 116px;
+                object-fit: contain;
+                position: relative;
+                z-index: 1;
+                filter: drop-shadow(0 6px 24px rgba(0,0,0,0.55));
+              }
+
+              .center-footer {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+                position: relative;
+                z-index: 1;
+              }
+
+              .center-price {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-size: 13px;
+                font-weight: 700;
+                color: #1fd65f;
+              }
+
+              .center-name {
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-size: 10px;
+                font-weight: 600;
+                color: #6b7280;
+                text-align: center;
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
               }
 
               /* Team Totals Bar */

@@ -59,10 +59,18 @@ function BattlePreview(props) {
     return Math.min(idx, rounds.length - 1)
   }
 
-  function caseStripOffset() {
-    const idx = currentRoundIndex()
-    const step = 102 // tile width + gap
-    return idx * step
+  function visibleRounds() {
+    const rounds = props?.battle?.rounds || []
+    if (!rounds.length) return []
+
+    const currentIdx = currentRoundIndex()
+    const visible = [{ ...rounds[currentIdx], _roundIndex: currentIdx, _view: 'current' }]
+
+    if (currentIdx + 1 < rounds.length) {
+      visible.push({ ...rounds[currentIdx + 1], _roundIndex: currentIdx + 1, _view: 'next' })
+    }
+
+    return visible
   }
 
   return (
@@ -182,9 +190,9 @@ function BattlePreview(props) {
             <div class='cases-track'>
               <div class='marker marker-top'/>
               <div class='marker marker-bottom'/>
-              <div class='cases' style={{ transform: `translateX(-${caseStripOffset()}px)` }}>
-                <For each={props?.battle?.rounds}>{(c, index) => (
-                  <div class={'case-tile ' + (index() === currentRoundIndex() ? 'live' : '')}>
+              <div class='cases'>
+                <For each={visibleRounds()}>{(c) => (
+                  <div class={'case-tile ' + (c._view === 'current' ? 'live' : 'next')}>
                     <img
                       src={resolveImageSrc(getCase(c?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
                       alt={getCase(c?.caseId)?.name || 'Battle case'}
@@ -550,17 +558,14 @@ function BattlePreview(props) {
         .marker-bottom { bottom: 3px; }
 
         .cases {
-          flex: 1;
-          min-width: 0;
-
           display: flex;
           align-items: center;
           gap: 8px;
 
-          overflow-x: auto;
-          scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-          padding-bottom: 2px;
-          transition: transform .35s cubic-bezier(.22,.61,.36,1);
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-47px, -50%);
         }
 
         .case-tile {
@@ -585,9 +590,19 @@ function BattlePreview(props) {
           box-shadow: none;
         }
 
+        .case-tile img {
+          width: 80px;
+          height: 62px;
+          object-fit: contain;
+        }
+
         .case-tile.live {
           border-color: rgba(31,214,95,.45);
           background: #202734;
+        }
+
+        .case-tile.next {
+          opacity: .88;
         }
 
         .case-tile.live img {
