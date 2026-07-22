@@ -10,6 +10,19 @@ function SidebarRain(props) {
     const [rain, userRain, time, userTimer, joinedRain] = useRain()
     const [token, setToken] = createSignal(null)
     const [showCaptcha, setShowCaptcha] = createSignal(false)
+    const [joining, setJoining] = createSignal(false)
+
+    const JOIN_ERROR_MESSAGES = {
+      RAIN_NOT_FOUND: 'There is no active rain to claim right now.',
+      ALREADY_JOINED_RAIN: 'You have already joined this rain.',
+      NOT_ENOUGH_WAGERED: 'You need at least 2,500 wagered in the last 30 days to join rain.',
+      INSUFFICIENT_DEPOSITS: 'You need at least 200 deposited in the last 14 days to join rain.',
+      CAPTCHA_REQUIRED: 'Please complete the captcha to claim rain.',
+      SPONSOR_LOCK: 'Your account is sponsor-locked and cannot join rain.',
+      RAIN_BANNED: 'Your account cannot join rain right now.',
+      JOINED_TOO_MANY_RAINS: 'You have reached today\'s rain join limit.',
+      SERVER_ERROR: 'Unable to claim rain right now. Please try again.'
+    }
 
     async function ensureHcaptcha() {
       if (typeof window !== 'undefined' && window.hcaptcha) {
@@ -42,6 +55,9 @@ function SidebarRain(props) {
     }
 
     async function joinRain() {
+      if (joining()) return
+      setJoining(true)
+
         let res = await authedAPI('/rain/join', 'POST', JSON.stringify({
             'captchaResponse': token()
         }), true)
@@ -50,30 +66,50 @@ function SidebarRain(props) {
             setToken(null)
             joinedRain()
             createNotification('success', `Successfully joined the rain.`)
+        setShowCaptcha(false)
+        setJoining(false)
+        return
         }
 
         if (res.error === 'NOT_LINKED') {
+        createNotification('error', 'You must link Discord before joining rain.')
             let discordRes = await authedAPI('/discord/link', 'POST', null, true)
             if (discordRes.url) {
                 attemptToLinkDiscord(discordRes.url)
+        } else {
+          createNotification('error', 'Unable to start Discord linking right now.')
             }
+        setShowCaptcha(false)
+        setJoining(false)
+        return
         }
 
+      const message = JOIN_ERROR_MESSAGES[res?.error] || 'Failed to claim rain. Please try again.'
+      createNotification('error', message)
+      if (res?.error !== 'CAPTCHA_REQUIRED') {
         setShowCaptcha(false)
+      }
+      setJoining(false)
     }
 
     function attemptToLinkDiscord(url) {
         let popupWindow = window.open(url, 'popUpWindow', 'height=700,width=500,left=100,top=100,resizable=yes,scrollbar=yes')
+      if (!popupWindow) {
+        createNotification('error', 'Popup blocked. Allow popups and try again.')
+        return
+      }
         window.addEventListener("message", function (event) {
             if (event.data === "Authorized") {
                 popupWindow.close();
                 joinRain()
             }
-        }, false)
+      }, { once: true })
     }
 
     async function handleRainJoin() {
+      if (joining()) return
         if (userRain()?.joined || rain()?.joined) return createNotification('error', 'You have already joined this rain.')
+      if (!userRain() && !rain()?.active) return createNotification('error', 'There is no active rain to claim right now.')
 
       const hasCaptcha = await ensureHcaptcha()
       if (!hasCaptcha) {
@@ -84,16 +120,25 @@ function SidebarRain(props) {
         setShowCaptcha(true)
 
       setTimeout(() => {
-        if (!window.hcaptcha) return
+        if (!window.hcaptcha) {
+          createNotification('error', 'Captcha failed to load. Please try again.')
+          setShowCaptcha(false)
+          return
+        }
 
-        window.hcaptcha.render('captcha-div', {
-            sitekey: '5029f0f4-b80b-42a8-8c0e-3eba4e9edc4c',
-            theme: 'dark',
-            callback: function (token) {
-                setToken(token)
-                joinRain()
-            }
-      })
+        try {
+          window.hcaptcha.render('captcha-div', {
+              sitekey: '5029f0f4-b80b-42a8-8c0e-3eba4e9edc4c',
+              theme: 'dark',
+              callback: function (captchaToken) {
+                  setToken(captchaToken)
+                  joinRain()
+              }
+          })
+        } catch (e) {
+          createNotification('error', 'Unable to open captcha right now. Please try again.')
+          setShowCaptcha(false)
+        }
       }, 0)
     }
 
@@ -151,8 +196,8 @@ function SidebarRain(props) {
                         </div>
                     </div>
 
-                    <button class={'claim' + (isJoined() ? ' joined' : '')} onClick={() => handleRainJoin()} disabled={isJoined()}>
-                        {isJoined() ? '✓ IN' : 'CLAIM'}
+                    <button class={'claim' + (isJoined() ? ' joined' : '')} onClick={() => handleRainJoin()} disabled={isJoined() || joining()}>
+                      {isJoined() ? '✓ IN' : joining() ? '...' : 'CLAIM'}
                     </button>
                 </div>
             </div>

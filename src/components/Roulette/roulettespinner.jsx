@@ -62,19 +62,21 @@ function RouletteSpinner(props) {
     return (
         <>
             <div class='spinner-wrapper'>
-                {/* Top indicator tick — short vertical green capsule at top-center */}
+                {/* Top marker line — short horizontal green dash above center slot */}
                 <IndicatorLine
-                  orientation='vertical'
-                  length='18px'
-                  thickness='4px'
-                  style={{ position: 'absolute', left: '50%', top: '-2px', transform: 'translateX(-2px)', 'z-index': 4 }}
+                  orientation='horizontal'
+                  length='10px'
+                  thickness='2px'
+                  pulse={false}
+                  style={{ position: 'absolute', left: '50%', top: '11px', transform: 'translateX(-50%)', 'z-index': 4 }}
                 />
-                {/* Bottom indicator tick — sits at the join between spinner and numbers row */}
+                {/* Bottom marker line — short horizontal green dash below center slot */}
                 <IndicatorLine
-                  orientation='vertical'
-                  length='18px'
-                  thickness='4px'
-                  style={{ position: 'absolute', left: '50%', bottom: '41px', transform: 'translateX(-2px)', 'z-index': 4 }}
+                  orientation='horizontal'
+                  length='10px'
+                  thickness='2px'
+                  pulse={false}
+                  style={{ position: 'absolute', left: '50%', bottom: '30px', transform: 'translateX(-50%)', 'z-index': 4 }}
                 />
                 <div class='center-glow'/>
                 <div class='fade-left'/>

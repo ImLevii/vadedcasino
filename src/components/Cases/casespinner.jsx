@@ -1,5 +1,6 @@
 import SpinnerItem from "./spinneritem";
 import {createEffect, createSignal, onCleanup, For, Show} from "solid-js";
+import IndicatorLine from "../IndicatorLine/indicatorline";
 
 function CaseSpinner(props) {
 
@@ -206,14 +207,21 @@ function CaseSpinner(props) {
                 {/* Side fade masks */}
                 <div class='fade-left'/>
                 <div class='fade-right'/>
-                {/* Neon slider line - horizontal indicator */}
-                <div class='slider-track'>
-                  <div class='slider-line'/>
-                  <div class='slider-glow'/>
-                </div>
                 <div class='center-indicator'/>
-                <div class='center-line-top'/>
-                <div class='center-line-bottom'/>
+                <IndicatorLine
+                  orientation='horizontal'
+                  length='10px'
+                  thickness='2px'
+                  pulse={false}
+                  style={{ position: 'absolute', left: '50%', top: '11px', transform: 'translateX(-50%)', 'z-index': 5 }}
+                />
+                <IndicatorLine
+                  orientation='horizontal'
+                  length='10px'
+                  thickness='2px'
+                  pulse={false}
+                  style={{ position: 'absolute', left: '50%', bottom: '11px', transform: 'translateX(-50%)', 'z-index': 5 }}
+                />
 
                 {/* Particle and Shockwave Effects */}
                 <Show when={showShockwave()}>
@@ -311,67 +319,6 @@ function CaseSpinner(props) {
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 28px rgba(0, 0, 0, 0.24), var(--green-glow);
               }
 
-              /* Neon slider line — replaces old green arrows */
-              .slider-track {
-                position: absolute;
-                left: 50%;
-                transform: translateX(-50%);
-                z-index: 5;
-                pointer-events: none;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              }
-
-              .slider-track {
-                top: 0;
-                bottom: 0;
-                width: 130px;
-                height: 100%;
-              }
-
-              .slider-line {
-                position: absolute;
-                width: 2px;
-                height: 100%;
-                background: linear-gradient(180deg, 
-                  transparent 0%, 
-                  rgba(31, 214, 95, 0.2) 15%, 
-                  #1fd65f 45%, 
-                  #1fd65f 55%, 
-                  rgba(31, 214, 95, 0.2) 85%, 
-                  transparent 100%
-                );
-                box-shadow: 
-                  0 0 8px rgba(31, 214, 95, 0.5),
-                  0 0 16px rgba(31, 214, 95, 0.25);
-                animation: sliderPulse 2.4s ease-in-out infinite;
-              }
-
-              .slider-glow {
-                position: absolute;
-                width: 4px;
-                height: 60%;
-                top: 20%;
-                background: rgba(31, 214, 95, 0.08);
-                filter: blur(6px);
-                border-radius: 999px;
-              }
-
-              .case-spinner-container.multi .slider-track {
-                width: 100%;
-              }
-
-              .case-spinner-container.multi .slider-line {
-                width: 1px;
-                box-shadow: 0 0 4px rgba(31, 214, 95, 0.3);
-              }
-
-              @keyframes sliderPulse {
-                0%, 100% { opacity: 0.7; }
-                50% { opacity: 1; }
-              }
-
               /* Side gradient fades */
               .fade-left, .fade-right {
                 position: absolute;
@@ -417,28 +364,6 @@ function CaseSpinner(props) {
               .case-spinner-container.multi .center-indicator {
                 background: linear-gradient(90deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.07), rgba(31, 214, 95, 0));
                 box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.08), inset -1px 0 0 rgba(31, 214, 95, 0.08), 0 0 18px rgba(31, 214, 95, 0.06);
-              }
-
-              /* Top and bottom tick lines */
-              .center-line-top, .center-line-bottom {
-                position: absolute;
-                left: 50%;
-                transform: translateX(-65px);
-                width: 130px;
-                height: 2px;
-                background: linear-gradient(to right, transparent, rgba(31, 214, 95, 0.16) 12%, #1fd65f 38%, #1fd65f 62%, rgba(31, 214, 95, 0.16) 88%, transparent);
-                z-index: 3;
-                pointer-events: none;
-                box-shadow: 0 0 10px rgba(31, 214, 95, 0.5), 0 0 18px rgba(31, 214, 95, 0.22);
-              }
-
-              .center-line-top { top: 0; }
-              .center-line-bottom { bottom: 0; }
-
-              .case-spinner-container.multi .center-line-top,
-              .case-spinner-container.multi .center-line-bottom {
-                height: 1px;
-                box-shadow: 0 0 4px rgba(31, 214, 95, 0.25);
               }
 
               .spinner-items {

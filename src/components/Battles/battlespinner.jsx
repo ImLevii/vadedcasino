@@ -391,9 +391,17 @@ function BattleSpinner(props) {
             <div class='center-band'/>
             <IndicatorLine
               orientation='horizontal'
-              length='calc(100% - 56px)'
+              length='10px'
               thickness='2px'
-              style={{ position: 'absolute', top: '50%', left: '28px', transform: 'translateY(-50%)', 'z-index': 4 }}
+              pulse={false}
+              style={{ position: 'absolute', top: 'calc(50% - 51px)', left: '50%', transform: 'translateX(-50%)', 'z-index': 4 }}
+            />
+            <IndicatorLine
+              orientation='horizontal'
+              length='10px'
+              thickness='2px'
+              pulse={false}
+              style={{ position: 'absolute', top: 'calc(50% + 49px)', left: '50%', transform: 'translateX(-50%)', 'z-index': 4 }}
             />
             <div class='fade-top'/>
             <div class='fade-bottom'/>
