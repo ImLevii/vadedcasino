@@ -1,4 +1,4 @@
-import {createEffect, createSignal, For, Show} from "solid-js";
+import {createEffect, createSignal, For, Show, onCleanup} from "solid-js";
 import BattlePreview from "../components/Battles/battlepreview";
 import {useWebsocket} from "../contexts/socketprovider";
 import Loader from "../components/Loader/loader";
@@ -54,6 +54,22 @@ function Battles(props) {
                 setBattles([...battles().slice(0, battleIndex), {...curBattle}, ...battles().slice(battleIndex + 1)])
             })
 
+              ws().on('battles:round', (id, roundNum) => {
+                let battleIndex = battles()?.findIndex(b => id === b.id)
+                if (battleIndex < 0) return
+
+                let curBattle = battles()[battleIndex]
+                if (id !== curBattle.id) return
+
+                // Keep live cards in sync with currently spinning case.
+                curBattle.round = roundNum
+                if (!curBattle.startedAt) {
+                  curBattle.startedAt = Date.now()
+                }
+
+                setBattles([...battles().slice(0, battleIndex), {...curBattle}, ...battles().slice(battleIndex + 1)])
+              })
+
             ws().on('battles:ended', (id, winnerTeam) => {
                 let battleIndex = battles()?.findIndex(b => id === b.id)
                 if (battleIndex < 0) return
@@ -71,6 +87,16 @@ function Battles(props) {
 
         hasConnected = !!ws()?.connected
     })
+
+        onCleanup(() => {
+          if (!ws()) return
+
+          ws().off('battles:push')
+          ws().off('battles:join')
+          ws().off('battles:start')
+          ws().off('battles:round')
+          ws().off('battles:ended')
+        })
 
     function getBattleMode(battle) {
         if (battle.gamemode === 'group') return 'GROUP'

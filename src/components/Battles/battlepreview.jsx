@@ -51,6 +51,20 @@ function BattlePreview(props) {
     event.currentTarget.classList.add('fallback')
   }
 
+  function currentRoundIndex() {
+    const rounds = props?.battle?.rounds || []
+    if (!rounds.length) return 0
+
+    const idx = Math.max(0, (props?.battle?.round || 1) - 1)
+    return Math.min(idx, rounds.length - 1)
+  }
+
+  function caseStripOffset() {
+    const idx = currentRoundIndex()
+    const step = 102 // tile width + gap
+    return idx * step
+  }
+
   return (
     <>
       {props?.battle && (
@@ -168,9 +182,9 @@ function BattlePreview(props) {
             <div class='cases-track'>
               <div class='marker marker-top'/>
               <div class='marker marker-bottom'/>
-              <div class='cases'>
+              <div class='cases' style={{ transform: `translateX(-${caseStripOffset()}px)` }}>
                 <For each={props?.battle?.rounds}>{(c, index) => (
-                  <div class='case-tile'>
+                  <div class={'case-tile ' + (index() === currentRoundIndex() ? 'live' : '')}>
                     <img
                       src={resolveImageSrc(getCase(c?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
                       alt={getCase(c?.caseId)?.name || 'Battle case'}
@@ -546,6 +560,7 @@ function BattlePreview(props) {
           overflow-x: auto;
           scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
           padding-bottom: 2px;
+          transition: transform .35s cubic-bezier(.22,.61,.36,1);
         }
 
         .case-tile {
@@ -568,6 +583,15 @@ function BattlePreview(props) {
           border-color: rgba(255,255,255,0.14);
           transform: translateY(-1px);
           box-shadow: none;
+        }
+
+        .case-tile.live {
+          border-color: rgba(31,214,95,.45);
+          background: #202734;
+        }
+
+        .case-tile.live img {
+          filter: drop-shadow(0 8px 12px rgba(0,0,0,.36));
         }
 
         .case-tile img {
