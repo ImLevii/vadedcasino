@@ -352,18 +352,18 @@ function CaseSpinner(props) {
                 transform: translateX(-65px);
                 width: 130px;
                 height: 100%;
-                background: linear-gradient(90deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.07), rgba(31, 214, 95, 0));
+                background: transparent;
                 z-index: 1;
                 pointer-events: none;
-                box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.08), inset -1px 0 0 rgba(31, 214, 95, 0.08), 0 0 24px rgba(31, 214, 95, 0.08);
-                animation: centerGlow 2.8s ease-in-out infinite;
-                border-left: 1px solid rgba(31, 214, 95, 0.22);
-                border-right: 1px solid rgba(31, 214, 95, 0.22);
+                box-shadow: none;
+                animation: none;
+                border-left: 0;
+                border-right: 0;
               }
 
               .case-spinner-container.multi .center-indicator {
-                background: linear-gradient(90deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.07), rgba(31, 214, 95, 0));
-                box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.08), inset -1px 0 0 rgba(31, 214, 95, 0.08), 0 0 18px rgba(31, 214, 95, 0.06);
+                background: transparent;
+                box-shadow: none;
               }
 
               .spinner-items {
@@ -393,17 +393,6 @@ function CaseSpinner(props) {
               @keyframes idleCarousel {
                 0% { transform: translateX(var(--idle-from, -${idleStart}px)); }
                 100% { transform: translateX(var(--idle-to, -${idleEnd}px)); }
-              }
-
-              @keyframes centerGlow {
-                0%, 100% {
-                  opacity: .75;
-                  box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.08), inset -1px 0 0 rgba(31, 214, 95, 0.08), 0 0 16px rgba(31, 214, 95, 0.06);
-                }
-                50% {
-                  opacity: 1;
-                  box-shadow: inset 1px 0 0 rgba(31, 214, 95, 0.14), inset -1px 0 0 rgba(31, 214, 95, 0.14), 0 0 28px rgba(31, 214, 95, 0.1);
-                }
               }
 
               /* Cosmic Spin Particle & Shockwave Styles */

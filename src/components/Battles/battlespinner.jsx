@@ -688,11 +688,11 @@ function BattleSpinner(props) {
           transform: translateY(-51px);
           pointer-events: none;
           z-index: 1;
-          border-top: 1px solid rgba(31,214,95,.14);
-          border-bottom: 1px solid rgba(31,214,95,.14);
-          background: linear-gradient(180deg, rgba(31, 214, 95, 0), rgba(31, 214, 95, 0.08) 48%, rgba(31, 214, 95, 0));
-          box-shadow: inset 0 1px 0 rgba(31, 214, 95, 0.05), inset 0 -1px 0 rgba(31, 214, 95, 0.05), 0 0 30px rgba(31, 214, 95, 0.08);
-          animation: battleCenterGlow 2.8s ease-in-out infinite;
+          border-top: 0;
+          border-bottom: 0;
+          background: transparent;
+          box-shadow: none;
+          animation: none;
         }
 
         .fade-top, .fade-bottom {
@@ -734,17 +734,6 @@ function BattleSpinner(props) {
           position: absolute;
           top: 0px;
           z-index: 2;
-        }
-
-        @keyframes battleCenterGlow {
-          0%, 100% {
-            opacity: .82;
-            box-shadow: inset 0 1px 0 rgba(31, 214, 95, 0.08), inset 0 -1px 0 rgba(31, 214, 95, 0.08), 0 0 38px rgba(31, 214, 95, 0.10);
-          }
-          50% {
-            opacity: 1;
-            box-shadow: inset 0 1px 0 rgba(31, 214, 95, 0.14), inset 0 -1px 0 rgba(31, 214, 95, 0.14), 0 0 50px rgba(31, 214, 95, 0.16);
-          }
         }
 
         @keyframes revealResult {

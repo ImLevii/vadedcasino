@@ -48,10 +48,18 @@ function RouletteColor(props) {
       }
 
       if (props?.color === 'bait') {
-        return 'Double hit only'
+        return 'Win 7x on 7 or 8'
       }
 
       return `Win ${ROULETTE_MULTIPLIERS[props?.color]}x`
+    }
+
+    function playLabel() {
+      if (props?.color === 'bait') {
+        return 'Bait x7'
+      }
+
+      return `Play ${betColorToDisplayName(props.color)}`
     }
 
     function numberPrefix() {
@@ -75,7 +83,7 @@ function RouletteColor(props) {
                         createNotification('success', `Successfully placed a bet on ${betColorToLabel(props?.color)} for ${props?.amount} coins.`)
                     }
                 }}>
-                    <span class='play-label'>Play {betColorToDisplayName(props.color)}</span>
+                    <span class='play-label'>{playLabel()}</span>
                     <div class='payout-row'>
                       <span class='win-label'>{payoutLabel()}</span>
                       <div class='chip-icons'>

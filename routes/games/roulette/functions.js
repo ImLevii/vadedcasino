@@ -10,7 +10,16 @@ const TRIPLE_GREEN_BONUS_SETTING_ID = 'rouletteTripleGreenBonusPot';
 const TRIPLE_GREEN_STREAK = 3;
 
 function getColorsMultipliers() {
-    return getGameConfig('roulette', 'colorsMultipliers', {0:14,1:2,2:2,3:7});
+    const configured = getGameConfig('roulette', 'colorsMultipliers', {0:14,1:2,2:2,3:7}) || {};
+
+    return {
+        // Enforced mechanics
+        0: 14,
+        3: 7,
+        // Keep standard colors at 2x unless explicitly set to a valid positive number
+        1: Number(configured[1]) > 0 ? Number(configured[1]) : 2,
+        2: Number(configured[2]) > 0 ? Number(configured[2]) : 2
+    };
 }
 
 function resultToColor(result) {

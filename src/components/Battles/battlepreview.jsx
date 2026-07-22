@@ -165,16 +165,20 @@ function BattlePreview(props) {
               </div>
             </div>
 
-            <div class='cases'>
-              <For each={props?.battle?.rounds}>{(c, index) => (
-                <div class='case-tile'>
-                  <img
-                    src={resolveImageSrc(getCase(c?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
-                    alt={getCase(c?.caseId)?.name || 'Battle case'}
-                    onError={useImageFallback}
-                  />
-                </div>
-              )}</For>
+            <div class='cases-track'>
+              <div class='marker marker-top'/>
+              <div class='marker marker-bottom'/>
+              <div class='cases'>
+                <For each={props?.battle?.rounds}>{(c, index) => (
+                  <div class='case-tile'>
+                    <img
+                      src={resolveImageSrc(getCase(c?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
+                      alt={getCase(c?.caseId)?.name || 'Battle case'}
+                      onError={useImageFallback}
+                    />
+                  </div>
+                )}</For>
+              </div>
             </div>
           </div>
         </div>
@@ -183,21 +187,21 @@ function BattlePreview(props) {
       <style jsx>{`
         .battle-preview-container {
           width: 100%;
-          min-height: 120px;
+          min-height: 132px;
 
           display: flex;
           align-items: stretch;
           gap: 10px;
-          padding: 10px;
+          padding: 12px;
           box-sizing: border-box;
 
-          background: linear-gradient(180deg, rgba(17, 22, 32, 0.95), rgba(10, 14, 22, 0.98));
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          border-radius: 10px;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 30px rgba(0,0,0,0.2);
+          background: #141922;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 8px;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
           position: relative;
           overflow: hidden;
-          transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
+          transition: border-color .2s ease, transform .2s ease;
         }
         
         .battle-preview-container::before {
@@ -207,37 +211,36 @@ function BattlePreview(props) {
           left: 0;
           right: 0;
           height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(31, 214, 95, 0.06), transparent);
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
           pointer-events: none;
           z-index: 1;
         }
         
         .battle-preview-container:hover {
-          border-color: rgba(31, 214, 95, 0.15);
-          transform: translateY(-2px);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 14px 36px rgba(0,0,0,0.25), 0 0 0 1px rgba(31, 214, 95, 0.05);
+          border-color: rgba(255, 255, 255, 0.12);
+          transform: translateY(-1px);
         }
 
         .left-col {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          gap: 8px;
-          min-width: 232px;
+          gap: 10px;
+          min-width: 336px;
           flex-shrink: 0;
         }
 
         .slots-box {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 7px;
 
-          background: linear-gradient(180deg, rgba(8, 12, 18, 0.95), rgba(5, 8, 13, 0.98));
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 8px;
-          padding: 6px 9px;
+          background: #0f131a;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 4px;
+          padding: 8px 11px;
           flex: 1;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+          box-shadow: none;
           overflow-x: auto;
           scrollbar-width: none;
         }
@@ -253,23 +256,22 @@ function BattlePreview(props) {
           justify-content: center;
 
           border-radius: 8px;
-          background: radial-gradient(75% 75% at 50% 50%, rgba(31, 214, 95, 0.08), rgba(23, 28, 38, 0.9));
-          border: 1px solid rgba(31, 214, 95, 0.24);
-          box-shadow: inset 0 0 12px rgba(31, 214, 95, 0.08), 0 2px 6px rgba(0,0,0,0.2);
+          background: #1d232e;
+          border: 1px solid rgba(255,255,255,0.08);
+          box-shadow: none;
           overflow: hidden;
           transition: all .25s ease;
         }
         
         .slot:has(> :not(svg)) {
-          border-color: rgba(31, 214, 95, 0.35);
-          background: radial-gradient(75% 75% at 50% 50%, rgba(31, 214, 95, 0.14), rgba(23, 28, 38, 0.95));
-          box-shadow: inset 0 0 18px rgba(31, 214, 95, 0.14), 0 3px 8px rgba(0,0,0,0.26);
+          border-color: rgba(255,255,255,0.12);
+          background: #1f2531;
         }
         
         .slot:empty, .slot:has(svg) {
-          background: rgba(23, 28, 38, 0.7);
-          border-style: dashed;
-          border-color: rgba(31, 214, 95, 0.18);
+          background: #171c26;
+          border-style: solid;
+          border-color: rgba(255,255,255,0.08);
         }
 
         .slot:has(svg):hover {
@@ -278,7 +280,7 @@ function BattlePreview(props) {
         }
 
         .slot svg {
-          filter: drop-shadow(0 0 5px rgba(31, 214, 95, 0.55));
+          opacity: .8;
         }
 
         .lum {
@@ -287,7 +289,7 @@ function BattlePreview(props) {
         }
 
         .sep {
-          color: #4a5261;
+          color: #5f6878;
           font-family: "Geogrotesque Wide", sans-serif;
           font-size: 12px;
           font-weight: 700;
@@ -301,7 +303,7 @@ function BattlePreview(props) {
         .bottom-row {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
         }
 
         .drops-box {
@@ -310,13 +312,13 @@ function BattlePreview(props) {
 
           display: flex;
           align-items: center;
-          gap: 5px;
-          padding: 0 8px;
+          gap: 6px;
+          padding: 0 10px;
 
-          background: linear-gradient(180deg, rgba(8, 12, 18, 0.95), rgba(5, 8, 13, 0.98));
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 8px;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+          background: #10151d;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 4px;
+          box-shadow: none;
 
           font-family: "Geogrotesque Wide", sans-serif;
           font-size: 12px;
@@ -325,7 +327,7 @@ function BattlePreview(props) {
         }
 
         .battle-preview-container:hover .drops-box {
-          border-color: rgba(31, 214, 95, 0.12);
+          border-color: rgba(255,255,255,0.1);
         }
 
         .drops-label {
@@ -347,7 +349,7 @@ function BattlePreview(props) {
 
         .action-btn {
           height: 34px;
-          padding: 0 12px;
+          padding: 0 13px;
 
           display: flex;
           align-items: center;
@@ -355,10 +357,10 @@ function BattlePreview(props) {
           gap: 5px;
 
           outline: unset;
-          border-radius: 8px;
-          background: linear-gradient(180deg, rgba(30, 36, 47, 0.9), rgba(22, 27, 37, 0.95));
-          border: 1px solid rgba(255, 255, 255, 0.07);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+          border-radius: 4px;
+          background: #1f2530;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          box-shadow: none;
 
           color: #c3cad6;
           font-family: "Geogrotesque Wide", sans-serif;
@@ -373,28 +375,28 @@ function BattlePreview(props) {
 
         .action-btn:hover {
           color: #FFF;
-          border-color: rgba(31, 214, 95, 0.4);
-          background: rgba(31, 214, 95, 0.07);
+          border-color: rgba(255,255,255,0.14);
+          background: #242b37;
           transform: translateY(-1px);
-          box-shadow: 0 0 16px rgba(31, 214, 95, 0.12);
+          box-shadow: none;
         }
 
         .action-btn.join {
-          background: linear-gradient(180deg, #1fd65f 0%, #0db950 100%);
-          border: 1px solid rgba(75,242,137,.4);
-          color: #04240f;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 16px rgba(31, 214, 95, 0.25), 0 2px 0 rgba(0,0,0,0.15);
+          background: #1f2530;
+          border: 1px solid rgba(255,255,255,0.08);
+          color: #c3cad6;
+          box-shadow: none;
         }
 
         .action-btn.join:hover {
-          background: linear-gradient(180deg, #45e57f 0%, #1fd65f 100%);
+          background: #242b37;
           transform: translateY(-1px);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 0 22px rgba(31, 214, 95, 0.4), 0 2px 0 rgba(0,0,0,0.15);
+          box-shadow: none;
         }
 
         .action-btn.join:active {
           transform: translateY(0);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 0 12px rgba(31, 214, 95, 0.2);
+          box-shadow: none;
         }
 
         .cases-panel {
@@ -403,32 +405,33 @@ function BattlePreview(props) {
 
           display: flex;
           gap: 8px;
-          padding: 8px;
+          padding: 0;
           box-sizing: border-box;
 
-          background: linear-gradient(180deg, rgba(18, 22, 32, 0.92), rgba(12, 16, 24, 0.96));
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 8px;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+          background: transparent;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
         }
 
         .panel-side {
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          gap: 6px;
+          gap: 8px;
           flex-shrink: 0;
         }
 
         .inspect {
-          height: 32px;
+          height: 44px;
+          width: 188px;
           padding: 0 16px;
 
           outline: unset;
-          border-radius: 6px;
-          background: linear-gradient(180deg, rgba(30, 36, 47, 0.9), rgba(22, 27, 37, 0.95));
+          border-radius: 4px;
+          background: #1f2530;
           border: 1px solid rgba(255, 255, 255, 0.07);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+          box-shadow: none;
 
           color: #c3cad6;
           font-family: "Geogrotesque Wide", sans-serif;
@@ -442,32 +445,32 @@ function BattlePreview(props) {
 
         .inspect:hover {
           color: #FFF;
-          border-color: rgba(31, 214, 95, 0.35);
-          background: rgba(31, 214, 95, 0.07);
+          border-color: rgba(255,255,255,0.14);
+          background: #242b37;
           transform: translateY(-1px);
-          box-shadow: 0 0 14px rgba(31, 214, 95, 0.1);
+          box-shadow: none;
         }
 
         .mode-chips {
           display: flex;
-          gap: 4px;
+          gap: 7px;
         }
 
         .chip {
-          width: 28px;
-          height: 28px;
+          width: 40px;
+          height: 40px;
 
           display: flex;
           align-items: center;
           justify-content: center;
 
-          border-radius: 5px;
-          background: rgba(30, 36, 47, 0.8);
+          border-radius: 6px;
+          background: #1d2330;
           border: 1px solid rgba(255, 255, 255, 0.06);
 
           color: #8b92a0;
           font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 8px;
+          font-size: 9px;
           font-weight: 700;
           transition: all .2s ease;
         }
@@ -479,8 +482,8 @@ function BattlePreview(props) {
 
         .chip.text {
           width: auto;
-          padding: 0 6px;
-          font-size: 9px;
+          padding: 0 11px;
+          font-size: 10px;
         }
 
         .chip.crazy {
@@ -504,13 +507,41 @@ function BattlePreview(props) {
           border-color: rgba(31, 214, 95, 0.3);
         }
 
+        .cases-track {
+          flex: 1;
+          min-width: 0;
+          position: relative;
+          background: #10151d;
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 7px;
+          padding: 7px;
+          box-sizing: border-box;
+          overflow: hidden;
+        }
+
+        .marker {
+          position: absolute;
+          left: 50%;
+          width: 10px;
+          height: 2px;
+          transform: translateX(-50%);
+          background: #1fd65f;
+          box-shadow: 0 0 8px rgba(31,214,95,.45);
+          border-radius: 999px;
+          z-index: 3;
+          pointer-events: none;
+        }
+
+        .marker-top { top: 3px; }
+        .marker-bottom { bottom: 3px; }
+
         .cases {
           flex: 1;
           min-width: 0;
 
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
 
           overflow-x: auto;
           scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
@@ -518,37 +549,37 @@ function BattlePreview(props) {
         }
 
         .case-tile {
-          width: 78px;
-          height: 78px;
+          width: 94px;
+          height: 74px;
           flex-shrink: 0;
 
           display: flex;
           align-items: center;
           justify-content: center;
 
-          border-radius: 8px;
-          background: linear-gradient(180deg, rgba(22, 28, 38, 0.95), rgba(15, 20, 28, 0.98));
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+          border-radius: 6px;
+          background: #1a202b;
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          box-shadow: none;
           transition: all .25s ease;
         }
 
         .case-tile:hover {
-          border-color: rgba(31, 214, 95, 0.35);
-          transform: scale(1.04) translateY(-2px);
-          box-shadow: 0 0 20px rgba(31, 214, 95, 0.16), inset 0 1px 0 rgba(255,255,255,0.05);
+          border-color: rgba(255,255,255,0.14);
+          transform: translateY(-1px);
+          box-shadow: none;
         }
 
         .case-tile img {
-          max-width: 68px;
-          max-height: 68px;
+          max-width: 74px;
+          max-height: 60px;
           object-fit: contain;
-          filter: drop-shadow(0 8px 12px rgba(0,0,0,.35));
+          filter: drop-shadow(0 8px 12px rgba(0,0,0,.32));
           transition: filter .25s ease;
         }
 
         .case-tile:hover img {
-          filter: drop-shadow(0 10px 16px rgba(31,214,95,.12)) drop-shadow(0 8px 12px rgba(0,0,0,.35));
+          filter: drop-shadow(0 8px 12px rgba(0,0,0,.38));
         }
 
         .case-tile img.fallback {
@@ -580,6 +611,11 @@ function BattlePreview(props) {
           .left-col {
             min-width: 0;
           }
+
+          .inspect {
+            width: 136px;
+            height: 38px;
+          }
         }
 
         @media only screen and (max-width: 560px) {
@@ -588,10 +624,10 @@ function BattlePreview(props) {
           .drops-box { min-width: 0; }
           .cases-panel { flex-direction: column; }
           .panel-side { flex-direction: row; align-items: center; }
-          .inspect { padding: 0 18px; }
+          .inspect { width: auto; padding: 0 18px; }
           .cases { width: 100%; }
-          .case-tile { width: 82px; height: 82px; }
-          .case-tile img { max-width: 72px; max-height: 72px; }
+          .case-tile { width: 84px; height: 70px; }
+          .case-tile img { max-width: 66px; max-height: 54px; }
         }
       `}</style>
     </>

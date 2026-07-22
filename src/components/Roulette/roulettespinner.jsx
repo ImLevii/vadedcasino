@@ -4,7 +4,9 @@ import RouletteNumbers from "./roulettenumbers";
 import {useWebsocket} from "../../contexts/socketprovider";
 import IndicatorLine from "../IndicatorLine/indicatorline";
 
-const NUMBERS = [1, 14, 2, 13, 3, 12, 4, 0, 11, 5, 10, 6, 9, 7, 8]
+// Keep bait numbers adjacent to green so the spinner visually lands with bait
+// slots flanking green on both sides.
+const NUMBERS = [1, 14, 2, 13, 3, 12, 4, 11, 5, 10, 6, 9, 7, 0, 8]
 
 function RouletteSpinner(props) {
 
@@ -78,7 +80,6 @@ function RouletteSpinner(props) {
                   pulse={false}
                   style={{ position: 'absolute', left: '50%', bottom: '30px', transform: 'translateX(-50%)', 'z-index': 4 }}
                 />
-                <div class='center-glow'/>
                 <div class='fade-left'/>
                 <div class='fade-right'/>
                 <div class='spinner-container'>
@@ -131,20 +132,6 @@ function RouletteSpinner(props) {
                 border-radius: 0 12px 0 0;
               }
 
-              /* Center column glow */
-              .center-glow {
-                position: absolute;
-                left: 50%;
-                transform: translateX(-42px);
-                width: 84px;
-                height: 125px;
-                z-index: 1;
-                pointer-events: none;
-                background: rgba(31, 214, 95, 0.04);
-                border-left: 1px solid rgba(31, 214, 95, 0.2);
-                border-right: 1px solid rgba(31, 214, 95, 0.2);
-              }
-              
               .spinner-container {
                 width: 100%;
                 height: 125px;

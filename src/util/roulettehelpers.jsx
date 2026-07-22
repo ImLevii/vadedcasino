@@ -38,11 +38,11 @@ export const ROULETTE_MULTIPLIERS = {
 }
 
 export function betColorToLabel(color) {
-    if (color === 'bait') return 'DOUBLE'
+    if (color === 'bait') return 'BAIT'
     return String(color || '').toUpperCase()
 }
 
 export function betColorToDisplayName(color) {
-    if (color === 'bait') return 'Double'
+    if (color === 'bait') return 'Bait'
     return String(color || '').charAt(0).toUpperCase() + String(color || '').slice(1)
 }
