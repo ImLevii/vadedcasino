@@ -10,11 +10,11 @@ const MAX_ROLL = 100000;
 const BACKUP_DIR = path.join(__dirname, '..', 'database', 'backups');
 
 const CASE_TIERS = [
-    { name: 'CS Starter Case', slug: 'cs-starter', min: 0.01, max: 2.5, limit: 12, markup: 1.2 },
-    { name: 'CS Field-Tested Case', slug: 'cs-field-tested', min: 2.5, max: 10, limit: 12, markup: 1.18 },
-    { name: 'CS Classified Case', slug: 'cs-classified', min: 10, max: 50, limit: 12, markup: 1.16 },
-    { name: 'CS Covert Case', slug: 'cs-covert', min: 50, max: 250, limit: 12, markup: 1.14 },
-    { name: 'CS High Roller Case', slug: 'cs-high-roller', min: 250, max: Infinity, limit: 12, markup: 1.12 }
+    { name: 'CS Starter Case', slug: 'cs-starter', min: 0.01, max: 2.5, limit: 12, markup: 1.2, img: '/public/cases/business-case.png' },
+    { name: 'CS Field-Tested Case', slug: 'cs-field-tested', min: 2.5, max: 10, limit: 12, markup: 1.18, img: '/public/cases/glass-case.png' },
+    { name: 'CS Classified Case', slug: 'cs-classified', min: 10, max: 50, limit: 12, markup: 1.16, img: '/public/cases/neon-case.png' },
+    { name: 'CS Covert Case', slug: 'cs-covert', min: 50, max: 250, limit: 12, markup: 1.14, img: '/public/cases/top-secret-case.png' },
+    { name: 'CS High Roller Case', slug: 'cs-high-roller', min: 250, max: Infinity, limit: 12, markup: 1.12, img: '/public/cases/the-immortal-case.png' }
 ];
 
 function hasFlag(name, flag) {
@@ -77,7 +77,7 @@ function buildCases(catalog) {
         return {
             name: tier.name,
             slug: tier.slug,
-            img: items[items.length - 1]?.img || items[0]?.img || null,
+            img: tier.img,
             price: Math.max(1, roundDecimal(ev * tier.markup)),
             items
         };

@@ -9,6 +9,7 @@ import {Title} from "@solidjs/meta";
 import {resolveImageSrc} from "../util/image";
 import {playGameSFX} from "../util/sound";
 import IndicatorLine from "../components/IndicatorLine/indicatorline";
+import Avatar from "../components/Level/avatar";
 
 function Battle(props) {
 
@@ -210,6 +211,11 @@ function Battle(props) {
             .reduce((sum, item) => sum + (item?.price || 0), 0)
     }
 
+    function getWinningPlayers() {
+        if (!battle() || state() !== 'WINNERS') return []
+        return battle()?.players?.filter((p, idx) => Math.floor(idx / battle()?.playersPerTeam) === winnerTeam()) || []
+    }
+
     return (
         <>
             <Title>Cosmic Luck | Battle</Title>
@@ -328,29 +334,78 @@ function Battle(props) {
                                 />
                             }</For>
 
-                            {/* Center case display */}
+                            {/* Center case reel — mirrors csgoluck.com/case-battle center rail */}
                             <Show when={players() > 1}>
                               <div class='center-display'>
-                                <div class='center-vline'/>
-                                <div class='center-dashes'>
-                                  <span/><span/><span/>
-                                </div>
-                                <img
-                                  class='center-case-img'
-                                  src={resolveImageSrc(
-                                    getCase(rounds()?.[Math.max(0, round() - 1)]?.caseId)?.img,
-                                    '/assets/logo/cosmic-luck-logo.png'
-                                  )}
-                                  alt={getCase(rounds()?.[Math.max(0, round() - 1)]?.caseId)?.name || 'Case'}
-                                  onError={useImageFallback}
-                                />
-                                <div class='center-footer'>
-                                  <div class='center-price'>
-                                    <img src='/assets/chips/chip-green.png' height='14' width='14' alt=''/>
-                                    <span>{(getCase(rounds()?.[Math.max(0, round() - 1)]?.caseId)?.price || 0).toFixed(2)}</span>
+                                <Show when={state() === 'WINNERS'} fallback={
+                                  <>
+                                    <div class='center-dashes'>
+                                      <span/><span/><span/><span/><span/>
+                                    </div>
+
+                                    <div class='reel'>
+                                      <div class='reel-bar left'/>
+                                      <div class='reel-bar right'/>
+
+                                      <div class='reel-case dim'>
+                                        <Show when={rounds()?.[Math.max(0, round() - 2)]}>
+                                          <img
+                                            src={resolveImageSrc(getCase(rounds()?.[Math.max(0, round() - 2)]?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
+                                            alt=''
+                                            onError={useImageFallback}
+                                          />
+                                        </Show>
+                                      </div>
+
+                                      <div class='reel-case current'>
+                                        <img
+                                          src={resolveImageSrc(
+                                            getCase(rounds()?.[Math.max(0, round() - 1)]?.caseId)?.img,
+                                            '/assets/logo/cosmic-luck-logo.png'
+                                          )}
+                                          alt={getCase(rounds()?.[Math.max(0, round() - 1)]?.caseId)?.name || 'Case'}
+                                          onError={useImageFallback}
+                                        />
+                                      </div>
+
+                                      <div class='reel-case dim'>
+                                        <Show when={rounds()?.[round()]}>
+                                          <img
+                                            src={resolveImageSrc(getCase(rounds()?.[round()]?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
+                                            alt=''
+                                            onError={useImageFallback}
+                                          />
+                                        </Show>
+                                      </div>
+                                    </div>
+
+                                    <div class='center-footer'>
+                                      <div class='center-price'>
+                                        <img src='/assets/chips/chip-green.png' height='14' width='14' alt=''/>
+                                        <span>{(getCase(rounds()?.[Math.max(0, round() - 1)]?.caseId)?.price || 0).toFixed(2)}</span>
+                                      </div>
+                                      <span class='center-name'>{getCase(rounds()?.[Math.max(0, round() - 1)]?.caseId)?.name || ''}</span>
+                                    </div>
+                                  </>
+                                }>
+                                  <div class='winner-callout'>
+                                    <span class='winner-label'>Winner</span>
+                                    <div class='winner-avatars'>
+                                      <For each={getWinningPlayers()}>{(p) => (
+                                        <Avatar height='40' id={p?.id} xp={p?.xp || 0}/>
+                                      )}</For>
+                                    </div>
+                                    <div class='winner-names'>
+                                      <For each={getWinningPlayers()}>{(p, i) => (
+                                        <span class='winner-name'>{p?.username || 'Bot'}{i() < getWinningPlayers().length - 1 ? ', ' : ''}</span>
+                                      )}</For>
+                                    </div>
+                                    <div class='winner-amount'>
+                                      <img src='/assets/chips/chip-green.png' height='14' width='14' alt=''/>
+                                      <span>{getTeamTotal(winnerTeam()).toFixed(2)}</span>
+                                    </div>
                                   </div>
-                                  <span class='center-name'>{getCase(rounds()?.[Math.max(0, round() - 1)]?.caseId)?.name || ''}</span>
-                                </div>
+                                </Show>
                               </div>
                             </Show>
 
@@ -703,7 +758,7 @@ function Battle(props) {
                 box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
               }
 
-              /* Center case display */
+              /* Center case reel — mirrors csgoluck.com/case-battle center rail */
               .center-display {
                 width: 176px;
                 flex-shrink: 0;
@@ -714,29 +769,13 @@ function Battle(props) {
                 gap: 10px;
                 position: relative;
                 background: #0c111a;
-                padding: 22px 12px 18px;
+                padding: 18px 12px 18px;
                 box-sizing: border-box;
                 border-left: 1px solid rgba(31,214,95,0.18);
                 border-right: 1px solid rgba(31,214,95,0.18);
               }
 
-              .center-vline {
-                position: absolute;
-                left: 50%;
-                top: 0;
-                bottom: 0;
-                width: 2px;
-                transform: translateX(-50%);
-                background: linear-gradient(to bottom, transparent 0%, rgba(31,214,95,0.65) 18%, rgba(31,214,95,0.65) 82%, transparent 100%);
-                pointer-events: none;
-                z-index: 0;
-              }
-
               .center-dashes {
-                position: absolute;
-                top: 10px;
-                left: 50%;
-                transform: translateX(-50%);
                 display: flex;
                 gap: 4px;
                 z-index: 2;
@@ -750,12 +789,56 @@ function Battle(props) {
                 box-shadow: 0 0 6px rgba(31,214,95,0.5);
               }
 
-              .center-case-img {
-                width: 116px;
-                height: 116px;
-                object-fit: contain;
+              .reel {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+                position: relative;
+                padding: 0 10px;
+              }
+
+              .reel-bar {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                border-radius: 999px;
+                background: linear-gradient(to bottom, transparent 0%, rgba(31,214,95,0.65) 20%, rgba(31,214,95,0.65) 80%, transparent 100%);
+                pointer-events: none;
+                z-index: 0;
+              }
+
+              .reel-bar.left { left: 0; }
+              .reel-bar.right { right: 0; }
+
+              .reel-case {
                 position: relative;
                 z-index: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              }
+
+              .reel-case img {
+                object-fit: contain;
+              }
+
+              .reel-case.dim {
+                width: 64px;
+                height: 48px;
+                opacity: 0.32;
+                filter: grayscale(0.4);
+              }
+
+              .reel-case.dim img {
+                width: 52px;
+                height: 40px;
+              }
+
+              .reel-case.current img {
+                width: 108px;
+                height: 108px;
                 filter: drop-shadow(0 6px 24px rgba(0,0,0,0.55));
               }
 
@@ -788,6 +871,64 @@ function Battle(props) {
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
+              }
+
+              .winner-callout {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+              }
+
+              .winner-label {
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-size: 10px;
+                font-weight: 800;
+                letter-spacing: 0.6px;
+                text-transform: uppercase;
+                color: #1fd65f;
+              }
+
+              .winner-avatars {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+              }
+
+              .winner-avatars :global(img) {
+                border-radius: 50%;
+                border: 2px solid rgba(31,214,95,0.5);
+                box-shadow: 0 0 12px rgba(31,214,95,0.35);
+              }
+
+              .winner-names {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: center;
+                gap: 2px;
+                max-width: 150px;
+              }
+
+              .winner-name {
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-size: 11px;
+                font-weight: 700;
+                color: #dbe4f2;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+
+              .winner-amount {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-size: 14px;
+                font-weight: 800;
+                color: #1fd65f;
               }
 
               /* Team Totals Bar */
