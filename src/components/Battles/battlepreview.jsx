@@ -71,12 +71,13 @@ function BattlePreview(props) {
     }))
   }
 
-  function getMarkerLeft() {
+  function getCasesOffset() {
     const rounds = props?.battle?.rounds || []
-    if (!rounds.length) return 52
+    if (!rounds.length) return 0
+    if (state() !== 'rolling') return 0
 
     const idx = currentRoundIndex()
-    return 52 + (idx * 97)
+    return -(idx * 97)
   }
 
   return (
@@ -183,9 +184,9 @@ function BattlePreview(props) {
             </div>
 
             <div class='cases-track'>
-              <div class='marker marker-top' style={{ left: `${getMarkerLeft()}px` }}/>
-              <div class='marker marker-bottom' style={{ left: `${getMarkerLeft()}px` }}/>
-              <div class='cases'>
+              <div class='marker marker-top'/>
+              <div class='marker marker-bottom'/>
+              <div class='cases' style={{ transform: `translate(${getCasesOffset()}px, -50%)` }}>
                 <For each={visibleRounds()}>{(c) => (
                   <div class={'case-tile ' + (c._view === 'current' ? 'live' : c._view === 'past' ? 'past' : 'next')}>
                     <img
@@ -528,7 +529,6 @@ function BattlePreview(props) {
           border-radius: 999px;
           z-index: 3;
           pointer-events: none;
-          transition: left .35s cubic-bezier(.2,.8,.2,1);
         }
 
         .marker-top { top: 3px; }
@@ -543,6 +543,7 @@ function BattlePreview(props) {
           left: 6px;
           top: 50%;
           transform: translateY(-50%);
+          transition: transform .35s cubic-bezier(.2,.8,.2,1);
         }
 
         .case-tile {
