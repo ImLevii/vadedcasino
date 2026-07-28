@@ -1798,13 +1798,6 @@ function AdminCases() {
                 font-weight: 700;
               }
 
-              .grid {
-                margin-top: 8px;
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-              }
-
               .versions {
                 margin-top: 14px;
               }
@@ -1847,7 +1840,7 @@ function AdminCases() {
                   grid-template-columns: 1fr;
                 }
 
-                .form-grid, .grid {
+                .form-grid {
                   grid-template-columns: 1fr;
                 }
 

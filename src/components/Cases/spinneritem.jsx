@@ -214,11 +214,6 @@ function SpinnerItem(props) {
                                 object-fit: contain;
                             }
 
-              .winning-item .card-bg {
-                opacity: 1;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 24px -4px var(--rarity, #A9B5D2);
-              }
-
                             .item-meta {
                                 position: absolute;
                                 left: 10px;

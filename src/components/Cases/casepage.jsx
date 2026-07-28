@@ -510,19 +510,6 @@ function CasePage(props) {
           transition: all .2s;
         }
 
-        .provably-btn {
-          color: #1fd65f;
-          border: 1px solid rgba(31, 214, 95, 0.25);
-          background: rgba(31, 214, 95, 0.07);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
-        }
-
-        .provably-btn:hover {
-          background: rgba(31, 214, 95, 0.14);
-          border-color: rgba(31, 214, 95, 0.4);
-          transform: translateY(-1px);
-        }
-
         .share-btn {
           color: #8b92a0;
           border: 1px solid rgba(255,255,255,0.07);
