@@ -305,6 +305,10 @@ function CreateBattle(props) {
                             onClick={() => changeGamemode('crazy')}>
                         CRAZY MODE
                     </button>
+                    <button class={'setting ' + (gamemode() === 'casual' ? 'active' : '')}
+                            onClick={() => changeGamemode('casual')}>
+                        CASE
+                    </button>
                     <button disabled={players() === '2v2'} class={'setting ' + (gamemode() === 'group' ? 'active' : '')}
                             onClick={() => changeGamemode('group')}>
                         GROUP MODE

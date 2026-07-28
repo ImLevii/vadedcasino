@@ -1,16 +1,15 @@
-import GreenCount from "../Count/greencount";
 import {createEffect, createSignal, For} from "solid-js";
 import Avatar from "../Level/avatar";
 import {getCents} from "../../util/balance";
 import {A, useNavigate} from "@solidjs/router";
 import {authedAPI} from "../../util/api";
-import ActiveGame from "../Loader/activegame";
 import {resolveImageSrc} from "../../util/image";
 
 function BattlePreview(props) {
 
   const navigate = useNavigate()
   const [state, setState] = createSignal('waiting')
+  const [joining, setJoining] = createSignal(false)
 
   createEffect(() => {
     if (state() === 'finished') return
@@ -21,16 +20,14 @@ function BattlePreview(props) {
 
   function getType() {
     if (props?.battle?.gamemode === 'group') return 'Group'
+    if (props?.battle?.gamemode === 'crazy') return 'Crazy'
+    if (props?.battle?.gamemode === 'casual') return 'Case'
+    if (props?.battle?.gamemode === 'standard') return 'Standard'
     if (props?.battle?.playersPerTeam === 2 && props?.battle?.teams === 2) return '2v2'
     if (props?.battle?.playersPerTeam === 1 && props?.battle?.teams === 4) return '1v1v1v1'
     if (props?.battle?.playersPerTeam === 1 && props?.battle?.teams === 3) return '1v1v1'
-    if (props?.battle?.playersPerTeam === 1 && props?.battle?.teams === 2) return '1v1'
-    return Array(props?.battle?.teams).map(e => props?.battle?.playersPerTeam).join('v')
-  }
-
-  function getColor(team) {
-    if (props?.battle?.gamemode !== 'group' && props?.battle?.playersPerTeam === 2) return team === 0 ? 'blueteam' : 'yellowteam'
-    return 'purple'
+    if (props?.battle?.playersPerTeam === 1 && props?.battle?.teams === 1) return '1v1'
+    return Array(props?.battle?.teams).fill(props?.battle?.playersPerTeam).join('v')
   }
 
   function getCase(id) {
@@ -38,11 +35,45 @@ function BattlePreview(props) {
   }
 
   function getFirstAvailableSlot() {
-    return props?.battle?.players?.findIndex(u => u === null) + 1
+    return props?.battle?.players?.findIndex(user => user === null) + 1
   }
 
-  function hasLost(index) {
-    return (index + 1) !== props?.battle?.winnerTeam && state() === 'finished'
+  function maxPlayers() {
+    return (props?.battle?.playersPerTeam || 0) * (props?.battle?.teams || 0)
+  }
+
+  function filledSlots() {
+    return props?.battle?.players?.filter(Boolean).length || 0
+  }
+
+  function isFull() {
+    return maxPlayers() > 0 && filledSlots() >= maxPlayers()
+  }
+
+  function potValue() {
+    return Number(props?.battle?.entryPrice || 0) * maxPlayers()
+  }
+
+  function statusKind() {
+    if (state() === 'rolling') return 'live'
+    if (state() === 'finished') return 'ended'
+    if (isFull()) return 'full'
+    return 'starting'
+  }
+
+  function statusText() {
+    if (state() === 'rolling') return 'Live'
+    if (state() === 'finished') return 'Ended'
+    if (isFull()) return 'Full'
+    return 'Starting'
+  }
+
+  function battleHref() {
+    return `/battle/${props.battle.id}${props?.battle?.privKey ? `?pk=${props?.battle?.privKey}` : ''}`
+  }
+
+  function previewCases() {
+    return (props?.battle?.rounds || []).slice(0, 3)
   }
 
   function useImageFallback(event) {
@@ -51,604 +82,323 @@ function BattlePreview(props) {
     event.currentTarget.classList.add('fallback')
   }
 
-  function currentRoundIndex() {
-    const rounds = props?.battle?.rounds || []
-    if (!rounds.length) return 0
+  async function joinBattle() {
+    const slot = getFirstAvailableSlot()
+    if (!slot || joining()) return
 
-    const idx = Math.max(0, (props?.battle?.round || 1) - 1)
-    return Math.min(idx, rounds.length - 1)
-  }
+    setJoining(true)
+    try {
+      const res = await authedAPI(`/battles/${props?.battle?.id}/join`, 'POST', JSON.stringify({
+        slot,
+        privKey: props?.battle?.privKey
+      }), true)
 
-  function visibleRounds() {
-    const rounds = props?.battle?.rounds || []
-    if (!rounds.length) return []
-
-    const currentIdx = currentRoundIndex()
-    return rounds.map((r, idx) => ({
-      ...r,
-      _roundIndex: idx,
-      _view: idx === currentIdx ? 'current' : (idx < currentIdx ? 'past' : 'next')
-    }))
-  }
-
-  function getCasesOffset() {
-    const rounds = props?.battle?.rounds || []
-    if (!rounds.length) return 0
-    if (state() !== 'rolling') return 0
-
-    const idx = currentRoundIndex()
-    return -(idx * 97)
+      if (!res.success) return
+      props?.ws?.emit('battles:subscribe', props?.battle?.id, props?.battle?.privKey)
+      navigate(battleHref())
+    } finally {
+      setJoining(false)
+    }
   }
 
   return (
     <>
       {props?.battle && (
-        <div class='battle-preview-container'>
+        <article class={'battle-card ' + statusKind()}>
+          <div class='card-topline'>
+            <div class={'status-badge ' + statusKind()}>
+              <span class='status-indicator'/>
+              {statusText()}
+            </div>
 
-          <div class='left-col'>
-            <div class='slots-box'>
-              <For each={new Array(props?.battle?.teams)}>{(t, teamIndex) => (
-                <>
-                  <For each={new Array(props?.battle?.playersPerTeam)}>{(p, playerIndex) => {
-                    let player = props?.battle?.players[playerIndex() + (teamIndex() * props?.battle?.playersPerTeam)]
-                    return (
-                      <>
-                        <div class={'slot ' + (hasLost(teamIndex()) ? 'lum' : '')}>
-                          {player ? (
-                            <Avatar height={36} xp={player?.xp || 0} id={player?.id}/>
-                          ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                              <path d="M12 2a2 2 0 0 1 2 2v1h3a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3h3V4a2 2 0 0 1 2-2zm-4 8a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9 16h6v1.5H9V16z" fill="#1fd65f"/>
-                            </svg>
-                          )}
-                        </div>
-                        {(playerIndex() < props?.battle?.playersPerTeam - 1) && (
-                          <span class='sep'>+</span>
-                        )}
-                      </>
-                    )
-                  }}</For>
+            <div class='battle-meta'>
+              <span class='mode-badge'>{getType()}</span>
+              <span>{props?.battle?.rounds?.length || 0} rounds</span>
+            </div>
+          </div>
 
-                  {teamIndex() < props?.battle?.teams - 1 && (
-                    <span class={'sep ' + (props?.battle?.gamemode === 'group' ? '' : 'vs')}>
-                      {props?.battle?.gamemode === 'group' ? '+' : 'vs'}
-                    </span>
-                  )}
-                </>
+          <div class='case-stage'>
+            <div class='stage-grid'/>
+            <div class='case-halo'/>
+            <div class='case-stack'>
+              <For each={previewCases()}>{(round, index) => (
+                <div class={'case-art case-' + index()}>
+                  <img
+                    src={resolveImageSrc(getCase(round?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
+                    alt={getCase(round?.caseId)?.name || 'Battle case'}
+                    onError={useImageFallback}
+                  />
+                </div>
               )}</For>
             </div>
+            <span class='case-count'>{props?.battle?.rounds?.length || 0} CASES</span>
+          </div>
 
-            <div class='bottom-row'>
-              <div class='drops-box'>
-                <span class='drops-label'>Drops</span>
-                <img class='price-chip' src='/assets/chips/chip-green.png' height='17' width='17' alt=''/>
-                <span class='drops-amount'>
-                  {Math.floor(props?.battle?.entryPrice) || '0'}<span class='gray'>.{getCents(props?.battle?.entryPrice)}</span>
-                </span>
-              </div>
+          <div class='economy-row'>
+            <div class='pot-block'>
+              <span>Battle pot</span>
+              <strong>
+                <img src='/assets/chips/chip-green.png' height='22' width='22' alt=''/>
+                {Math.floor(potValue())}<small>.{getCents(potValue())}</small>
+              </strong>
+            </div>
 
-              {(!props?.battle?.startedAt && !props?.hasJoined) ? (
-                <button class='action-btn join' onClick={async () => {
-                  let res = await authedAPI(`/battles/${props?.battle?.id}/join`, 'POST', JSON.stringify({
-                    slot: getFirstAvailableSlot(),
-                    privKey: props?.battle?.privKey
-                  }), true)
-
-                  if (res.success) {
-                    let link = `/battle/${props?.battle?.id}`
-                    if (props?.battle?.privKey) {
-                      link += `?pk=${props?.battle?.privKey}`
-                    }
-
-                    props?.ws?.emit('battles:subscribe', props?.battle?.id, props?.battle?.privKey)
-                    navigate(link)
-                  }
-                }}>Join</button>
-              ) : (
-                <button class='action-btn'>
-                  <A href={`/battle/${props.battle.id}${props?.battle?.privKey ? `?pk=${props?.battle?.privKey}` : ''}`}
-                     class='gamemode-link'></A>
-                  {state() === 'finished' ? 'See Result' : (
-                    <>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="8" viewBox="0 0 13 8" fill='currentColor'>
-                        <path d="M6.5 0C4.01621 0 1.76378 1.3589 0.101718 3.56612C-0.0339061 3.74696 -0.0339061 3.99959 0.101718 4.18042C1.76378 6.3903 4.01621 7.74921 6.5 7.74921C8.98379 7.74921 11.2362 6.3903 12.8983 4.18308C13.0339 4.00225 13.0339 3.74962 12.8983 3.56878C11.2362 1.3589 8.98379 0 6.5 0ZM6.67817 6.60305C5.02941 6.70676 3.66784 5.34786 3.77156 3.69643C3.85665 2.33487 4.96026 1.23126 6.32183 1.14616C7.97059 1.04245 9.33216 2.40135 9.22844 4.05278C9.14069 5.41168 8.03708 6.51529 6.67817 6.60305ZM6.59573 5.34254C5.70753 5.39838 4.97356 4.66708 5.03206 3.77887C5.07727 3.0449 5.67296 2.45188 6.40692 2.40401C7.29513 2.34816 8.0291 3.07947 7.97059 3.96768C7.92273 4.70431 7.32704 5.29733 6.59573 5.34254Z"/>
-                      </svg>
-                      Watch
-                    </>
-                  )}
-                </button>
-              )}
+            <div class='entry-block'>
+              <span>Entry</span>
+              <strong>{Number(props?.battle?.entryPrice || 0).toFixed(2)}</strong>
             </div>
           </div>
 
-          <div class='cases-panel'>
-            <div class='panel-side'>
-              <button class='inspect'>
-                Inspect
-                <A href={`/battle/${props.battle.id}${props?.battle?.privKey ? `?pk=${props?.battle?.privKey}` : ''}`}
-                   class='gamemode-link'></A>
-              </button>
+          <div class='players-section'>
+            <div class='players-heading'>
+              <span>Players</span>
+              <strong>{filledSlots()} / {maxPlayers()}</strong>
+            </div>
 
-              <div class='mode-chips'>
-                <div class='chip icon' title={getType()}>
-                  {props?.battle?.gamemode === 'group' ? (
-                    <img src='/assets/icons/hands.svg' height='12' alt='group'/>
-                  ) : (
-                    <img src='/assets/icons/battles.svg' height='12' alt=''/>
-                  )}
+            <div class='seat-progress' style={{ '--seat-progress': `${maxPlayers() ? (filledSlots() / maxPlayers()) * 100 : 0}%` }}>
+              <span/>
+            </div>
+
+            <div class='teams'>
+              <For each={new Array(props?.battle?.teams)}>{(_, teamIndex) => (
+                <div class='team'>
+                  <For each={new Array(props?.battle?.playersPerTeam)}>{(_, playerIndex) => {
+                    const player = props?.battle?.players[playerIndex() + (teamIndex() * props?.battle?.playersPerTeam)]
+                    return (
+                      <div class={'slot ' + (player ? 'occupied' : 'available')} title={player?.username || 'Open seat'}>
+                        {player ? (
+                          <Avatar height={42} xp={player?.xp || 0} id={player?.id}/>
+                        ) : (
+                          <svg viewBox='0 0 24 24' aria-hidden='true'>
+                            <path d='M12 2a2 2 0 0 1 2 2v1h3a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3h3V4a2 2 0 0 1 2-2Zm-4 8a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm-7 6h6v1.5H9V16Z'/>
+                          </svg>
+                        )}
+                      </div>
+                    )
+                  }}</For>
+                  {teamIndex() < props?.battle?.teams - 1 && <span class='versus'>{props?.battle?.gamemode === 'group' ? '+' : 'VS'}</span>}
                 </div>
-                <div class='chip ghost'>{props?.battle?.ownerFunding > 0 ? `-${props?.battle?.ownerFunding}%` : ''}</div>
-                <div class='chip ghost'>{props?.battle?.gamemode === 'crazy' ? <img src='/assets/icons/crazy.svg' height='11' alt='crazy'/> : ''}</div>
-                <div class='chip status'>{state() === 'rolling' ? <ActiveGame/> : ''}</div>
-              </div>
-            </div>
-
-            <div class='cases-track'>
-              <div class='marker marker-top'/>
-              <div class='marker marker-bottom'/>
-              <div class='cases' style={{ transform: `translate(${getCasesOffset()}px, -50%)` }}>
-                <For each={visibleRounds()}>{(c) => (
-                  <div class={'case-tile ' + (c._view === 'current' ? 'live' : c._view === 'past' ? 'past' : 'next')}>
-                    <img
-                      src={resolveImageSrc(getCase(c?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
-                      alt={getCase(c?.caseId)?.name || 'Battle case'}
-                      onError={useImageFallback}
-                    />
-                  </div>
-                )}</For>
-              </div>
+              )}</For>
             </div>
           </div>
-        </div>
+
+          <div class='card-footer'>
+            <div class='condition-chips'>
+              {props?.battle?.ownerFunding > 0 && <span class='funded'>-{props?.battle?.ownerFunding}% funded</span>}
+              {props?.battle?.privKey && <span>Private</span>}
+              {!props?.battle?.ownerFunding && !props?.battle?.privKey && <span>Public</span>}
+            </div>
+
+            {(!props?.battle?.startedAt && !props?.hasJoined && !isFull()) ? (
+              <button class='action-btn join' type='button' onClick={joinBattle} disabled={joining()}>
+                {joining() ? 'Joining...' : 'Join Battle'}
+                <svg viewBox='0 0 24 24' aria-hidden='true'><path d='m9 18 6-6-6-6'/></svg>
+              </button>
+            ) : (
+              <button class='action-btn watch' type='button'>
+                <A class='gamemode-link' href={battleHref()}/>
+                {state() === 'finished' ? 'View Result' : 'Watch Battle'}
+                <svg viewBox='0 0 24 24' aria-hidden='true'><path d='M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z'/><circle cx='12' cy='12' r='2.5'/></svg>
+              </button>
+            )}
+          </div>
+        </article>
       )}
 
       <style jsx>{`
-        .battle-preview-container {
+        .battle-card {
           width: 100%;
-          min-height: 124px;
-
+          min-width: 0;
+          min-height: 470px;
           display: flex;
-          align-items: stretch;
-          gap: 7px;
-          padding: 7px;
+          flex-direction: column;
+          padding: 16px;
           box-sizing: border-box;
-
-          background: #141922;
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 8px;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-          position: relative;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: var(--radius-card);
+          background: linear-gradient(155deg, rgba(23, 27, 24, 0.98), rgba(11, 13, 12, 0.99));
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04), 0 14px 36px rgba(0, 0, 0, .22);
           overflow: hidden;
-          transition: border-color .2s ease, transform .2s ease;
+          position: relative;
+          isolation: isolate;
+          transition: transform .25s cubic-bezier(.22,.8,.24,1), border-color .25s ease, box-shadow .25s ease;
         }
-        
-        .battle-preview-container::before {
+
+        .battle-card::before {
           content: '';
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-          pointer-events: none;
-          z-index: 1;
-        }
-        
-        .battle-preview-container:hover {
-          border-color: rgba(255, 255, 255, 0.12);
-          transform: translateY(-1px);
+          inset: 0 0 auto;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, rgba(34, 197, 94, .8), transparent);
+          opacity: .45;
+          z-index: 3;
         }
 
-        .left-col {
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          gap: 6px;
-          min-width: 330px;
-          flex-shrink: 0;
+        .battle-card:hover {
+          transform: translateY(-5px) scale(1.006);
+          border-color: rgba(74, 222, 128, .3);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), var(--shadow-emerald), 0 22px 46px rgba(0, 0, 0, .3);
         }
 
-        .slots-box {
-          display: flex;
+        .battle-card.live::before {
+          opacity: 1;
+          animation: live-scan 2.4s ease-in-out infinite;
+        }
+
+        .card-topline,
+        .battle-meta,
+        .economy-row,
+        .players-heading,
+        .card-footer,
+        .condition-chips { display: flex; align-items: center; }
+
+        .card-topline { justify-content: space-between; gap: 12px; min-height: 27px; position: relative; z-index: 2; }
+
+        .status-badge,
+        .mode-badge,
+        .condition-chips span {
+          display: inline-flex;
           align-items: center;
-          gap: 5px;
-
-          background: #0f131a;
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          border-radius: 4px;
-          padding: 5px 8px;
-          flex: 1;
-          box-shadow: none;
-          overflow-x: auto;
-          scrollbar-width: none;
+          border: 1px solid rgba(255,255,255,.08);
+          border-radius: 999px;
+          font-size: 9px;
+          font-weight: 800;
+          text-transform: uppercase;
+          white-space: nowrap;
         }
 
-        .slots-box::-webkit-scrollbar { display: none; }
+        .status-badge { height: 26px; gap: 6px; padding: 0 10px; background: rgba(255,255,255,.035); color: #c3cbc5; }
+        .status-badge.live { color: var(--color-emerald-bright); border-color: rgba(34,197,94,.3); background: rgba(34,197,94,.09); }
+        .status-badge.full { color: var(--color-premium); border-color: rgba(246,196,83,.3); background: rgba(246,196,83,.08); }
+        .status-badge.ended { color: var(--color-copy-muted); }
+        .status-indicator { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+        .battle-meta { gap: 8px; color: var(--color-copy-muted); font-size: 9px; font-weight: 700; text-transform: uppercase; }
+        .mode-badge { height: 24px; padding: 0 9px; color: var(--color-copy); background: rgba(255,255,255,.04); }
 
-        .slot {
-          width: 34px;
-          height: 34px;
+        .case-stage {
+          height: 184px;
+          margin: 14px 0 12px;
+          border: 1px solid rgba(255,255,255,.06);
+          border-radius: 14px;
+          background: radial-gradient(circle at 50% 58%, rgba(34,197,94,.11), transparent 48%), #0b0d0c;
+          position: relative;
+          overflow: hidden;
+        }
 
+        .stage-grid {
+          position: absolute;
+          inset: 0;
+          background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+          background-size: 22px 22px;
+          mask-image: linear-gradient(to bottom, transparent, black 40%, transparent);
+        }
+
+        .case-halo { position: absolute; left: 50%; bottom: 22px; width: 190px; height: 55px; border-radius: 50%; background: rgba(34,197,94,.13); filter: blur(18px); transform: translateX(-50%); }
+        .case-stack { position: absolute; inset: 12px 22px 20px; display: flex; align-items: center; justify-content: center; }
+
+        .case-art {
+          width: 148px;
+          height: 138px;
           display: flex;
           align-items: center;
           justify-content: center;
-
-          border-radius: 5px;
-          background: #1d232e;
-          border: 1px solid rgba(255,255,255,0.08);
-          box-shadow: none;
-          overflow: hidden;
-          transition: all .25s ease;
-        }
-        
-        .slot:has(> :not(svg)) {
-          border-color: rgba(255,255,255,0.12);
-          background: #1f2531;
-        }
-        
-        .slot:empty, .slot:has(svg) {
-          background: #171c26;
-          border-style: solid;
-          border-color: rgba(255,255,255,0.08);
+          position: absolute;
+          border-bottom: 2px solid var(--case-accent, #22c55e);
+          transition: transform .28s ease, filter .28s ease;
         }
 
-        .slot:has(svg):hover {
-          border-color: rgba(31, 214, 95, 0.3);
-          background: rgba(23, 28, 38, 0.8);
-        }
+        .case-art::after { content: ''; position: absolute; right: 14px; bottom: -2px; left: 14px; height: 16px; background: var(--case-accent, #22c55e); opacity: .25; filter: blur(11px); }
+        .case-art img { width: 138px; height: 126px; object-fit: contain; filter: drop-shadow(0 14px 14px rgba(0,0,0,.5)); z-index: 1; }
+        .case-art img.fallback { width: 64px; height: 64px; opacity: .35; filter: grayscale(1); }
+        .case-0 { --case-accent: #f6c453; z-index: 3; }
+        .case-1 { --case-accent: #dc5fde; transform: translateX(-82px) rotate(-7deg) scale(.76); z-index: 1; opacity: .7; }
+        .case-2 { --case-accent: #4176ff; transform: translateX(82px) rotate(7deg) scale(.76); z-index: 2; opacity: .7; }
+        .battle-card:hover .case-0 { transform: translateY(-5px) scale(1.04); filter: drop-shadow(0 0 14px rgba(246,196,83,.16)); }
+        .battle-card:hover .case-1 { transform: translate(-88px, -2px) rotate(-9deg) scale(.78); }
+        .battle-card:hover .case-2 { transform: translate(88px, -2px) rotate(9deg) scale(.78); }
 
-        .slot svg {
-          opacity: .8;
-        }
+        .case-count { position: absolute; right: 10px; bottom: 9px; padding: 5px 7px; border-radius: 6px; background: rgba(0,0,0,.5); color: var(--color-copy-muted); font-size: 8px; font-weight: 800; }
+        .economy-row { justify-content: space-between; gap: 14px; padding-bottom: 13px; border-bottom: 1px solid rgba(255,255,255,.07); }
+        .pot-block, .entry-block { display: flex; flex-direction: column; gap: 4px; }
+        .pot-block > span, .entry-block > span { color: var(--color-copy-muted); font-size: 9px; font-weight: 800; text-transform: uppercase; }
+        .pot-block strong { display: flex; align-items: center; gap: 7px; color: var(--color-copy); font-size: 23px; line-height: 1; }
+        .pot-block strong img { filter: drop-shadow(0 0 9px rgba(34,197,94,.45)); }
+        .pot-block small { color: var(--color-copy-muted); font-size: 14px; }
+        .entry-block { align-items: flex-end; }
+        .entry-block strong { color: var(--color-emerald-bright); font-size: 14px; }
 
-        .lum {
-          filter: grayscale(1);
-          opacity: 0.35;
-        }
+        .players-section { padding: 13px 0; }
+        .players-heading { justify-content: space-between; color: var(--color-copy-muted); font-size: 9px; font-weight: 800; text-transform: uppercase; }
+        .players-heading strong { color: var(--color-copy); font-size: 10px; }
+        .seat-progress { height: 3px; margin: 7px 0 11px; border-radius: 99px; background: rgba(255,255,255,.08); overflow: hidden; }
+        .seat-progress span { display: block; width: var(--seat-progress); height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--color-emerald-deep), var(--color-emerald-bright)); box-shadow: 0 0 9px rgba(34,197,94,.55); transition: width .3s ease; }
 
-        .sep {
-          color: #5f6878;
-          font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 9px;
-          font-weight: 700;
-        }
+        .teams { display: flex; align-items: center; gap: 7px; overflow-x: auto; padding: 1px; }
+        .team { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+        .slot { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,.09); border-radius: 11px; background: #171a18; overflow: hidden; transition: border-color .2s ease, background .2s ease; }
+        .slot.available { border-style: dashed; color: rgba(74,222,128,.62); }
+        .slot.available:hover { border-color: rgba(74,222,128,.5); background: rgba(34,197,94,.08); }
+        .slot svg { width: 20px; height: 20px; fill: currentColor; }
+        .versus { margin-left: 2px; color: #6c756f; font-size: 8px; font-weight: 900; }
 
-        .sep.vs {
-          font-size: 8px;
-          text-transform: lowercase;
-        }
-
-        .bottom-row {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-
-        .drops-box {
-          flex: 1;
-          height: 28px;
-
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 0 10px;
-
-          background: #10151d;
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          border-radius: 4px;
-          box-shadow: none;
-
-          font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 9px;
-          font-weight: 700;
-          transition: border-color .2s ease;
-        }
-
-        .battle-preview-container:hover .drops-box {
-          border-color: rgba(255,255,255,0.1);
-        }
-
-        .drops-label {
-          color: #8b92a0;
-        }
-
-        .drops-amount {
-          color: #FFF;
-        }
-
-        .gray {
-          color: #8b92a0;
-        }
-
-        .price-chip {
-          object-fit: contain;
-          filter: drop-shadow(0 0 8px rgba(31,214,95,.3));
-        }
+        .card-footer { flex-direction: column; align-items: stretch; gap: 12px; margin-top: auto; }
+        .condition-chips { min-height: 20px; gap: 6px; }
+        .condition-chips span { min-height: 20px; padding: 0 7px; color: var(--color-copy-muted); font-size: 7px; }
+        .condition-chips .funded { color: var(--color-premium); border-color: rgba(246,196,83,.22); background: rgba(246,196,83,.06); }
 
         .action-btn {
-          height: 28px;
-          padding: 0 10px;
-
+          width: 100%;
+          min-height: 48px;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 5px;
-
-          outline: unset;
-          border-radius: 4px;
-          background: #1f2530;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          box-shadow: none;
-
-          color: #c3cad6;
+          gap: 8px;
+          border: 1px solid rgba(255,255,255,.1);
+          border-radius: var(--radius-control);
+          background: #1a1e1b;
+          color: var(--color-copy);
           font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 9px;
-          font-weight: 700;
-          white-space: nowrap;
-
+          font-size: 11px;
+          font-weight: 900;
           position: relative;
           cursor: pointer;
-          transition: all .2s ease;
+          transition: transform .18s ease, filter .18s ease, border-color .18s ease, box-shadow .18s ease;
         }
 
-        .action-btn:hover {
-          color: #FFF;
-          border-color: rgba(255,255,255,0.14);
-          background: #242b37;
-          transform: translateY(-1px);
-          box-shadow: none;
-        }
+        .action-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .action-btn:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.2); }
+        .action-btn.join { border-color: rgba(74,222,128,.42); background: linear-gradient(135deg, var(--color-emerald-bright), var(--color-emerald)); color: #041b0c; box-shadow: 0 8px 24px rgba(34,197,94,.23), inset 0 1px 0 rgba(255,255,255,.26); }
+        .action-btn.join:hover { filter: brightness(1.08); box-shadow: var(--shadow-emerald-strong), inset 0 1px 0 rgba(255,255,255,.3); }
+        .action-btn:disabled { cursor: wait; opacity: .7; transform: none; }
+        .action-btn.watch:hover { color: var(--color-emerald-bright); border-color: rgba(34,197,94,.32); background: rgba(34,197,94,.07); }
 
-        .action-btn.join {
-          background: #1f2530;
-          border: 1px solid rgba(255,255,255,0.08);
-          color: #c3cad6;
-          box-shadow: none;
-        }
-
-        .action-btn.join:hover {
-          background: #242b37;
-          transform: translateY(-1px);
-          box-shadow: none;
-        }
-
-        .action-btn.join:active {
-          transform: translateY(0);
-          box-shadow: none;
-        }
-
-        .cases-panel {
-          flex: 1;
-          min-width: 0;
-
-          display: flex;
-          gap: 6px;
-          padding: 0;
-          box-sizing: border-box;
-
-          background: transparent;
-          border: 0;
-          border-radius: 0;
-          box-shadow: none;
-        }
-
-        .panel-side {
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          gap: 5px;
-          flex-shrink: 0;
-        }
-
-        .inspect {
-          height: 34px;
-          width: 184px;
-          padding: 0 10px;
-
-          outline: unset;
-          border-radius: 4px;
-          background: #1f2530;
-          border: 1px solid rgba(255, 255, 255, 0.07);
-          box-shadow: none;
-
-          color: #c3cad6;
-          font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 9px;
-          font-weight: 700;
-
-          position: relative;
-          cursor: pointer;
-          transition: all .2s ease;
-        }
-
-        .inspect:hover {
-          color: #FFF;
-          border-color: rgba(255,255,255,0.14);
-          background: #242b37;
-          transform: translateY(-1px);
-          box-shadow: none;
-        }
-
-        .mode-chips {
-          display: flex;
-          gap: 4px;
-        }
-
-        .chip {
-          width: 34px;
-          height: 34px;
-
-          display: flex;
-          align-items: center;
-          justify-content: center;
-
-          border-radius: 4px;
-          background: #1d2330;
-          border: 1px solid rgba(255, 255, 255, 0.06);
-
-          color: #8b92a0;
-          font-family: "Geogrotesque Wide", sans-serif;
-          font-size: 8px;
-          font-weight: 700;
-          transition: all .2s ease;
-        }
-
-        .chip:hover {
-          border-color: rgba(31, 214, 95, 0.25);
-          background: rgba(31, 214, 95, 0.04);
-        }
-
-        .chip.ghost {
-          color: #5f6878;
-        }
-
-        .chip.status {
-          color: #8e99aa;
-        }
-
-        .cases-track {
-          flex: 1;
-          min-width: 0;
-          position: relative;
-          background: #10151d;
-          border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 5px;
-          padding: 6px;
-          box-sizing: border-box;
-          overflow: hidden;
-        }
-
-        .marker {
-          position: absolute;
-          left: 52px;
-          width: 10px;
-          height: 2px;
-          transform: translateX(-50%);
-          background: #1fd65f;
-          box-shadow: 0 0 8px rgba(31,214,95,.45);
-          border-radius: 999px;
-          z-index: 3;
-          pointer-events: none;
-        }
-
-        .marker-top { top: 3px; }
-        .marker-bottom { bottom: 3px; }
-
-        .cases {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-
-          position: absolute;
-          left: 6px;
-          top: 50%;
-          transform: translateY(-50%);
-          transition: transform .35s cubic-bezier(.2,.8,.2,1);
-        }
-
-        .case-tile {
-          width: 92px;
-          height: 72px;
-          flex-shrink: 0;
-
-          display: flex;
-          align-items: center;
-          justify-content: center;
-
-          border-radius: 4px;
-          background: #1a202b;
-          border: 1px solid rgba(255, 255, 255, 0.07);
-          box-shadow: none;
-          transition: all .25s ease;
-        }
-
-        .case-tile:hover {
-          border-color: rgba(255,255,255,0.14);
-          transform: translateY(-1px);
-          box-shadow: none;
-        }
-
-        .case-tile img {
-          width: 82px;
-          height: 62px;
-          object-fit: contain;
-        }
-
-        .case-tile.live {
-          border-color: rgba(31,214,95,.45);
-          background: #202734;
-        }
-
-        .case-tile.next {
-          opacity: .92;
-        }
-
-        .case-tile.past {
-          opacity: .72;
-        }
-
-        .case-tile.live img {
-          filter: drop-shadow(0 8px 12px rgba(0,0,0,.36));
-        }
-
-        .case-tile img {
-          max-width: 82px;
-          max-height: 62px;
-          object-fit: contain;
-          filter: drop-shadow(0 8px 12px rgba(0,0,0,.32));
-          transition: filter .25s ease;
-        }
-
-        .case-tile:hover img {
-          filter: drop-shadow(0 8px 12px rgba(0,0,0,.38));
-        }
-
-        .case-tile img.fallback {
-          width: 42px;
-          height: 42px;
-          opacity: .34;
-          filter: grayscale(1);
-        }
-
-        .cases::-webkit-scrollbar {
-          height: 3px;
-        }
-
-        .cases::-webkit-scrollbar-track {
-          background: transparent;
-        }
-
-        .cases::-webkit-scrollbar-thumb {
-          border-radius: 10px;
-          background: rgba(255, 255, 255, 0.12);
-        }
-
-        @media only screen and (max-width: 800px) {
-          .battle-preview-container {
-            flex-direction: column;
-            border-radius: 8px;
-          }
-
-          .left-col {
-            min-width: 0;
-          }
-
-          .inspect {
-            width: 148px;
-            height: 30px;
-          }
+        @keyframes live-scan {
+          0%, 100% { transform: translateX(-35%); opacity: .45; }
+          50% { transform: translateX(35%); opacity: 1; }
         }
 
         @media only screen and (max-width: 560px) {
-          .battle-preview-container { padding: 10px; gap: 10px; }
-          .bottom-row { align-items: stretch; }
-          .drops-box { min-width: 0; }
-          .cases-panel { flex-direction: column; }
-          .panel-side { flex-direction: row; align-items: center; }
-          .inspect { width: auto; padding: 0 18px; }
-          .cases { width: 100%; }
-          .case-tile { width: 80px; height: 66px; }
-          .case-tile img { max-width: 72px; max-height: 56px; }
+          .battle-card { min-height: 458px; padding: 13px; border-radius: 14px; }
+          .case-stage { height: 174px; margin-top: 12px; }
+          .case-art { width: 138px; height: 128px; }
+          .case-art img { width: 128px; height: 116px; }
+          .pot-block strong { font-size: 21px; }
+          .action-btn { min-height: 50px; }
+        }
+
+        @media (hover: none) {
+          .battle-card:hover { transform: none; }
+          .battle-card:hover .case-0 { transform: none; }
+          .battle-card:hover .case-1 { transform: translateX(-82px) rotate(-7deg) scale(.76); }
+          .battle-card:hover .case-2 { transform: translateX(82px) rotate(7deg) scale(.76); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .battle-card,
+          .case-art,
+          .seat-progress span,
+          .action-btn { transition: none; }
+          .battle-card.live::before { animation: none; }
         }
       `}</style>
     </>

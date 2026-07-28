@@ -15,6 +15,7 @@ function Battles(props) {
     const [modeFilter, setModeFilter] = createSignal('ALL')
     const [playersFilter, setPlayersFilter] = createSignal('ALL')
     const [condFilter, setCondFilter] = createSignal('ALL')
+    const [filtersOpen, setFiltersOpen] = createSignal(false)
     const [battles, setBattles] = createSignal(null, { equals: false })
     const [user] = useUser()
 
@@ -101,9 +102,12 @@ function Battles(props) {
     function getBattleMode(battle) {
         if (battle.gamemode === 'group') return 'GROUP'
         if (battle.gamemode === 'crazy') return 'CRAZY'
+        if (battle.gamemode === 'casual') return 'CASE'
+        if (battle.gamemode === 'standard') return 'STANDARD'
         if (battle.playersPerTeam === 2 && battle.teams === 2) return '2V2'
         if (battle.playersPerTeam === 1 && battle.teams === 4) return '1V1V1V1'
         if (battle.playersPerTeam === 1 && battle.teams === 3) return '1V1V1'
+        if (battle.playersPerTeam === 1 && battle.teams === 1) return '1V1'
         return '1V1'
     }
 
@@ -158,8 +162,41 @@ function Battles(props) {
             <Meta name='title' content='Battles'></Meta>
             <Meta name='description' content='Wager Coins On Cosmic Luck Battles And Win Big Versus Other Players!'></Meta>
 
-            <div class='battles-container fadein'>
-              <div class='filter-panel'>
+            <div class='battles-container'>
+              <header class='page-heading'>
+                <div>
+                  <span class='eyebrow'>Player vs player</span>
+                  <h1>Case Battles</h1>
+                  <p>Pick your lineup, claim a seat, and watch every drop land live.</p>
+                </div>
+
+                <div class='heading-actions'>
+                  <button class='mobile-filter-trigger' type='button' onClick={() => setFiltersOpen(true)} aria-label='Open battle filters'>
+                    <svg viewBox='0 0 24 24' aria-hidden='true'><path d='M4 7h16M7 12h10M10 17h4'/></svg>
+                    Filters
+                  </button>
+                  <button class='create-battle'>
+                    <img src='/assets/icons/battles.svg' height='16' alt=''/>
+                    Create Battle
+                    <A href='/battle/create' class='gamemode-link'></A>
+                  </button>
+                </div>
+              </header>
+
+              <button class={'filter-backdrop ' + (filtersOpen() ? 'visible' : '')} type='button' onClick={() => setFiltersOpen(false)} aria-label='Close battle filters'/>
+
+              <div class='battle-layout'>
+                <aside class={'filter-panel ' + (filtersOpen() ? 'open' : '')} aria-label='Battle filters'>
+                  <div class='filter-heading'>
+                    <div>
+                      <span>Refine battles</span>
+                      <strong>Filters</strong>
+                    </div>
+                    <button type='button' onClick={() => setFiltersOpen(false)} aria-label='Close battle filters'>
+                      <svg viewBox='0 0 24 24' aria-hidden='true'><path d='m6 6 12 12M18 6 6 18'/></svg>
+                    </button>
+                  </div>
+
                     <div class='filters'>
                         <div class='filter'>
                             <p class='filter-label'>State</p>
@@ -178,6 +215,7 @@ function Battles(props) {
                                 <option value='2V2'>2v2</option>
                                 <option value='1V1V1'>1v1v1</option>
                                 <option value='1V1V1V1'>1v1v1v1</option>
+                                <option value='CASE'>Case</option>
                                 <option value='GROUP'>Group</option>
                                 <option value='CRAZY'>Crazy</option>
                             </select>
@@ -212,15 +250,18 @@ function Battles(props) {
                         </div>
                     </div>
 
-                    <button class='create-battle'>
-                      <img src='/assets/icons/battles.svg' height='15' alt=''/>
-                      Create Battle
-                      <A href='/battle/create' class='gamemode-link'></A>
-                    </button>
-                </div>
+                    <button class='apply-filters' type='button' onClick={() => setFiltersOpen(false)}>Show Battles</button>
+                </aside>
 
                 {battles() ? (
                     <div class='battles'>
+                      <div class='results-heading'>
+                        <div>
+                          <span class='live-dot'/>
+                          <strong>{(getSortedBattles(battles(), toggle(), sortByPrice()) || []).length} battles</strong>
+                        </div>
+                        <span>Live updates enabled</span>
+                      </div>
                       <Show when={(getSortedBattles(battles(), toggle(), sortByPrice()) || []).length} fallback={
                         <div class='empty-battles'>
                           <img src='/assets/icons/battles.svg' alt=''/>
@@ -235,44 +276,137 @@ function Battles(props) {
                 ) : (
                     <Loader/>
                 )}
+                  </div>
             </div>
 
             <style jsx>{`
+              :global(.content:has(.battles-container)) {
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+              }
+
               .battles-container {
-                --b-panel: #111925;
-                --b-panel-soft: #182231;
-                --b-border: rgba(149, 168, 196, 0.2);
-                --b-text: #dde6f4;
-                --b-text-dim: #92a0b7;
-
                 width: 100%;
-                max-width: 1175px;
+                max-width: 1440px;
                 height: fit-content;
-
                 box-sizing: border-box;
-                padding: 14px 12px 70px;
+                padding: 26px 24px 80px;
                 margin: 0 auto;
                 position: relative;
               }
 
-              .filter-panel {
-                margin-bottom: 10px;
-                padding: 10px;
+              .page-heading {
                 display: flex;
-                align-items: flex-end;
+                align-items: center;
                 justify-content: space-between;
+                gap: 24px;
+                margin-bottom: 24px;
+              }
+
+              .eyebrow {
+                display: block;
+                margin-bottom: 5px;
+                color: var(--color-emerald-bright);
+                font-size: 10px;
+                font-weight: 800;
+                text-transform: uppercase;
+              }
+
+              .page-heading h1 {
+                margin: 0;
+                color: var(--color-copy);
+                font-size: clamp(25px, 3vw, 38px);
+                line-height: 1.05;
+                letter-spacing: 0;
+              }
+
+              .page-heading p {
+                max-width: 590px;
+                margin: 8px 0 0;
+                color: var(--color-copy-muted);
+                font-family: "Geogrotesque", sans-serif;
+                font-size: 14px;
+                line-height: 1.5;
+              }
+
+              .heading-actions {
+                display: flex;
+                align-items: center;
                 gap: 10px;
-                border: 1px solid rgba(255,255,255,.06);
-                border-radius: 8px;
-                background: #111720;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+                flex-shrink: 0;
+              }
+
+              .battle-layout {
+                display: grid;
+                grid-template-columns: 220px minmax(0, 1fr);
+                align-items: start;
+                gap: 18px;
+              }
+
+              .filter-panel {
+                position: sticky;
+                top: 18px;
+                padding: 16px;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: var(--radius-card);
+                background: linear-gradient(160deg, rgba(21, 25, 22, 0.98), rgba(12, 14, 13, 0.98));
+                box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 18px 45px rgba(0, 0, 0, 0.24);
+                z-index: 5;
+              }
+
+              .filter-heading {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding-bottom: 14px;
+                margin-bottom: 14px;
+                border-bottom: 1px solid rgba(255,255,255,.07);
+              }
+
+              .filter-heading > div {
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+              }
+
+              .filter-heading span {
+                color: var(--color-copy-muted);
+                font-size: 9px;
+                font-weight: 700;
+                text-transform: uppercase;
+              }
+
+              .filter-heading strong {
+                color: var(--color-copy);
+                font-size: 15px;
+              }
+
+              .filter-heading button {
+                display: none;
+                width: 40px;
+                height: 40px;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid rgba(255,255,255,.08);
+                border-radius: 10px;
+                background: #181b19;
+                color: var(--color-copy);
+              }
+
+              .filter-heading svg,
+              .mobile-filter-trigger svg {
+                width: 18px;
+                height: 18px;
+                fill: none;
+                stroke: currentColor;
+                stroke-width: 2;
+                stroke-linecap: round;
               }
 
               .filters {
                 display: flex;
-                gap: 6px;
-                flex-wrap: wrap;
-                flex: 1;
+                flex-direction: column;
+                gap: 12px;
               }
 
               .filter {
@@ -282,34 +416,30 @@ function Battles(props) {
               }
 
               .filter-label {
-                margin: 0 0 0 2px;
-                color: #697382;
-                font-size: 7px;
-                font-weight: 700;
+                margin: 0 0 2px 2px;
+                color: var(--color-copy-muted);
+                font-size: 9px;
+                font-weight: 800;
                 text-transform: uppercase;
               }
 
               .filter select {
-                height: 40px;
-                min-width: 132px;
-                padding: 0 26px 0 9px;
-
-                outline: unset;
-                border-radius: 6px;
-                background-color: rgba(7,10,15,.66);
-                border: 1px solid rgba(255, 255, 255, 0.06);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.025);
-
-                color: #FFF;
+                width: 100%;
+                height: 44px;
+                padding: 0 34px 0 12px;
+                border-radius: var(--radius-control);
+                background-color: #0d0f0e;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                color: var(--color-copy);
                 font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 9px;
+                font-size: 11px;
                 font-weight: 700;
-
                 cursor: pointer;
                 appearance: none;
                 background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' stroke='%238b92a0' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
                 background-repeat: no-repeat;
-                background-position: right 9px center;
+                background-position: right 12px center;
+                transition: border-color .2s ease, box-shadow .2s ease;
               }
 
               .filter select:hover {
@@ -322,27 +452,24 @@ function Battles(props) {
               }
 
               .create-battle {
-                height: 40px;
-                padding: 0 16px;
-
+                min-height: 48px;
+                padding: 0 20px;
                 display: flex;
                 align-items: center;
+                justify-content: center;
                 gap: 9px;
-
-                outline: unset;
-                border: unset;
-                border-radius: 5px;
-                background: #1fd65f;
-
-                color: #04240f;
+                border: 1px solid rgba(74, 222, 128, 0.45);
+                border-radius: var(--radius-control);
+                background: linear-gradient(135deg, var(--color-emerald-bright), var(--color-emerald));
+                box-shadow: 0 8px 26px rgba(34, 197, 94, 0.24), inset 0 1px 0 rgba(255,255,255,.28);
+                color: #041b0c;
                 font-family: "Geogrotesque Wide", sans-serif;
                 font-size: 12px;
                 font-weight: 800;
                 white-space: nowrap;
-
                 position: relative;
                 cursor: pointer;
-                transition: all .2s;
+                transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
               }
 
               .create-battle img {
@@ -350,9 +477,9 @@ function Battles(props) {
               }
 
               .create-battle:hover {
-                background: #45e57f;
-                transform: translateY(-1px);
-                box-shadow: 0 7px 18px rgba(31, 214, 95, 0.15);
+                filter: brightness(1.08);
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-emerald-strong), inset 0 1px 0 rgba(255,255,255,.32);
               }
               
               .create-battle:active {
@@ -360,10 +487,41 @@ function Battles(props) {
               }
 
               .battles {
-                display: flex;
-                flex-direction: column;
                 width: 100%;
-                gap: 7px;
+                min-width: 0;
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 14px;
+              }
+
+              .results-heading {
+                grid-column: 1 / -1;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                min-height: 34px;
+                color: var(--color-copy-muted);
+                font-size: 10px;
+              }
+
+              .results-heading > div {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              }
+
+              .results-heading strong {
+                color: var(--color-copy);
+                font-size: 12px;
+              }
+
+              .live-dot {
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                background: var(--color-emerald);
+                box-shadow: 0 0 10px rgba(34, 197, 94, .8);
+                animation: status-pulse 1.8s ease-in-out infinite;
               }
 
               .empty-battles {
@@ -374,7 +532,8 @@ function Battles(props) {
                 justify-content: center;
                 gap: 8px;
                 border: 1px dashed rgba(255,255,255,.07);
-                border-radius: 8px;
+                grid-column: 1 / -1;
+                border-radius: var(--radius-card);
                 background: rgba(255,255,255,.018);
                 color: #747e8c;
                 font-size: 11px;
@@ -392,34 +551,116 @@ function Battles(props) {
                 font-size: 13px;
               }
 
-              @media only screen and (max-width: 800px) {
-                .filter {
-                  flex: 1;
-                  min-width: calc(33.33% - 9px);
-                }
+              .mobile-filter-trigger,
+              .apply-filters,
+              .filter-backdrop {
+                display: none;
+              }
 
-                .filter select {
-                  width: 100%;
-                  min-width: 0;
-                }
+              @keyframes status-pulse {
+                50% { opacity: .45; transform: scale(.82); }
+              }
+
+              @media only screen and (max-width: 1120px) {
+                .battles { grid-template-columns: 1fr; }
+              }
+
+              @media only screen and (max-width: 800px) {
+                .battles-container { padding: 20px 14px 76px; }
+                .page-heading { align-items: flex-end; margin-bottom: 18px; }
+                .page-heading p { display: none; }
+                .battle-layout { display: block; }
 
                 .filter-panel {
-                  align-items: stretch;
-                  flex-direction: column;
+                  position: fixed;
+                  top: auto;
+                  right: 0;
+                  bottom: 0;
+                  left: 0;
+                  max-height: min(82vh, 640px);
+                  overflow-y: auto;
+                  border-radius: 20px 20px 0 0;
+                  padding: 18px 18px max(18px, env(safe-area-inset-bottom));
+                  transform: translateY(105%);
+                  visibility: hidden;
+                  transition: transform .28s cubic-bezier(.22,.8,.24,1), visibility .28s;
+                  z-index: 1001;
                 }
 
-                .create-battle {
+                .filter-panel.open {
+                  transform: translateY(0);
+                  visibility: visible;
+                }
+
+                .filter-heading button { display: flex; }
+                .filters { display: grid; grid-template-columns: 1fr 1fr; }
+                .filter:first-child { grid-column: 1 / -1; }
+
+                .filter-backdrop {
+                  position: fixed;
+                  inset: 0;
+                  border: 0;
+                  background: rgba(0, 0, 0, .7);
+                  backdrop-filter: blur(4px);
+                  opacity: 0;
+                  visibility: hidden;
+                  transition: opacity .2s ease, visibility .2s;
+                  z-index: 1000;
+                }
+
+                .filter-backdrop.visible {
+                  display: block;
+                  opacity: 1;
+                  visibility: visible;
+                }
+
+                .apply-filters {
+                  display: flex;
                   width: 100%;
+                  min-height: 48px;
+                  margin-top: 16px;
+                  align-items: center;
                   justify-content: center;
+                  border: 0;
+                  border-radius: var(--radius-control);
+                  background: var(--color-emerald);
+                  color: #041b0c;
+                  font-family: "Geogrotesque Wide", sans-serif;
+                  font-size: 12px;
+                  font-weight: 800;
+                }
+
+                .mobile-filter-trigger {
+                  display: flex;
+                  min-height: 48px;
+                  padding: 0 15px;
+                  align-items: center;
+                  gap: 8px;
+                  border: 1px solid rgba(255,255,255,.09);
+                  border-radius: var(--radius-control);
+                  background: #141715;
+                  color: var(--color-copy);
+                  font-family: "Geogrotesque Wide", sans-serif;
+                  font-size: 11px;
+                  font-weight: 800;
                 }
               }
 
               @media only screen and (max-width: 560px) {
-                .battles-container { padding: 10px 7px 70px; }
-                .filter { min-width: calc(50% - 9px); }
-                .filter select {
-                  min-width: 0;
-                }
+                .battles-container { padding: 16px 10px 72px; }
+                .page-heading { align-items: stretch; flex-direction: column; gap: 14px; }
+                .heading-actions { width: 100%; }
+                .mobile-filter-trigger { flex: 0 0 auto; }
+                .create-battle { flex: 1; padding: 0 14px; }
+                .filters { grid-template-columns: 1fr; }
+                .filter:first-child { grid-column: auto; }
+                .results-heading > span { display: none; }
+              }
+
+              @media (prefers-reduced-motion: reduce) {
+                .live-dot { animation: none; }
+                .filter-panel,
+                .filter-backdrop { transition: none; }
               }
             `}</style>
         </>
