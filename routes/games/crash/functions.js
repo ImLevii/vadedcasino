@@ -27,7 +27,7 @@ function timestampMs(value) {
 }
 
 const crash = {
-    round: {},
+    round: { id: null, startedAt: null, createdAt: null },
     bets: [],
     last: [],
     pot: 0,

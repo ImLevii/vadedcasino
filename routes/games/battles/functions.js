@@ -291,6 +291,26 @@ async function startBattle(battle, players) {
         console.error('[battles] community case commission failed:', e);
     }
 
+    const currentRound = battle.round + 1;
+
+    const newCases = cases.filter((c, index) => index + 1 === currentRound);
+    if (!newCases || !newCases.length) {
+        let endTime = Date.now();
+
+        try {
+            await doTransaction(async (connection, commit) => {
+                await connection.query('UPDATE battles SET endedAt = ?, winnerTeam = ? WHERE id = ?', [new Date(endTime), winnerTeam, battle.id]);
+                await connection.query('UPDATE bets SET completed = 1 WHERE game = ? AND gameId = ?', ['battle', battle.id]);
+                await commit();
+            });
+        } catch (e) {
+            console.error('[battles] failed to end battle:', e);
+        }
+
+        battleEnded(battle.id, winnerTeam, battle.serverSeed, clientSeed);
+        return;
+    }
+
     const [casesItems] = await sql.query(`SELECT * FROM caseItems WHERE caseVersionId IN(?);`, [cases.map(e => e.revId)]);
 
     const itemsByCase = {};

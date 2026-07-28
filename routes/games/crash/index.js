@@ -18,6 +18,12 @@ router.use((req, res, next) => {
 });
 
 router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
+    try {
+        await updateCrash();
+    } catch (e) {
+        console.error('[crash] Failed to update round state:', e);
+        return res.status(500).json({ error: 'INTERNAL_ERROR' });
+    }
 
     if (crash.round.startedAt) return res.json({ error: 'ALREADY_STARTED' });
     if (crash.bets.find(bet => String(bet.user.id) === String(req.userId))) return res.json({ error: 'ALREADY_JOINED' });
@@ -43,15 +49,46 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
             if (user.balance < amount) {
                 return res.json({ error: 'INSUFFICIENT_BALANCE' });
             }
-    
+
             const xp = roundDecimal(amount * xpMultiplier);
             await connection.query('UPDATE users SET balance = balance - ?, xp = xp + ? WHERE id = ?', [amount, xp, req.userId]);
-    
+
+            if (!crash.round || !crash.round.id) {
+                const [newRoundResult] = await connection.query('INSERT INTO crash (serverSeed, crashPoint, createdAt) VALUES (?, ?, NOW())', [
+                    require('crypto').randomBytes(16).toString('hex'), 100.0
+                ]);
+                const [[round]] = await connection.query('SELECT * FROM crash WHERE id = ?', [newRoundResult.insertId]);
+                crash.round = round;
+            }
+
             const [crashBetResult] = await connection.query('INSERT INTO crashBets (userId, roundId, amount, autoCashoutPoint) VALUES (?, ?, ?, ?)', [user.id, crash.round.id, amount, autoCashoutPoint]);
             const [betResult] = await connection.query('INSERT INTO bets (userId, amount, edge, game, gameId, completed) VALUES (?, ?, ?, ?, ?, ?)', [user.id, amount, roundDecimal(amount * 0.075), 'crash', crashBetResult.insertId, false]);
 
             await xpChanged(user.id, user.xp, roundDecimal(user.xp + xp), connection);
             await commit();
+
+            io.to(user.id).emit('balance', 'set', roundDecimal(user.balance - amount));
+
+            const bet = {
+                id: crashBetResult.insertId,
+                user: {
+                    id: user.id,
+                    username: user.username,
+                    role: user.role,
+                    xp: user.xp,
+                    anon: user.anon
+                },
+                cashoutPoint: null,
+                amount
+            };
+
+            io.to('crash').emit('crash:bets', [bet]);
+            bet.user.anon = user.anon;
+            bet.autoCashoutPoint = autoCashoutPoint;
+
+            crash.bets.push(bet);
+
+            addToPot(amount);
         
             io.to(user.id).emit('balance', 'set', roundDecimal(user.balance - amount));
 

@@ -121,7 +121,7 @@ function Battles(props) {
 
         let baseSort = [...battles]
 
-        if (toggle === 'JOINABLE') baseSort = baseSort.filter((battle) => battle.startedAt === null)
+        if (toggle === 'JOINABLE') baseSort = baseSort.filter((battle) => !battle.startedAt && battle.winnerTeam === null)
         else if (toggle === 'ENDED') baseSort = baseSort.filter((battle) => battle.winnerTeam !== null)
 
         if (modeFilter() !== 'ALL') baseSort = baseSort.filter((battle) => getBattleMode(battle) === modeFilter())
