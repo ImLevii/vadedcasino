@@ -89,7 +89,7 @@ function AdminDashboard() {
         </Show>
       </Show>
 
-      <style>{`
+      <style jsx>{`
         .dashboard-toolbar { margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
         .dashboard-toolbar > div { display: flex; flex-direction: column; gap: 4px; }
         .dashboard-toolbar h2, .panel-heading h3 { margin: 0; color: #f3f6f8; font: 750 17px 'Geogrotesque Wide', sans-serif; }

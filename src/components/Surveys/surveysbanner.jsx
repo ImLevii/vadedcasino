@@ -35,7 +35,7 @@ function SurveysBanner(props) {
 
                 border-radius: 15px;
                 border: 1px solid rgba(0, 0, 0, 0.00);
-                background: url("/assets/art/surveysbg.png"), radial-gradient(68.56% 68.56% at 50% 84.54%, rgba(142, 115, 255, 0.31) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(29, 24, 62, 0.15);
+                background: url("/assets/art/surveysbg.png"), radial-gradient(68.56% 68.56% at 50% 84.54%, rgba(31, 214, 95, 0.28) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(10, 16, 13, 0.2);
                 background-size: cover;
                 border-bottom: 1px solid var(--gold);
                 
@@ -110,7 +110,7 @@ function SurveysBanner(props) {
                 gap: 12px;
 
                 border-radius: 0px 0px 15px 15px;
-                background: linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), radial-gradient(60% 60% at 50% 50%, rgba(147, 126, 236, 0.50) 0%, rgba(102, 83, 184, 0.50) 100%);
+                background: linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.20) 100%), radial-gradient(60% 60% at 50% 50%, rgba(31, 214, 95, 0.35) 0%, rgba(20, 176, 74, 0.35) 100%);
                 
                 position: absolute;
                 right: 130px;

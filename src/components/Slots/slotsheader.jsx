@@ -61,7 +61,7 @@ function SlotsHeader(props) {
           width: 100%;
           height: 225px;
 
-          background: linear-gradient(0deg, rgba(45, 41, 107, 0.15) 0%, rgba(45, 41, 107, 0.15) 100%), linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.00) 94.55%), radial-gradient(60% 60% at 50% 50%, rgba(37, 224, 107, 0.15) 0%, rgba(24, 184, 83, 0.15) 100%);
+          background: linear-gradient(0deg, rgba(11, 18, 15, 0.35) 0%, rgba(11, 18, 15, 0.35) 100%), linear-gradient(0deg, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.00) 94.55%), radial-gradient(60% 60% at 50% 50%, rgba(37, 224, 107, 0.15) 0%, rgba(24, 184, 83, 0.15) 100%);
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.10), 0px 0.5px 0px 0px #16a049, 0px -0.5px 0px 0px #5ceb90;
           backdrop-filter: blur(4px);
 
@@ -133,8 +133,8 @@ function SlotsHeader(props) {
           border: unset;
 
           border-radius: 8px;
-          border: 1px solid rgba(134, 111, 234, 0.15);
-          background: linear-gradient(0deg, rgba(64, 57, 118, 0.65) 0%, rgba(64, 57, 118, 0.65) 100%), radial-gradient(60% 60% at 50% 50%, rgba(147, 126, 236, 0.35) 0%, rgba(102, 83, 184, 0.35) 100%);
+          border: 1px solid var(--glass-border-hi);
+          background: linear-gradient(0deg, rgba(15, 20, 30, 0.72) 0%, rgba(15, 20, 30, 0.72) 100%), radial-gradient(60% 60% at 50% 50%, rgba(31, 214, 95, 0.14) 0%, rgba(31, 214, 95, 0.06) 100%);
           box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.10);
 
           color: white;
@@ -143,10 +143,16 @@ function SlotsHeader(props) {
           font-weight: 700;
 
           padding: 0 15px;
+          transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .search input:focus {
+          border-color: rgba(31, 214, 95, 0.4);
+          box-shadow: 0 0 0 3px rgba(31, 214, 95, 0.1);
         }
 
         .search input::placeholder {
-          color: #9189D3;
+          color: var(--text-muted);
         }
 
         .mascot {

@@ -90,6 +90,50 @@
   --text-secondary: #8f96a6;
   --text-muted:     #5a6172;
   --text-bright:    #ffffff;
+
+  /* ── Spacing scale ──────────────────────────────────────────────────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ── Radius scale ───────────────────────────────────────────────────────── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* ── Elevation shadow scale ─────────────────────────────────────────────── */
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.18);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.22);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.32);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.42), 0 4px 12px rgba(0, 0, 0, 0.28);
+  --shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.5), 0 8px 20px rgba(0, 0, 0, 0.3);
+
+  /* ── Type scale ─────────────────────────────────────────────────────────── */
+  --font-xs: 11px;
+  --font-sm: 13px;
+  --font-md: 15px;
+  --font-lg: 18px;
+  --font-xl: 22px;
+  --font-2xl: 28px;
+  --font-3xl: 36px;
+
+  /* ── Z-index scale ──────────────────────────────────────────────────────── */
+  --z-base: 1;
+  --z-dropdown: 20;
+  --z-sticky: 30;
+  --z-overlay: 40;
+  --z-modal: 50;
+  --z-popover: 60;
+  --z-toast: 70;
+  --z-tooltip: 80;
 }
 
 * {
@@ -487,10 +531,6 @@ a:-webkit-any-link {
   background: linear-gradient(180deg, rgba(31, 214, 95, 0.18), rgba(31, 214, 95, 0.1));
 }
 
-.user-dropdown-link:not(.gold):hover {
-  background: #2a323f;
-}
-
 .back-btn {
   display: flex;
   align-items: center;
@@ -841,4 +881,192 @@ select:disabled {
   background: linear-gradient(90deg, rgba(var(--toast-rgb), 0.5), rgb(var(--toast-rgb)));
   transform-origin: left center;
   animation: toast-shrink linear forwards;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Shared component primitives — used across pages/components for consistency
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Headings ──────────────────────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-family: "Geogrotesque Wide", sans-serif;
+  color: var(--text-bright);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--font-lg);
+  font-weight: 800;
+  color: var(--text-bright);
+  user-select: none;
+}
+
+.section-title .accent {
+  color: var(--gold);
+}
+
+/* ── Card ──────────────────────────────────────────────────────────────────── */
+.card {
+  border-radius: var(--radius-lg);
+  background: linear-gradient(170deg, var(--surface-2) 0%, var(--surface-1) 100%);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), var(--shadow-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.card-hoverable:hover {
+  border-color: rgba(31, 214, 95, 0.22);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), var(--shadow-md), var(--green-glow);
+  transform: translateY(-2px);
+}
+
+/* ── Badge / pill / tag ───────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-xs);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.6;
+  user-select: none;
+}
+
+.badge-gold {
+  color: #021a09;
+  background: linear-gradient(135deg, #34e872, #1fd65f);
+}
+
+.badge-neutral {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.badge-danger {
+  color: #fff;
+  background: rgba(239, 68, 68, 0.85);
+}
+
+.stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: var(--font-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Divider ──────────────────────────────────────────────────────────────── */
+.divider {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  border: none;
+}
+
+/* ── Empty state ──────────────────────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: var(--space-10) var(--space-4);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.empty-state svg, .empty-state img {
+  opacity: 0.4;
+}
+
+.empty-state p {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ── Skeleton loading shimmer ─────────────────────────────────────────────── */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ── Modal / overlay ──────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: rgba(5, 6, 9, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadein 0.18s ease;
+}
+
+.modal-panel {
+  z-index: var(--z-modal);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(170deg, var(--surface-3) 0%, var(--surface-1) 100%);
+  border: 1px solid var(--glass-border-hi);
+  box-shadow: var(--shadow-xl);
+}
+
+/* ── Scrollable regions that should show a thin scrollbar ───────────────────
+   Opt-in via .scroll-thin where hiding the scrollbar would hurt usability
+   (long lists, chat, dropdown menus). Default `*` rule above still hides it
+   everywhere else. ───────────────────────────────────────────────────────── */
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+}
+
+.scroll-thin::-webkit-scrollbar {
+  display: block;
+  width: 6px;
+  height: 6px;
+}
+
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-pill);
+}
+
+.scroll-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
 }

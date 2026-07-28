@@ -1,5 +1,5 @@
 import {createEffect, createSignal, For, Show, onCleanup} from "solid-js";
-import BattlePreview from "../components/Battles/battlepreview";
+import BattleRow from "../components/Battles/battlerow";
 import {useWebsocket} from "../contexts/socketprovider";
 import Loader from "../components/Loader/loader";
 import {A} from "@solidjs/router";
@@ -15,7 +15,6 @@ function Battles(props) {
     const [modeFilter, setModeFilter] = createSignal('ALL')
     const [playersFilter, setPlayersFilter] = createSignal('ALL')
     const [condFilter, setCondFilter] = createSignal('ALL')
-    const [filtersOpen, setFiltersOpen] = createSignal(false)
     const [battles, setBattles] = createSignal(null, { equals: false })
     const [user] = useUser()
 
@@ -165,12 +164,8 @@ function Battles(props) {
         return getSortedBattles(battles(), toggle(), sortByPrice()) || []
     }
 
-    function liveBattles() {
-        return visibleBattles().filter(battle => battle.startedAt && !battle.endedAt)
-    }
-
-    function otherBattles() {
-        return visibleBattles().filter(battle => !(battle.startedAt && !battle.endedAt))
+    function liveCount() {
+        return visibleBattles().filter(battle => battle.startedAt && !battle.endedAt).length
     }
 
     function renderableBattle(battle) {
@@ -178,7 +173,7 @@ function Battles(props) {
         // Skip battle if mode is Case and has no cases
         if (battleMode === 'CASE' && (!battle.cases || battle.cases.length === 0)) return null
         const players = battle.playersPerTeam * battle.teams
-        return <BattlePreview
+        return <BattleRow
             battle={battle}
             hasJoined={isInBattle(battle)}
             ws={ws()}
@@ -199,131 +194,92 @@ function Battles(props) {
                   <h1>Case Battles</h1>
                   <p>Pick your lineup, claim a seat, and watch every drop land live.</p>
                 </div>
-
-                <div class='heading-actions'>
-                  <button class='mobile-filter-trigger' type='button' onClick={() => setFiltersOpen(true)} aria-label='Open battle filters'>
-                    <svg viewBox='0 0 24 24' aria-hidden='true'><path d='M4 7h16M7 12h10M10 17h4'/></svg>
-                    Filters
-                  </button>
-                  <button class='create-battle'>
-                    <img src='/assets/icons/battles.svg' height='16' alt=''/>
-                    Create Battle
-                    <A href='/battle/create' class='gamemode-link'></A>
-                  </button>
-                </div>
               </header>
 
-              <button class={'filter-backdrop ' + (filtersOpen() ? 'visible' : '')} type='button' onClick={() => setFiltersOpen(false)} aria-label='Close battle filters'/>
+              <div class='filter-bar' aria-label='Battle filters'>
+                <div class='filter'>
+                    <p class='filter-label'>State</p>
+                    <select value={toggle()} onChange={(e) => setToggle(e.target.value)}>
+                        <option value='ALL'>All</option>
+                        <option value='JOINABLE'>Joinable</option>
+                        <option value='ENDED'>Ended</option>
+                    </select>
+                </div>
 
-              <div class='battle-layout'>
-                <aside class={'filter-panel ' + (filtersOpen() ? 'open' : '')} aria-label='Battle filters'>
-                  <div class='filter-heading'>
+                <div class='filter'>
+                    <p class='filter-label'>Modes</p>
+                    <select value={modeFilter()} onChange={(e) => setModeFilter(e.target.value)}>
+                        <option value='ALL'>All</option>
+                        <option value='1V1'>1v1</option>
+                        <option value='2V2'>2v2</option>
+                        <option value='1V1V1'>1v1v1</option>
+                        <option value='1V1V1V1'>1v1v1v1</option>
+                        <option value='CASE'>Case</option>
+                        <option value='GROUP'>Group</option>
+                        <option value='CRAZY'>Crazy</option>
+                        <option value='STANDARD'>Standard</option>
+                    </select>
+                </div>
+
+                <div class='filter'>
+                    <p class='filter-label'>Players</p>
+                    <select value={playersFilter()} onChange={(e) => setPlayersFilter(e.target.value)}>
+                        <option value='ALL'>All</option>
+                        <option value='2'>2</option>
+                        <option value='3'>3</option>
+                        <option value='4'>4</option>
+                        <option value='6'>6</option>
+                    </select>
+                </div>
+
+                <div class='filter'>
+                    <p class='filter-label'>Conditions</p>
+                    <select value={condFilter()} onChange={(e) => setCondFilter(e.target.value)}>
+                        <option value='ALL'>All</option>
+                        <option value='FUNDED'>Funded</option>
+                        <option value='STANDARD'>Standard</option>
+                    </select>
+                </div>
+
+                <div class='filter'>
+                    <p class='filter-label'>Order</p>
+                    <select value={sortByPrice() ? 'FEATURED' : 'NEWEST'} onChange={(e) => setSortByPrice(e.target.value === 'FEATURED')}>
+                        <option value='FEATURED'>Featured</option>
+                        <option value='NEWEST'>Newest</option>
+                    </select>
+                </div>
+
+                <button class='create-battle'>
+                  <img src='/assets/icons/battles.svg' height='16' alt=''/>
+                  Create Battle
+                  <A href='/battle/create' class='gamemode-link'></A>
+                </button>
+              </div>
+
+              {battles() ? (
+                <div class='battles-list'>
+                  <div class='results-heading'>
                     <div>
-                      <span>Refine battles</span>
-                      <strong>Filters</strong>
+                      <span class='live-dot'/>
+                      <strong>{visibleBattles().length} battles</strong>
+                      <Show when={liveCount() > 0}><span class='live-count'>{liveCount()} live</span></Show>
                     </div>
-                    <button type='button' onClick={() => setFiltersOpen(false)} aria-label='Close battle filters'>
-                      <svg viewBox='0 0 24 24' aria-hidden='true'><path d='m6 6 12 12M18 6 6 18'/></svg>
-                    </button>
+                    <span>Live updates enabled</span>
                   </div>
 
-                    <div class='filters'>
-                        <div class='filter'>
-                            <p class='filter-label'>State</p>
-                            <select value={toggle()} onChange={(e) => setToggle(e.target.value)}>
-                                <option value='ALL'>All</option>
-                                <option value='JOINABLE'>Joinable</option>
-                                <option value='ENDED'>Ended</option>
-                            </select>
-                        </div>
-
-                        <div class='filter'>
-                            <p class='filter-label'>Modes</p>
-                            <select value={modeFilter()} onChange={(e) => setModeFilter(e.target.value)}>
-                                <option value='ALL'>All</option>
-                                <option value='1V1'>1v1</option>
-                                <option value='2V2'>2v2</option>
-                                <option value='1V1V1'>1v1v1</option>
-                                <option value='1V1V1V1'>1v1v1v1</option>
-                                <option value='CASE'>Case</option>
-                                <option value='GROUP'>Group</option>
-                                <option value='CRAZY'>Crazy</option>
-                                <option value='STANDARD'>Standard</option>
-                            </select>
-                        </div>
-
-                        <div class='filter'>
-                            <p class='filter-label'>Players</p>
-                            <select value={playersFilter()} onChange={(e) => setPlayersFilter(e.target.value)}>
-                                <option value='ALL'>All</option>
-                                <option value='2'>2</option>
-                                <option value='3'>3</option>
-                                <option value='4'>4</option>
-                                <option value='6'>6</option>
-                            </select>
-                        </div>
-
-                        <div class='filter'>
-                            <p class='filter-label'>Conditions</p>
-                            <select value={condFilter()} onChange={(e) => setCondFilter(e.target.value)}>
-                                <option value='ALL'>All</option>
-                                <option value='FUNDED'>Funded</option>
-                                <option value='STANDARD'>Standard</option>
-                            </select>
-                        </div>
-
-                        <div class='filter'>
-                            <p class='filter-label'>Order</p>
-                            <select value={sortByPrice() ? 'FEATURED' : 'NEWEST'} onChange={(e) => setSortByPrice(e.target.value === 'FEATURED')}>
-                                <option value='FEATURED'>Featured</option>
-                                <option value='NEWEST'>Newest</option>
-                            </select>
-                        </div>
+                  <Show when={visibleBattles().length} fallback={
+                    <div class='empty-battles'>
+                      <img src='/assets/icons/battles.svg' alt=''/>
+                      <strong>No battles match these filters</strong>
+                      <span>Change a filter or create a new battle.</span>
                     </div>
-
-                    <button class='apply-filters' type='button' onClick={() => setFiltersOpen(false)}>Show Battles</button>
-                </aside>
-
-                {battles() ? (
-                    <div class='battles-sections'>
-                      <Show when={liveBattles().length > 0}>
-                        <div class='live-section'>
-                          <div class='live-heading'>
-                            <span class='live-dot'/>
-                            <strong>Live now</strong>
-                            <span class='live-count'>{liveBattles().length}</span>
-                          </div>
-                          <div class='live-row'>
-                            <For each={liveBattles()}>{(battle) => (
-                              <div class='live-card'>{renderableBattle(battle)}</div>
-                            )}</For>
-                          </div>
-                        </div>
-                      </Show>
-
-                      <div class='battles'>
-                        <div class='results-heading'>
-                          <div>
-                            <span class='live-dot'/>
-                            <strong>{visibleBattles().length} battles</strong>
-                          </div>
-                          <span>Live updates enabled</span>
-                        </div>
-                        <Show when={otherBattles().length} fallback={
-                          <div class='empty-battles'>
-                            <img src='/assets/icons/battles.svg' alt=''/>
-                            <strong>{visibleBattles().length ? 'All matching battles are live right now' : 'No battles match these filters'}</strong>
-                            <span>{visibleBattles().length ? 'Check the live row above.' : 'Change a filter or create a new battle.'}</span>
-                          </div>
-                        }>
-                          <For each={otherBattles()}>{(battle) => renderableBattle(battle)}</For>
-                        </Show>
-                      </div>
-                    </div>
-                ) : (
-                    <Loader/>
-                )}
-                  </div>
+                  }>
+                    <For each={visibleBattles()}>{(battle) => renderableBattle(battle)}</For>
+                  </Show>
+                </div>
+              ) : (
+                <Loader/>
+              )}
             </div>
 
             <style jsx>{`
@@ -376,90 +332,26 @@ function Battles(props) {
                 line-height: 1.5;
               }
 
-              .heading-actions {
+              .filter-bar {
+                width: 100%;
                 display: flex;
-                align-items: center;
+                align-items: flex-end;
+                flex-wrap: wrap;
                 gap: 10px;
-                flex-shrink: 0;
-              }
-
-              .battle-layout {
-                display: grid;
-                grid-template-columns: 220px minmax(0, 1fr);
-                align-items: start;
-                gap: 18px;
-              }
-
-              .filter-panel {
-                position: sticky;
-                top: 18px;
-                padding: 16px;
+                padding: 14px;
+                margin-bottom: 18px;
                 border: 1px solid rgba(255, 255, 255, 0.08);
                 border-radius: var(--radius-card);
                 background: linear-gradient(160deg, rgba(21, 25, 22, 0.98), rgba(12, 14, 13, 0.98));
                 box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 18px 45px rgba(0, 0, 0, 0.24);
-                z-index: 5;
-              }
-
-              .filter-heading {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding-bottom: 14px;
-                margin-bottom: 14px;
-                border-bottom: 1px solid rgba(255,255,255,.07);
-              }
-
-              .filter-heading > div {
-                display: flex;
-                flex-direction: column;
-                gap: 3px;
-              }
-
-              .filter-heading span {
-                color: var(--color-copy-muted);
-                font-size: 9px;
-                font-weight: 700;
-                text-transform: uppercase;
-              }
-
-              .filter-heading strong {
-                color: var(--color-copy);
-                font-size: 15px;
-              }
-
-              .filter-heading button {
-                display: none;
-                width: 40px;
-                height: 40px;
-                align-items: center;
-                justify-content: center;
-                border: 1px solid rgba(255,255,255,.08);
-                border-radius: 10px;
-                background: #181b19;
-                color: var(--color-copy);
-              }
-
-              .filter-heading svg,
-              .mobile-filter-trigger svg {
-                width: 18px;
-                height: 18px;
-                fill: none;
-                stroke: currentColor;
-                stroke-width: 2;
-                stroke-linecap: round;
-              }
-
-              .filters {
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
               }
 
               .filter {
                 display: flex;
                 flex-direction: column;
                 gap: 3px;
+                min-width: 130px;
+                flex: 1 1 130px;
               }
 
               .filter-label {
@@ -492,14 +384,14 @@ function Battles(props) {
               .filter select:hover {
                 border-color: rgba(31, 214, 95, 0.3);
               }
-              
+
               .filter select:focus {
                 border-color: rgba(31, 214, 95, 0.5);
                 box-shadow: 0 0 0 2px rgba(31, 214, 95, 0.12), inset 0 1px 0 rgba(255,255,255,0.035);
               }
 
               .create-battle {
-                min-height: 48px;
+                min-height: 44px;
                 padding: 0 20px;
                 display: flex;
                 align-items: center;
@@ -516,6 +408,8 @@ function Battles(props) {
                 white-space: nowrap;
                 position: relative;
                 cursor: pointer;
+                flex: 0 0 auto;
+                margin-left: auto;
                 transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
               }
 
@@ -528,38 +422,38 @@ function Battles(props) {
                 transform: translateY(-2px);
                 box-shadow: var(--shadow-emerald-strong), inset 0 1px 0 rgba(255,255,255,.32);
               }
-              
+
               .create-battle:active {
                 transform: translateY(0);
               }
 
-              .battles-sections {
+              .battles-list {
                 width: 100%;
                 min-width: 0;
                 display: flex;
                 flex-direction: column;
-                gap: 22px;
+                gap: 10px;
               }
 
-              .live-section {
-                width: 100%;
-                min-width: 0;
+              .results-heading {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                min-height: 30px;
+                margin-bottom: 4px;
+                color: var(--color-copy-muted);
+                font-size: 10px;
               }
 
-              .live-heading {
+              .results-heading > div {
                 display: flex;
                 align-items: center;
                 gap: 8px;
-                min-height: 26px;
-                margin-bottom: 10px;
               }
 
-              .live-heading strong {
+              .results-heading strong {
                 color: var(--color-copy);
-                font-size: 13px;
-                font-weight: 800;
-                text-transform: uppercase;
-                letter-spacing: .2px;
+                font-size: 12px;
               }
 
               .live-count {
@@ -574,62 +468,6 @@ function Battles(props) {
                 color: var(--color-emerald-bright);
                 font-size: 10px;
                 font-weight: 800;
-              }
-
-              .live-row {
-                display: flex;
-                align-items: stretch;
-                gap: 12px;
-                overflow-x: auto;
-                overflow-y: hidden;
-                padding-bottom: 6px;
-                scroll-snap-type: x proximity;
-                scrollbar-width: thin;
-                scrollbar-color: rgba(255,255,255,.14) transparent;
-              }
-
-              .live-row::-webkit-scrollbar {
-                height: 6px;
-              }
-
-              .live-row::-webkit-scrollbar-thumb {
-                background: rgba(255,255,255,.14);
-                border-radius: 999px;
-              }
-
-              .live-card {
-                flex: 0 0 auto;
-                width: min(340px, 82vw);
-                scroll-snap-align: start;
-              }
-
-              .battles {
-                width: 100%;
-                min-width: 0;
-                display: grid;
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-                gap: 12px;
-              }
-
-              .results-heading {
-                grid-column: 1 / -1;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                min-height: 34px;
-                color: var(--color-copy-muted);
-                font-size: 10px;
-              }
-
-              .results-heading > div {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-              }
-
-              .results-heading strong {
-                color: var(--color-copy);
-                font-size: 12px;
               }
 
               .live-dot {
@@ -649,7 +487,6 @@ function Battles(props) {
                 justify-content: center;
                 gap: 8px;
                 border: 1px dashed rgba(255,255,255,.07);
-                grid-column: 1 / -1;
                 border-radius: var(--radius-card);
                 background: rgba(255,255,255,.018);
                 color: #747e8c;
@@ -668,116 +505,27 @@ function Battles(props) {
                 font-size: 13px;
               }
 
-              .mobile-filter-trigger,
-              .apply-filters,
-              .filter-backdrop {
-                display: none;
-              }
-
               @keyframes status-pulse {
                 50% { opacity: .45; transform: scale(.82); }
-              }
-
-              @media only screen and (max-width: 1120px) {
-                .battles { grid-template-columns: 1fr; }
               }
 
               @media only screen and (max-width: 800px) {
                 .battles-container { padding: 20px 14px 76px; }
                 .page-heading { align-items: flex-end; margin-bottom: 18px; }
                 .page-heading p { display: none; }
-                .battle-layout { display: block; }
-
-                .filter-panel {
-                  position: fixed;
-                  top: auto;
-                  right: 0;
-                  bottom: 0;
-                  left: 0;
-                  max-height: min(82vh, 640px);
-                  overflow-y: auto;
-                  border-radius: 20px 20px 0 0;
-                  padding: 18px 18px max(18px, env(safe-area-inset-bottom));
-                  transform: translateY(105%);
-                  visibility: hidden;
-                  transition: transform .28s cubic-bezier(.22,.8,.24,1), visibility .28s;
-                  z-index: 1001;
-                }
-
-                .filter-panel.open {
-                  transform: translateY(0);
-                  visibility: visible;
-                }
-
-                .filter-heading button { display: flex; }
-                .filters { display: grid; grid-template-columns: 1fr 1fr; }
-                .filter:first-child { grid-column: 1 / -1; }
-
-                .filter-backdrop {
-                  position: fixed;
-                  inset: 0;
-                  border: 0;
-                  background: rgba(0, 0, 0, .7);
-                  backdrop-filter: blur(4px);
-                  opacity: 0;
-                  visibility: hidden;
-                  transition: opacity .2s ease, visibility .2s;
-                  z-index: 1000;
-                }
-
-                .filter-backdrop.visible {
-                  display: block;
-                  opacity: 1;
-                  visibility: visible;
-                }
-
-                .apply-filters {
-                  display: flex;
-                  width: 100%;
-                  min-height: 48px;
-                  margin-top: 16px;
-                  align-items: center;
-                  justify-content: center;
-                  border: 0;
-                  border-radius: var(--radius-control);
-                  background: var(--color-emerald);
-                  color: #041b0c;
-                  font-family: "Geogrotesque Wide", sans-serif;
-                  font-size: 12px;
-                  font-weight: 800;
-                }
-
-                .mobile-filter-trigger {
-                  display: flex;
-                  min-height: 48px;
-                  padding: 0 15px;
-                  align-items: center;
-                  gap: 8px;
-                  border: 1px solid rgba(255,255,255,.09);
-                  border-radius: var(--radius-control);
-                  background: #141715;
-                  color: var(--color-copy);
-                  font-family: "Geogrotesque Wide", sans-serif;
-                  font-size: 11px;
-                  font-weight: 800;
-                }
+                .filter { flex: 1 1 45%; }
+                .create-battle { flex: 1 1 100%; margin-left: 0; }
               }
 
               @media only screen and (max-width: 560px) {
                 .battles-container { padding: 16px 10px 72px; }
                 .page-heading { align-items: stretch; flex-direction: column; gap: 14px; }
-                .heading-actions { width: 100%; }
-                .mobile-filter-trigger { flex: 0 0 auto; }
-                .create-battle { flex: 1; padding: 0 14px; }
-                .filters { grid-template-columns: 1fr; }
-                .filter:first-child { grid-column: auto; }
+                .filter { flex: 1 1 100%; }
                 .results-heading > span { display: none; }
               }
 
               @media (prefers-reduced-motion: reduce) {
                 .live-dot { animation: none; }
-                .filter-panel,
-                .filter-backdrop { transition: none; }
               }
             `}</style>
         </>
