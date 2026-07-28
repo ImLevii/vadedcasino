@@ -86,3 +86,5 @@
 [22/Jul/2026:22:15:53 +0000] - GET /cases/alien-case.png 404 0.157 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.129.1 Chrome/148.0.7778.280 Electron/42.6.0 Safari/537.36
 [22/Jul/2026:22:15:53 +0000] - GET /cases/americans-dream.png 404 0.150 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.129.1 Chrome/148.0.7778.280 Electron/42.6.0 Safari/537.36
 [22/Jul/2026:22:15:53 +0000] - GET /cases/blingbling-case.png 404 0.169 ms - Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.129.1 Chrome/148.0.7778.280 Electron/42.6.0 Safari/537.36
+[28/Jul/2026:02:41:21 +0000] - GET /healthz 200 2.056 ms - curl/8.7.1
+[28/Jul/2026:02:41:21 +0000] - GET /readyz 503 0.306 ms - curl/8.7.1
