@@ -56,52 +56,6 @@ function SpinnerDiamond(props) {
       )}
 
       <style jsx>{`
-        .spinner {
-          flex: 1;
-          height: 375px;
-          position: relative;
-          z-index: 0;
-
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 10px;
-
-          background: linear-gradient(230deg, rgba(18, 20, 28, 0.10) 0%, rgba(31, 36, 46, 0.10) 100%), #2a323f;
-        }
-
-        .spinner.gold:before {
-          position: absolute;
-          top: 0;
-          left: 0;
-          content: '';
-          width: 100%;
-          height: 100%;
-          opacity: 0.15;
-          border-radius: 10px;
-          background-image: url("/assets/icons/battlestripes.png");
-        }
-
-        .green {
-          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(31, 214, 95, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(18, 20, 28, 0.10) 0%, rgba(31, 36, 46, 0.10) 100%), #2a323f;
-        }
-
-        .red {
-          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(249, 81, 81, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(18, 20, 28, 0.10) 0%, rgba(31, 36, 46, 0.10) 100%), #2a323f;
-        }
-
-        .spinner.green {
-          border-bottom: 2px solid #1fd65f;
-        }
-
-        .spinner.red {
-          border-bottom: 2px solid #F95151;
-        }
-
-        .gold {
-          background: radial-gradient(113.84% 101.60% at 50.00% 100.00%, rgba(31, 214, 95, 0.24) 0%, rgba(0, 0, 0, 0.00) 100%), linear-gradient(230deg, rgba(18, 20, 28, 0.10) 0%, rgba(31, 36, 46, 0.10) 100%), #2a323f;
-        }
-
         .diamond {
           width: 30px;
           height: 30px;

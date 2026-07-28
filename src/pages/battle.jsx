@@ -221,6 +221,12 @@ function Battle(props) {
             <Title>Cosmic Luck | Battle</Title>
 
             <div class='battle-container fadein'>
+                <div class='floating-emojis'>
+                  <For each={floatingEmojis()}>{(item) => (
+                    <span class='floating-emoji' style={{ left: `${item.x}%` }}>{item.emoji}</span>
+                  )}</For>
+                </div>
+
                 {!battle() ? (
                     <Loader/>
                 ) : (
@@ -474,6 +480,15 @@ function Battle(props) {
                             rounds={battle()?.rounds || []}
                             round={round()}
                           />
+                        </Show>
+
+                        {/* Emoji reactions */}
+                        <Show when={props.user}>
+                          <div class='emoji-bar'>
+                            <For each={BATTLE_EMOJIS}>{(emoji) => (
+                              <button class='emoji-btn' type='button' onClick={() => sendEmoji(emoji)}>{emoji}</button>
+                            )}</For>
+                          </div>
                         </Show>
                     </>
                 )}
@@ -1035,11 +1050,89 @@ function Battle(props) {
                 .total-drops { width: 34%; padding: 0 4px; }
               }
 
+              /* Floating emoji reactions — mirrors csgoluck.com/case-battle */
+              .floating-emojis {
+                position: absolute;
+                inset: 0;
+                z-index: 30;
+                overflow: hidden;
+                pointer-events: none;
+              }
+
+              .floating-emoji {
+                position: absolute;
+                bottom: 6%;
+                font-size: 28px;
+                line-height: 1;
+                animation: emoji-float 2.8s ease-out forwards;
+                filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
+              }
+
+              @keyframes emoji-float {
+                0% { transform: translateY(0) scale(0.6); opacity: 0; }
+                12% { transform: translateY(-10%) scale(1); opacity: 1; }
+                80% { opacity: 1; }
+                100% { transform: translateY(-320%) scale(0.9); opacity: 0; }
+              }
+
+              .emoji-bar {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                flex-wrap: wrap;
+                padding: 8px;
+                border-radius: 8px;
+                border: 1px solid rgba(255,255,255,0.06);
+                background: #111720;
+              }
+
+              .emoji-btn {
+                width: 36px;
+                height: 36px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 6px;
+                border: 1px solid rgba(255,255,255,0.06);
+                background: #151c27;
+                font-size: 17px;
+                line-height: 1;
+                cursor: pointer;
+                transition: transform .15s ease, border-color .15s ease, background .15s ease;
+              }
+
+              .emoji-btn:hover {
+                transform: translateY(-2px) scale(1.08);
+                border-color: rgba(31,214,95,0.35);
+                background: #1a212d;
+              }
+
+              .emoji-btn:active {
+                transform: translateY(0) scale(0.96);
+              }
+
+              @media only screen and (max-width: 620px) {
+                .floating-emoji { font-size: 22px; }
+                .emoji-btn { width: 32px; height: 32px; font-size: 15px; }
+              }
+
               @media (prefers-reduced-motion: reduce) {
                 .cases, .case {
                   transition: none;
                   animation-duration: .01ms;
                 }
+
+                .floating-emoji {
+                  animation: emoji-float-reduced 1.6s ease-out forwards;
+                }
+              }
+
+              @keyframes emoji-float-reduced {
+                0% { opacity: 0; }
+                20% { opacity: 1; }
+                80% { opacity: 1; }
+                100% { opacity: 0; }
               }
             `}</style>
         </>

@@ -356,21 +356,37 @@ function CaseButton(props) {
                 width: 108px;
                 height: 31px;
 
-                color: #8b92a0;
+                border: 1px solid rgba(31, 214, 95, 0.35);
+                background: linear-gradient(180deg, rgba(31, 214, 95, 0.18), rgba(31, 214, 95, 0.07));
+                color: #4bf58a;
                 font-family: Geogrotesque Wide, sans-serif;
                 font-size: 13px;
-                font-weight: 700;
+                font-weight: 800;
+                transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
               }
-              
+
+              .add:hover {
+                background: linear-gradient(180deg, rgba(31, 214, 95, 0.3), rgba(31, 214, 95, 0.14));
+                border-color: rgba(31, 214, 95, 0.6);
+                color: #ffffff;
+                transform: translateY(-1px);
+              }
+
               .adder {
                 width: 30px;
                 height: 30px;
-                
+
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                
+
                 cursor: pointer;
+                transition: border-color .18s ease, background .18s ease;
+              }
+
+              .adder:hover {
+                border-color: rgba(31, 214, 95, 0.4);
+                background: linear-gradient(180deg, rgba(31, 214, 95, 0.14), rgba(31, 214, 95, 0.05));
               }
 
               .preview-btn-case {

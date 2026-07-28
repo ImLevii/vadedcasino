@@ -188,6 +188,10 @@ function AddCases(props) {
           border-bottom: 1px solid rgba(255,255,255,0.06);
         }
 
+        .header {
+          background: linear-gradient(90deg, rgba(31, 214, 95, 0.08) 0%, rgba(17, 23, 32, 0) 45%), #111720;
+        }
+
         .footer {
           min-height: 48px;
           border-top: 1px solid rgba(255,255,255,0.06);
@@ -238,6 +242,12 @@ function AddCases(props) {
           display: flex;
           align-items: center;
           justify-content: center;
+          transition: background .18s ease, border-color .18s ease;
+        }
+
+        .exit:hover {
+          background: rgba(255,81,65,0.1);
+          border-color: rgba(255,81,65,0.25);
         }
 
         .title {

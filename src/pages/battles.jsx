@@ -327,7 +327,7 @@ function Battles(props) {
             </div>
 
             <style jsx>{`
-              :global(.content:has(.battles-container)) {
+              :global(.content:has(.battles-container)::before) {
                 backdrop-filter: none;
                 -webkit-backdrop-filter: none;
               }
