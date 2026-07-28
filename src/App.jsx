@@ -224,7 +224,7 @@ function App() {
             <div class={'app ' + (isImmersiveBattle() ? 'battle-immersive' : '')} onClick={() => closeDropdowns()}>
               {!isImmersiveBattle() && <Sidebar chat={chat()} setChat={setChat}/>}
               <div class={'center ' + (isImmersiveBattle() ? 'battle-immersive-center' : '')} ref={pageContent}>
-                {!isImmersiveBattle() && <Navbar user={user()} chat={chat()} setChat={setChat}/>}
+                <Navbar user={user()} chat={chat()} setChat={setChat}/>
                 {!isImmersiveBattle() && <GameFairnessDock pathname={location.pathname}/>}
 
                 <div class={'content ' + (isImmersiveBattle() ? 'battle-immersive-content' : '')}>

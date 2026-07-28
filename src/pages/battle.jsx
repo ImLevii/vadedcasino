@@ -274,7 +274,7 @@ function Battle(props) {
                             </div>
 
                             <div class='topbar-row'>
-                              <A href='/fairness' class='utility-btn' title='Provably Fair'>
+                              <A href='/docs/provably' class='utility-btn' title='Provably Fair'>
                                 <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z'/><path d='M9 12l2 2 4-4'/></svg>
                               </A>
                               <button class='utility-btn' type='button' title='Round' disabled>

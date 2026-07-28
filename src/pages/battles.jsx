@@ -161,6 +161,31 @@ function Battles(props) {
         return battle?.players?.find(player => player?.id === user()?.id)
     }
 
+    function visibleBattles() {
+        return getSortedBattles(battles(), toggle(), sortByPrice()) || []
+    }
+
+    function liveBattles() {
+        return visibleBattles().filter(battle => battle.startedAt && !battle.endedAt)
+    }
+
+    function otherBattles() {
+        return visibleBattles().filter(battle => !(battle.startedAt && !battle.endedAt))
+    }
+
+    function renderableBattle(battle) {
+        const battleMode = getBattleMode(battle)
+        // Skip battle if mode is Case and has no cases
+        if (battleMode === 'CASE' && (!battle.cases || battle.cases.length === 0)) return null
+        const players = battle.playersPerTeam * battle.teams
+        return <BattlePreview
+            battle={battle}
+            hasJoined={isInBattle(battle)}
+            ws={ws()}
+            mode={battleMode}
+            players={players}/>
+    }
+
     return (
         <>
             <Title>Cosmic Luck | Battles</Title>
@@ -260,38 +285,40 @@ function Battles(props) {
                 </aside>
 
                 {battles() ? (
-                    <div class='battles'>
-                      <div class='results-heading'>
-                        <div>
-                          <span class='live-dot'/>
-                          <strong>{(getSortedBattles(battles(), toggle(), sortByPrice()) || []).length} battles</strong>
+                    <div class='battles-sections'>
+                      <Show when={liveBattles().length > 0}>
+                        <div class='live-section'>
+                          <div class='live-heading'>
+                            <span class='live-dot'/>
+                            <strong>Live now</strong>
+                            <span class='live-count'>{liveBattles().length}</span>
+                          </div>
+                          <div class='live-row'>
+                            <For each={liveBattles()}>{(battle) => (
+                              <div class='live-card'>{renderableBattle(battle)}</div>
+                            )}</For>
+                          </div>
                         </div>
-                        <span>Live updates enabled</span>
-                      </div>
-                      <Show when={(getSortedBattles(battles(), toggle(), sortByPrice()) || []).length} fallback={
-                        <div class='empty-battles'>
-                          <img src='/assets/icons/battles.svg' alt=''/>
-                          <strong>No battles match these filters</strong>
-                          <span>Change a filter or create a new battle.</span>
-                        </div>
-                      }>
-                        <For each={getSortedBattles(battles(), toggle(), sortByPrice()) || []}>{(battle) => {
-                          const battleMode = getBattleMode(battle);
-                          const players = battle.playersPerTeam * battle.teams;
-
-                          // Skip battle if mode is Case and has no cases
-                          if (battleMode === 'CASE' && (!battle.cases || battle.cases.length === 0)) {
-                            return null;
-                          }
-
-                          return <BattlePreview
-                            battle={battle}
-                            hasJoined={isInBattle(battle)}
-                            ws={ws()}
-                            mode={battleMode}
-                            players={players}/>
-                        }}</For>
                       </Show>
+
+                      <div class='battles'>
+                        <div class='results-heading'>
+                          <div>
+                            <span class='live-dot'/>
+                            <strong>{visibleBattles().length} battles</strong>
+                          </div>
+                          <span>Live updates enabled</span>
+                        </div>
+                        <Show when={otherBattles().length} fallback={
+                          <div class='empty-battles'>
+                            <img src='/assets/icons/battles.svg' alt=''/>
+                            <strong>{visibleBattles().length ? 'All matching battles are live right now' : 'No battles match these filters'}</strong>
+                            <span>{visibleBattles().length ? 'Check the live row above.' : 'Change a filter or create a new battle.'}</span>
+                          </div>
+                        }>
+                          <For each={otherBattles()}>{(battle) => renderableBattle(battle)}</For>
+                        </Show>
+                      </div>
                     </div>
                 ) : (
                     <Loader/>
@@ -504,6 +531,76 @@ function Battles(props) {
               
               .create-battle:active {
                 transform: translateY(0);
+              }
+
+              .battles-sections {
+                width: 100%;
+                min-width: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 22px;
+              }
+
+              .live-section {
+                width: 100%;
+                min-width: 0;
+              }
+
+              .live-heading {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                min-height: 26px;
+                margin-bottom: 10px;
+              }
+
+              .live-heading strong {
+                color: var(--color-copy);
+                font-size: 13px;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: .2px;
+              }
+
+              .live-count {
+                min-width: 20px;
+                height: 20px;
+                padding: 0 6px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 999px;
+                background: rgba(34, 197, 94, .14);
+                color: var(--color-emerald-bright);
+                font-size: 10px;
+                font-weight: 800;
+              }
+
+              .live-row {
+                display: flex;
+                align-items: stretch;
+                gap: 12px;
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding-bottom: 6px;
+                scroll-snap-type: x proximity;
+                scrollbar-width: thin;
+                scrollbar-color: rgba(255,255,255,.14) transparent;
+              }
+
+              .live-row::-webkit-scrollbar {
+                height: 6px;
+              }
+
+              .live-row::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,.14);
+                border-radius: 999px;
+              }
+
+              .live-card {
+                flex: 0 0 auto;
+                width: min(340px, 82vw);
+                scroll-snap-align: start;
               }
 
               .battles {
