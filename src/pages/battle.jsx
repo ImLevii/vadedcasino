@@ -331,6 +331,16 @@ function Battle(props) {
                             {/* Center case reel — mirrors csgoluck.com/case-battle center rail */}
                             <Show when={players() > 1}>
                               <div class={'center-display ' + String(state() || '').toLowerCase()}>
+                                {/* Decorative rail chrome — mirrors the reference layout */}
+                                <img class='center-watermark top' src='/assets/icons/logoswords.svg' alt='' aria-hidden='true'/>
+                                <img class='center-watermark bottom' src='/assets/icons/logoswords.svg' alt='' aria-hidden='true'/>
+                                <div class='lane-rail'>
+                                  <For each={new Array(Math.ceil(players() / 2))}>{() => (
+                                    <div class='lane-tick'><span/></div>
+                                  )}</For>
+                                </div>
+                                <div class='center-baseline'/>
+
                                 <Show when={state() === 'WINNERS'} fallback={
                                   <>
                                     <div class='center-dashes'>
@@ -338,9 +348,6 @@ function Battle(props) {
                                     </div>
 
                                     <div class='reel'>
-                                      <div class='reel-bar left'/>
-                                      <div class='reel-bar right'/>
-
                                       <div class='reel-case dim'>
                                         <Show when={rounds()?.[Math.max(0, round() - 2)]}>
                                           <img
@@ -790,6 +797,66 @@ function Battle(props) {
                 border-right: 1px solid rgba(31,214,95,0.18);
               }
 
+              .center-watermark {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 74px;
+                height: 74px;
+                opacity: 0.05;
+                pointer-events: none;
+                z-index: 0;
+              }
+
+              .center-watermark.top { top: 10px; }
+              .center-watermark.bottom { bottom: 10px; }
+
+              /* One tick per lane row, aligned to the right edge of the rail */
+              .lane-rail {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                right: -1px;
+                width: 2px;
+                display: flex;
+                flex-direction: column;
+                pointer-events: none;
+                z-index: 2;
+              }
+
+              .lane-tick {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              }
+
+              .lane-tick span {
+                width: 2px;
+                height: 62%;
+                border-radius: 999px;
+                background: #1fd65f;
+                box-shadow: 0 0 7px rgba(31,214,95,0.55);
+              }
+
+              .center-display.rolling .lane-tick span {
+                background: #ffe600;
+                box-shadow: 0 0 8px rgba(255,230,0,.55);
+              }
+
+              .center-baseline {
+                position: absolute;
+                bottom: 0;
+                left: 22%;
+                right: 22%;
+                height: 2px;
+                border-radius: 999px;
+                background: #f95151;
+                box-shadow: 0 0 8px rgba(249,81,81,0.45);
+                pointer-events: none;
+                z-index: 2;
+              }
+
               .center-dashes {
                 display: flex;
                 gap: 4px;
@@ -811,25 +878,6 @@ function Battle(props) {
                 gap: 5px;
                 position: relative;
                 padding: 0 10px;
-              }
-
-              .reel-bar {
-                position: absolute;
-                top: 0;
-                bottom: 0;
-                width: 2px;
-                border-radius: 999px;
-                background: linear-gradient(to bottom, transparent 0%, rgba(31,214,95,0.65) 20%, rgba(31,214,95,0.65) 80%, transparent 100%);
-                pointer-events: none;
-                z-index: 0;
-              }
-
-              .reel-bar.left { left: 0; }
-              .reel-bar.right { right: 0; }
-
-              .center-display.rolling .reel-bar {
-                background: linear-gradient(to bottom, transparent 0%, #ffe600 22%, #ffe600 78%, transparent 100%);
-                box-shadow: 0 0 8px rgba(255,230,0,.55);
               }
 
               .reel-case {

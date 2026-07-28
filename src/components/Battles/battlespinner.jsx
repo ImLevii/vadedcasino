@@ -466,7 +466,7 @@ function BattleSpinner(props) {
       <style jsx>{`
         .spinner {
           flex: 1;
-          height: 82px;
+          height: 120px;
           position: relative;
           z-index: 0;
 
@@ -546,7 +546,7 @@ function BattleSpinner(props) {
           display: flex;
           align-items: center;
           justify-content: flex-start;
-          gap: 4px;
+          gap: 6px;
           padding: 2px 5px;
           overflow-x: auto;
           overflow-y: hidden;
@@ -713,8 +713,8 @@ function BattleSpinner(props) {
           left: 0;
           right: 0;
           top: 50%;
-          height: 76px;
-          transform: translateY(-38px);
+          height: 108px;
+          transform: translateY(-54px);
           pointer-events: none;
           z-index: 1;
           border-top: 0;
@@ -759,7 +759,7 @@ function BattleSpinner(props) {
 
           display: flex;
           flex-direction: row;
-          gap: 4px;
+          gap: 6px;
 
           position: absolute;
           top: 0;
@@ -857,15 +857,15 @@ function BattleSpinner(props) {
         @media only screen and (max-width: 1040px) {
           .spinner {
             width: 100%;
-            min-height: 82px;
-            height: 82px;
+            min-height: 120px;
+            height: 120px;
           }
         }
 
         @media only screen and (max-width: 620px) {
           .spinner, .spinner-column {
-            min-height: 82px;
-            height: 82px;
+            min-height: 104px;
+            height: 104px;
           }
 
           .spinner-column { max-width: none; }

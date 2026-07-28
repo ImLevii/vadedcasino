@@ -9,6 +9,11 @@ function BattleUser(props) {
         return getOwnPulls().reduce((total, item) => total + (item?.price || 0), 0)
     }
 
+    function isBot() {
+        const player = props?.player
+        return !!(player?.bot || player?.isBot || String(player?.type || '').toUpperCase() === 'BOT')
+    }
+
     function getOwnPulls() {
         if (!Array.isArray(props?.wonItems)) return []
         return props?.wonItems?.filter(item => {
@@ -26,7 +31,7 @@ function BattleUser(props) {
 
                     <div class='name-container'>
                         <p class='username'>{props?.player?.username || 'WAITING...'}</p>
-                        {props?.player && <Level xp={props?.player?.xp}/>}
+                        {props?.player && (isBot() ? <span class='bot-badge'>Bot</span> : <Level xp={props?.player?.xp}/>)}
                     </div>
 
                     {props?.player ? (
@@ -153,6 +158,21 @@ function BattleUser(props) {
                 overflow: hidden;
                 flex: 1;
                 min-width: 0;
+              }
+
+              .bot-badge {
+                flex-shrink: 0;
+                height: 18px;
+                padding: 0 5px;
+                border-radius: 3px;
+                border: 1px solid rgba(31, 214, 95, 0.3);
+                background: rgba(31, 214, 95, 0.1);
+                color: #1fd65f;
+                font-family: 'Geogrotesque Wide', sans-serif;
+                font-size: 10px;
+                font-weight: 700;
+                display: inline-flex;
+                align-items: center;
               }
 
               .balance {
