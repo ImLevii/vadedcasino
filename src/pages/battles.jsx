@@ -111,6 +111,11 @@ function Battles(props) {
         return '1V1'
     }
 
+    function isCaseBattle(battle) {
+        if (!battle || !battle.gamemode) return false
+        return battle.gamemode === 'casual'
+    }
+
     function getSortedBattles(battles, toggle, sortByPrice) {
         if (!Array.isArray(battles) || battles?.length < 1) return battles
 
@@ -218,6 +223,7 @@ function Battles(props) {
                                 <option value='CASE'>Case</option>
                                 <option value='GROUP'>Group</option>
                                 <option value='CRAZY'>Crazy</option>
+                                <option value='STANDARD'>Standard</option>
                             </select>
                         </div>
 
@@ -269,8 +275,22 @@ function Battles(props) {
                           <span>Change a filter or create a new battle.</span>
                         </div>
                       }>
-                        <For each={getSortedBattles(battles(), toggle(), sortByPrice()) || []}>{(battle) => <BattlePreview
-                          battle={battle} hasJoined={isInBattle(battle)} ws={ws()}/>}</For>
+                        <For each={getSortedBattles(battles(), toggle(), sortByPrice()) || []}>{(battle) => {
+                          const battleMode = getBattleMode(battle);
+                          const players = battle.playersPerTeam * battle.teams;
+
+                          // Skip battle if mode is Case and has no cases
+                          if (battleMode === 'CASE' && (!battle.cases || battle.cases.length === 0)) {
+                            return null;
+                          }
+
+                          return <BattlePreview
+                            battle={battle}
+                            hasJoined={isInBattle(battle)}
+                            ws={ws()}
+                            mode={battleMode}
+                            players={players}/>
+                        }}</For>
                       </Show>
                     </div>
                 ) : (
@@ -490,8 +510,8 @@ function Battles(props) {
                 width: 100%;
                 min-width: 0;
                 display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 14px;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 12px;
               }
 
               .results-heading {
