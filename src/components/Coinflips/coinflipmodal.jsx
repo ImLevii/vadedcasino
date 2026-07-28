@@ -179,36 +179,42 @@ function CoinflipModal(props) {
           width: 100vw;
           height: 100vh;
 
-          background: rgba(24, 23, 47, 0.55);
-          cubic-bezier(0, 1, 0, 1);
+          background: rgba(5, 7, 12, 0.72);
+          backdrop-filter: blur(5px);
 
           display: flex;
           align-items: center;
           justify-content: center;
 
           z-index: 1000;
+          padding: 20px;
+          box-sizing: border-box;
         }
 
         .coinflip-container {
-          max-width: 940px;
+          max-width: 780px;
           width: 100%;
-          height: 100%;
+          height: fit-content;
           min-height: 340px;
-          max-height: 540px;
-          background: #1a1f29;
+          max-height: calc(100vh - 40px);
+          background: #161b24;
 
           display: flex;
           flex-direction: column;
+          overflow: hidden;
 
-          border-radius: 16px;
+          border-radius: 12px;
+          border: 1px solid rgba(255,255,255,0.06);
+          box-shadow: 0 24px 80px rgba(0,0,0,0.55);
         }
 
         .header {
-          border-radius: 15px 15px 0 0;
-          background: #232a36;
+          background: linear-gradient(90deg, rgba(31, 214, 95, 0.09) 0%, rgba(22, 27, 36, 0) 45%), #1e2533;
+          border-bottom: 1px solid rgba(255,255,255,0.055);
           width: 100%;
           height: 70px;
           min-height: 70px;
+          flex-shrink: 0;
 
           display: flex;
           align-items: center;
@@ -230,34 +236,33 @@ function CoinflipModal(props) {
         }
 
         .center {
-          min-width: 165px;
-          max-width: 165px;
-          height: 165px;
+          min-width: 120px;
+          max-width: 120px;
+          height: 120px;
+          flex-shrink: 0;
           border-radius: 50%;
 
           display: flex;
           align-items: center;
           justify-content: center;
 
-          background: linear-gradient(to right, rgba(31, 214, 95, 0.06), rgba(156, 101, 19, 0.03), rgba(0, 0, 0, 0)), #232a36;
-          filter: drop-shadow(0px 2px 15px rgba(0, 0, 0, 0.08));
+          background: linear-gradient(to right, rgba(31, 214, 95, 0.1), rgba(31, 214, 95, 0.02), rgba(0, 0, 0, 0)), #1e2533;
+          border: 1px solid rgba(31, 214, 95, 0.15);
+          filter: drop-shadow(0px 2px 15px rgba(0, 0, 0, 0.2));
 
           color: #FFF;
           font-family: Geogrotesque Wide, sans-serif;
-          font-size: 26px;
+          font-size: 22px;
           font-weight: 700;
 
           overflow: hidden;
         }
 
-        .center.red {
-          background: linear-gradient(109deg, rgba(188, 40, 32, 0.37) 0%, rgba(192, 28, 29, 0.37) 19.78%, rgba(0, 0, 0, 0.00) 100%), #232048;
-          border: solid #232a36 10px;
-        }
-
         .avatar-container {
-          min-width: 125px;
-          height: 125px;
+          min-width: 100px;
+          width: 100px;
+          height: 100px;
+          flex-shrink: 0;
           border-radius: 50%;
 
           display: flex;
@@ -266,7 +271,8 @@ function CoinflipModal(props) {
 
           position: relative;
 
-          background: #232a36;
+          background: #1e2533;
+          border: 1px solid rgba(255,255,255,0.06);
         }
 
         .coin {
@@ -295,11 +301,12 @@ function CoinflipModal(props) {
         }
 
         .percent {
-          min-width: 60px;
+          min-width: 52px;
           height: 25px;
+          flex-shrink: 0;
 
-          border-radius: 3px;
-          background: rgba(58, 66, 80, 0.45);
+          border-radius: 4px;
+          background: rgba(38, 46, 62, 0.7);
 
           color: #8b92a0;
           font-family: Geogrotesque Wide, sans-serif;
@@ -358,12 +365,13 @@ function CoinflipModal(props) {
         }
 
         .join-container {
-          width: 360px;
+          width: 100%;
+          max-width: 360px;
           height: 100px;
 
-          border-radius: 7px;
-          border: 1px solid rgba(82, 76, 147, 0.35);
-          background: linear-gradient(228deg, rgba(67, 64, 120, 0.25) 0%, rgba(55, 47, 104, 0.25) 100%);
+          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          background: rgba(10, 13, 20, 0.5);
 
           color: #8b92a0;
           font-family: Geogrotesque Wide, sans-serif;
@@ -383,11 +391,12 @@ function CoinflipModal(props) {
         }
 
         .coin-amount-container {
+          width: 100%;
           height: 170px;
 
-          border-radius: 7px;
-          border: 1px solid rgba(82, 76, 147, 0.35);
-          background: linear-gradient(230deg, rgba(26, 14, 51, 0.26) 0%, rgba(66, 60, 122, 0.26) 100%);
+          border-radius: 8px;
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          background: rgba(10, 13, 20, 0.5);
 
           display: flex;
           flex-direction: column;
@@ -422,14 +431,16 @@ function CoinflipModal(props) {
           display: flex;
           align-items: center;
           gap: 12px;
+          flex-wrap: wrap;
 
-          color: #9F9AC8;
+          color: #8b92a0;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 12px;
           font-weight: 500;
 
-          padding: 0 25px;
-          flex: 1;
+          padding: 14px 25px;
+          flex-shrink: 0;
+          border-top: 1px solid rgba(255,255,255,0.055);
         }
 
         .seed {
@@ -447,18 +458,72 @@ function CoinflipModal(props) {
 
           margin-left: auto;
         }
-        
+
         .loser {
           mix-blend-mode: luminosity;
           opacity: 0.5;
         }
-        
+
         .gray {
           filter: grayscale(1);
         }
 
         .items::-webkit-scrollbar {
           display: none;
+        }
+
+        @media only screen and (max-width: 720px) {
+          .header {
+            height: auto;
+            min-height: 0;
+            flex-direction: column;
+            gap: 14px;
+            padding: 16px;
+          }
+
+          .user { width: 100%; }
+
+          .user-items {
+            flex-direction: column;
+            max-height: none;
+          }
+
+          .items {
+            grid-template-columns: 1fr;
+            height: auto;
+          }
+
+          .footer {
+            padding: 12px 16px;
+          }
+
+          .seed {
+            max-width: 100%;
+            flex-basis: 100%;
+          }
+
+          .close {
+            margin-left: 0;
+          }
+        }
+
+        @media only screen and (max-width: 460px) {
+          .avatar-container {
+            min-width: 78px;
+            width: 78px;
+            height: 78px;
+          }
+
+          .center {
+            min-width: 92px;
+            max-width: 92px;
+            height: 92px;
+            font-size: 18px;
+          }
+
+          .name p {
+            max-width: 90px;
+          }
         }
       `}</style>
     </>

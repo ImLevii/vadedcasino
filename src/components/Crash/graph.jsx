@@ -294,6 +294,27 @@ function CrashGraph(props) {
 
   const shipPosition = () => getShipPosition();
 
+  function getPointPosition(m) {
+    const currentMulti = Math.max(1, props.multiplier || 1);
+    const maxMulti = Math.max(2.0, currentMulti * 1.25);
+    const maxTime = Math.max(10000, getTimeFromMultiplier(currentMulti) * 1.25);
+    const t = getTimeFromMultiplier(m);
+
+    const padLeftPct = 3;
+    const padRightPct = 8;
+    const usableWidthPct = 100 - padLeftPct - padRightPct;
+
+    const xRatio = Math.max(0, Math.min(1, t / maxTime));
+    const yRatio = Math.max(0, Math.min(1, (m - 1) / (maxMulti - 1)));
+
+    return {
+      left: `${(padLeftPct + xRatio * usableWidthPct).toFixed(3)}%`,
+      top: `${(90 - yRatio * 70).toFixed(3)}%`
+    };
+  }
+
+  const cashoutPosition = () => getPointPosition(props.cashoutPoint || 1);
+
   return (
     <>
       <div class='crash-graph' classList={{ 'impact-shake': impactShake() }} ref={containerRef}>
@@ -353,6 +374,16 @@ function CrashGraph(props) {
               <span class='charge-ring charge-ring-a'/>
               <span class='charge-ring charge-ring-b'/>
             </div>
+          </div>
+        </Show>
+
+        <Show when={props.cashoutPoint && (props.isFlying || props.isCrashed)}>
+          <div class='cashout-marker' style={{ left: cashoutPosition().left, top: cashoutPosition().top }}>
+            <span class='cashout-dot'/>
+            <span class='cashout-label'>
+              Cashed out {props.cashoutPoint.toFixed(2)}x
+              <Show when={props.cashoutWinnings}> · +{props.cashoutWinnings.toFixed(2)}</Show>
+            </span>
           </div>
         </Show>
 
@@ -541,6 +572,49 @@ function CrashGraph(props) {
         .max-payout .amount {
           color: #1fd65f;
           font-weight: 700;
+        }
+
+        .cashout-marker {
+          position: absolute;
+          z-index: 6;
+          transform: translate(-50%, -50%);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          pointer-events: none;
+          transition: left .11s linear, top .11s linear;
+        }
+
+        .cashout-dot {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: #1fd65f;
+          box-shadow: 0 0 0 3px rgba(31,214,95,.22), 0 0 14px rgba(31,214,95,.75);
+          animation: cashout-pop .3s ease-out;
+        }
+
+        .cashout-label {
+          position: absolute;
+          bottom: calc(100% + 6px);
+          left: 50%;
+          transform: translateX(-50%);
+          white-space: nowrap;
+          padding: 4px 9px;
+          border-radius: 999px;
+          background: rgba(9,16,12,.92);
+          border: 1px solid rgba(31,214,95,.35);
+          color: #1fd65f;
+          font-family: 'Geogrotesque Wide', sans-serif;
+          font-size: 10px;
+          font-weight: 700;
+        }
+
+        @keyframes cashout-pop {
+          0% { transform: scale(0.4); opacity: 0; }
+          70% { transform: scale(1.25); opacity: 1; }
+          100% { transform: scale(1); opacity: 1; }
         }
 
         .graph-center {
@@ -813,7 +887,8 @@ function CrashGraph(props) {
 
           .charge-ring,
           .speed-line,
-          .impact-shake {
+          .impact-shake,
+          .cashout-dot {
             animation: none !important;
           }
         }

@@ -51,27 +51,6 @@ function Captcha(props) {
 
                   overflow: hidden;
                 }
-                
-                .close {
-                  position: absolute;
-                  top: 15px;
-                  left: 15px;
-
-                  width: 26px;
-                  height: 26px;
-                  
-                  background: #4E4A8D;
-                  box-shadow: 0px -1px 0px #5F5AA7, 0px 1px 0px #272548;
-                  border-radius: 3px;
-                  
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-
-                  font-weight: 700;
-                  color: #8b92a0;
-                  cursor: pointer;
-                }
             `}</style>
         </>
     )

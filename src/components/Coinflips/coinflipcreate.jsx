@@ -142,9 +142,10 @@ function CreateCoinflip(props) {
 
           width: 100vw;
           height: 100vh;
+          box-sizing: border-box;
 
-          background: rgba(24, 23, 47, 0.55);
-          cubic-bezier(0, 1, 0, 1);
+          background: rgba(5, 7, 12, 0.72);
+          backdrop-filter: blur(5px);
 
           display: flex;
           align-items: center;
@@ -486,6 +487,42 @@ function CreateCoinflip(props) {
           background: white;
           cursor: pointer;
           border-radius: 50%;
+        }
+
+        @media only screen and (max-width: 640px) {
+          .modal { padding: 10px; }
+
+          .coinflip-create {
+            width: 100%;
+            max-height: calc(100vh - 20px);
+          }
+
+          .header {
+            flex-wrap: wrap;
+            padding: 12px;
+            min-height: 0;
+          }
+
+          .min {
+            width: 100%;
+            justify-content: center;
+            margin-left: 0;
+            order: 4;
+          }
+
+          .items { padding: 12px; }
+
+          .footer {
+            flex-wrap: wrap;
+            padding: 10px 12px;
+            gap: 8px;
+          }
+
+          .info { margin-left: 0; }
+
+          .bar { display: none; }
+
+          .done { margin-left: auto; }
         }
       `}</style>
     </>
