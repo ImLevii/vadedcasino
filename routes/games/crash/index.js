@@ -89,30 +89,7 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
             crash.bets.push(bet);
 
             addToPot(amount);
-        
-            io.to(user.id).emit('balance', 'set', roundDecimal(user.balance - amount));
 
-            const bet = {
-                id: crashBetResult.insertId,
-                user: {
-                    id: user.id,
-                    username: user.username,
-                    role: user.role,
-                    xp: user.xp,
-                    anon: user.anon
-                },
-                cashoutPoint: null,
-                amount
-            };
-    
-            io.to('crash').emit('crash:bets', [bet]);
-            bet.user.anon = user.anon;
-            bet.autoCashoutPoint = autoCashoutPoint;
-    
-            crash.bets.push(bet);
-
-            addToPot(amount);
-        
             res.json({ success: true });
 
         });
