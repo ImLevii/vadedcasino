@@ -47,7 +47,13 @@ export default defineConfig({
           if (accept.includes('text/html')) return req.url
         }
       },
-      '/crash': 'http://127.0.0.1:3000',
+      '/crash': {
+        target: 'http://127.0.0.1:3000',
+        bypass: (req) => {
+          const accept = req.headers['accept'] || ''
+          if (accept.includes('text/html')) return req.url
+        }
+      },
       '/coinflip': 'http://127.0.0.1:3000',
       '/jackpot': 'http://127.0.0.1:3000',
       '/slots': 'http://127.0.0.1:3000',

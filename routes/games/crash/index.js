@@ -18,11 +18,19 @@ router.use((req, res, next) => {
 });
 
 router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
-    try {
-        await updateCrash();
-    } catch (e) {
-        console.error('[crash] Failed to update round state:', e);
-        return res.status(500).json({ error: 'INTERNAL_ERROR' });
+    // Only (re)hydrate crash.round when it's genuinely uninitialized (e.g. a
+    // startup race). Calling updateCrash() unconditionally here would reset
+    // the in-memory round on every bet — including forcing an actively
+    // flying round back to "not started" and restarting its bet timer,
+    // since updateCrash() unconditionally clears startedAt for any round it
+    // (re)loads. That corrupted live rounds and made betting unreliable.
+    if (!crash.round || !crash.round.id) {
+        try {
+            await updateCrash();
+        } catch (e) {
+            console.error('[crash] Failed to update round state:', e);
+            return res.status(500).json({ error: 'INTERNAL_ERROR' });
+        }
     }
 
     if (crash.round.startedAt) return res.json({ error: 'ALREADY_STARTED' });

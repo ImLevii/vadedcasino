@@ -77,7 +77,7 @@ function CrashGraph(props) {
     // Padding: left side thin, right side wider for labels, bottom for time labels
     const padLeft   = 18 * dpr;
     const padRight  = 70 * dpr;
-    const padTop    = 24 * dpr;
+    const padTop    = 68 * dpr;
     const padBottom = 36 * dpr;
     const gW = width  - padLeft - padRight;
     const gH = height - padTop  - padBottom;
@@ -871,6 +871,27 @@ function CrashGraph(props) {
 
           .countdown-value {
             font-size: 42px;
+          }
+        }
+
+        @media (max-width: 460px) {
+          .graph-header {
+            padding: 10px;
+            gap: 8px;
+          }
+
+          .max-payout {
+            padding: 5px 8px;
+            font-size: 10px;
+            gap: 4px;
+          }
+
+          .max-payout span:not(.amount) {
+            display: none;
+          }
+
+          .header-left {
+            gap: 6px;
           }
         }
 

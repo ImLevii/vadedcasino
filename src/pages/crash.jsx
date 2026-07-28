@@ -812,6 +812,7 @@ function Crash(props) {
           .auto-cashout { max-width: unset; width: 100%; }
           .bonus-pot { width: 100%; justify-content: center; }
           .play-button { width: 100%; margin-left: 0; }
+          .bar-divider { width: 100%; height: 1px; margin: 2px 0; align-self: center; }
         }
 
         @media (prefers-reduced-motion: reduce) {
