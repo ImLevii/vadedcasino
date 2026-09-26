@@ -55,7 +55,7 @@ function Freecoins(props) {
               <p>Affiliate code</p>
               <span>One-time reward</span>
             </div>
-            <div class='input'>
+            <div class='input input-shell'>
               <input type='text' placeholder='Enter affiliate code' value={affCode()} onInput={(e) => setAffCode(e.target.value)}/>
 
               <Show when={!affRes.loading}>
@@ -81,7 +81,7 @@ function Freecoins(props) {
               <p>Promo code</p>
               <span>Limited drops</span>
             </div>
-            <div className='input'>
+            <div className='input input-shell'>
               <input type='text' placeholder='Enter promo code' value={promo()} onInput={(e) => setPromo(e.target.value)}/>
               <button class='redeem' disabled={!promo().trim()} onClick={async () => {
                 if (promo().length < 1) return
@@ -273,7 +273,7 @@ function Freecoins(props) {
 
         .input:focus-within {
           border-color: rgba(31,214,95,0.38);
-          box-shadow: 0 0 0 3px rgba(31,214,95,0.06), inset 0 1px 0 rgba(255,255,255,0.03);
+          box-shadow: none;
         }
         
         input {

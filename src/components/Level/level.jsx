@@ -72,7 +72,7 @@ function Level(props) {
                 }
 
                 .level.pink {
-                    background: #BF50D1;
+                    background: #40c9ac;
                     color: #D9D9D9;
                 }
 

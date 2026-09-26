@@ -56,7 +56,7 @@ function RewardsBanner(props) {
           max-width: 100%;
 
           border-radius: 8px;
-          background: linear-gradient(to left, rgba(91, 48, 212, 1), rgba(0,0,0,0));
+          background: linear-gradient(to left, rgba(31, 214, 95, 1), rgba(0,0,0,0));
 
           display: flex;
           align-items: center;
@@ -79,7 +79,7 @@ function RewardsBanner(props) {
           left: 1px;
           z-index: 0;
 
-          background: linear-gradient(to left, rgba(0,0,0,0.1), rgba(0,0,0,0.1)), linear-gradient(to left, #2D2954, #2C2558);
+          background: linear-gradient(to left, rgba(0,0,0,0.1), rgba(0,0,0,0.1)), linear-gradient(to left, #2a302d, #272d2a);
         }
 
         .rewards-banner > * {
@@ -99,8 +99,8 @@ function RewardsBanner(props) {
           width: 100%;
           
           border-radius: 8px;
-          background: linear-gradient(to left, rgba(71, 12, 195, 0.49) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(37, 33, 73, 1);
-          border: 1px solid #6046AA;
+          background: linear-gradient(to left, rgba(31, 214, 95, 0.49) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(34, 40, 37, 1);
+          border: 1px solid #1fd65f;
           
           padding: 16px 16px 16px 70px;
 
@@ -131,7 +131,7 @@ function RewardsBanner(props) {
 
         .xp-bar {
           height: 100%;
-          background: #6963A6;
+          background: #a6b8ad;
           border-radius: 2525px;
         }
         

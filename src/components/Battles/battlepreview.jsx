@@ -311,7 +311,7 @@ function BattlePreview(props) {
         .case-art img { width: 138px; height: 126px; object-fit: contain; filter: drop-shadow(0 14px 14px rgba(0,0,0,.5)); z-index: 1; }
         .case-art img.fallback { width: 64px; height: 64px; opacity: .35; filter: grayscale(1); }
         .case-0 { --case-accent: #f6c453; z-index: 3; }
-        .case-1 { --case-accent: #dc5fde; transform: translateX(-82px) rotate(-7deg) scale(.76); z-index: 1; opacity: .7; }
+        .case-1 { --case-accent: #40c9ac; transform: translateX(-82px) rotate(-7deg) scale(.76); z-index: 1; opacity: .7; }
         .case-2 { --case-accent: #4176ff; transform: translateX(82px) rotate(7deg) scale(.76); z-index: 2; opacity: .7; }
         .battle-card:hover .case-0 { transform: translateY(-5px) scale(1.04); filter: drop-shadow(0 0 14px rgba(246,196,83,.16)); }
         .battle-card:hover .case-1 { transform: translate(-88px, -2px) rotate(-9deg) scale(.78); }

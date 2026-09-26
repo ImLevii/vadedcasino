@@ -1,6 +1,7 @@
+import TrashIcon from "../Icons/trash";
 import {createEffect, createResource, createSignal, For, onCleanup, Show} from "solid-js";
 import {useWebsocket} from "../../contexts/socketprovider";
-import {addDropdown, authedAPI} from "../../util/api";
+import {addDropdown, authedAPI, closeDropdowns} from "../../util/api";
 import Loader from "../Loader/loader";
 import Notification from "./notification";
 import {useUser} from "../../contexts/usercontextprovider";
@@ -71,7 +72,7 @@ function Notifications(props) {
       <div className='notifications'>
         <button class={'bell ' + (active() ? 'active' : '')} type='button' aria-label='Notifications'
                 aria-expanded={active()} onClick={(e) => {
-                  setActive(!active())
+                  const wasOpen = active(); closeDropdowns(); setActive(!wasOpen)
                   e.stopPropagation()
                 }}>
           <img src='/assets/icons/bell.svg' height='18' width='23' alt=''/>
@@ -83,7 +84,7 @@ function Notifications(props) {
           )}
         </button>
 
-        <div class={'dropdown' + (active() ? ' active' : '')} onClick={(e) => e.stopPropagation()}>
+        <div inert={active() ? undefined : ''} aria-hidden={!active()} class={'dropdown' + (active() ? ' active' : '')} onClick={(e) => e.stopPropagation()}>
           <div class='decoration-arrow'/>
           <div class='notis-wrapper'>
             <div class='panel-header'>
@@ -97,7 +98,7 @@ function Notifications(props) {
 
               <Show when={notifications()?.length > 0}>
                 <button class='clear-all' type='button' disabled={clearing()} onClick={clearNotifications}>
-                  <img src='/assets/icons/trash.svg' height='12' width='11' alt=''/>
+                  <TrashIcon/>
                   {clearing() ? 'Clearing...' : 'Clear all'}
                 </button>
               </Show>
@@ -126,8 +127,8 @@ function Notifications(props) {
 
       <style jsx>{`
         .notifications {
-          height: 43px;
-          width: 43px;
+          height: var(--nav-control-height, 40px);
+          width: var(--nav-control-height, 40px);
           position: relative;
         }
 
@@ -184,6 +185,7 @@ function Notifications(props) {
           position: absolute;
           width: min(380px, calc(100vw - 24px));
           height: min(480px, calc(100vh - 92px));
+          height: min(480px, calc(100dvh - 92px));
           top: 54px;
           right: 0;
           z-index: 20;
@@ -241,6 +243,7 @@ function Notifications(props) {
         }
 
         .panel-header {
+          flex: 0 0 auto;
           min-height: 66px;
           padding: 11px 12px;
           box-sizing: border-box;
@@ -315,19 +318,24 @@ function Notifications(props) {
 
         .notis-body {
           min-height: 0;
-          flex: 1;
+          flex: 1 1 0;
+          display: flex;
+          overflow: hidden;
           padding: 9px;
         }
         
         .notis {
           width: 100%;
-          height: 100%;
+          min-height: 0;
 
           display: flex;
           flex-direction: column;
           gap: 8px;
           
           overflow-y: auto;
+          overflow-x: hidden;
+          overscroll-behavior: contain;
+          scrollbar-gutter: stable;
         }
         
         .notis::-webkit-scrollbar {
@@ -368,18 +376,22 @@ function Notifications(props) {
 
         @media only screen and (max-width: 1000px) {
           .notifications {
-            width: 35px;
-            height: 35px;
+            width: var(--nav-control-height, 40px);
+            height: var(--nav-control-height, 40px);
           }
 
           .dropdown { top: 46px; }
         }
 
-        @media only screen and (max-width: 480px) {
-          .dropdown { right: -8px; }
+        @media only screen and (max-width: 600px) {
+          .dropdown { position: fixed; top: 60px; left: 12px; right: 12px; width: auto; }
+          .decoration-arrow { display: none; }
           .panel-header { padding: 10px; }
           .clear-all { padding: 0 8px; }
         }
+        .bell { background:var(--nav-glass); border-color:var(--nav-edge); border-radius:10px; box-shadow:var(--nav-shadow); }
+        .bell:hover,.bell.active { background:linear-gradient(145deg,#ffffff12,#1fd65f12); border-color:#1fd65f55; box-shadow:inset 0 1px 0 #ffffff12; }
+        .notis-wrapper { background:linear-gradient(145deg,#ffffff09,#ffffff02),#10191cf2; border-color:#ffffff18; border-radius:14px; }
       `}</style>
     </>
   );

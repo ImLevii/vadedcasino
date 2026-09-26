@@ -74,10 +74,19 @@ function AdminUsers(props) {
         mutateUser(null)
     }
 
+    async function onUserDeleted() {
+        setParams({id: null, page: 1})
+        mutateUser(null)
+        loadedPages.clear()
+        setUsers([])
+        setPage(1)
+        await refetchUsers()
+    }
+
     return (
         <>
             {params.id && (
-                <UserModal user={user()} loading={user.loading} close={closeUserModal}/>
+                <UserModal user={user()} loading={user.loading} close={closeUserModal} onDeleted={onUserDeleted}/>
             )}
 
             {usersResource()?.mfa && (
@@ -95,7 +104,7 @@ function AdminUsers(props) {
                         </div>
 
                         <div className='table-column'>
-                            <p>RBX ID</p>
+                            <p>ACCOUNT ID</p>
                         </div>
 
                         <div className='table-column'>
@@ -145,7 +154,7 @@ function AdminUsers(props) {
                 </div>
 
                 <div class='filters'>
-                    <div class='search-wrapper'>
+                    <div class='search-wrapper input-shell'>
                         <input class='search' placeholder='SEARCH FOR USERS' value={username()} onInput={(e) => setUsername(e.target.value)}/>
                         <button class='search-button' onClick={() => setParams({ search: username() })}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">

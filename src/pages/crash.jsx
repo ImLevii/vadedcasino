@@ -6,6 +6,7 @@ import { authedAPI, createNotification } from '../util/api';
 import CrashPlayerList from '../components/Crash/playerlist';
 import CrashGraph from '../components/Crash/graph';
 import CrashHistory from '../components/Crash/history';
+import { createFlightClock } from '../util/crashmotion.mjs';
 
 function Crash(props) {
   let hasConnected = false;
@@ -29,72 +30,51 @@ function Crash(props) {
   const [betQueued, setBetQueued] = createSignal(false);
   const [pendingAction, setPendingAction] = createSignal('');
 
-  // Animation state
+  // One frame loop owns the flight and countdown; socket ticks only adjust its clock.
   let animationFrame = null;
-  let flightStartTime = null;
-  let lastTickTime = null;
-  let lastTickMultiplier = 1.00;
-  let countdownInterval = null;
+  let flightClock = null;
 
-  // Multiplier interpolation: multiplier = floor(100 * e^(0.00006 * ms)) / 100
-  function calculateMultiplier(msSinceStart) {
-    return Math.floor(100 * Math.exp(0.00006 * msSinceStart)) / 100;
+  function cancelAnimation() {
+    if (animationFrame !== null) cancelAnimationFrame(animationFrame);
+    animationFrame = null;
   }
 
-  function animateMultiplier() {
-    if (!isFlying()) {
-      animationFrame = null;
-      return;
-    }
-
+  function startFlight(initialMultiplier = 1, elapsed) {
+    cancelAnimation();
     const now = performance.now();
-    const elapsed = now - flightStartTime;
-    const interpolated = calculateMultiplier(elapsed);
-    
-    setMultiplier(Math.max(interpolated, lastTickMultiplier));
-    animationFrame = requestAnimationFrame(animateMultiplier);
-  }
-
-  function startFlight() {
+    flightClock = createFlightClock(now, initialMultiplier, elapsed);
+    setCountdown(0);
     setIsFlying(true);
     setIsCrashed(false);
-    flightStartTime = performance.now();
-    lastTickTime = flightStartTime;
-    lastTickMultiplier = 1.00;
-    setMultiplier(1.00);
-    
-    if (animationFrame) cancelAnimationFrame(animationFrame);
-    animationFrame = requestAnimationFrame(animateMultiplier);
+    setMultiplier(flightClock.sample(now));
+    const animate = time => {
+      setMultiplier(flightClock.sample(time));
+      animationFrame = requestAnimationFrame(animate);
+    };
+    animationFrame = requestAnimationFrame(animate);
   }
 
   function stopFlight(crashPoint) {
+    cancelAnimation();
+    flightClock = null;
     setIsFlying(false);
     setIsCrashed(true);
-    setMultiplier(crashPoint);
-    if (animationFrame) {
-      cancelAnimationFrame(animationFrame);
-      animationFrame = null;
-    }
+    // The result is always the server's value, never the visual extrapolation.
+    setMultiplier(Math.max(1, Number(crashPoint) || 1));
   }
 
   function startCountdownTimer(ms) {
-    if (countdownInterval) {
-      clearInterval(countdownInterval);
-      countdownInterval = null;
-    }
-
+    cancelAnimation();
+    flightClock = null;
     const safeMs = Number.isFinite(ms) ? Math.max(0, ms) : 0;
+    const deadline = performance.now() + safeMs;
     setCountdown(safeMs);
-    countdownInterval = setInterval(() => {
-      setCountdown(prev => {
-        const next = Math.max(0, (Number.isFinite(prev) ? prev : 0) - 100);
-        if (next <= 0) {
-          clearInterval(countdownInterval);
-          countdownInterval = null;
-        }
-        return next;
-      });
-    }, 100);
+    const animate = time => {
+      const remaining = Math.max(0, deadline - time);
+      setCountdown(remaining);
+      animationFrame = remaining > 0 ? requestAnimationFrame(animate) : null;
+    };
+    animationFrame = requestAnimationFrame(animate);
   }
 
   createEffect(() => {
@@ -138,19 +118,8 @@ function Crash(props) {
           setMultiplier(1.00);
           startCountdownTimer(betTimeLeft);
         } else if (data.round?.status === 'started') {
-          // Flying state
-          const serverTime = new Date(data.serverTime).getTime();
-          const startedAt = new Date(data.round.startedAt).getTime();
-          const elapsed = serverTime - startedAt;
-          
-          setIsFlying(true);
-          setIsCrashed(false);
-          flightStartTime = performance.now() - elapsed;
-          lastTickMultiplier = data.round.multiplier || 1.00;
-          setMultiplier(data.round.multiplier || 1.00);
-          
-          if (animationFrame) cancelAnimationFrame(animationFrame);
-          animationFrame = requestAnimationFrame(animateMultiplier);
+          const elapsed = new Date(data.serverTime).getTime() - new Date(data.round.startedAt).getTime();
+          startFlight(data.round.multiplier || 1, elapsed);
         } else if (data.round?.status === 'ended') {
           // Crashed state
           stopFlight(data.round.multiplier || 1.00);
@@ -170,7 +139,7 @@ function Crash(props) {
       });
 
       ws().on('crash:bets', (newBets) => {
-        setBets(prev => [...newBets, ...prev]);
+        setBets(prev => [...newBets, ...prev.filter(b => !newBets.some(next => String(next.id) === String(b.id)))]);
         if (newBets.some((bet) => String(bet.user?.id) === String(props.user?.id))) {
           setBetQueued(true);
           setPendingAction('');
@@ -184,12 +153,7 @@ function Crash(props) {
       });
 
       ws().on('crash:tick', (tick) => {
-        // Anchor interpolation to received tick
-        if (isFlying()) {
-          lastTickTime = performance.now();
-          lastTickMultiplier = tick;
-          setMultiplier(tick);
-        }
+        if (isFlying()) flightClock?.observe(tick, performance.now());
       });
 
       ws().on('crash:cashout', (data) => {
@@ -232,11 +196,7 @@ function Crash(props) {
   });
 
   onCleanup(() => {
-    if (animationFrame) cancelAnimationFrame(animationFrame);
-    if (countdownInterval) {
-      clearInterval(countdownInterval);
-      countdownInterval = null;
-    }
+    cancelAnimation();
     if (ws() && ws().connected) {
       ws().off('crash:set');
       ws().off('crash:new');
@@ -302,6 +262,7 @@ function Crash(props) {
     }
 
     setPendingAction('bet');
+    const betRoundId = round()?.id;
     try {
       const response = await authedAPI('/crash/bet', 'POST', JSON.stringify({
         amount,
@@ -314,7 +275,11 @@ function Crash(props) {
       }
 
       if (response?.success) {
-        setBetQueued(true);
+        if (String(round()?.id) === String(response.roundId ?? betRoundId)) {
+          setBetQueued(true);
+          // The HTTP receipt also restores our bet if the socket event was missed.
+          if (response.bet) setBets(prev => [response.bet, ...prev.filter(b => String(b.id) !== String(response.bet.id))]);
+        }
         createNotification('success', `Bet placed for ${amount.toFixed(2)} coins`);
       }
     } finally {
@@ -328,7 +293,11 @@ function Crash(props) {
     try {
       const response = await authedAPI('/crash/cashout', 'POST', null, true);
       if (response?.success) {
-        createNotification('success', `Cashed out at ${multiplier().toFixed(2)}x`);
+        if (response.cashoutPoint) {
+          setBets(prev => prev.map(b => String(b.user?.id) === String(props.user?.id)
+            ? {...b, cashoutPoint: response.cashoutPoint, winnings: response.winnings} : b));
+        }
+        createNotification('success', `Cashed out at ${Number(response.cashoutPoint || myBet()?.cashoutPoint || multiplier()).toFixed(2)}x`);
       }
     } finally {
       setPendingAction('');
@@ -368,6 +337,10 @@ function Crash(props) {
     
     if (isFlying() && hasActiveBet()) {
       return { text: `Cashout ${multiplier().toFixed(2)}x`, style: 'cashout', action: cashout };
+    }
+
+    if (bet?.cashoutPoint) {
+      return { text: `Cashed out ${Number(bet.cashoutPoint).toFixed(2)}x`, style: 'queued', action: null };
     }
     
     if (isFlying() && !bet) {
@@ -439,7 +412,7 @@ function Crash(props) {
         <section class='crash-bet-bar'>
           <div class='control-group amount-group'>
             <div class='control-row'>
-              <div class='bet-input-wrapper'>
+              <div class='bet-input-wrapper input-shell'>
                 <img src='/assets/chips/chip-green.png' height='18' width='18' alt='' />
                 <input
                   type='number'
@@ -469,7 +442,7 @@ function Crash(props) {
 
           <div class='bar-divider'/>
 
-          <div class='bet-input-wrapper auto-cashout'>
+          <div class='bet-input-wrapper auto-cashout input-shell'>
             <input
               type='number'
               min='1.01'
@@ -494,14 +467,14 @@ function Crash(props) {
             )}
           </div>
 
-          <div class='bonus-pot'>
+          <div class='bonus-pot'><span>Bonus Pot</span>
             <img src='/assets/chips/chip-green-clover.png' height='21' width='21' alt='' />
             <strong>{pot().toFixed(2)}</strong>
           </div>
 
           <button
             class={'play-button ' + buttonState().style}
-            onClick={buttonState().action}
+            onClick={() => buttonState().action?.()}
             disabled={!buttonState().action}
           >
             {buttonState().text}
@@ -600,7 +573,7 @@ function Crash(props) {
 
         .bet-input-wrapper:focus-within {
           border-color: rgba(31,214,95,.4);
-          box-shadow: 0 0 0 2px rgba(31,214,95,.08);
+          box-shadow: none;
         }
 
         .bet-input-wrapper input {
@@ -818,6 +791,17 @@ function Crash(props) {
         @media (prefers-reduced-motion: reduce) {
           .round-status.waiting .status-dot { animation: none; }
         }
+
+        .crash-container { max-width:1900px; padding:0 0 60px; min-height:0; }
+        .history-panel { background:none; border:0; border-radius:0; height:36px; padding:0 8px; margin-bottom:24px; }
+        .crash-main { grid-template-columns:minmax(220px,30%) minmax(0,1fr); gap:24px; height:clamp(440px,39vw,600px); min-height:0; flex:none; }
+        .crash-bet-bar { margin-top:24px; padding:0 8px; border:0; box-shadow:none; background:none; border-radius:0; gap:16px; height:auto; flex-wrap:wrap; }
+        .bet-input-wrapper { background:#020304; border:0; border-radius:3px; height:40px; }
+        .quick-bets { gap:8px; } .amount-group .control-row { gap:16px; } .bet-btn { background:#20232b; border:0; border-radius:3px; height:40px; min-width:44px; }
+        .bar-divider { display:none; } .bonus-pot { background:#20232b; border:0; border-radius:3px; height:40px; gap:6px; } .bonus-pot span { font-size:12px; color:#9399a6; }
+        .play-button { margin-left:0; border-radius:3px; min-width:72px; padding:0 18px; } .play-button.play { background:#00d58b; box-shadow:none; }
+        @media(max-width:800px) { .crash-main { height:auto; grid-template-columns:1fr; gap:16px; } .crash-main :global(.crash-graph) { height:380px; grid-row:1; } .crash-main :global(.crash-player-list) { min-height:140px; max-height:260px; } .crash-bet-bar { margin-top:16px; } }
+        @media(max-width:560px) { .crash-bet-bar { padding:0; gap:12px; } .amount-group .control-row { width:100%; gap:10px; } .bet-input-wrapper { width:100%; max-width:none; } .quick-bets { gap:5px; } .bet-btn { min-width:0; } }
       `}</style>
     </>
   );

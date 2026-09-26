@@ -101,6 +101,9 @@ async function joinCoinflip(req, res, bot = false) {
     try {
 
         await doTransaction(async (connection, commit) => {
+            // Lock the game before joining optional players. PostgreSQL cannot
+            // apply FOR UPDATE to the nullable side of a LEFT JOIN.
+            await connection.query('SELECT id FROM coinflips WHERE id = ? FOR UPDATE', [id]);
             const [[coinflip]] = await connection.query(`
                 SELECT c.*,
                 f.id AS fire_id, f.username AS fire_username, f.role AS fire_role, f.xp AS fire_xp, f.anon AS fire_anon,
@@ -108,7 +111,7 @@ async function joinCoinflip(req, res, bot = false) {
                 FROM coinflips c
                 LEFT JOIN users f ON c.fire = f.id
                 LEFT JOIN users i ON c.ice = i.id
-                WHERE c.id = ? FOR UPDATE
+                WHERE c.id = ?
             `, [id]);
     
             //const [[coinflip]] = await sql.query('SELECT * FROM coinflips WHERE id = ? FOR UPDATE', [id]);

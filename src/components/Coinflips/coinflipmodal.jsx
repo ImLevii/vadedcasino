@@ -294,7 +294,7 @@ function CoinflipModal(props) {
 
         .nouser {
           line-height: 125px;
-          color: #4E4A8A;
+          color: #a6b8ad;
           font-size: 32px;
           font-weight: 700;
           user-select: none;

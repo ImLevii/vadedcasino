@@ -1,3 +1,4 @@
+import TrashIcon from "../Icons/trash";
 import Level from "../Level/level";
 import Avatar from "../Level/avatar";
 import {STAFF_ROLES} from "../../resources/users";
@@ -81,18 +82,18 @@ function Message(props) {
                     </div>
 
                     <div class='msg-actions'>
-                        <button class='action-btn' title='Reply' onClick={() => {
+                        <button type='button' class='action-btn' title='Reply' aria-label='Reply to message' onClick={() => {
                             if (props.replying === props.id) return props.setReplying(null)
                             props.setReplying(props.id)
                         }}>
-                            <img src='/assets/icons/send.svg' height='14' width='14' style={{ transform: 'scaleX(-1)' }}/>
+                            <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' aria-hidden='true'><path d='m9 5-7 7 7 7M2 12h11a8 8 0 0 1 8 8'/></svg>
                         </button>
                         {STAFF_ROLES?.includes(props?.actualUser?.role) && (
-                            <button class='action-btn action-btn-danger' title='Delete' onClick={() => {
+                            <button type='button' class='action-btn action-btn-danger' title='Delete message' aria-label='Delete message' onClick={() => {
                                 if (!props?.ws?.connected) return
                                 props?.ws?.emit('chat:sendMessage', `/delete ${props?.id}`)
                             }}>
-                                <img src='/assets/icons/trash.svg' height='14' width='14'/>
+                                <TrashIcon/>
                             </button>
                         )}
                     </div>
@@ -111,7 +112,7 @@ function Message(props) {
                 background: rgba(255, 255, 255, 0.03);
               }
 
-              .chatmessage-container:hover .msg-actions {
+              .chatmessage-container:hover .msg-actions, .chatmessage-container:focus-within .msg-actions {
                 opacity: 1;
                 pointer-events: all;
               }
@@ -227,14 +228,17 @@ function Message(props) {
                 opacity: 0;
                 pointer-events: none;
                 transition: opacity .15s;
-                background: #1a1f2e;
+                background: #181f1c;
                 border-radius: 6px;
                 padding: 2px;
               }
 
               .action-btn {
-                width: 26px;
-                height: 26px;
+                width: 30px;
+                height: 30px;
+                padding: 0;
+                flex: 0 0 30px;
+                color: #aab8b0;
                 border-radius: 5px;
                 border: none;
                 outline: none;
@@ -250,15 +254,10 @@ function Message(props) {
                 background: #2c3340;
               }
 
-              .action-btn img {
-                opacity: 0.45;
-                filter: saturate(0);
-              }
-
-              .action-btn-danger img {
-                opacity: 0.75;
-                filter: invert(30%) sepia(90%) saturate(2000%) hue-rotate(330deg) brightness(95%);
-              }
+              .action-btn svg { width:16px; height:16px; flex:0 0 16px; }
+              .action-btn:focus-visible { outline:2px solid #1fd65f; outline-offset:2px; }
+              .action-btn-danger { color:#f08080; }
+              @media(hover:none) { .msg-actions { position:static; opacity:1; pointer-events:auto; align-self:flex-start; } }
 
               .action-btn-danger:hover {
                 background: rgba(220, 38, 38, 0.35);

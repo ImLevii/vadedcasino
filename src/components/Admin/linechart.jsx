@@ -192,7 +192,7 @@ function LineChart(props) {
                   text-align: center;
 
                   border-radius: 7px;
-                  background: #231F43;
+                  background: #1f2522;
 
                   width: 240px;
                   max-width: 240px;

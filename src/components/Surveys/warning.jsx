@@ -46,7 +46,7 @@ function SurveysWarning(props) {
           width: 100vw;
           height: 100vh;
 
-          background: rgba(24, 23, 47, 0.55);
+          background: rgba(22, 28, 25, 0.55);
 
           display: flex;
           align-items: center;
@@ -62,8 +62,8 @@ function SurveysWarning(props) {
           right: 16px;
           top: 16px;
 
-          background: #4E4A8D;
-          box-shadow: 0px -1px 0px #5F5AA7, 0px 1px 0px #272548;
+          background: #a6b8ad;
+          box-shadow: 0px -1px 0px #a6b8ad, 0px 1px 0px #252b28;
           border-radius: 3px;
 
           display: flex;
@@ -91,7 +91,7 @@ function SurveysWarning(props) {
           align-items: center;
           gap: 8px;
 
-          color: #9489DB;
+          color: #a6b8ad;
           text-align: center;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 14px;

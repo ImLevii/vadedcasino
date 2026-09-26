@@ -47,9 +47,9 @@ function BattleColumn(props) {
                 width: 100%;
                 display: flex;
                 flex-direction: column;
-                gap: 0;
+                gap: 6px;
                 min-width: 0;
-                border-bottom: 1px solid rgba(255,255,255,0.045);
+                border-bottom: 0;
               }
 
               .column:last-child {
@@ -58,8 +58,12 @@ function BattleColumn(props) {
               
               .container {
                 width: 100%;
-                height: fit-content;
+                box-sizing: border-box;
                 min-width: 0;
+              }
+
+              .user-container {
+                min-height: 44px;
               }
 
               .compact .user-container {

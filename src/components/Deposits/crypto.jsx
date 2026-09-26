@@ -91,7 +91,7 @@ function CryptoDeposit(props) {
                 <Show when={!address.loading} fallback={<Loader/>}>
                     <>
                         <div className='inputs'>
-                            <div className='input'>
+                            <div className='input input-shell'>
                                 <p>{symbol()} ADDRESS:</p>
 
                                 <div className='info thin'>
@@ -109,7 +109,7 @@ function CryptoDeposit(props) {
                                 </div>
                             </div>
 
-                            <div className='input'>
+                            <div className='input input-shell'>
                                 <p>SEND AMOUNT:</p>
 
                                 <div className='info'>
@@ -125,7 +125,7 @@ function CryptoDeposit(props) {
                                 className='qr' alt=''/>
 
                             <div className='conversions'>
-                                <div className='input'>
+                                <div className='input input-shell'>
                                   <img src='/assets/chips/chip-green-clover.png' width='24' height='24' alt=''/>
                                     <input type='number' value={coins()}
                                            onInput={(e) => convertAmounts(e.target.valueAsNumber, 0, 0)}/>
@@ -133,7 +133,7 @@ function CryptoDeposit(props) {
 
                                 <span class='equals'>=</span>
 
-                                <div className='input'>
+                                <div className='input input-shell'>
                                   <span class='currency'>$</span>
                                     <input type='number' value={dollars()}
                                            onInput={(e) => convertAmounts(0, e.target.valueAsNumber, 0)}/>
@@ -141,7 +141,7 @@ function CryptoDeposit(props) {
 
                                 <span class='equals'>=</span>
 
-                                <div className='input'>
+                                <div className='input input-shell'>
                                     <img src={props?.img} height='16' width='16' alt=''/>
                                     <input type='number' value={crypto()}
                                            onInput={(e) => convertAmounts(0, 0, e.target.valueAsNumber)}/>
@@ -242,7 +242,7 @@ function CryptoDeposit(props) {
 
               .input:focus-within {
                 border-color: rgba(31,214,95,.45);
-                box-shadow: 0 0 0 3px rgba(31,214,95,.06);
+                box-shadow: none;
               }
 
               .input input {

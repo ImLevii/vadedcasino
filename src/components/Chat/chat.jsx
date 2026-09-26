@@ -34,8 +34,7 @@ function Chat(props) {
     })
 
     createEffect(() => {
-        if (replying() || !replying()) // just to proc the effect
-            sendRef.select()
+        if (replying()) sendRef?.focus()
     })
 
     createEffect(() => {
@@ -136,18 +135,18 @@ function Chat(props) {
                     <div ref={messagesRef}/>
                 </div>
 
-                <div class='send-message'>
+                <div class='send-message input-shell'>
                     <div class='message-wrapper'>
                         {replying() && (
                             <p class='replyto'>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="10" viewBox="0 0 12 10" fill="none">
-                                    <path d="M5 2.50112V0.375123C5 0.224623 4.9095 0.0886233 4.771 0.0296233C4.633 -0.0288767 4.4715 0.000623226 4.364 0.106123L0.114 4.23112C0.041 4.30162 0 4.39862 0 4.50012C0 4.60162 0.041 4.69862 0.114 4.76912L4.364 8.89412C4.4725 8.99912 4.6335 9.02862 4.771 8.97062C4.9095 8.91162 5 8.77562 5 8.62512V6.50012H5.709C8.027 6.50012 10.164 7.76012 11.2855 9.78612L11.296 9.80512C11.363 9.92712 11.49 10.0001 11.625 10.0001C11.656 10.0001 11.687 9.99662 11.718 9.98862C11.884 9.94612 12 9.79662 12 9.62512C12 5.73812 8.8715 2.56812 5 2.50112Z" fill="#7771C5"/>
+                                    <path d="M5 2.50112V0.375123C5 0.224623 4.9095 0.0886233 4.771 0.0296233C4.633 -0.0288767 4.4715 0.000623226 4.364 0.106123L0.114 4.23112C0.041 4.30162 0 4.39862 0 4.50012C0 4.60162 0.041 4.69862 0.114 4.76912L4.364 8.89412C4.4725 8.99912 4.6335 9.02862 4.771 8.97062C4.9095 8.91162 5 8.77562 5 8.62512V6.50012H5.709C8.027 6.50012 10.164 7.76012 11.2855 9.78612L11.296 9.80512C11.363 9.92712 11.49 10.0001 11.625 10.0001C11.656 10.0001 11.687 9.99662 11.718 9.98862C11.884 9.94612 12 9.79662 12 9.62512C12 5.73812 8.8715 2.56812 5 2.50112Z" fill="#a6b8ad"/>
                                 </svg>
                                 @{getReplyingTo().user.username}
                             </p>
                         )}
 
-                           <input type='text' class='send-message-input' placeholder='Send message...'
+                           <input type='text' class='send-message-input' placeholder='Send message...' aria-label='Chat message'
                              maxLength='300'
                                value={text()}
                                ref={sendRef}
@@ -175,7 +174,7 @@ function Chat(props) {
                               </button>
                             </div>
 
-                            <div class='emoji-search-wrap'>
+                            <div class='emoji-search-wrap input-shell'>
                               <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'>
                                 <circle cx='11' cy='11' r='8'/><path d='m21 21-4.35-4.35'/>
                               </svg>
@@ -204,12 +203,12 @@ function Chat(props) {
                         )}
                     </div>
 
-                    <div class='send' onClick={() => sendMessage(text())}>
+                    <button type='button' class='send' aria-label='Send message' disabled={!text().trim() || !props.ws?.connected} onClick={() => sendMessage(text())}>
                         <svg width="11" height="11" viewBox="0 0 11 11" fill="none"
                              xmlns="http://www.w3.org/2000/svg">
                             <path d="M0.5 0.5L10.5 5.5L0.5 10.5V6.5L7.5 5.5L0.5 4.5V0.5Z" fill="white"/>
                         </svg>
-                    </div>
+                    </button>
                 </div>
             </div>
 
@@ -263,25 +262,36 @@ function Chat(props) {
 
                 min-height: 44px;
                 width: calc(100% - 28px);
-                padding: 0 10px;
+                padding: 6px;
                 margin: 0 14px;
+                flex-shrink: 0;
+                box-sizing: border-box;
 
                 display: flex;
                 align-items: center;
                 gap: 8px;
+              }
+
+              .send-message:focus-within {
+                border-color: rgba(31,214,95,.5);
+                box-shadow: none;
               }
               
               .message-wrapper {
                 display: flex;
                 height: 100%;
                 flex: 1;
+                min-width: 0;
                 gap: 4px;
-                align-items: center;
+                flex-direction: column;
+                align-items: stretch;
               }
 
               .send-message-input {
                 width: 100%;
-                height: 100%;
+                height: 30px;
+                min-width: 0;
+                padding: 0 6px;
 
                 background: unset;
                 border: unset;
@@ -302,6 +312,10 @@ function Chat(props) {
               }
 
               .send {
+                width: 30px;
+                height: 30px;
+                padding: 0;
+                flex-shrink: 0;
                 min-height: 30px;
                 min-width: 30px;
 
@@ -323,6 +337,9 @@ function Chat(props) {
               .send svg {
                 transition: opacity .2s;
               }
+
+              .send:disabled { opacity: .45; cursor: not-allowed; }
+              .send:focus-visible { outline: 2px solid #1fd65f; outline-offset: 2px; }
               
               .replyto {
                 display: flex;
@@ -335,9 +352,14 @@ function Chat(props) {
                 font-style: normal;
                 font-weight: 400;
                 line-height: normal;
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
               }
 
               .emojis-button {
+                flex-shrink: 0;
                 min-width: 30px;
                 height: 30px;
 
@@ -439,7 +461,7 @@ function Chat(props) {
 
               .emoji-search-wrap:focus-within {
                 border-color: rgba(31,214,95,0.34);
-                box-shadow: 0 0 0 2px rgba(31,214,95,0.07);
+                box-shadow: none;
               }
 
               .emoji-search-wrap input {

@@ -77,7 +77,7 @@ function LiveItem(props) {
               }
 
               .pink {
-                background: linear-gradient(45deg, rgba(220, 95, 222, .82), rgba(220, 95, 222, 0) 70%);
+                background: linear-gradient(45deg, rgba(64, 201, 172, .82), rgba(64, 201, 172, 0) 70%);
               }
 
               .red {
@@ -89,19 +89,19 @@ function LiveItem(props) {
               }
 
               .blue:before {
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(65, 118, 255, 0.14) 0%, rgba(65, 118, 255, 0.00) 100%), #18172b;
+                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(65, 118, 255, 0.14) 0%, rgba(65, 118, 255, 0.00) 100%), #161c19;
               }
 
               .pink:before {
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(220, 95, 222, 0.14) 0%, rgba(220, 95, 222, 0.00) 100%), #18172b;
+                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(64, 201, 172, 0.14) 0%, rgba(64, 201, 172, 0.00) 100%), #161c19;
               }
 
               .red:before {
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(255, 81, 65, 0.14) 0%, rgba(255, 81, 65, 0.00) 100%), #18172b;
+                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(255, 81, 65, 0.14) 0%, rgba(255, 81, 65, 0.00) 100%), #161c19;
               }
 
               .gold:before {
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(31, 214, 95, 0.14) 0%, rgba(0, 0, 0, 0.00) 100%), #18172b;
+                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(31, 214, 95, 0.14) 0%, rgba(0, 0, 0, 0.00) 100%), #161c19;
               }
             `}</style>
         </>

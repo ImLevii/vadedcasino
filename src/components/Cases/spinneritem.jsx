@@ -1,5 +1,6 @@
-import {createEffect} from "solid-js";
+import {createEffect, onCleanup} from "solid-js";
 import {resolveImageSrc} from "../../util/image";
+import CosmicGem from './cosmicgem';
 
 function SpinnerItem(props) {
 
@@ -8,16 +9,22 @@ function SpinnerItem(props) {
     let scaleAnim
     let opacityAnim
     let swords
+    let animationFrame
     const spinEasing = 'cubic-bezier(.08,.78,.16,1)'
 
     createEffect(() => {
         if (props?.spinning === 'spinning') {
-            requestAnimationFrame(() => animate())
+            animationFrame = requestAnimationFrame(() => animate())
         }
 
         if (props?.spinning === '') {
             resetAnimations()
         }
+    })
+    onCleanup(() => {
+        cancelAnimationFrame(animationFrame)
+        resetAnimations()
+        swords?.getAnimations()?.forEach(animation => animation.cancel())
     })
 
     function resetAnimations() {
@@ -102,7 +109,7 @@ function SpinnerItem(props) {
     function rarityColor(price) {
         if (price >= 250000) return '#FFD700'
         if (price >= 50000)  return '#FF5141'
-        if (price >= 10000)  return '#DC5FDE'
+        if (price >= 10000)  return '#40c9ac'
         if (price >= 1000)   return '#4176FF'
         return '#A9B5D2'
     }
@@ -137,9 +144,11 @@ function SpinnerItem(props) {
 
     return (
         <>
-            <div class={'case-item-container' + (props?.vertical ? ' vertical' : '')} ref={item} style={{ '--rarity': rarityColor(props?.price) }}>
+            <div class={'case-item-container' + (props?.vertical ? ' vertical' : '') + (props.presentation === 'case' ? ' opening-item' : '') + (props.spinning === 'win' && props.index === 50 ? ' revealed' : '')} ref={item} style={{ '--rarity': rarityColor(props?.price) }}>
                 <div class='card-bg'/>
-                <img ref={image} class='item-image' src={resolveImageSrc(props.img)} height='90' alt='' draggable={false}/>
+                {props.cosmic ? <div ref={image} class='item-image cosmic-image'><CosmicGem motion={props.spinning === 'cosmic' && props.index === 50} active={props.spinning === 'cosmic' && props.index === 50}/></div>
+                  : <img ref={image} class='item-image' src={resolveImageSrc(props.img)} height='90' alt='' draggable={false}/>}
+                {props.cosmic && props.spinning === 'cosmic' && props.index === 50 && <span class='cosmic-label'>COSMIC SPIN</span>}
                 {props?.spinning === 'win' && props?.index === 50 ? (
                     <div class='item-meta'>
                         {getExterior(props?.name) ? (
@@ -152,10 +161,21 @@ function SpinnerItem(props) {
                         </div>
                     </div>
                 ) : null}
-                <img class='back-img' src={backImage(props?.price)} height='60' alt='' ref={swords}/>
+                <img class={'back-img ' + (props.cosmic ? 'cosmic-back' : '')} src={props.presentation === 'case' ? '/assets/chips/chip-green-clover.png' : backImage(props?.price)} height='60' alt='' ref={swords}/>
             </div>
 
             <style jsx>{`
+              .case-item-container .cosmic-image, .case-item-container.vertical .cosmic-image { width:90px; height:90px; flex-shrink:0; }
+              .cosmic-label { position:absolute; bottom:7px; color:#b9ffd0; font-size:9px; font-weight:900; letter-spacing:1.3px; text-shadow:0 0 9px #1fd65f; z-index:3; }
+              .cosmic-back { visibility:hidden; }
+              .case-item-container.opening-item { opacity:.9; }
+              .opening-item .card-bg { inset:10px 2px; border:1px solid #090c11; border-radius:4px; background:#101319; box-shadow:none; opacity:1; backdrop-filter:none; }
+              .opening-item.vertical .card-bg { inset:0; }
+              .opening-item.vertical.revealed .item-image { max-width:74px; height:58px; margin-bottom:46px; }
+              .opening-item.vertical .item-meta { bottom:7px; left:6px; right:6px; padding-top:0; border:0; gap:3px; }
+              .opening-item .item-image { max-width:100px; object-fit:contain; }
+              .opening-item .back-img { width:74px; height:74px; object-fit:contain; opacity:.16; }
+
               .case-item-container {
                 height: 100%;
                 

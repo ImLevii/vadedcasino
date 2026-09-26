@@ -145,8 +145,8 @@ function Slot(props) {
           border: unset;
 
           border-radius: 15px;
-          border: 1px solid #3F3B77;
-          background: #29254E;
+          border: 1px solid #1fd65f;
+          background: #262c29;
           
           display: flex;
           align-items: center;
@@ -219,7 +219,7 @@ function Slot(props) {
           height: 45px;
 
           border-radius: 5px;
-          background: linear-gradient(90deg, rgb(104, 100, 164) -49.01%, rgba(90, 84, 149, 0.655) -5.08%, rgba(66, 53, 121, 0) 98.28%);
+          background: linear-gradient(90deg, rgb(166, 184, 173) -49.01%, rgba(166, 184, 173, 0.655) -5.08%, rgba(31, 214, 95, 0) 98.28%);
 
           padding: 0 15px;
           display: flex;
@@ -244,7 +244,7 @@ function Slot(props) {
 
           border-radius: 8px;
           border: 1px solid rgba(0, 0, 0, 0.00);
-          background: rgba(29, 24, 62, 0.15);
+          background: rgba(25, 31, 28, 0.15);
 
           min-height: 195px;
           overflow-x: auto;

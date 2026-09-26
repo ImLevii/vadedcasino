@@ -156,7 +156,7 @@ function AdminStatistics(props) {
                 </div>
 
                 <div class='filters'>
-                    <div class='search-wrapper'>
+                    <div class='search-wrapper input-shell'>
                         <input class='search' placeholder='SEARCH FOR USERS' value={username()}
                                onInput={(e) => setUsername(e.target.value)}/>
                         <button class='search-button' onClick={() => setParams({search: username()})}>

@@ -106,7 +106,7 @@ function AdminFilter(props) {
                 </div>
 
                 <div class='filters'>
-                    <div class='input-wrapper'>
+                    <div class='input-wrapper input-shell'>
                         <input placeholder='SEARCH FOR PHRASE' value={phrase()} onInput={(e) => setPhrase(e.target.value)}/>
                         <button class='search-button' onClick={() => setParams({ search: phrase() })}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
@@ -115,7 +115,7 @@ function AdminFilter(props) {
                         </button>
                     </div>
 
-                    <div className='input-wrapper dark'>
+                    <div className='input-wrapper dark input-shell'>
                         <input placeholder='ENTER A PHRASE...' value={newPhrase()}
                                onInput={(e) => setNewPhrase(e.target.value)}/>
                     </div>

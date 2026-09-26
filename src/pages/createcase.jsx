@@ -292,7 +292,7 @@ function CreateCase(props) {
                                             <button class='remove-btn' onClick={() => toggleItem(item)}>✕</button>
                                         </div>
                                         <div class='chance-row'>
-                                            <div class='chance-input'>
+                                            <div class='chance-input input-shell'>
                                                 <span class='pct-icon'>%</span>
                                                 <input type='text' inputmode='decimal' min='0.001' max='99.999'
                                                        value={item.probability}
@@ -728,6 +728,10 @@ function CreateCase(props) {
 
               .chance-input input {
                 width: 100%;
+                height: 100%;
+                min-width: 0;
+                padding: 0;
+                border-radius: 0;
                 outline: unset;
                 border: unset;
                 background: transparent;

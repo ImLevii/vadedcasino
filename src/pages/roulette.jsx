@@ -7,15 +7,18 @@ import RouletteBetControls from "../components/Roulette/betcontrols";
 import RouletteColor from "../components/Roulette/roulettecolor";
 import {subscribeToGame, unsubscribeFromGames} from "../util/socket";
 import {Meta, Title} from "@solidjs/meta";
-import {playGameSFX, stopSFXChannel, startAnimationTicker} from "../util/sound";
+import {playGameSFX, stopSFXChannel, startAnimationTicker, GAME_SOUNDS} from "../util/sound";
 import {createNotification} from "../util/api";
+
+import WheelBonus from "../components/Roulette/wheelbonus";
 
 function Roulette(props) {
 
     let hasConnected = false
-    let bar
+    let countdownFrame
 
     let rouletteTicker = null
+    let rouletteResultTimer
 
     // Roulette spin easing: cubic-bezier(.14,.15,0,1)
     const ROULETTE_BEZIER = [0.14, 0.15, 0, 1]
@@ -23,14 +26,18 @@ function Roulette(props) {
     // spinPhase = the active-spin window (0 → 90% of rollTime).
     // Ticking stops naturally here; the hold + snap phases are silent.
     function startRouletteTicking(spinPhase) {
-        if (rouletteTicker) rouletteTicker.cancel()
+        stopRouletteTicking()
+        playGameSFX('roulette-roll', GAME_SOUNDS.rouletteRoll, {
+          channel: 'roulette-roll', volume: .48, durationMs: 640,
+        })
 
         // Pass the real cubic-bezier so ticks fire densely early and
         // decelerate as the spinner slows toward the landing position.
         rouletteTicker = startAnimationTicker(
           () => {
-            playGameSFX('roulette-tick', '/assets/sfx/casetick.wav', {
-              channel: 'spin-tick',
+            playGameSFX('roulette-tick', GAME_SOUNDS.rouletteClick, {
+              channel: 'roulette-tick',
+              startTime: 1.34, durationMs: 110,
               volume: 0.48,
               minIntervalMs: 28,
             })
@@ -46,6 +53,9 @@ function Roulette(props) {
           rouletteTicker.cancel()
           rouletteTicker = null
         }
+        clearTimeout(rouletteResultTimer)
+        stopSFXChannel('roulette-tick')
+        stopSFXChannel('roulette-roll')
     }
 
     const [bets, setBets] = createSignal([])
@@ -56,6 +66,7 @@ function Roulette(props) {
     const [last10, setLast10] = createSignal([])
     const [state, setState] = createSignal('')
     const [tripleGreenBonusPot, setTripleGreenBonusPot] = createSignal(0)
+    const [bonusStreak, setBonusStreak] = createSignal(0)
 
     const [last100, setLast100] = createSignal([])
     const [stats, setStats] = createSignal({
@@ -79,6 +90,7 @@ function Roulette(props) {
         ws().off('roulette:roll')
         ws().off('roulette:tripleGreenBonus:pot')
         ws().off('roulette:tripleGreenBonus:won')
+        ws().off('roulette:bonus:streak')
 
             ws().on('roulette:set', (data) => {
                 let stats = { green: 0, red: 0, black: 0, bait: 0 }
@@ -100,6 +112,7 @@ function Roulette(props) {
                 setConfig(data.config)
                 setBets(data.bets)
                 setTripleGreenBonusPot(Number(data.tripleGreenBonusPot || 0))
+                setBonusStreak(Number(data.tripleGreenStreak || 0))
 
                 let timeLeftToRoll = new Date(data.round.createdAt).getTime() + data.config.betTime - Date.now()
                 startCountdown(timeLeftToRoll)
@@ -124,11 +137,12 @@ function Roulette(props) {
                 setBets([])
                 setState('')
               stopRouletteTicking()
-              stopSFXChannel('spin-tick', { fadeOutMs: 70 })
+
                 startCountdown()
             })
 
             ws().on('roulette:roll', (roll) => {
+                startCountdown(0)
                 let prev10 = last10()
                 let newLast100 = last100()
 
@@ -147,9 +161,11 @@ function Roulette(props) {
                 startRouletteTicking(rollTime * 0.9)
 
                 // Win sound fires exactly when the animation finishes
-                setTimeout(() => {
-                  playGameSFX('roulette-win', '/assets/sfx/winorcashout.mp3', {
-                    channel: 'result-win',
+                rouletteResultTimer = setTimeout(() => {
+                  stopRouletteTicking()
+                  playGameSFX('roulette-land', GAME_SOUNDS.rouletteRoll, {
+                    channel: 'roulette-land',
+                    startTime: 5.79, durationMs: 800,
                     volume: 0.62,
                     fadeInMs: 80,
                   })
@@ -162,6 +178,7 @@ function Roulette(props) {
                 setRound(roll)
             })
 
+              ws().on('roulette:bonus:streak', value => setBonusStreak(Number(value || 0)))
               ws().on('roulette:tripleGreenBonus:pot', (amount) => {
                 setTripleGreenBonusPot(Number(amount || 0))
               })
@@ -171,9 +188,9 @@ function Roulette(props) {
                 const userPayout = (data?.payouts || []).find(p => String(p.userId) === String(props.user?.id))
 
                 if (userPayout?.amount) {
-                  createNotification('success', `Triple Green Bonus paid ${Number(userPayout.amount).toFixed(2)} coins to your account.`)
+                  createNotification('success', `Wheel Bonus paid ${Number(userPayout.amount).toFixed(2)} coins to your account.`)
                 } else if (distributed > 0) {
-                  createNotification('info', `Triple Green Bonus triggered: ${distributed.toFixed(2)} coins distributed.`)
+                  createNotification('info', `Wheel Bonus triggered: ${distributed.toFixed(2)} coins distributed.`)
                 }
               })
 
@@ -186,8 +203,9 @@ function Roulette(props) {
     })
 
       onCleanup(() => {
+        cancelAnimationFrame(countdownFrame)
         stopRouletteTicking()
-        stopSFXChannel('spin-tick', { fadeOutMs: 70 })
+        stopSFXChannel('roulette-land')
 
         if (ws() && ws().connected) {
           ws().off('roulette:set')
@@ -197,32 +215,20 @@ function Roulette(props) {
           ws().off('roulette:roll')
           ws().off('roulette:tripleGreenBonus:pot')
           ws().off('roulette:tripleGreenBonus:won')
+        ws().off('roulette:bonus:streak')
           unsubscribeFromGames(ws())
         }
       })
 
-    async function startCountdown(duration = config().betTime) {
-
-        setTimeLeft(Math.max(0, duration))
-        let lastDate = Date.now()
-
-        bar.animate([
-            {width: '100%'},
-            {width: '0%'}
-        ], {
-            duration: timeLeft(),
-            easing: 'linear',
-            fill: 'forwards'
-        })
-
-        while (timeLeft() > 0) {
-            let remaining = Math.max(0, timeLeft() - (Date.now() - lastDate))
+    function startCountdown(duration = config().betTime) {
+        cancelAnimationFrame(countdownFrame)
+        const deadline = performance.now() + Math.max(0, Number(duration) || 0)
+        function tick() {
+            const remaining = Math.max(0, deadline - performance.now())
             setTimeLeft(remaining)
-
-            lastDate = Date.now()
-
-            await new Promise((resolve) => setTimeout(resolve, Math.min(1000, timeLeft())))
+            if (remaining > 0) countdownFrame = requestAnimationFrame(tick)
         }
+        tick()
     }
 
     function calculateStats(history) {
@@ -252,16 +258,6 @@ function Roulette(props) {
                         </div>
                     </div>
 
-                    <div class='timer-container'>
-                        {timeLeft() === 0 ?
-                            <p class='rolling'>ROLLING <span class='white'>NOW</span></p>
-                            :
-                            <p class='rolling'>ROLLING IN <span class='white'>{Math.round(timeLeft() / 1000)}s</span></p>
-                        }
-                        <div class='timer'>
-                            <div class='bar' ref={bar}/>
-                        </div>
-                    </div>
 
                     <div class='last100'>
                         <p class='label'>LAST 100</p>
@@ -287,14 +283,12 @@ function Roulette(props) {
                             </div>
                         </div>
 
-                          <div class='bonus-pot'>
-                            <span>TRIPLE GREEN BONUS</span>
-                            <strong>{tripleGreenBonusPot().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
-                          </div>
+                          <WheelBonus pot={tripleGreenBonusPot()} streak={bonusStreak()} rate={config().tripleGreenBonusRake} minimum={config().tripleGreenMinimumBet}/>
+
                     </div>
                 </div>
 
-                <RouletteSpinner roll={round()} config={config()}/>
+                <RouletteSpinner roll={round()} config={config()} timeLeft={timeLeft()}/>
                 <RouletteBetControls bet={bet()} setBet={setBet} user={props.user}/>
 
                 <div class='colors'>
@@ -355,74 +349,10 @@ function Roulette(props) {
                 gap: 5px;
               }
 
-              .rolling {
-                color: #6b7280;
-                font-size: 13px;
-                font-weight: 700;
-                text-align: center;
-              }
-
-              .white {
-                color: #fff;
-                font-size: 18px;
-                font-weight: 800;
-              }
-
-              .timer-container {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-                align-items: center;
-                flex: 1;
-                max-width: 200px;
-              }
-
-              .timer {
-                width: 100%;
-                height: 4px;
-                border-radius: 99px;
-                background: rgba(255,255,255,0.06);
-                overflow: hidden;
-              }
-
-              .bar {
-                height: 100%;
-                width: 100%;
-                border-radius: 99px;
-                background: linear-gradient(90deg, #18c255, #1fd65f, #45e57f);
-                box-shadow: 0 0 8px rgba(31, 214, 95, 0.7);
-                transition: background .3s;
-              }
 
               .stats {
                 display: flex;
                 gap: 6px;
-              }
-
-              .bonus-pot {
-                margin-top: 8px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 10px;
-                min-width: 230px;
-                padding: 7px 10px;
-                border-radius: 8px;
-                border: 1px solid rgba(31, 214, 95, 0.28);
-                background: rgba(31, 214, 95, 0.08);
-              }
-
-              .bonus-pot span {
-                color: #91a69a;
-                font-size: 10px;
-                font-weight: 800;
-                letter-spacing: 0.06em;
-              }
-
-              .bonus-pot strong {
-                color: #1fd65f;
-                font-size: 15px;
-                font-weight: 800;
               }
 
               .stat {
@@ -462,11 +392,6 @@ function Roulette(props) {
                   flex-wrap: wrap;
                 }
 
-                .timer-container {
-                  order: 3;
-                  max-width: unset;
-                  width: 100%;
-                }
 
                 .colors {
                   grid-template-columns: 1fr;
@@ -474,7 +399,7 @@ function Roulette(props) {
                 }
               }
 
-              @media only screen and (max-width: 1180px) and (min-width: 876px) {
+              @media only screen and (max-width: 1360px) and (min-width: 876px) {
                 .colors {
                   grid-template-columns: repeat(2, minmax(0, 1fr));
                 }

@@ -4,9 +4,12 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
-const { sql } = require('../database');
+const { sql, dialect } = require('../database');
 
 async function main() {
+    if (['postgres', 'postgresql', 'neon'].includes(dialect)) {
+        throw new Error('These legacy migrations are MySQL-only. Use npm run db:neon:bootstrap for a fresh PostgreSQL schema.');
+    }
     const migrationsDir = path.join(__dirname, '..', 'database', 'migrations');
     const files = fs.readdirSync(migrationsDir)
         .filter(f => f.endsWith('.sql'))

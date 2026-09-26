@@ -8,7 +8,7 @@ function RouletteBetControls(props) {
     return (
         <>
             <div class='bet-container'>
-                <div class='bet-amount-wrapper'>
+                <div class='bet-amount-wrapper input-shell'>
                     <img src='/assets/icons/coin.svg' height='18' alt=''/>
                     <input class='bet-amount' type='number' placeholder='0.00' value={props.bet}
                            onChange={(e) => props.setBet(Math.abs(e.target.valueAsNumber))}/>

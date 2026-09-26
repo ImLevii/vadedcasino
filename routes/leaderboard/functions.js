@@ -69,7 +69,7 @@ async function cacheLeaderboard(type) {
     const [users] = await sql.query(
         `SELECT SUM(bets.amount) as wagered, users.id, users.username, users.xp FROM bets
         INNER JOIN users ON users.id = bets.userId
-        WHERE bets.createdAt >= ? AND bets.completed = 1 AND users.leaderboardBan = 0 AND users.role = 'USER' GROUP BY userId ORDER BY wagered DESC LIMIT 10`,
+        WHERE bets.createdAt >= ? AND bets.completed = 1 AND users.leaderboardBan = 0 AND users.role = 'USER' GROUP BY users.id, users.username, users.xp ORDER BY wagered DESC LIMIT 10`,
         [leaderboard.createdAt]
     );
 
@@ -125,7 +125,7 @@ async function cronLeaderboard(type) {
             const [users] = await connection.query(
                 `SELECT SUM(bets.amount) as wagered, users.id, users.username, users.xp FROM bets
                 INNER JOIN users ON users.id = bets.userId
-                WHERE bets.createdAt >= ? AND bets.completed = 1 AND users.leaderboardBan = 0 AND users.role = 'USER' GROUP BY userId ORDER BY wagered DESC LIMIT 10`,
+                WHERE bets.createdAt >= ? AND bets.completed = 1 AND users.leaderboardBan = 0 AND users.role = 'USER' GROUP BY users.id, users.username, users.xp ORDER BY wagered DESC LIMIT 10`,
                 [leaderboard.createdAt]
             );
 

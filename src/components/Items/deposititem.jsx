@@ -25,7 +25,7 @@ function DepositItem(props) {
 
     function createTrail() {
         let value = (slider.value / 21) * 100 // 21 because it bugged w 20 when it hit 0 so min is now 1
-        slider.style.background = 'linear-gradient(to right, #DB4C3E 0%, #DB4C3E ' + value + '%, #1D1D31 ' + value + '%, #1D1D31 100%)'
+        slider.style.background = 'linear-gradient(to right, #DB4C3E 0%, #DB4C3E ' + value + '%, #1b211e ' + value + '%, #1b211e 100%)'
     }
 
     return (
@@ -72,8 +72,8 @@ function DepositItem(props) {
                 z-index: 0;
                 padding: 12px 10px;
 
-                border: 1px solid #312E5F;
-                background: rgba(52, 49, 97, 0.26);
+                border: 1px solid #2f3532;
+                background: rgba(50, 56, 53, 0.26);
                 box-shadow: 0px 2px 15px 0px rgba(0, 0, 0, 0.10);
 
                 cursor: pointer;
@@ -122,7 +122,7 @@ function DepositItem(props) {
               }
 
               .pink {
-                background: linear-gradient(45deg, rgba(220, 95, 222, 1), rgba(220, 95, 222, 0) 70%);
+                background: linear-gradient(45deg, rgba(64, 201, 172, 1), rgba(64, 201, 172, 0) 70%);
               }
 
               .red {
@@ -138,7 +138,7 @@ function DepositItem(props) {
                 content: '';
                 border-radius: 8px;
                 z-index: -1;
-                background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(169, 181, 210, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #312C5A;
+                background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(169, 181, 210, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #2d3330;
                 top: 1px;
                 left: 1px;
                 width: calc(100% - 2px);
@@ -146,11 +146,11 @@ function DepositItem(props) {
               }
 
               .blue:before {
-                background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(65, 118, 255, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #312C5A;
+                background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(65, 118, 255, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #2d3330;
               }
 
               .pink:before {
-                background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(220, 95, 222, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #312C5A;
+                background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(64, 201, 172, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #2d3330;
               }
 
               .red:before {
@@ -158,7 +158,7 @@ function DepositItem(props) {
               }
 
               .gold:before {
-                background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(252, 164, 33, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #312C5A;
+                background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(252, 164, 33, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #2d3330;
               }
 
               .name {
@@ -192,7 +192,7 @@ function DepositItem(props) {
                 font-weight: 700;
 
                 border-radius: 6px 0;
-                background: linear-gradient(155deg, #56539A 0%, #46437C 100%);
+                background: linear-gradient(155deg, #a6b8ad 0%, #a6b8ad 100%);
                 line-height: 20px;
               }
 

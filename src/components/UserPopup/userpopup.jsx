@@ -102,7 +102,7 @@ function UserModal(props) {
                       <div className='tip-wrapper'>
                         <p className='input-label'>TIP USER</p>
 
-                        <div class='input-wrapper'>
+                        <div class='input-wrapper input-shell'>
                           <img class='coin' src='/assets/icons/coin.svg' height='21' width='21' alt=''/>
                           <input type='number' value={tip()} onInput={(e) => setTip(e.target.valueAsNumber)}/>
                         </div>
@@ -132,7 +132,7 @@ function UserModal(props) {
           width: 100vw;
           height: 100vh;
 
-          background: rgba(24, 23, 47, 0.55);
+          background: rgba(22, 28, 25, 0.55);
 
           display: flex;
           align-items: center;

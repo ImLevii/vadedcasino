@@ -321,7 +321,7 @@ function Deposits(props) {
 
         .code-input input:focus {
           border-color: rgba(31, 214, 95, 0.5);
-          box-shadow: 0 0 0 3px rgba(31,214,95,.06);
+          box-shadow: inset 0 0 0 1px rgba(31,214,95,.65);
         }
 
         .code-input input::placeholder {
@@ -399,7 +399,7 @@ function Deposits(props) {
           max-height: 1px;
 
           border-radius: 2525px;
-          background: #3A386D;
+          background: #393f3c;
         }
 
         .methods {
@@ -475,7 +475,7 @@ function Deposits(props) {
           width: 235px;
           height: 100%;
 
-          background: rgba(32, 30, 65, 0.51);
+          background: rgba(30, 36, 33, 0.51);
 
           display: flex;
           flex-direction: column;
@@ -496,7 +496,7 @@ function Deposits(props) {
           min-height: 1px;
 
           border-radius: 15px;
-          background: linear-gradient(90deg, #4B4887 0%, rgba(75, 72, 135, 0.00) 100%);
+          background: linear-gradient(90deg, #a6b8ad 0%, rgba(166, 184, 173, 0.00) 100%);
 
           margin: 15px 0 25px 0;
         }

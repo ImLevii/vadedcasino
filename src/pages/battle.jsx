@@ -1,15 +1,15 @@
-import {A, useParams, useSearchParams, useNavigate} from "@solidjs/router";
+import {useParams, useSearchParams, useNavigate} from "@solidjs/router";
 import {createEffect, createResource, createSignal, For, onCleanup, Show} from "solid-js";
 import {useWebsocket} from "../contexts/socketprovider";
 import Loader from "../components/Loader/loader";
 import BattleColumn from "../components/Battles/battlecolumn";
 import BattleDropHistory from "../components/Battles/battledrophistory";
-import {subscribeToGame, unsubscribeFromGames} from "../util/socket";
-import {calculateWinnings, convertItems, fillEmptySlots, getRoundWinner, getWonItems} from "../util/battleutil";
+import {calculateWinnings, fillEmptySlots, getRoundWinner, getWonItems} from "../util/battleutil";
 import {Title} from "@solidjs/meta";
 import {resolveImageSrc} from "../util/image";
 import {playGameSFX} from "../util/sound";
 import Avatar from "../components/Level/avatar";
+import BattleFairness from "../components/Battles/battlefairness";
 
 function Battle(props) {
 
@@ -28,6 +28,9 @@ function Battle(props) {
     const [rounds, setRounds] = createSignal([], { equals: false })
     const [round, setRound] = createSignal(0)
     const [block, setBlock] = createSignal('')
+    const [inspecting, setInspecting] = createSignal(false)
+    const [fairnessOpen, setFairnessOpen] = createSignal(false)
+    const [fairnessRevision, setFairnessRevision] = createSignal(0)
 
     // Emojis
     const BATTLE_EMOJIS = ['🔥', '😂', '💀', '🙏', '🍀', '😤', '👑', '🎰']
@@ -64,6 +67,7 @@ function Battle(props) {
                 let max = b.playersPerTeam * b.teams
                 b.players = fillEmptySlots(max, b.players)
 
+                setPlayers(max)
                 setRound(b.round)
                 initRounds(b)
 
@@ -83,33 +87,36 @@ function Battle(props) {
                     setState('WINNERS')
                 }
 
-                setPlayers(max)
                 setBattle(b)
             })
 
+            ws().on('battle:fairness', (id) => { if (id === battle()?.id) setFairnessRevision(n => n + 1) })
+
             ws().on('battle:join', (id, user) => {
                 let curBattle = battle()
-                if (id !== curBattle.id) return
+                if (id !== curBattle?.id) return
 
                 curBattle.players[user.slot - 1] = user
                 setBattle({...curBattle})
             })
 
             ws().on('battle:commit', (id, block) => {
-                if (id !== battle().id) return
+                if (id !== battle()?.id) return
                 setState('EOS')
                 setBlock(block)
             })
 
             ws().on('battle:start', (battleId, rounds, clientSeed, serverSeed) => {
-                // if (battleId !== battle()?.id) return ws().emit('battles:unsubscribe', battleId)
+                if (battleId !== battle()?.id) return
+                setFairnessRevision(n => n + 1)
                 setRounds(rounds)
                 setWonItems(getWonItems(rounds, battle()?.cases))
                 setWon(calculateWinnings(battle().cases, rounds, battle().playersPerTeam))
             })
 
             ws().on('battle:round', (battleId, roundNum) => {
-                // if (battleId !== battle()?.id) return ws().emit('battles:unsubscribe', battleId)
+                if (battleId !== battle()?.id) return
+                setFairnessRevision(n => n + 1)
                 setState('ROLLING')
                 setRound(roundNum)
 
@@ -118,6 +125,8 @@ function Battle(props) {
             })
 
             ws().on('battle:ended', (battleId, { winnerTeam, serverSeed, clientSeed }) => {
+              if (battleId !== battle()?.id) return
+              setFairnessRevision(n => n + 1)
               playGameSFX('battle-win', '/assets/sfx/winorcashout.mp3', {
                 channel: 'result-win',
                 volume: 0.62,
@@ -146,6 +155,7 @@ function Battle(props) {
             ws().off('battle:round')
             ws().off('battle:ended')
             ws().off('battle:emoji')
+            ws().off('battle:fairness')
         }
     })
 
@@ -159,7 +169,8 @@ function Battle(props) {
     }
 
     function resetValues() {
-        setPlayers([])
+        setFairnessOpen(false)
+        setPlayers(0)
         setBattle(null)
         setState('WAITING')
         setBlock(0)
@@ -172,6 +183,11 @@ function Battle(props) {
     function getCase(id) {
         if (!battle() || !battle()?.cases) return
         return battle()?.cases?.find(c => id === c.id)
+    }
+
+    function currentCase() {
+      const sequence = rounds().length ? rounds() : battle()?.rounds || []
+      return getCase(sequence[Math.max(0, round() - 1)]?.caseId)
     }
 
     function isCreator() {
@@ -207,7 +223,7 @@ function Battle(props) {
             ?.map(p => p?.id)
         
         return wonItems()
-            .filter(item => teamPlayerIds?.includes(item.userId))
+            .filter(item => teamPlayerIds?.includes(item.userId) && (state() === 'WINNERS' || item.round < round()))
             .reduce((sum, item) => sum + (item?.price || 0), 0)
     }
 
@@ -219,6 +235,7 @@ function Battle(props) {
     return (
         <>
             <Title>Cosmic Luck | Battle</Title>
+            <Show when={fairnessOpen()}><BattleFairness id={params.id} privateKey={searchParams.pk} revision={fairnessRevision()} onClose={() => setFairnessOpen(false)}/></Show>
 
             <div class='battle-container fadein'>
                 <div class='floating-emojis'>
@@ -238,25 +255,22 @@ function Battle(props) {
                               <div class='battle-cost-pill'>
                                 <span class='pill-label'>Battle Cost</span>
                                 <img src='/assets/chips/chip-green.png' height='12' width='12' alt=''/>
-                                <span class='pill-value'>{((battle()?.entryPrice || 0) > 0 ? battle()?.entryPrice : battle()?.cases?.reduce((sum, c) => sum + (c?.price || 0), 0) || 0).toFixed(2)}</span>
+                                <span class='pill-value'>{((battle()?.entryPrice || 0) > 0 ? battle()?.entryPrice : battle()?.rounds?.reduce((sum, r) => sum + (getCase(r.caseId)?.price || 0), 0) || 0).toFixed(2)}</span>
                               </div>
-                              <button class='inspect-btn' type='button' disabled>Inspect</button>
+                              <button class='inspect-btn' type='button' aria-expanded={inspecting()} onClick={() => setInspecting(!inspecting())}>Inspect</button>
                             </div>
 
                             <div class='topbar-row'>
-                              <button class='replay-btn' type='button'>
-                                <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M21 12a9 9 0 1 1-2.64-6.36'/><polyline points='21 3 21 9 15 9'/></svg>
-                                <span>Replay</span>
-                              </button>
-                              <div class='round-pill'>{Math.max(1, round() || 0)} OF {battle()?.rounds?.length || 0}</div>
+                              <div class='round-pill'><span>Game</span> {Math.max(1, round() || 0)} of {battle()?.rounds?.length || 0}</div>
+                              <span class='mode-label'>{battle()?.gamemode || 'Standard'}</span>
                             </div>
                           </div>
 
                           <div class='topbar-cases'>
-                            <div class='topbar-cases-viewport'>
-                              <div class='cases-track' style={{ transform: `translateX(-${56 * Math.max(0, (round() || 1) - 1) + 30}px)` }}>
+                            <div class='topbar-cases-viewport' tabIndex='0' aria-label='Battle rounds'>
+                              <div class='cases-track'>
                                 <For each={battle()?.rounds || []}>{(r, index) => (
-                                  <div class={'case-mini ' + (Math.max(0, (round() || 1) - 1) === index() ? 'active' : '')}>
+                                  <div ref={el => createEffect(() => { if (index() === Math.max(0, round() - 1)) el.parentElement?.parentElement?.scrollTo({ left: Math.max(0, el.offsetLeft - el.parentElement.parentElement.clientWidth + 80), behavior: 'instant' }) })} class={'case-mini ' + (Math.max(0, (round() || 1) - 1) === index() ? 'active' : '')}>
                                     <img
                                       src={resolveImageSrc(getCase(r?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
                                       alt={getCase(r?.caseId)?.name || 'Battle case'}
@@ -269,23 +283,18 @@ function Battle(props) {
                           </div>
 
                           <div class='topbar-right-block'>
+                            <button class='fairness-btn' type='button' onClick={() => setFairnessOpen(true)} aria-haspopup='dialog'>
+                              <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' aria-hidden='true'><path d='m12 3 8 4v6c0 4-8 8-8 8s-8-4-8-8V7l8-4Z'/><path d='m8 12 3 3 5-6'/></svg>
+                              Provably Fair
+                            </button>
                             <div class='topbar-row'>
                               <button class='back-btn' onClick={() => navigate('/battles')}>
                                 <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><polyline points='15 18 9 12 15 6'/></svg>
                                 <span>Back</span>
                               </button>
-                              <button class='utility-btn' title='Help' type='button' disabled>
-                                <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='12' r='9'/><path d='M9.5 9a2.5 2.5 0 0 1 5 0c0 1.8-2.5 2-2.5 4'/><circle cx='12' cy='17' r='0.8'/></svg>
-                              </button>
                             </div>
 
                             <div class='topbar-row'>
-                              <A href='/docs/provably' class='utility-btn' title='Provably Fair'>
-                                <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z'/><path d='M9 12l2 2 4-4'/></svg>
-                              </A>
-                              <button class='utility-btn' type='button' title='Round' disabled>
-                                <svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M12 6v6l4 2'/><circle cx='12' cy='12' r='9'/></svg>
-                              </button>
                               <button class='utility-btn' type='button' title='Copy link' onClick={() => {
                                 if (navigator.clipboard) navigator.clipboard.writeText(window.location.href)
                               }}>
@@ -301,8 +310,28 @@ function Battle(props) {
                           </div>
                         </div>
 
+                        {/* Emoji reactions */}
+                        <Show when={props.user}>
+                          <div class='emoji-bar' role='group' aria-label='Battle reactions'>
+                            <For each={BATTLE_EMOJIS}>{(emoji) => (
+                              <button class='emoji-btn' type='button' aria-label={`React with ${emoji}`} title={`React with ${emoji}`} onClick={() => sendEmoji(emoji)}>{emoji}</button>
+                            )}</For>
+                          </div>
+                        </Show>
+
+                        <Show when={inspecting()}>
+                          <div class='case-inspection'>
+                            <For each={battle()?.cases || []}>{c => (
+                              <div class='inspected-case'>
+                                <img src={resolveImageSrc(c.img)} alt='' onError={useImageFallback}/>
+                                <div><strong>{c.name}</strong><span>{battle().rounds.filter(r => r.caseId === c.id).length} rounds ? {Number(c.price || 0).toFixed(2)} each</span></div>
+                              </div>
+                            )}</For>
+                          </div>
+                        </Show>
+
                         <div class='columns-wrapper'>
-                          <div class='columns'>
+                          <div class='columns' classList={{ duel: players() === 2 }} style={{ '--desktop-reel-item-size': players() > 2 ? '108px' : '128px' }}>
                             {/* Left half */}
                             <div class='team-lanes left'>
                               <For each={new Array(Math.ceil(players() / 2))}>{(_, idx) =>
@@ -322,7 +351,7 @@ function Battle(props) {
                                     total={won()}
                                     wonItems={wonItems()}
                                     roundWinners={roundWinners()}
-                                    compact={battle()?.teams === 2}
+                                    compact={true}
                                     side='left'
                                 />
                               }</For>
@@ -339,58 +368,17 @@ function Battle(props) {
                                     <div class='lane-tick'><span/></div>
                                   )}</For>
                                 </div>
-                                <div class='center-baseline'/>
-
-                                <Show when={state() === 'WINNERS'} fallback={
-                                  <>
-                                    <div class='center-dashes'>
-                                      <span/><span/><span/><span/><span/>
-                                    </div>
-
-                                    <div class='reel'>
-                                      <div class='reel-case dim'>
-                                        <Show when={rounds()?.[Math.max(0, round() - 2)]}>
-                                          <img
-                                            src={resolveImageSrc(getCase(rounds()?.[Math.max(0, round() - 2)]?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
-                                            alt=''
-                                            onError={useImageFallback}
-                                          />
-                                        </Show>
-                                      </div>
-
-                                      <div class='reel-case current'>
-                                        <img
-                                          src={resolveImageSrc(
-                                            getCase(rounds()?.[Math.max(0, round() - 1)]?.caseId)?.img,
-                                            '/assets/logo/cosmic-luck-logo.png'
-                                          )}
-                                          alt={getCase(rounds()?.[Math.max(0, round() - 1)]?.caseId)?.name || 'Case'}
-                                          onError={useImageFallback}
-                                        />
-                                      </div>
-
-                                      <div class='reel-case dim'>
-                                        <Show when={rounds()?.[round()]}>
-                                          <img
-                                            src={resolveImageSrc(getCase(rounds()?.[round()]?.caseId)?.img, '/assets/logo/cosmic-luck-logo.png')}
-                                            alt=''
-                                            onError={useImageFallback}
-                                          />
-                                        </Show>
-                                      </div>
-                                    </div>
-
-                                    <div class='center-footer'>
-                                      <div class='center-price'>
-                                        <img src='/assets/chips/chip-green.png' height='14' width='14' alt=''/>
-                                        <span>{(getCase(rounds()?.[Math.max(0, round() - 1)]?.caseId)?.price || 0).toFixed(2)}</span>
-                                      </div>
-                                      <span class='center-name'>{getCase(rounds()?.[Math.max(0, round() - 1)]?.caseId)?.name || ''}</span>
-                                    </div>
-                                  </>
-                                }>
+                                <div class='center-dashes' aria-hidden='true'><span/><span/><span/><span/><span/></div>
+                                <div class='reel-case current'>
+                                  <img src={resolveImageSrc(currentCase()?.img, '/assets/logo/cosmic-luck-logo.png')} alt={currentCase()?.name || 'Battle case'} onError={useImageFallback}/>
+                                </div>
+                                <div class='center-footer'>
+                                  <div class='center-price'><img src='/assets/chips/chip-green.png' height='14' width='14' alt=''/><span>{Number(currentCase()?.price || 0).toFixed(2)}</span></div>
+                                  <span class='center-name'>{currentCase()?.name}</span>
+                                </div>
+                                <Show when={state() === 'WINNERS'}>
                                   <div class='winner-callout'>
-                                    <span class='winner-label'>Winner</span>
+                                    <span class='winner-label'>{battle()?.teams === 2 ? (winnerTeam() === 0 ? 'Left team wins' : 'Right team wins') : `Team ${winnerTeam() + 1} wins`}</span>
                                     <div class='winner-avatars'>
                                       <For each={getWinningPlayers()}>{(p) => (
                                         <Avatar height='40' id={p?.id} xp={p?.xp || 0}/>
@@ -413,15 +401,15 @@ function Battle(props) {
                             {/* Right half */}
                             <div class='team-lanes right'>
                               <For each={new Array(Math.floor(players() / 2))}>{(_, idx) => {
-                                const colIdx = Math.ceil(players() / 2) + idx()
+                                const colIdx = () => Math.ceil(players() / 2) + idx()
                                 return (
                                   <BattleColumn
-                                      index={colIdx}
+                                      index={colIdx()}
                                       battle={battle()}
-                                      player={battle()?.players[colIdx]}
+                                      player={battle()?.players[colIdx()]}
                                       players={players()}
-                                      team={Math.floor(colIdx / battle()?.playersPerTeam)}
-                                      startOfTeam={colIdx % battle()?.playersPerTeam === 0}
+                                      team={Math.floor(colIdx() / battle()?.playersPerTeam)}
+                                      startOfTeam={colIdx() % battle()?.playersPerTeam === 0}
                                       state={state()}
                                       round={round()}
                                       rounds={rounds()}
@@ -431,7 +419,7 @@ function Battle(props) {
                                       total={won()}
                                       wonItems={wonItems()}
                                       roundWinners={roundWinners()}
-                                      compact={battle()?.teams === 2}
+                                      compact={true}
                                       side='right'
                                   />
                                 )
@@ -485,704 +473,680 @@ function Battle(props) {
                             players={battle()?.players || []}
                             wonItems={wonItems()}
                             rounds={battle()?.rounds || []}
+                            state={state()}
                             round={round()}
                           />
                         </Show>
 
-                        {/* Emoji reactions */}
-                        <Show when={props.user}>
-                          <div class='emoji-bar'>
-                            <For each={BATTLE_EMOJIS}>{(emoji) => (
-                              <button class='emoji-btn' type='button' onClick={() => sendEmoji(emoji)}>{emoji}</button>
-                            )}</For>
-                          </div>
-                        </Show>
+
                     </>
                 )}
             </div>
 
             <style jsx>{`
-              .battle-container {
-                --battle-panel: #101722;
-                --battle-panel-soft: #151d2a;
-                --battle-border: rgba(140, 156, 180, 0.2);
-                --battle-border-strong: rgba(31, 214, 95, 0.35);
-                --battle-text-dim: #8792a4;
-                --battle-text: #dbe4f2;
-
-                width: 100%;
-                max-width: 1920px;
-                height: fit-content;
-
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-
-                box-sizing: border-box;
-                padding: 14px 7px 40px;
-                margin: 0 auto;
-                position: relative;
-                isolation: isolate;
-              }
-
-              /* Live strip styled after reference */
-              .battle-topbar {
-                width: 100%;
-                min-height: 74px;
-                box-sizing: border-box;
-                position: relative;
-                border-radius: 8px;
-                border: 1px solid rgba(255,255,255,0.06);
-                background: #131821;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 10px;
-                padding: 7px 10px;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-              }
-
-              .topbar-left-block,
-              .topbar-right-block {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                gap: 4px;
-                flex: 0 0 auto;
-              }
-
-              .topbar-right-block {
-                align-items: flex-end;
-              }
-
-              .topbar-row {
-                display: flex;
-                align-items: center;
-                gap: 5px;
-              }
-
-              .battle-cost-pill {
-                min-width: 126px;
-                height: 26px;
-                border-radius: 4px;
-                border: 1px solid rgba(255,255,255,0.08);
-                background: #121824;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                gap: 4px;
-                padding: 0 8px;
-              }
-
-              .pill-label {
-                color: #8b92a0;
-                font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 8px;
-                font-weight: 700;
-              }
-
-              .pill-value {
-                color: #1fd65f;
-                font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 10px;
-                font-weight: 800;
-              }
-
-              .inspect-btn,
-              .round-pill {
-                min-width: 86px;
-                height: 26px;
-                padding: 0 8px;
-                border-radius: 4px;
-                border: 1px solid rgba(255,255,255,0.08);
-                background: #1a202a;
-                font-family: "Geogrotesque Wide", sans-serif;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: #aeb8ca;
-                font-size: 10px;
-                font-weight: 700;
-              }
-
-              .replay-btn {
-                min-width: 86px;
-                height: 26px;
-                padding: 0 8px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 5px;
-                border-radius: 4px;
-                border: 1px solid rgba(255,255,255,0.08);
-                background: #1a202b;
-                color: #d2dae8;
-                font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 10px;
-                font-weight: 700;
-                cursor: pointer;
-              }
-
-              .replay-btn:hover {
-                border-color: rgba(255,255,255,0.14);
-                background: #242c39;
-              }
-
-              .topbar-cases {
-                flex: 1;
-                min-width: 0;
-                height: 60px;
-                border: 1px solid rgba(255,255,255,0.06);
-                border-radius: 5px;
-                background: #101622;
-                display: flex;
-                align-items: center;
-                padding: 0 6px;
-                overflow: hidden;
-              }
-
-              .topbar-cases-viewport {
-                width: 100%;
-                height: 100%;
-                position: relative;
-                overflow: hidden;
-              }
-
-              .cases-track {
-                height: 100%;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                position: absolute;
-                left: 50%;
-                top: 0;
-                transform: translateX(-30px);
-                transition: transform .35s ease;
-              }
-
-              .case-mini {
-                width: 50px;
-                height: 44px;
-                border-radius: 4px;
-                border: 1px solid rgba(255,255,255,0.08);
-                background: #1a202a;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
-                position: relative;
-              }
-
-              .case-mini img {
-                width: 86%;
-                height: 86%;
-                object-fit: contain;
-                opacity: .8;
-              }
-
-              .case-mini.active {
-                border-color: rgba(31,214,95,0.46);
-                box-shadow: inset 0 -1px 0 rgba(31,214,95,0.7);
-              }
-
-              .case-mini.active img {
-                opacity: 1;
-              }
-
-              .utility-btn {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 22px;
-                height: 22px;
-                border-radius: 4px;
-                border: 1px solid rgba(255,255,255,0.08);
-                background: #1a202a;
-                color: #8f98a9;
-                cursor: pointer;
-                transition: all var(--transition-fast);
-                text-decoration: none;
-                padding: 0;
-                position: relative;
-              }
-
-              .utility-btn:hover {
-                border-color: rgba(255,255,255,0.14);
-                color: #e8eefc;
-                background: #222a35;
-              }
-
-              .utility-btn:disabled {
-                opacity: .5;
-                cursor: default;
-              }
-
-              .back-btn {
-                min-width: 90px;
-                height: 26px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 5px;
-                border-radius: 4px;
-                border: 1px solid rgba(255,255,255,0.08);
-                background: #1a202a;
-                color: #b8c3d6;
-                font-size: 10px;
-                font-weight: 700;
-                cursor: pointer;
-                padding: 0 8px;
-              }
-
-              .back-btn:hover {
-                border-color: rgba(255,255,255,0.14);
-                background: #1a2029;
-                color: #ffffff;
-              }
-
-              .columns-wrapper {
-                width: 100%;
-                position: relative;
-                overflow-x: auto;
-                overflow-y: hidden;
-              }
-
-              .columns {
-                width: 100%;
-                box-sizing: border-box;
-                display: grid;
-                grid-template-columns: minmax(0, 1fr) 126px minmax(0, 1fr);
-                align-items: stretch;
-                gap: 0;
-                padding: 0;
-                border-radius: 8px;
-                border: 1px solid rgba(255,255,255,0.06);
-                background: #0d1219;
-                position: relative;
-                overflow: hidden;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
-              }
-
-              .team-lanes {
-                min-width: 0;
-                display: flex;
-                flex-direction: column;
-                background: #0f131b;
-              }
-
-              .team-lanes.left {
-                border-right: 1px solid rgba(255,255,255,0.035);
-              }
-
-              .team-lanes.right {
-                border-left: 1px solid rgba(255,255,255,0.035);
-              }
-
-              /* Center case reel — mirrors csgoluck.com/case-battle center rail */
-              .center-display {
-                width: 126px;
-                min-height: 100%;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 6px;
-                position: relative;
-                background:
-                  linear-gradient(180deg, rgba(255,255,255,0.018), transparent 18%, transparent 82%, rgba(255,255,255,0.012)),
-                  #090d13;
-                padding: 12px 7px;
-                box-sizing: border-box;
-                border-left: 1px solid rgba(31,214,95,0.18);
-                border-right: 1px solid rgba(31,214,95,0.18);
-              }
-
-              .center-watermark {
-                position: absolute;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 74px;
-                height: 74px;
-                opacity: 0.05;
-                pointer-events: none;
-                z-index: 0;
-              }
-
-              .center-watermark.top { top: 10px; }
-              .center-watermark.bottom { bottom: 10px; }
-
-              /* One tick per lane row, aligned to the right edge of the rail */
-              .lane-rail {
-                position: absolute;
-                top: 0;
-                bottom: 0;
-                right: -1px;
-                width: 2px;
-                display: flex;
-                flex-direction: column;
-                pointer-events: none;
-                z-index: 2;
-              }
-
-              .lane-tick {
-                flex: 1;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              }
-
-              .lane-tick span {
-                width: 2px;
-                height: 62%;
-                border-radius: 999px;
-                background: #1fd65f;
-                box-shadow: 0 0 7px rgba(31,214,95,0.55);
-              }
-
-              .center-display.rolling .lane-tick span {
-                background: #ffe600;
-                box-shadow: 0 0 8px rgba(255,230,0,.55);
-              }
-
-              .center-baseline {
-                position: absolute;
-                bottom: 0;
-                left: 22%;
-                right: 22%;
-                height: 2px;
-                border-radius: 999px;
-                background: #f95151;
-                box-shadow: 0 0 8px rgba(249,81,81,0.45);
-                pointer-events: none;
-                z-index: 2;
-              }
-
-              .center-dashes {
-                display: flex;
-                gap: 4px;
-                z-index: 2;
-              }
-
-              .center-dashes span {
-                width: 8px;
-                height: 2px;
-                border-radius: 999px;
-                background: rgba(31,214,95,0.75);
-                box-shadow: 0 0 6px rgba(31,214,95,0.5);
-              }
-
-              .reel {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 5px;
-                position: relative;
-                padding: 0 10px;
-              }
-
-              .reel-case {
-                position: relative;
-                z-index: 1;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              }
-
-              .reel-case img {
-                object-fit: contain;
-              }
-
-              .reel-case.dim {
-                width: 50px;
-                height: 38px;
-                opacity: 0.32;
-                filter: grayscale(0.4);
-              }
-
-              .reel-case.dim img {
-                width: 42px;
-                height: 34px;
-              }
-
-              .reel-case.current img {
-                width: 92px;
-                height: 92px;
-                filter: drop-shadow(0 6px 24px rgba(0,0,0,0.55));
-              }
-
-              .center-footer {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 4px;
-                position: relative;
-                z-index: 1;
-              }
-
-              .center-price {
-                display: flex;
-                align-items: center;
-                gap: 4px;
-                font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 13px;
-                font-weight: 700;
-                color: #1fd65f;
-              }
-
-              .center-name {
-                font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 10px;
-                font-weight: 600;
-                color: #6b7280;
-                text-align: center;
-                max-width: 108px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-              }
-
-              .winner-callout {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 6px;
-              }
-
-              .winner-label {
-                font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 10px;
-                font-weight: 800;
-                letter-spacing: 0.6px;
-                text-transform: uppercase;
-                color: #1fd65f;
-              }
-
-              .winner-avatars {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 6px;
-              }
-
-              .winner-avatars :global(img) {
-                border-radius: 50%;
-                border: 2px solid rgba(31,214,95,0.5);
-                box-shadow: 0 0 12px rgba(31,214,95,0.35);
-              }
-
-              .winner-names {
-                display: flex;
-                flex-wrap: wrap;
-                align-items: center;
-                justify-content: center;
-                gap: 2px;
-                max-width: 150px;
-              }
-
-              .winner-name {
-                font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 11px;
-                font-weight: 700;
-                color: #dbe4f2;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-              }
-
-              .winner-amount {
-                display: flex;
-                align-items: center;
-                gap: 4px;
-                font-family: 'Geogrotesque Wide', sans-serif;
-                font-size: 14px;
-                font-weight: 800;
-                color: #1fd65f;
-              }
-
-              /* Team Totals Bar */
-              .team-totals {
-                width: 100%;
-                min-height: 46px;
-                height: 46px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 8px;
-                padding: 5px 8px;
-                border-radius: 8px;
-                border: 1px solid rgba(255,255,255,0.06);
-                background: #111720;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-              }
-
-              .team-side {
-                flex: 1;
-                height: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 7px;
-                min-width: 0;
-              }
-
-              .team-side.right {
-                justify-content: flex-end;
-              }
-
-              .total-drops {
-                width: min(300px, 34%);
-                height: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                border-radius: 5px;
-                border-color: rgba(31,214,95,0.2);
-                background: linear-gradient(180deg, rgba(31,214,95,0.08), rgba(15,21,30,0.95));
-                border: 1px solid rgba(31,214,95,0.2);
-                padding: 0 9px;
-              }
-
-              .team-label {
-                color: #8b92a0;
-                font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 10px;
-                font-weight: 800;
-                text-transform: uppercase;
-                white-space: nowrap;
-              }
-
-              .team-avatars {
-                display: flex;
-                align-items: center;
-                gap: 3px;
-                min-width: 0;
-              }
-
-              .totals-value {
-                display: flex;
-                align-items: center;
-                gap: 4px;
-                color: #ffffff;
-                font-family: "Geogrotesque Wide", sans-serif;
-                font-size: 12px;
-                font-weight: 700;
-                white-space: nowrap;
-              }
-
-              .totals-value img {
-                filter: drop-shadow(0 0 6px rgba(31,214,95,.3));
-              }
-
-              @media only screen and (max-width: 1040px) {
-                .columns { min-width: 860px; }
-                .topbar-cases {
-                  min-width: 260px;
-                }
-              }
-
-              @media only screen and (max-width: 620px) {
-                .battle-container { padding: 8px 6px 24px; gap: 8px; }
-                .battle-topbar { min-height: 92px; padding: 7px; gap: 8px; flex-wrap: wrap; align-items: stretch; }
-                .topbar-left-block { order: 1; width: auto; }
-                .topbar-cases { order: 3; width: 100%; flex-basis: 100%; min-height: 48px; }
-                .topbar-right-block { order: 2; margin-left: auto; align-items: stretch; }
-                .topbar-row { justify-content: space-between; }
-                .back-btn { min-width: 88px; }
-                .columns { min-width: 760px; grid-template-columns: minmax(0, 1fr) 112px minmax(0, 1fr); }
-                .center-display { width: 112px; }
-                .team-totals { min-height: 40px; height: 40px; gap: 5px; padding: 5px; }
-                .team-label { font-size: 8px; }
-                .totals-value { font-size: 10px; }
-                .totals-value img { width: 12px; height: 12px; }
-                .total-drops { width: 34%; padding: 0 4px; }
-              }
-
-              /* Floating emoji reactions — mirrors csgoluck.com/case-battle */
-              .floating-emojis {
-                position: absolute;
-                inset: 0;
-                z-index: 30;
-                overflow: hidden;
-                pointer-events: none;
-              }
-
-              .floating-emoji {
-                position: absolute;
-                bottom: 6%;
-                font-size: 28px;
-                line-height: 1;
-                animation: emoji-float 2.8s ease-out forwards;
-                filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
-              }
-
-              @keyframes emoji-float {
-                0% { transform: translateY(0) scale(0.6); opacity: 0; }
-                12% { transform: translateY(-10%) scale(1); opacity: 1; }
-                80% { opacity: 1; }
-                100% { transform: translateY(-320%) scale(0.9); opacity: 0; }
-              }
-
-              .emoji-bar {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 6px;
-                flex-wrap: wrap;
-                padding: 8px;
-                border-radius: 8px;
-                border: 1px solid rgba(255,255,255,0.06);
-                background: #111720;
-              }
-
-              .emoji-btn {
-                width: 36px;
-                height: 36px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 6px;
-                border: 1px solid rgba(255,255,255,0.06);
-                background: #151c27;
-                font-size: 17px;
-                line-height: 1;
-                cursor: pointer;
-                transition: transform .15s ease, border-color .15s ease, background .15s ease;
-              }
-
-              .emoji-btn:hover {
-                transform: translateY(-2px) scale(1.08);
-                border-color: rgba(31,214,95,0.35);
-                background: #1a212d;
-              }
-
-              .emoji-btn:active {
-                transform: translateY(0) scale(0.96);
-              }
-
-              @media only screen and (max-width: 620px) {
-                .floating-emoji { font-size: 22px; }
-                .emoji-btn { width: 32px; height: 32px; font-size: 15px; }
-              }
-
-              @media (prefers-reduced-motion: reduce) {
-                .cases, .case {
-                  transition: none;
-                  animation-duration: .01ms;
-                }
-
-                .floating-emoji {
-                  animation: emoji-float-reduced 1.6s ease-out forwards;
-                }
-              }
-
-              @keyframes emoji-float-reduced {
-                0% { opacity: 0; }
-                20% { opacity: 1; }
-                80% { opacity: 1; }
-                100% { opacity: 0; }
-              }
-            `}</style>
+
+          .fairness-btn { display:flex; align-items:center; justify-content:center; gap:6px; white-space:nowrap; background:#121b16; color:#a7b6ac; border:1px solid #2b3c30; border-radius:4px; padding:7px 10px; font:inherit; font-size:11px; cursor:pointer; }
+          .fairness-btn:hover { color:#1fd65f; border-color:#258b49; }
+
+          .battle-container {
+            width: 100%;
+            max-width: 2040px;
+            margin: 0 auto;
+            padding: 18px 12px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            position: relative;
+            color: #f2f3f5;
+            box-sizing: border-box;
+          }
+
+          .battle-topbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 92px;
+            padding: 12px;
+            border-radius: 6px;
+            background: #17191f;
+          }
+
+          .topbar-left-block,.topbar-right-block {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+          }
+
+          .topbar-row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+          }
+
+          .battle-cost-pill,.round-pill {
+            width: 148px;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0 10px;
+            background: #0e1015;
+            border: 1px solid #090b0f;
+            border-radius: 3px;
+            font-size: 11px;
+            box-sizing: border-box;
+          }
+
+          .pill-label,.round-pill>span {
+            color: #9298a5;
+            margin-right: 3px;
+            font-size: 10px;
+          }
+
+          .pill-value {
+            color: #1fd65f;
+            font-weight: 700;
+          }
+
+          .round-pill {
+            font-weight: 700;
+          }
+
+          .mode-label {
+            width: 96px;
+            text-align: center;
+            color: #939ba8;
+            font-size: 10px;
+            text-transform: capitalize;
+          }
+
+          .inspect-btn,.back-btn,.utility-btn {
+            border: 1px solid transparent;
+            background: #21242c;
+            border-radius: 3px;
+            color: #a4acba;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0;
+            height: 32px;
+            font: 600 11px 'Geogrotesque Wide',sans-serif;
+          }
+
+          .inspect-btn {
+            width: 96px;
+          }
+
+          .back-btn {
+            width: 108px;
+          }
+
+          .utility-btn {
+            width: 32px;
+          }
+
+          .inspect-btn:hover,.back-btn:hover,.utility-btn:hover {
+            color: #fff;
+            border-color: #3a424c;
+          }
+
+          .inspect-btn[aria-expanded=true] {
+            color: #1fd65f;
+            border-color: #24663b;
+          }
+
+          .battle-topbar button:focus-visible,.emoji-btn:focus-visible {
+            outline: 2px solid #1fd65f;
+            outline-offset: 3px;
+          }
+
+          .topbar-right-block .topbar-row {
+            justify-content: flex-end;
+          }
+
+          .topbar-cases {
+            flex: 1;
+            min-width: 0;
+            align-self: stretch;
+            background: #101217;
+            border-radius: 3px;
+          }
+
+          .topbar-cases-viewport {
+            height: 100%;
+            min-height: 68px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            position: relative;
+          }
+
+          .topbar-cases-viewport::-webkit-scrollbar { display: none; }
+
+          .cases-track {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: max-content;
+            min-height: 68px;
+            padding: 6px;
+            position: relative;
+          }
+
+          .case-mini {
+            width: 56px;
+            height: 56px;
+            flex-shrink: 0;
+            background: #21242c;
+            border-radius: 3px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+          }
+
+          .case-mini img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+          }
+
+          .case-mini.active:before,.case-mini.active:after {
+            content: '';
+            position: absolute;
+            left: calc(50% - 4px);
+            width: 8px;
+            height: 2px;
+            background: #1fd65f;
+            box-shadow: 0 0 8px #1fd65f88;
+          }
+
+          .case-mini.active:before {
+            top: -4px;
+          }
+
+          .case-mini.active:after {
+            bottom: -4px;
+          }
+
+          .case-inspection {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            background: #17191f;
+            padding: 16px;
+            border-radius: 5px;
+          }
+
+          .inspected-case {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+          }
+
+          .inspected-case>img {
+            width: 56px;
+            height: 56px;
+            object-fit: contain;
+          }
+
+          .inspected-case>div {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 12px;
+          }
+
+          .inspected-case span {
+            font-size: 11px;
+            color: #949ba7;
+          }
+
+          .columns-wrapper {
+            width: 100%;
+            min-width: 0;
+          }
+
+          .columns {
+            --reel-item-size: var(--desktop-reel-item-size, 108px);
+            --lane-height: calc(var(--reel-item-size, 108px) + 24px);
+            display: grid;
+            grid-template-columns: minmax(0,1fr) clamp(112px, 10vw, 144px) minmax(0,1fr);
+            gap: 12px;
+          }
+
+          .team-lanes {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-width: 0;
+          }
+
+          .center-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #0b0d11;
+            border: 1px solid #07090c;
+            border-radius: 7px;
+            position: relative;
+            padding: 16px 10px;
+            min-width: 0;
+          }
+
+          .center-watermark {
+            position: absolute;
+            left: calc(50% - 40px);
+            width: 80px;
+            height: 80px;
+            opacity: .035;
+            pointer-events: none;
+          }
+
+          .center-watermark.top {
+            top: 30px;
+          }
+
+          .center-watermark.bottom {
+            bottom: 30px;
+          }
+
+          .lane-rail {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            pointer-events: none;
+          }
+
+          .lane-tick {
+            flex: 1;
+            position: relative;
+          }
+
+          .lane-tick:before,.lane-tick:after {
+            content: '';
+            position: absolute;
+            top: calc(50% - 20px);
+            height: 80px;
+            width: 2px;
+            background: #1fd65f;
+            box-shadow: 0 0 9px #1fd65f80;
+          }
+
+          .lane-tick:before {
+            left: -1px;
+          }
+
+          .lane-tick:after {
+            right: -1px;
+          }
+
+          .center-dashes {
+            display: flex;
+            gap: 6px;
+            position: absolute;
+            top: 0;
+          }
+
+          .center-dashes span {
+            width: 10px;
+            height: 2px;
+            background: #1fd65f88;
+            box-shadow: 0 0 7px #1fd65f55;
+          }
+
+          .reel-case {
+            position: relative;
+            z-index: 1;
+          }
+
+          .reel-case img {
+            width: min(100%, 124px);
+            height: 88px;
+            object-fit: contain;
+            filter: drop-shadow(0 6px 16px #0008);
+          }
+
+          .center-footer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            z-index: 1;
+          }
+
+          .center-price {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 700;
+          }
+
+          .center-name {
+            color: #92969f;
+            font-size: 10px;
+            line-height: 1.5;
+            text-align: center;
+            text-transform: uppercase;
+            overflow-wrap: anywhere;
+          }
+
+          .winner-callout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            border-top: 1px solid #25292e;
+            padding-top: 12px;
+            margin-top: 8px;
+            width: 100%;
+            z-index: 1;
+          }
+
+          .winner-label {
+            font-size: 10px;
+            color: #1fd65f;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+          }
+
+          .winner-avatars {
+            display: none;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 4px;
+          }
+
+          .winner-names {
+            display: none;
+          }
+
+          .winner-amount {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #1fd65f;
+          }
+
+          .team-totals {
+            display: grid;
+            grid-template-columns: repeat(3,minmax(0,1fr));
+            gap: 12px;
+          }
+
+          .team-side,.total-drops {
+            min-width: 0;
+            min-height: 58px;
+            background: #0c0e12;
+            border: 1px solid #080a0e;
+            border-radius: 3px;
+            display: grid;
+            align-content: center;
+            gap: 3px 10px;
+            padding: 8px 12px;
+          }
+
+          .team-side {
+            grid-template-columns: auto 1fr;
+          }
+
+          .team-side .team-avatars {
+            grid-column: 1;
+            grid-row: 1 / 3;
+          }
+
+          .team-side .team-label,.team-side .totals-value {
+            grid-column: 2;
+          }
+
+          .team-side .team-label {
+            grid-row: 1;
+          }
+
+          .team-side.right {
+            grid-template-columns: 1fr auto;
+            text-align: right;
+          }
+
+          .team-side.right .team-avatars {
+            grid-column: 2;
+          }
+
+          .team-side.right .team-label,.team-side.right .totals-value {
+            grid-column: 1;
+            justify-content: flex-end;
+          }
+
+          .total-drops {
+            justify-items: center;
+          }
+
+          .team-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #edf0f5;
+          }
+
+          .team-avatars,.totals-value {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+          }
+
+          .totals-value {
+            font-size: 11px;
+            font-weight: 700;
+          }
+
+          .floating-emojis {
+            position: absolute;
+            inset: 0;
+            z-index: 30;
+            overflow: hidden;
+            pointer-events: none;
+          }
+
+          .floating-emoji {
+            position: absolute;
+            bottom: 6%;
+            font-size: 28px;
+            animation: emoji-float 2.8s ease-out forwards;
+          }
+
+          @keyframes emoji-float {
+
+            0% {
+              transform: translateY(0) scale(.6);
+              opacity: 0;
+            }
+
+            12% {
+              opacity: 1;
+            }
+
+            80% {
+              opacity: 1;
+            }
+
+            100% {
+              transform: translateY(-320%);
+              opacity: 0;
+            }
+          }
+
+          .emoji-bar {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: -12px;
+            margin-bottom: -8px;
+          }
+
+          .emoji-btn {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #292d35;
+            border-radius: 4px;
+            background: #191c22;
+            display: grid;
+            place-items: center;
+            padding: 0;
+            font-size: 17px;
+            cursor: pointer;
+          }
+
+          .emoji-btn:hover, .emoji-btn:focus-visible {
+            border-color: #1fd65f;
+            background: #22272c;
+          }
+
+          @media(max-width:1100px) {
+
+            .battle-container {
+              gap: 18px;
+            }
+
+            .columns {
+              grid-template-columns: minmax(0,1fr) 124px minmax(0,1fr);
+              gap: 8px;
+            }
+
+            .reel-case img {
+              width: 104px;
+              height: 90px;
+            }
+
+            .battle-cost-pill,.round-pill {
+              width: 124px;
+            }
+
+            .inspect-btn,.mode-label {
+              width: 70px;
+            }
+          }
+
+          @media(min-width:701px) {
+            .columns.duel .center-display.winners { padding: 12px 8px; gap: 6px; }
+            .columns.duel .center-display.winners .reel-case img { height: 68px; }
+            .columns.duel .winner-callout { padding-top: 8px; margin-top: 0; gap: 5px; }
+          }
+
+          @media(max-width:700px) {
+
+            .battle-container {
+              padding: 12px 8px 24px;
+              gap: 16px;
+            }
+
+            .battle-topbar {
+              flex-wrap: wrap;
+              padding: 10px;
+              gap: 10px;
+            }
+
+            .topbar-cases {
+              order: 3;
+              flex-basis: 100%;
+            }
+
+            .topbar-right-block {
+              margin-left: auto;
+            }
+
+            .back-btn {
+              width: 76px;
+            }
+
+            .columns {
+              --reel-item-size: 92px;
+              grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+              gap: 14px 10px;
+            }
+
+            .center-display {
+              grid-column: 1 / -1;
+              grid-row: 1;
+              flex-direction: row;
+              min-height: 96px;
+              padding: 12px;
+              gap: 14px;
+            }
+
+            .reel-case img {
+              width: 78px;
+              height: 70px;
+            }
+
+            .center-name {
+              max-width: 130px;
+            }
+
+            .center-footer {
+              align-items: flex-start;
+            }
+
+            .center-watermark,.lane-rail {
+              display: none;
+            }
+
+            .winner-callout {
+              width: auto;
+              border-top: 0;
+              border-left: 1px solid #25292e;
+              margin: 0 0 0 auto;
+              padding: 0 0 0 12px;
+            }
+
+            .winner-avatars {
+              display: none;
+            }
+
+            .team-totals {
+              gap: 6px;
+            }
+
+            .team-side,.total-drops {
+              padding: 8px 5px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 5px;
+            }
+
+            .team-side .team-avatars {
+              display: none;
+            }
+
+            .team-side .team-label {
+              order: 0;
+            }
+
+            .team-side .totals-value {
+              order: 1;
+            }
+
+            .team-label,.totals-value {
+              font-size: 10px;
+            }
+          }
+
+          @media(prefers-reduced-motion:reduce) {
+
+            .floating-emoji {
+              animation: none;
+            }
+          }
+        `}</style>
         </>
     );
 }

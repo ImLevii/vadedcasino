@@ -1,4 +1,5 @@
 export const errors = {
+    RANDOM_ORG_UNAVAILABLE: 'Verified randomness is temporarily unavailable. Your balance has not been charged. Please try again shortly.',
     UNAUTHORIZED: 'You have to login to do that.',
     FORBIDDEN: "You don't have permission to do that.",
     INVALID_PASSWORD: 'The password you entered is invalid.',
@@ -18,6 +19,7 @@ export const errors = {
     CODE_NOT_FOUND: "This code doesn't exist.",
     INSUFFICIENT_BALANCE: "You don't have enough balance to do that.",
     ALREADY_STARTED: 'This game has already started.',
+    ROUND_UNAVAILABLE: 'The next round is getting ready. Please try again in a moment.',
     NO_BOTS_AVAILABLE: 'There are no bots available to play.',
     ALREADY_IN_BATTLE: "You've already joined this battle.",
     SLOT_TAKEN: 'This slot is already taken.',
@@ -119,6 +121,9 @@ export const errors = {
     SKINDECK_CONTRACT_UNAVAILABLE: 'Skin deposits and withdrawals are temporarily unavailable.',
     SKINDECK_UNAVAILABLE: 'Skin deposits and withdrawals are temporarily unavailable.',
     STEAM_DETAILS_REQUIRED: 'Add your Steam trade URL and API key on your profile before using SkinDeck.',
+    STEAM_TRADE_ACCOUNT_MISMATCH: 'Your trade URL must belong to the Steam account linked to your profile.',
+    INVALID_TRADE_URL: 'Enter a valid Steam trade URL on your profile.',
+    PAYMENT_REFERENCE_MISMATCH: 'The trade confirmation does not match this payment. Please contact support.',
     INVALID_ITEMS: 'Select between one and twenty available skins.',
     ITEM_UNAVAILABLE: 'One of the selected skins is no longer available.',
     INVALID_TRANSACTION_TYPE: 'Invalid transaction type.',

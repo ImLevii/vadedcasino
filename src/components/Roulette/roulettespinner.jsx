@@ -1,8 +1,6 @@
-import {createEffect, createSignal, For} from "solid-js";
+import {createEffect, For, Show} from "solid-js";
 import RouletteIcon from "./rouletteicons";
 import RouletteNumbers from "./roulettenumbers";
-import {useWebsocket} from "../../contexts/socketprovider";
-import IndicatorLine from "../IndicatorLine/indicatorline";
 
 // Keep bait numbers adjacent to green so the spinner visually lands with bait
 // slots flanking green on both sides.
@@ -64,34 +62,28 @@ function RouletteSpinner(props) {
     return (
         <>
             <div class='spinner-wrapper'>
-                {/* Top marker line — short horizontal green dash above center slot */}
-                <IndicatorLine
-                  orientation='horizontal'
-                  length='10px'
-                  thickness='2px'
-                  pulse={false}
-                  style={{ position: 'absolute', left: '50%', top: '11px', transform: 'translateX(-50%)', 'z-index': 4 }}
-                />
-                {/* Bottom marker line — short horizontal green dash below center slot */}
-                <IndicatorLine
-                  orientation='horizontal'
-                  length='10px'
-                  thickness='2px'
-                  pulse={false}
-                  style={{ position: 'absolute', left: '50%', bottom: '30px', transform: 'translateX(-50%)', 'z-index': 4 }}
-                />
                 <div class='fade-left'/>
                 <div class='fade-right'/>
-                <div class='spinner-container'>
-                    <div class='icons' ref={icons}>
+                <div class='spinner-container' classList={{ 'is-waiting': props.timeLeft > 0 }}>
+                    <span class='center-marker marker-top' aria-hidden='true'/>
+                    <span class='center-marker marker-bottom' aria-hidden='true'/>
+                    <div class='icons' ref={icons} style={{ transform: `translateX(-${numberToOffset(0) + 1275}px)` }}>
                         <For each={[...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS]}>{(num, index) =>
                             <RouletteIcon num={num} roll={props.roll} config={props.config}/>
                         }</For>
                     </div>
+                    <Show when={props.timeLeft > 0}>
+                        <div class='spinner-countdown'>
+                            <p>Starting in <strong>{(props.timeLeft / 1000).toFixed(2)}</strong></p>
+                            <div class='countdown-track' aria-hidden='true'>
+                                <div class='countdown-fill' style={{ transform: `scaleX(${Math.min(1, Math.max(0, props.timeLeft / (props.config?.betTime || 10000)))})` }}/>
+                            </div>
+                        </div>
+                    </Show>
                 </div>
 
                 <div class='numbers-container'>
-                    <div class='numbers' ref={numbers}>
+                    <div class='numbers' ref={numbers} style={{ transform: `translateX(-${numberToOffset(0) + 1275}px)` }}>
                         <For each={[...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS]}>{(num, index) =>
                             <RouletteNumbers num={num} roll={props.roll} config={props.config}/>
                         }</For>
@@ -108,6 +100,60 @@ function RouletteSpinner(props) {
                 flex-direction: column;
                 
                 position: relative;
+              }
+
+              .center-marker {
+                position: absolute;
+                left: 50%;
+                width: 10px;
+                height: 2px;
+                transform: translateX(-50%);
+                background: #1fd68b;
+                box-shadow: 0 0 6px rgba(31, 214, 139, .3);
+                z-index: 4;
+                pointer-events: none;
+              }
+
+              .marker-top { top: 4px; }
+              .marker-bottom { bottom: 4px; }
+
+              .spinner-container.is-waiting .icons { opacity: .35; }
+
+              .spinner-countdown {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: min(260px, 75%);
+                z-index: 3;
+                pointer-events: none;
+                text-align: center;
+              }
+
+              .spinner-countdown p {
+                margin: 0 0 14px;
+                color: #96999f;
+                font-size: 15px;
+                font-weight: 700;
+              }
+
+              .spinner-countdown strong {
+                color: #e0e1e4;
+                font-variant-numeric: tabular-nums;
+              }
+
+              .countdown-track {
+                height: 4px;
+                background: rgba(31, 214, 139, .12);
+                border-radius: 2px;
+                overflow: hidden;
+              }
+
+              .countdown-fill {
+                width: 100%;
+                height: 100%;
+                background: #1fb980;
+                transform-origin: left center;
               }
 
               /* Side gradient fades */
@@ -184,7 +230,6 @@ function RouletteSpinner(props) {
                 position: absolute;
                 left: 50%;
 
-                transform: translatex(-1910px);
               }
               
               .numbers {

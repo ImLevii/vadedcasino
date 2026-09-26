@@ -20,7 +20,7 @@ function Games() {
     return (
         <>
             <div class='games-container' onClick={(e) => e.stopPropagation()}>
-                <div class={'games ' + (active() ? 'active' : '')} onClick={() => {
+                <button type='button' aria-expanded={active()} aria-controls='games-menu' class={'games ' + (active() ? 'active' : '')} onClick={() => {
                     const wasActive = active();
                     closeDropdowns();
                     setActive(!wasActive);
@@ -40,9 +40,9 @@ function Games() {
                             d="M3.50001 0.994671C3.62547 0.994671 3.7509 1.04269 3.84655 1.13852L6.8564 4.15579C7.04787 4.34773 7.04787 4.65892 6.8564 4.85078C6.66501 5.04263 6.5 4.99467 6.16316 4.99467L3.50001 4.99467L1 4.99467C0.5 4.99467 0.335042 5.04254 0.14367 4.85068C-0.0478893 4.65883 -0.0478893 4.34764 0.14367 4.1557L3.15347 1.13843C3.24916 1.04258 3.3746 0.994671 3.50001 0.994671Z"
                             fill="#8b92a0"/>
                     </svg>
-                </div>
+                </button>
 
-                <div class={'dropdown ' + (active() ? 'active' : '')}>
+                <div id='games-menu' class={'dropdown ' + (active() ? 'active' : '')} inert={active() ? undefined : ''} aria-hidden={!active()}>
                     <div class='decoration-arrow'/>
                     <div class='dropdown-container'>
                         <div class='dropdown-header'>
@@ -81,7 +81,7 @@ function Games() {
                 padding: 0 12px;
                 box-sizing: border-box;
 
-                height: 36px;
+                height: var(--nav-control-height, 40px);
                 border-radius: 8px;
 
                 font-weight: 700;
@@ -257,6 +257,15 @@ function Games() {
                 color: #1fd65f;
                 transform: translateX(2px);
               }
+              .games { border:1px solid var(--nav-edge,#ffffff12); background:var(--nav-glass,linear-gradient(160deg,#ffffff10,#ffffff03)); box-shadow:var(--nav-shadow); border-radius:10px; font-family:inherit; font-size:12px; letter-spacing:.3px; color:#b6c2c6; }
+              .games:hover,.games.active { border-color:#1fd65f40; background:linear-gradient(145deg,#ffffff12,#1fd65f0c); color:#f1fff5; }
+              .games .arrow { transform:rotate(180deg); transition:transform .2s; }
+              .games.active .arrow { transform:rotate(0deg); }
+              .dropdown { top:calc(var(--nav-control-height,40px) + 5px); visibility:hidden; }
+              .dropdown.active { visibility:visible; }
+              .dropdown-container { background:linear-gradient(145deg,#ffffff0a,#ffffff02),#10191cfa; border-color:#ffffff18; backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); box-shadow:inset 0 1px 0 #ffffff0e,0 18px 45px #0007; border-radius:14px; }
+              .decoration-arrow { display:none; }
+              .games:focus-visible { outline:2px solid #61e996; outline-offset:-2px; }
             `}</style>
         </>
     );

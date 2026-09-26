@@ -155,7 +155,7 @@ function Slots(props) {
             <svg xmlns="http://www.w3.org/2000/svg" width="9" height="6" viewBox="0 0 9 6" fill="none">
               <path
                 d="M4.50001 -5.60273e-07C4.66131 -5.74374e-07 4.82259 0.0719308 4.94557 0.215494L8.81537 4.73537C9.06154 5.02289 9.06154 5.48906 8.81537 5.77646C8.5693 6.06387 8.35714 5.99202 7.92407 5.99202L4.50002 5.99202L1.28571 5.99202C0.642858 5.99202 0.430769 6.06373 0.184718 5.77632C-0.0615712 5.48892 -0.0615712 5.02275 0.184718 4.73523L4.05446 0.215353C4.1775 0.0717678 4.33878 -5.46177e-07 4.50001 -5.60273e-07Z"
-                fill="#9489DB"/>
+                fill="#a6b8ad"/>
             </svg>
 
             <div className='dropdown left' onClick={(e) => e.stopPropagation()}>
@@ -187,7 +187,7 @@ function Slots(props) {
             <svg xmlns="http://www.w3.org/2000/svg" width="9" height="6" viewBox="0 0 9 6" fill="none">
               <path
                 d="M4.50001 -5.60273e-07C4.66131 -5.74374e-07 4.82259 0.0719308 4.94557 0.215494L8.81537 4.73537C9.06154 5.02289 9.06154 5.48906 8.81537 5.77646C8.5693 6.06387 8.35714 5.99202 7.92407 5.99202L4.50002 5.99202L1.28571 5.99202C0.642858 5.99202 0.430769 6.06373 0.184718 5.77632C-0.0615712 5.48892 -0.0615712 5.02275 0.184718 4.73523L4.05446 0.215353C4.1775 0.0717678 4.33878 -5.46177e-07 4.50001 -5.60273e-07Z"
-                fill="#9489DB"/>
+                fill="#a6b8ad"/>
             </svg>
 
             <div class='dropdown' onClick={(e) => e.stopPropagation()}>
@@ -322,8 +322,8 @@ function Slots(props) {
           padding: 8px 16px;
 
           border-radius: 8px;
-          border: 1px solid rgba(134, 111, 234, 0.15);
-          background: linear-gradient(0deg, rgba(64, 57, 118, 0.65) 0%, rgba(64, 57, 118, 0.65) 100%), radial-gradient(60% 60% at 50% 50%, rgba(147, 126, 236, 0.15) 0%, rgba(102, 83, 184, 0.15) 100%);
+          border: 1px solid rgba(31, 214, 95, 0.15);
+          background: linear-gradient(0deg, rgba(31, 214, 95, 0.65) 0%, rgba(31, 214, 95, 0.65) 100%), radial-gradient(60% 60% at 50% 50%, rgba(166, 184, 173, 0.15) 0%, rgba(31, 214, 95, 0.15) 100%);
         }
 
         .sorting-wrapper {
@@ -333,7 +333,7 @@ function Slots(props) {
 
           position: relative;
 
-          color: #9189D3;
+          color: #a6b8ad;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 16px;
           font-weight: 600;
@@ -371,8 +371,8 @@ function Slots(props) {
           flex-direction: column;
           gap: 8px;
           
-          background: #26214A;
-          border: 1px solid #3A336D;
+          background: #222825;
+          border: 1px solid #363c39;
           padding: 8px;
           
           width: 245px;
@@ -390,8 +390,8 @@ function Slots(props) {
           text-transform: capitalize;
 
           border-radius: 3px;
-          border: 1px solid rgba(134, 111, 234, 0.15);
-          background: rgba(64, 57, 118, 0.65);
+          border: 1px solid rgba(31, 214, 95, 0.15);
+          background: rgba(31, 214, 95, 0.65);
         }
         
         .checkbox {
@@ -403,8 +403,8 @@ function Slots(props) {
           height: 30px;
 
           border-radius: 3px;
-          border: 1px solid #494182;
-          background: #342E5F;
+          border: 1px solid #1fd65f;
+          background: #303633;
           
           transition: all .3s;
         }
@@ -468,10 +468,10 @@ function Slots(props) {
           width: 100%;
 
           border-radius: 555px;
-          background: radial-gradient(60% 60% at 50% 50%, rgba(147, 126, 236, 0.15) 0%, rgba(102, 83, 184, 0.15) 100%);
+          background: radial-gradient(60% 60% at 50% 50%, rgba(166, 184, 173, 0.15) 0%, rgba(31, 214, 95, 0.15) 100%);
           box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.10);
 
-          color: #9189D3;
+          color: #a6b8ad;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 16px;
           font-weight: 600;
@@ -484,7 +484,7 @@ function Slots(props) {
           width: 180px;
           height: 45px;
 
-          color: #333061;
+          color: #313734;
           font-family: Geogrotesque Wide, sans-serif;
           font-size: 15px;
           font-weight: 700;
@@ -500,7 +500,7 @@ function Slots(props) {
           height: 45px;
 
           border-radius: 5px;
-          background: linear-gradient(90deg, rgb(104, 100, 164) -49.01%, rgba(90, 84, 149, 0.655) -5.08%, rgba(66, 53, 121, 0) 98.28%);
+          background: linear-gradient(90deg, rgb(166, 184, 173) -49.01%, rgba(166, 184, 173, 0.655) -5.08%, rgba(31, 214, 95, 0) 98.28%);
 
           padding: 0 15px;
           display: flex;
@@ -547,8 +547,8 @@ function Slots(props) {
           justify-content: center;
           
           border-radius: 8px;
-          border: 1px solid rgba(134, 111, 234, 0.15);
-          background: linear-gradient(0deg, rgba(64, 57, 118, 0.65) 0%, rgba(64, 57, 118, 0.65) 100%), radial-gradient(60% 60% at 50% 50%, rgba(147, 126, 236, 0.15) 0%, rgba(102, 83, 184, 0.15) 100%);
+          border: 1px solid rgba(31, 214, 95, 0.15);
+          background: linear-gradient(0deg, rgba(31, 214, 95, 0.65) 0%, rgba(31, 214, 95, 0.65) 100%), radial-gradient(60% 60% at 50% 50%, rgba(166, 184, 173, 0.15) 0%, rgba(31, 214, 95, 0.15) 100%);
 
           cursor: pointer;
         }

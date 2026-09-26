@@ -73,7 +73,7 @@ function PlainItem(props) {
               }
 
               .pink {
-                border-bottom: 1px solid #DC5FDE;
+                border-bottom: 1px solid #40c9ac;
               }
 
               .red {
@@ -89,7 +89,7 @@ function PlainItem(props) {
                 content: '';
                 border-radius: 10px;
                 z-index: -1;
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(169, 181, 210, 0.14) 0%, rgba(169, 181, 210, 0.00) 100%), #2F2B49;
+                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(169, 181, 210, 0.14) 0%, rgba(169, 181, 210, 0.00) 100%), #2b312e;
                 top: 1px;
                 left: 1px;
                 width: calc(100% - 2px);
@@ -97,19 +97,19 @@ function PlainItem(props) {
               }
               
               .blue:before {
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(65, 118, 255, 0.14) 0%, rgba(65, 118, 255, 0.00) 100%), #2F2B49;
+                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(65, 118, 255, 0.14) 0%, rgba(65, 118, 255, 0.00) 100%), #2b312e;
               }
               
               .pink:before {
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(220, 95, 222, 0.14) 0%, rgba(220, 95, 222, 0.00) 100%), #2F2B49;
+                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(64, 201, 172, 0.14) 0%, rgba(64, 201, 172, 0.00) 100%), #2b312e;
               }
               
               .red:before {
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(255, 81, 65, 0.14) 0%, rgba(255, 81, 65, 0.00) 100%), #2F2B49;
+                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(255, 81, 65, 0.14) 0%, rgba(255, 81, 65, 0.00) 100%), #2b312e;
               }
 
               .gold:before {
-                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(31, 214, 95, 0.14) 0%, rgba(0, 0, 0, 0.00) 100%), #2F2B49;
+                background: radial-gradient(104.74% 70.25% at 50.00% 76.90%, rgba(31, 214, 95, 0.14) 0%, rgba(0, 0, 0, 0.00) 100%), #2b312e;
               }
               
               .item-content {

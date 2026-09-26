@@ -1,11 +1,11 @@
 import Games from "./games";
 import Cases from "./cases";
-import {A, useSearchParams} from "@solidjs/router";
+import {A, useSearchParams, useNavigate} from "@solidjs/router";
 import {createEffect, createSignal, onCleanup} from "solid-js";
 import {progressToNextLevel, getUserLevel} from "../../resources/levels";
 import BottomNavBar from "./mobilenav";
 import UserDropdown from "./userdropdown";
-import {addDropdown} from "../../util/api";
+import {addDropdown, closeDropdowns} from "../../util/api";
 import {useWebsocket} from "../../contexts/socketprovider";
 import Countup from "../Countup/countup";
 import Notifications from "./notifications";
@@ -14,6 +14,7 @@ import {USD_PER_COIN} from "../../util/numbers";
 function NavBar(props) {
 
     const [searchParams, setSearchParams] = useSearchParams()
+    const navigate = useNavigate()
     const [userDropdown, setUserDropdown] = createSignal(false)
     const [wagered, setWagered] = createSignal(0)
     const [ws] = useWebsocket()
@@ -35,9 +36,19 @@ function NavBar(props) {
 
     return (
         <>
-            <div class='navbar-container'>
+            <div class='navbar-container' onKeyDown={e => {
+                if (e.key === 'Escape') {
+                    const trigger = e.currentTarget.querySelector('[aria-expanded="true"]:not([aria-controls="site-chat"])')
+                    closeDropdowns(); trigger?.focus(); e.stopPropagation()
+                }
+            }}>
                 <div class='navbar'>
                     <div class='left'>
+                        <div class='navbar-logo'>
+                            <A href='/' aria-label='Cosmic Luck home'>
+                                <img src='/assets/logo/cosmic-luck-logo.png' alt='Cosmic Luck'/>
+                            </A>
+                        </div>
                         <div class='nav-links'>
                             <Games/>
                             <Cases/>
@@ -62,17 +73,14 @@ function NavBar(props) {
                     </div>
 
                     <div class='right'>
+                        <button class='chat-toggle' type='button' aria-label={props.chat ? 'Close chat' : 'Open chat'} aria-expanded={props.chat} aria-controls='site-chat' onClick={() => props.setChat(!props.chat)}>
+                            <svg width='19' height='19' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' aria-hidden='true'><path d='M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11.5a9.5 9.5 0 0 1 19 0Z'/><path d='M7 10h9M7 14h6'/></svg>
+                        </button>
                         {props.user ? (
                             <>
-                                <button class='deposit'>
-                                    Deposit
-                                    <A href='/deposit' class='gamemode-link'/>
-                                </button>
+                                <button class='deposit' type='button' onClick={() => navigate('/deposit')}>Deposit</button>
 
-                                <button class='withdraw'>
-                                    Withdraw
-                                    <A href='/withdraw' class='gamemode-link'/>
-                                </button>
+                                <button class='withdraw' type='button' onClick={() => navigate('/withdraw')}>Withdraw</button>
 
                                 <div class='balance'>
                                   <img class='coin' src='/assets/icons/coin.svg' height='18' alt='Coin'/>
@@ -85,14 +93,13 @@ function NavBar(props) {
 
                                 <Notifications/>
 
-                                <div class={'user-dropdown-wrapper ' + (userDropdown() ? 'active' : '')}
-                                     onClick={(e) => {
-                                         setUserDropdown(!userDropdown())
-                                         e.stopPropagation()
-                                     }}>
+                                <div class={'user-dropdown-wrapper ' + (userDropdown() ? 'active' : '')}>
+                                  <button class='user-trigger' type='button' aria-label='Account menu' aria-expanded={userDropdown()} aria-controls='account-menu' onClick={e => {
+                                    const wasOpen = userDropdown(); closeDropdowns(); setUserDropdown(!wasOpen); e.stopPropagation()
+                                  }}>
                                     <img class='user-avatar'
                                          src={`${import.meta.env.VITE_SERVER_URL}/user/${props.user?.id}/img`}
-                                         onError={(e) => e.target.src = '/assets/icons/default-avatar.svg'}
+                                         alt='' onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = '/assets/icons/default-avatar.svg' }}
                                          width='30' height='30'/>
 
                                     <div class='user-info'>
@@ -101,7 +108,7 @@ function NavBar(props) {
                                             <span class='user-name'>{props?.user?.username}</span>
                                         </div>
                                         <div class='xp-bar-track'>
-                                            <div class='xp-bar-fill' style={`width:${Math.max(2, 100 - (progressToNextLevel(props?.user?.xp || 0)))}%`}/>
+                                            <div class='xp-bar-fill' style={`width:${Math.max(0, Math.min(100, 100 - (progressToNextLevel(props?.user?.xp || 0))))}%`}/>
                                         </div>
                                     </div>
 
@@ -112,7 +119,8 @@ function NavBar(props) {
                                             fill="#6b7280"/>
                                     </svg>
 
-                                    <UserDropdown user={props?.user} active={userDropdown()}
+                                  </button>
+                                    <UserDropdown id="account-menu" user={props?.user} active={userDropdown()}
                                                   setActive={setUserDropdown}/>
                                 </div>
                             </>
@@ -128,27 +136,18 @@ function NavBar(props) {
 
             <style jsx>{`
               .navbar-container {
+                --nav-control-height: 40px;
                 width: 100%;
                 height: fit-content;
                 z-index: 3;
                 position: sticky;
                 top: 0;
 
-                &::after {
-                  content: '';
-                  position: absolute;
-                  bottom: -1px;
-                  left: 10%;
-                  right: 10%;
-                  height: 1px;
-                  background: linear-gradient(90deg, transparent 5%, rgba(31, 214, 95, 0.12) 30%, rgba(31, 214, 95, 0.18) 50%, rgba(31, 214, 95, 0.12) 70%, transparent 95%);
-                  pointer-events: none;
-                }
               }
 
               .navbar {
                 width: 100%;
-                height: 60px;
+                height: var(--site-header-height);
 
                 box-sizing: border-box;
                 padding: 0 22px;
@@ -158,14 +157,9 @@ function NavBar(props) {
                 justify-content: space-between;
                 gap: 20px;
 
-                background:
-                  radial-gradient(110% 100% at 50% -28%, rgba(31, 214, 95, 0.08) 0%, transparent 65%),
-                  linear-gradient(180deg, rgba(18, 24, 34, 0.82), rgba(9, 13, 19, 0.88));
-                border-bottom: 1px solid rgba(31, 214, 95, 0.07);
-                box-shadow:
-                  inset 0 1px 0 rgba(255, 255, 255, 0.05),
-                  0 10px 30px rgba(0, 0, 0, 0.32),
-                  0 0 40px rgba(31, 214, 95, 0.03);
+                background: var(--site-header-surface);
+                border-bottom: 1px solid var(--site-header-border);
+                box-shadow: var(--site-header-highlight);
                 backdrop-filter: blur(20px) saturate(140%);
                 -webkit-backdrop-filter: blur(20px) saturate(140%);
               }
@@ -177,10 +171,38 @@ function NavBar(props) {
                 height: 100%;
               }
 
+              .left { min-width: 0; }
+              .right { flex-shrink: 0; }
+              .right > * { flex-shrink: 0; }
+
               .logo {
                 display: flex;
                 align-items: center;
                 margin-right: 10px;
+              }
+
+              .navbar-logo, .chat-toggle { display: none; }
+              .navbar-logo { min-width: 0; align-items: center; }
+              .navbar-logo img { display: block; width: 164px; max-width: 100%; height: auto; }
+              .chat-toggle {
+                align-items: center;
+                justify-content: center;
+                width: 36px;
+                height: var(--nav-control-height);
+                padding: 0;
+                color: #1fd65f;
+                border: 1px solid rgba(31, 214, 95, .25);
+                border-radius: 8px;
+                background: #101b17;
+                cursor: pointer;
+              }
+              .chat-toggle:hover, .chat-toggle[aria-expanded='true'] { background: #183529; }
+              @media (max-width: 1250px) {
+                .navbar-logo, .chat-toggle { display: flex; }
+              }
+              @media (max-width: 560px) {
+                .navbar-logo img { width: 120px; }
+                .chat-toggle { display: none; }
               }
 
               .nav-links {
@@ -195,7 +217,7 @@ function NavBar(props) {
                 align-items: center;
                 gap: 7px;
 
-                height: 36px;
+                height: var(--nav-control-height);
                 padding: 0 14px;
                 border-radius: 8px;
 
@@ -254,7 +276,7 @@ function NavBar(props) {
               .withdraw {
                 position: relative;
 
-                height: 38px;
+                height: var(--nav-control-height);
                 padding: 0 16px;
                 border-radius: 8px;
 
@@ -280,7 +302,7 @@ function NavBar(props) {
               .deposit {
                 position: relative;
 
-                height: 38px;
+                height: var(--nav-control-height);
                 padding: 0 18px;
                 border-radius: 8px;
 
@@ -320,7 +342,7 @@ function NavBar(props) {
                 align-items: center;
                 gap: 10px;
 
-                height: 38px;
+                height: var(--nav-control-height);
                 padding: 0 14px;
                 border-radius: 8px;
 
@@ -374,7 +396,7 @@ function NavBar(props) {
                 display: flex;
                 align-items: center;
                 gap: 8px;
-                height: 42px;
+                height: var(--nav-control-height);
                 padding: 0 10px 0 6px;
                 position: relative;
 
@@ -480,6 +502,43 @@ function NavBar(props) {
                   padding: 0 14px;
                 }
               }
+
+              @media (min-width: 1001px) and (max-width: 1250px) {
+                .navbar { padding: 0 12px; gap: 10px; }
+                .right { gap: 6px; }
+                .user-info { display: none; }
+                .withdraw, .deposit { padding: 0 10px; }
+              }
+
+              @media (max-width: 560px) {
+                .navbar { gap: 8px; padding: 0 10px; }
+                .right { gap: 8px; margin-left: auto; }
+                .balance { padding: 0 10px; gap: 6px; }
+              }
+
+              .navbar-container { --nav-glass:linear-gradient(160deg,#ffffff10,#ffffff03); --nav-edge:#ffffff12; --nav-shadow:inset 0 1px 0 #ffffff10,0 3px 10px #0002; }
+              .rewards,.withdraw,.user-dropdown-wrapper,.chat-toggle { border-color:var(--nav-edge); background:var(--nav-glass); box-shadow:var(--nav-shadow); border-radius:10px; color:#b6c2c6; }
+              .rewards { font-size:12px; letter-spacing:.3px; }
+              .rewards-arrow { display:none; }
+              .rewards:hover,.withdraw:hover,.user-dropdown-wrapper:hover,.chat-toggle:hover { background:linear-gradient(145deg,#ffffff18,#1fd65f09); border-color:#a4e9bd30; color:#f2fff7; }
+              .deposit { border-radius:10px; background:linear-gradient(155deg,#63ed95,#1fd65f 55%,#13b74e); box-shadow:inset 0 1px 0 #ffffff70,inset 0 -2px 0 #07592b45,0 4px 16px #1fd65f22; }
+              .deposit:hover { box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #07592b40,0 6px 22px #1fd65f33; }
+              .withdraw,.deposit { font-size:13px; }
+              .balance { border-radius:10px; border-color:#1fd65f30; background:linear-gradient(140deg,#1fd65f12,#ffffff02),#09131080; box-shadow:inset 0 1px 0 #ffffff0b; }
+              .balance-hover { display:grid; }
+              .coins,.fiat { grid-area:1/1; white-space:nowrap; }
+              .fiat { position:static; }
+              .user-dropdown-wrapper { padding:0; }
+              .user-trigger { display:flex; align-items:center; gap:8px; height:100%; padding:0 10px 0 6px; background:none; border:0; border-radius:inherit; color:inherit; cursor:pointer; font:inherit; min-width:0; }
+              .user-avatar { border:1px solid #ffffff18; box-sizing:border-box; border-radius:7px; }
+              .user-info { min-width:52px; }
+              .user-name { font-size:12px; letter-spacing:.5px; }
+              .xp-bar-track { height:2px; background:#ffffff12; }
+              .chat-toggle { color:#54e88a; }
+              .rewards:active,.withdraw:active,.deposit:active { transform:translateY(1px); }
+              @media(max-width:560px) { .navbar-logo img { width:110px; } .right { gap:6px; } .balance { padding:0 8px; font-size:12px; gap:5px; } .user-trigger { padding:0 5px; } }
+              @media(max-width:360px) { .navbar-logo img { width:86px; } .navbar { padding:0 8px; gap:5px; } .right { gap:5px; } .balance { padding:0 6px; font-size:11px; } .balance .coin { height:14px; } }
+              @media(prefers-reduced-motion:reduce) { .navbar button { transition:none; transform:none; } }
             `}</style>
         </>
     );

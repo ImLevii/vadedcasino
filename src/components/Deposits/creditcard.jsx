@@ -69,7 +69,7 @@ function CreditCardDeposit(props) {
         <Show when={!info.loading} fallback={<Loader/>}>
           <>
             <div className='inputs'>
-              <div className='coin-input'>
+              <div className='coin-input input-shell'>
                 <img src='/assets/chips/chip-green-clover.png' width='24' height='24' alt=''/>
                 <input type='number' value={coins()}
                        onInput={(e) => convertAmounts(e.target.valueAsNumber, 0) }/>
@@ -85,7 +85,7 @@ function CreditCardDeposit(props) {
               </div>
 
               <div className='conversions'>
-                <div className='input'>
+                <div className='input input-shell'>
                   <img src='/assets/chips/chip-green-clover.png' width='24' height='24' alt=''/>
                   <input type='number' value={coins()}
                          onInput={(e) => convertAmounts(e.target.valueAsNumber, 0)}/>
@@ -93,7 +93,7 @@ function CreditCardDeposit(props) {
 
                 <span class='equals'>=</span>
 
-                <div className='input'>
+                <div className='input input-shell'>
                   <span class='currency'>$</span>
                   <input type='number' value={dollars()}
                          onInput={(e) => convertAmounts(0, e.target.valueAsNumber, 0)}/>
@@ -231,7 +231,7 @@ function CreditCardDeposit(props) {
 
         .robux-input:focus-within, .input:focus-within {
           border-color: rgba(31,214,95,.45);
-          box-shadow: 0 0 0 3px rgba(31,214,95,.06);
+          box-shadow: none;
         }
 
         .robux-input input {

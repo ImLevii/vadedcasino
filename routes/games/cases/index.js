@@ -93,10 +93,10 @@ router.post('/:id/open', [isAuthed, apiLimiter], async (req, res) => {
     if (!enabledFeatures.cases) return res.status(400).json({ error: 'DISABLED' });
     if (!req.params.id) return res.status(400).json({ error: 'MISSING_SLUG' });
 
-    if (typeof req.body.amount !== 'number') return res.status(400).json({ error: 'INVALID_AMOUNT' });
+    if (!Number.isInteger(req.body.amount)) return res.status(400).json({ error: 'INVALID_AMOUNT' });
 
     const amount = Math.floor(req.body.amount);
-    if (amount < 1 || amount > 5) return res.status(400).json({ error: 'INVALID_AMOUNT' });
+    if (amount < 1 || amount > 6) return res.status(400).json({ error: 'INVALID_AMOUNT' });
 
     const [[caseInfo]] = await sql.query(`
         SELECT cases.id, cases.name, cases.slug, cases.img, cases.creatorId, cases.commissionPct, caseVersions.price, caseVersions.id as revId FROM cases

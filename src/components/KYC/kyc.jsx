@@ -39,7 +39,7 @@ function KYCModal(props) {
           width: 100vw;
           height: 100vh;
 
-          background: rgba(24, 23, 47, 0.55);
+          background: rgba(22, 28, 25, 0.55);
 
           display: flex;
           align-items: center;
@@ -55,8 +55,8 @@ function KYCModal(props) {
           right: 16px;
           top: 16px;
 
-          background: #4E4A8D;
-          box-shadow: 0px -1px 0px #5F5AA7, 0px 1px 0px #272548;
+          background: #a6b8ad;
+          box-shadow: 0px -1px 0px #a6b8ad, 0px 1px 0px #252b28;
           border-radius: 3px;
 
           display: flex;

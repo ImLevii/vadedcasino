@@ -201,7 +201,7 @@ function Affiliates(props) {
 
                                 <div class='input-block'>
                                     <p class='side-label'>Your Referral Code</p>
-                                    <div class='input-row'>
+                                    <div class='input-row input-shell'>
                                         <input type='text' placeholder='Create a referral code...' value={tempCode()} onInput={(e) => setTempCode(e.target.value)}/>
                                         <button class='update-btn' onClick={async () => {
                                             let res = await authedAPI('/user/affiliate/code', 'POST', JSON.stringify({

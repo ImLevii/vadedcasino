@@ -3,6 +3,7 @@ import {createEffect, createSignal, ErrorBoundary, lazy, onCleanup, onMount, Sus
 import {useUser} from "./contexts/usercontextprovider";
 import Sidebar from "./components/SideBar/sidebar";
 import {authedAPI, closeDropdowns, createNotification} from "./util/api";
+import {installUIClickSFX} from "./util/sound";
 import Navbar from "./components/NavBar/navbar";
 import {Toaster} from "solid-toast";
 import Loader from "./components/Loader/loader";
@@ -16,7 +17,6 @@ import Rakeback from "./components/Rakeback/rakeback";
 import AML from "./components/Documentation/aml";
 import UserModal from "./components/UserPopup/userpopup";
 import SignIn from "./components/Signin/signin";
-import {GameFairnessDock} from "./components/GameFairness/gamefairnessbutton";
 
 const Admin = lazy(() => import('./pages/admin'))
 const AdminDashboard = lazy(() => import('./components/Admin/dashboard'))
@@ -89,6 +89,7 @@ function App() {
   const isImmersiveBattle = () => location.pathname !== '/battle/create' && /^\/battle\/[^/]+$/.test(location.pathname)
 
   onMount(() => {
+    onCleanup(installUIClickSFX())
     const recoveryReset = setTimeout(() => {
       sessionStorage.removeItem('chunk-recovery-attempted')
     }, 30000)
@@ -222,10 +223,9 @@ function App() {
               )
             }}>
             <div class={'app ' + (isImmersiveBattle() ? 'battle-immersive' : '')} onClick={() => closeDropdowns()}>
-              {!isImmersiveBattle() && <Sidebar chat={chat()} setChat={setChat}/>}
+              <Sidebar chat={chat()} setChat={setChat}/>
               <div class={'center ' + (isImmersiveBattle() ? 'battle-immersive-center' : '')} ref={pageContent}>
                 <Navbar user={user()} chat={chat()} setChat={setChat}/>
-                {!isImmersiveBattle() && <GameFairnessDock pathname={location.pathname}/>}
 
                 <div class={'content ' + (isImmersiveBattle() ? 'battle-immersive-content' : '')}>
                   <Routes>

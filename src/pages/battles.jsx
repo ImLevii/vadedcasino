@@ -188,14 +188,6 @@ function Battles(props) {
             <Meta name='description' content='Wager Coins On Cosmic Luck Battles And Win Big Versus Other Players!'></Meta>
 
             <div class='battles-container'>
-              <header class='page-heading'>
-                <div>
-                  <span class='eyebrow'>Player vs player</span>
-                  <h1>Case Battles</h1>
-                  <p>Pick your lineup, claim a seat, and watch every drop land live.</p>
-                </div>
-              </header>
-
               <div class='filter-bar' aria-label='Battle filters'>
                 <div class='filter'>
                     <p class='filter-label'>State</p>
@@ -258,15 +250,6 @@ function Battles(props) {
 
               {battles() ? (
                 <div class='battles-list'>
-                  <div class='results-heading'>
-                    <div>
-                      <span class='live-dot'/>
-                      <strong>{visibleBattles().length} battles</strong>
-                      <Show when={liveCount() > 0}><span class='live-count'>{liveCount()} live</span></Show>
-                    </div>
-                    <span>Live updates enabled</span>
-                  </div>
-
                   <Show when={visibleBattles().length} fallback={
                     <div class='empty-battles'>
                       <img src='/assets/icons/battles.svg' alt=''/>
@@ -527,6 +510,15 @@ function Battles(props) {
               @media (prefers-reduced-motion: reduce) {
                 .live-dot { animation: none; }
               }
+
+              .battles-container { max-width:1900px; padding:8px 0 64px; }
+              .filter-bar { background:none; border:0; box-shadow:none; padding:0 6px; gap:16px; margin-bottom:32px; }
+              .filter { flex:0 1 134px; min-width:100px; }
+              .filter-label { text-transform:none; font-size:11px; font-weight:500; }
+              .filter select { height:40px; border:0; border-radius:3px; background-color:#20232b; color:#a7aab3; font-size:12px; }
+              .create-battle { min-height:40px; border:0; border-radius:4px; background:#00ed95; box-shadow:none; font-size:14px; }
+              .battles-list { gap:14px; }
+              @media(max-width:700px) { .filter-bar { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; } .filter { width:100%; } .create-battle { width:100%; margin:0; font-size:12px; } }
             `}</style>
         </>
     );

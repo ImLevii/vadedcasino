@@ -21,7 +21,7 @@ function BattleSpinnerItem(props) {
         } else if (price >= 50000) {
             return '#FF5141' // Red/Classified
         } else if (price >= 10000) {
-            return '#DC5FDE' // Pink/Restricted
+            return '#40c9ac' // Pink/Restricted
         } else if (price >= 1000) {
             return '#4176FF' // Blue/Mil-Spec
         }
@@ -82,17 +82,18 @@ function BattleSpinnerItem(props) {
               /* Bare, borderless tile — the item floats on a soft rarity glow.
                  Card chrome and labels are reserved for the winning item. */
               .case-item-container {
-                height: 108px;
-                width: 108px;
+                height: var(--reel-item-size, 108px);
+                width: var(--reel-item-size, 108px);
                 position: relative;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
                 isolation: isolate;
-                background: transparent;
+                background: #0c0e12;
                 border-radius: 4px;
-                border: 1px solid transparent;
+                border: 1px solid #080b0e;
+                flex-shrink: 0;
                 padding: 6px;
                 box-sizing: border-box;
               }
@@ -102,8 +103,8 @@ function BattleSpinnerItem(props) {
                 inset: 12%;
                 z-index: 0;
                 border-radius: 50%;
-                background: radial-gradient(circle, color-mix(in srgb, var(--rarity, #A9B5D2) 34%, transparent) 0%, transparent 68%);
-                filter: blur(6px);
+                background: url('/assets/chips/chip-green.png') center / contain no-repeat;
+                opacity: .12;
                 pointer-events: none;
               }
 
@@ -115,7 +116,7 @@ function BattleSpinnerItem(props) {
               }
 
               .winning-item .rarity-glow {
-                opacity: .55;
+                opacity: .08;
               }
 
               .item-image {
@@ -131,8 +132,8 @@ function BattleSpinnerItem(props) {
               .winning-item .item-image {
                 width: 74px;
                 height: 44px;
-                opacity: .32;
-                filter: blur(1px);
+                opacity: .75;
+                filter: none;
               }
 
               .ext-badge {
@@ -184,8 +185,8 @@ function BattleSpinnerItem(props) {
 
               @media only screen and (max-width: 620px) {
                 .case-item-container {
-                  width: 92px;
-                  height: 92px;
+                  width: var(--reel-item-size, 92px);
+                  height: var(--reel-item-size, 92px);
                 }
 
                 .item-image {

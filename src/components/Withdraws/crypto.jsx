@@ -190,7 +190,7 @@ function CryptoWithdraw(props) {
             </div>
 
             <div class='inputs'>
-              <div class='input'>
+              <div class='input input-shell'>
                 <p>YOUR {symbol()} ADDRESS:</p>
 
                 <input class='thin' value={address()} onInput={(e) => setAddress(e.target.value)}/>
@@ -207,7 +207,7 @@ function CryptoWithdraw(props) {
               </div>
 
               <div class='conversions'>
-                <div class='input'>
+                <div class='input input-shell'>
                   <img src='/assets/icons/coin.svg' width='18' height='17' alt=''/>
                   <input type='number' value={robux()}
                          onInput={(e) => convertAmounts(e.target.valueAsNumber, 0, 0)}/>
@@ -220,7 +220,7 @@ function CryptoWithdraw(props) {
                     fill="#8b92a0"/>
                 </svg>
 
-                <div className='input'>
+                <div className='input input-shell'>
                   <svg xmlns="http://www.w3.org/2000/svg" width="8" height="11" viewBox="0 0 8 11"
                        fill="none">
                     <path
@@ -237,7 +237,7 @@ function CryptoWithdraw(props) {
                     fill="#8b92a0"/>
                 </svg>
 
-                <div className='input'>
+                <div className='input input-shell'>
                   <img src={`${import.meta.env.VITE_SERVER_URL}/public/cryptos/${symbol()}.png`} height='16' width='16' alt=''/>
                   <input type='number' value={crypto()} onInput={(e) => convertAmounts(0, 0, e.target.valueAsNumber)}/>
                 </div>
@@ -315,7 +315,7 @@ function CryptoWithdraw(props) {
           flex: 1;
           height: 1px;
           min-height: 1px;
-          background: #4B4887;
+          background: #a6b8ad;
         }
 
         .type {
@@ -333,7 +333,7 @@ function CryptoWithdraw(props) {
           height: 45px;
 
           border-radius: 5px 5px 0 0;
-          background: rgba(82, 72, 155, 0.41);
+          background: rgba(31, 214, 95, 0.41);
 
           color: #8b92a0;
           font-family: Geogrotesque Wide, sans-serif;
@@ -376,7 +376,7 @@ function CryptoWithdraw(props) {
         }
         
         .option {
-          background: #473E83;
+          background: #1fd65f;
           height: 40px;
           line-height: 40px;
           padding: 0 16px;
@@ -387,7 +387,7 @@ function CryptoWithdraw(props) {
         }
         
         .option:nth-of-type(2n) {
-          background: #3F3776;
+          background: #1fd65f;
         }
 
         .inputs {
@@ -406,8 +406,8 @@ function CryptoWithdraw(props) {
           height: 45px;
 
           border-radius: 5px;
-          border: 1px dashed #6258AB;
-          background: #383165;
+          border: 1px dashed #a6b8ad;
+          background: #333936;
 
           color: #8b92a0;
           font-family: Geogrotesque Wide, sans-serif;
@@ -527,7 +527,7 @@ function CryptoWithdraw(props) {
           margin-left: 20px;
 
           border-radius: 7px;
-          background: linear-gradient(59deg, #6159B0 0%, rgba(82, 72, 159, 0.52) 12.49%, rgba(76, 66, 152, 0.32) 16.42%, rgba(67, 55, 141, 0.00) 100%);
+          background: linear-gradient(59deg, #a6b8ad 0%, rgba(31, 214, 95, 0.52) 12.49%, rgba(31, 214, 95, 0.32) 16.42%, rgba(31, 214, 95, 0.00) 100%);
 
           display: flex;
           align-items: center;

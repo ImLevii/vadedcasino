@@ -9,7 +9,7 @@ const apiLimiter = rateLimit({
 	message: { error: 'SLOW_DOWN' },
 	standardHeaders: false,
 	legacyHeaders: false,
-    keyGenerator: (req, res) => `${req.path}:${req.userId || req.headers['cf-connecting-ip']}`
+    keyGenerator: (req, res) => `${req.baseUrl}${req.path}:${req.userId || req.ip}`
 })
 
 const secret = process.env.JWT_SECRET || 'secret';
@@ -37,6 +37,8 @@ function validateJwtToken(token) {
 
     try {
         const decoded = jwt.verify(token, secret);
+
+        if (bannedUsers.has(decoded.uid)) return null;
 
         if (lastLogouts[decoded.uid] && lastLogouts[decoded.uid] >= decoded.iat * 1000) {
             return null;

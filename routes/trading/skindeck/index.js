@@ -8,6 +8,8 @@ const { enabledFeatures } = require('../../admin/config');
 const { getSkinDeckConfig } = require('./config');
 const { isProviderContractReady } = require('./contract');
 const { createSkinDeckClient } = require('./client');
+const { getSteamProfile } = require('./profile');
+const { submitWithdrawal } = require('./withdrawal');
 const { logSkinDeck } = require('./logger');
 const {
     createPaymentTransaction,
@@ -51,7 +53,7 @@ function requireSkinDeck(req, res, next) {
 async function requireSteamProfile(req, res, next) {
     try {
         const [[user]] = await sql.query(
-            'SELECT id, steamTradeUrl, steamApiKey FROM users WHERE id = ?',
+            'SELECT id, steamId, steamTradeUrl, steamApiKey FROM users WHERE id = ? AND deletedAt IS NULL',
             [req.userId]
         );
         if (!user) return res.status(404).json({ error: 'USER_NOT_FOUND' });
@@ -63,14 +65,10 @@ async function requireSteamProfile(req, res, next) {
             return res.status(400).json({ error: 'STEAM_DETAILS_REQUIRED', missing, profileUrl: '/profile' });
         }
 
-        req.skinDeckProfile = {
-            steamId: `${user.id}`,
-            tradeUrl: user.steamTradeUrl,
-            apiKey: user.steamApiKey
-        };
+        req.skinDeckProfile = getSteamProfile(user);
         next();
     } catch (error) {
-        next(error);
+        return sendSkinDeckError(res, error);
     }
 }
 
@@ -268,42 +266,18 @@ router.get('/skins', isAuthed, requireSkinDeck, requireSteamProfile, async (req,
 });
 
 router.post('/withdrawals', isAuthed, apiLimiter, withdrawalLimiter, requireSkinDeck, requireSteamProfile, async (req, res) => {
-    let payment;
     try {
         const client = createSkinDeckClient();
-        const quote = await client.quoteItems(req.body?.itemIds);
-        payment = await reserveWithdrawal({
-            userId: req.userId,
-            value: usdToCoins(quote.providerValue),
-            providerValue: quote.providerValue,
-            providerCurrency: quote.providerCurrency,
-            skinItems: quote.items
-        });
-
-        const order = await client.createWithdrawal({
-            internalRef: payment.internalRef,
-            itemIds: req.body.itemIds,
+        const transaction = await submitWithdrawal({
+            client, userId: req.userId, itemIds: req.body?.itemIds,
             profile: req.skinDeckProfile
+        }, {
+            reserveWithdrawal, settleWithdrawal, usdToCoins,
+            notifyBalance: delta => io.to(`${req.userId}`).emit('balance', 'add', delta)
         });
-        const result = await settleWithdrawal({
-            internalRef: payment.internalRef,
-            providerRef: order.providerRef,
-            providerStatus: order.providerStatus,
-            status: order.status,
-            skinItems: order.items
-        });
-        io.to(`${req.userId}`).emit('balance', 'add', -payment.value);
-        logSkinDeck('info', 'withdrawal_created', { userId: req.userId, internalRef: payment.internalRef, status: order.status });
-        return res.status(201).json({ success: true, transaction: { ...payment, status: result.payment.status, skinItems: order.items } });
+        logSkinDeck('info', 'withdrawal_created', { userId: req.userId, internalRef: transaction.internalRef, status: transaction.status });
+        return res.status(201).json({ success: true, transaction });
     } catch (error) {
-        if (payment) {
-            const refunded = await settleWithdrawal({
-                internalRef: payment.internalRef,
-                providerStatus: 'request-failed',
-                status: 'failed'
-            });
-            if (refunded?.balanceDelta) io.to(`${req.userId}`).emit('balance', 'add', refunded.balanceDelta);
-        }
         return sendSkinDeckError(res, error);
     }
 });

@@ -8,7 +8,7 @@ function UserDropdown(props) {
 
     return (
         <>
-            <div class={'dropdown' + (props?.mobile ? ' mobile ' : ' ') + (props.active ? 'active' : '')} onClick={(e) => e.stopPropagation()}>
+            <div id={props.id} inert={props.active ? undefined : ''} aria-hidden={!props.active} class={'dropdown' + (props?.mobile ? ' mobile ' : ' ') + (props.active ? 'active' : '')} onClick={(e) => e.stopPropagation()}>
                 <div class='decoration-arrow'/>
                 <div class='links'>
                     {props?.mobile && (
@@ -75,7 +75,7 @@ function UserDropdown(props) {
                 min-width: 210px;
                 max-height: 0;
 
-                top: 68px;
+                top: calc(var(--nav-control-height,40px) + 5px);
                 right: 0;
                 z-index: 1;
 
@@ -242,6 +242,9 @@ function UserDropdown(props) {
                   font-size: 13px;
                 }
               }
+              .dropdown:not(.mobile) { border-radius:12px; }
+              .decoration-arrow { display:none; }
+              .links { background:linear-gradient(145deg,#ffffff0a,#ffffff02),#10191cfa; border-color:#ffffff18; border-radius:12px; box-shadow:inset 0 1px 0 #ffffff0e,0 18px 40px #0006; }
             `}</style>
         </>
     );

@@ -310,7 +310,7 @@ function AdminSlides() {
 
         .btn.sm { height: 28px; font-size: 10px; }
         .btn.green { border-color: rgba(31,214,95,0.35); color: #1fd65f; }
-        .btn.purple { border-color: rgba(132,126,193,0.35); color: #837ec1; }
+        .btn.purple { border-color: rgba(166, 184, 173,0.35); color: #a6b8ad; }
         .btn.red { border-color: rgba(231,76,60,0.35); color: #e74c3c; }
         .btn.gray { color: #8b92a0; }
 

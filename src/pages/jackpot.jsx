@@ -501,7 +501,7 @@ function Jackpot(props) {
               .timer {
                 width: 100%;
                 height: 100%;
-                background: linear-gradient(to right, #403C72 0%, #5E58AC 100%);
+                background: linear-gradient(to right, #a6b8ad 0%, #a6b8ad 100%);
               }
 
               .timer:before {

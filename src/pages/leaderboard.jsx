@@ -97,10 +97,22 @@ function Leaderboard(props) {
                       return (
                         <article class={'podium ' + position.class}>
                           <span class='tag'>{position.label}</span>
-                          <div class='avatar-wrap'>
-                            <Avatar id={player()?.id || '?'} height='68' xp={position.class === 'first' ? 'gold' : position.class === 'second' ? 'silver' : 'bronze'}/>
+                          <div class='trophy-stage'>
+                            <img
+                              class='trophy'
+                              src={`/assets/leaderboard/trophy-${position.class}.png`}
+                              alt={`${position.label} place trophy`}
+                              width='400'
+                              height='400'
+                              draggable={false}
+                            />
                           </div>
-                          <strong class='username'>{player()?.username || 'Open position'}</strong>
+                          <div class='podium-player'>
+                            <Show when={player()?.id}>
+                              <Avatar id={player().id} height='36' xp={player()?.xp || 0}/>
+                            </Show>
+                            <strong class='username'>{player()?.username || 'Open position'}</strong>
+                          </div>
                           <div class='metric'>
                             <span>Wagered</span>
                             <strong>{(player()?.wagered || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
@@ -346,7 +358,7 @@ function Leaderboard(props) {
 
               .podium {
                 position: relative;
-                min-height: 285px;
+                min-height: 380px;
                 padding: 28px 22px 20px;
                 box-sizing: border-box;
                 display: flex;
@@ -363,7 +375,7 @@ function Leaderboard(props) {
               }
 
               .podium.first {
-                min-height: 310px;
+                min-height: 405px;
                 --podium-accent: #1fd65f;
                 --podium-glow: rgba(31,214,95,.17);
                 border-color: rgba(31,214,95,.32);
@@ -399,7 +411,53 @@ function Leaderboard(props) {
                 font-weight: 800;
               }
 
-              .avatar-wrap { margin-top: 13px; }
+              .trophy-stage {
+                position: relative;
+                display: grid;
+                place-items: center;
+                width: 100%;
+                height: 160px;
+                margin-top: 4px;
+                isolation: isolate;
+              }
+
+              .trophy-stage::before {
+                content: '';
+                position: absolute;
+                width: 150px;
+                height: 110px;
+                border-radius: 50%;
+                background: radial-gradient(ellipse, var(--podium-glow), transparent 70%);
+                z-index: -1;
+              }
+
+              .trophy {
+                display: block;
+                width: 156px;
+                height: 156px;
+                max-width: 100%;
+                object-fit: contain;
+                filter: drop-shadow(0 10px 14px rgba(0,0,0,.35));
+                transition: transform .25s ease;
+                user-select: none;
+              }
+
+              .first .trophy-stage { height: 185px; }
+              .first .trophy { width: 176px; height: 176px; }
+
+              @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+                .podium:hover .trophy { transform: translateY(-4px); }
+              }
+
+              .podium-player {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 9px;
+                width: 100%;
+                min-height: 36px;
+              }
+
               .username { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
 
               .metric {
@@ -524,8 +582,10 @@ function Leaderboard(props) {
                 .banner-actions { width: 100%; box-sizing: border-box; }
                 .banner-chip { display: none; }
                 .podium-container { grid-template-columns: 1fr; align-items: stretch; }
-                .podium, .podium.first { min-height: 250px; }
+                .podium, .podium.first { min-height: 360px; }
                 .podium.first { order: -1; }
+                .trophy-stage, .first .trophy-stage { height: 150px; }
+                .trophy, .first .trophy { width: 146px; height: 146px; }
               }
 
               @media only screen and (max-width: 620px) {

@@ -7,10 +7,7 @@ function CrashHistory(props) {
         <For each={props.history || []}>
           {(multiplier, index) => {
             // Tier: under2x=amber, 2-5x=green, 5-10x=cyan/teal, 10x+=gold/purple
-            const tier = multiplier < 2 ? 'low'
-              : multiplier < 5 ? 'win'
-              : multiplier < 10 ? 'teal'
-              : 'jackpot';
+            const tier = multiplier <= 1 ? 'crash' : multiplier < 1.2 ? 'low' : 'win';
             return (
               <div
                 class={'history-item ' + tier}
@@ -77,12 +74,17 @@ function CrashHistory(props) {
 
         /* 10x+ — gold/purple jackpot */
         .history-item.jackpot {
-          background: linear-gradient(135deg, rgba(255, 184, 74, 0.12), rgba(168, 85, 247, 0.1));
+          background: linear-gradient(135deg, rgba(255, 184, 74, 0.12), rgba(31, 214, 95, 0.1));
           color: #f5c842;
           border: 1px solid rgba(255, 184, 74, 0.28);
-          box-shadow: 0 0 14px rgba(255, 184, 74, 0.12), 0 0 24px rgba(168, 85, 247, 0.06);
+          box-shadow: 0 0 14px rgba(255, 184, 74, 0.12), 0 0 24px rgba(31, 214, 95, 0.06);
           font-size: 11px;
         }
+
+        .crash-history { gap:20px; mask-image:linear-gradient(to right,#000 75%,transparent); }
+        .history-item { min-width:0; flex-shrink:0; height:24px; font-size:12px; }
+        .history-item.low,.history-item.win,.history-item.crash { background:none; border:0; box-shadow:none; }
+        .history-item.win { color:#00e11d; } .history-item.low { color:#d5b923; } .history-item.crash { color:#b62725; }
       `}</style>
     </>
   );

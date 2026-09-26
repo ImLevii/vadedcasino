@@ -103,8 +103,8 @@ function JackpotBet(props) {
               }
 
               .pink {
-                background: linear-gradient(to right, rgba(220, 95, 222, 0.05), rgba(220, 95, 222, 0.05) 100%), rgba(0, 0, 0, 0.20);
-                border: 1px dashed #DB5FDD;
+                background: linear-gradient(to right, rgba(64, 201, 172, 0.05), rgba(64, 201, 172, 0.05) 100%), rgba(0, 0, 0, 0.20);
+                border: 1px dashed #40c9ac;
               }
 
               .red {

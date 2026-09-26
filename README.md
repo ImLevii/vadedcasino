@@ -70,6 +70,70 @@ This project runs through `app.js` in production and serves both API routes and 
 - If either variable is missing, the app now falls back to same-origin at runtime.
 - Startup auth requests are timed out defensively so the loading screen cannot hang forever on a bad upstream response.
 
+## Fresh Neon / PostgreSQL development database
+
+Create an empty Neon database and copy its connection string from the Neon console.
+Use the pooled URL for `DATABASE_URL`; an optional direct URL can be supplied as
+`DIRECT_DATABASE_URL` for bootstrap. See [Neon's connection guide](https://neon.com/docs/connect/connect-from-any-app).
+
+Add these server-only settings to `.env.local`:
+
+```dotenv
+SQL_DIALECT=postgres
+DATABASE_URL=postgresql://USER:PASSWORD@YOUR-NEON-HOST/neondb?sslmode=require
+# Optional: create an owner account with zero balance on the first bootstrap.
+NEON_ADMIN_USERNAME=your-admin-name
+NEON_ADMIN_PASSWORD=your-own-password
+```
+
+Then run:
+
+```bash
+npm run db:neon:check
+npm run db:neon:bootstrap
+npm run dev
+```
+
+`db:neon:bootstrap` applies `database/schema.postgres.sql` in a transaction and
+seeds feature/game settings. It creates no account unless both admin settings are
+provided, and does not reset an existing admin password. It does not import MySQL
+users, balances, history, or game assets. Remove the optional admin settings from
+`.env.local` after bootstrap. A ready backend returns HTTP 200 at
+`http://127.0.0.1:3000/readyz`.
+
+The app supports `SQL_DIALECT=postgres`, `postgresql`, or `neon`; it also chooses
+PostgreSQL when `DATABASE_URL` is present and `SQL_DIALECT` is unset. Existing
+`SQL_HOST`, `SQL_USER`, `SQL_PASS`, and `SQL_DB` settings are ignored in this mode.
+The driver verifies Neon's TLS certificate and keeps each transaction on one
+connection. The adapter preserves the existing query result shape, camelCase
+fields, and large user IDs.
+
+To regenerate the PostgreSQL schema after changes to `database/schema.sql` or
+`database/postgres-runtime.sql`, run `npm run db:neon:schema`. Use the PostgreSQL
+bootstrap command for this database; `db:migrate` contains legacy MySQL migrations
+and refuses to run against PostgreSQL. PostgreSQL regression tests run with
+`npm test` using an isolated embedded PostgreSQL engine; no Neon credentials are
+needed for those tests. They cover startup, authentication, static query planning,
+parameter binding, generated IDs, upserts, and commit/rollback behavior. Hosted
+Neon connectivity and concurrent transaction behavior still require integration
+validation against the target database.
+
+For an existing database, run `npm run db:auth-profiles` once to add provider
+avatar storage without changing accounts or balances. Fresh schemas include it.
+Steam and Google logins save Unicode display names and profile pictures and
+refresh them on subsequent logins. Steam profile lookup requires `STEAM_API_KEY`;
+Google login requires `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. Configure
+their callback URLs as `${BASE_URL}/auth/steam/callback` and
+`${BASE_URL}/auth/google/callback`, respectively.
+
+Run `npm run db:account-deletion` when upgrading an existing database to enable
+account deletion from `/admin/users` → View → Delete account. Admins must confirm
+the target account ID and cannot delete themselves, bots, or accounts with equal
+or higher permissions. Deletion removes the profile from the active user list,
+clears its credentials and profile data, and revokes access. Account/provider IDs
+and financial history are retained; the deletion time and acting admin ID are
+recorded. Signing in with the same provider cannot recreate the deleted account.
+
 ## Local MySQL Bootstrap
 
 You can bootstrap a local database (create DB, apply schema, and create/update an admin user) with one command:

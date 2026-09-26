@@ -7,6 +7,9 @@ const { generateServerSeed, sha256 } = require('../../../fairness');
 const { sql, doTransaction } = require('../../../database');
 const { mapItem } = require('../cases/functions');
 const { cachedBattles, minifyBattle, newBattlePlayer, startBattle } = require('./functions');
+const { findBattleBot } = require('./bots');
+const { createTicket } = require('../../../fairness/randomorg');
+const { getBattleFairness } = require('./fairness');
 const { enabledFeatures, xpMultiplier } = require('../../admin/config');
 
 const io = require('../../../socketio/server');
@@ -19,6 +22,17 @@ router.use((req, res, next) => {
     if (!enabledFeatures.battles) return res.status(400).json({ error: 'DISABLED' });
     next();
 
+});
+
+router.get('/:id/fairness', async (req, res) => {
+    if (!/^\d+$/.test(req.params.id)) return res.status(400).json({ error: 'INVALID_BATTLE' });
+    try {
+        const proof = await getBattleFairness(req.params.id, req.query.pk || null);
+        if (!proof) return res.status(404).json({ error: 'BATTLE_NOT_FOUND' });
+        res.set('Cache-Control', 'no-store').json(proof);
+    } catch {
+        res.status(503).json({ error: 'FAIRNESS_UNAVAILABLE' });
+    }
 });
 
 router.post('/create', isAuthed, apiLimiter, async (req, res) => {
@@ -81,6 +95,12 @@ router.post('/create', isAuthed, apiLimiter, async (req, res) => {
     const cost = roundDecimal(battleCost + fundingAmount);
 
     try {
+        const [[preflight]] = await sql.query('SELECT balance FROM users WHERE id = ?', [req.userId]);
+        if (!preflight || cost > preflight.balance) return res.status(400).json({ error: 'INSUFFICIENT_BALANCE' });
+        // Obtain the empty ticket before taking wallet locks. Recheck funds in
+        // the transaction; ticket creation itself cannot charge the wallet.
+        const randomTicket = await createTicket();
+        if (req.aborted) return;
 
         await doTransaction(async (connection, commit) => {
 
@@ -98,7 +118,7 @@ router.post('/create', isAuthed, apiLimiter, async (req, res) => {
             }
 
             const xp = roundDecimal(cost * xpMultiplier);
-            await connection.query(`UPDATE users SET balance = balance - ?, xp = xp + ? WHERE id = ?`, [cost, xp, user.id, cost]);
+            await connection.query(`UPDATE users SET balance = balance - ?, xp = xp + ? WHERE id = ?`, [cost, xp, user.id]);
     
             await xpChanged(user.id, user.xp, roundDecimal(user.xp + xp), connection);
     
@@ -108,8 +128,8 @@ router.post('/create', isAuthed, apiLimiter, async (req, res) => {
             const entryPrice = roundDecimal(battleCost * (1 - (fundingPercentage / 100)));
         
             const [battleResult] = await connection.query(
-                `INSERT INTO battles (ownerId, ownerFunding, entryPrice, privKey, minLevel, teams, playersPerTeam, gamemode, cosmicSpin, serverSeed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-                [user.id, fundingPercentage, entryPrice, privKey, minLvl, teams, playersPerTeam, gamemode, cosmicSpin ? 1 : 0, serverSeed]
+                `INSERT INTO battles (ownerId, ownerFunding, entryPrice, privKey, minLevel, teams, playersPerTeam, gamemode, cosmicSpin, serverSeed, randomTicket) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+                [user.id, fundingPercentage, entryPrice, privKey, minLvl, teams, playersPerTeam, gamemode, cosmicSpin ? 1 : 0, serverSeed, randomTicket]
             );
             
             const battleId = battleResult.insertId;
@@ -122,15 +142,14 @@ router.post('/create', isAuthed, apiLimiter, async (req, res) => {
             await connection.query(`INSERT INTO battlePlayers (battleId, userId, slot, team) VALUES (?, ?, ?, ?)`, [battleId, user.id, 1, 1]);
             await connection.query('INSERT INTO bets (userId, amount, edge, game, gameId, completed) VALUES (?, ?, ?, ?, ?, ?)', [user.id, cost, roundDecimal(cost * 0.1), 'battle', battleId, false]);
         
-            await commit();
-
-            io.to(user.id).emit('balance', 'set', roundDecimal(user.balance - cost));
-            res.json({ success: true, battleId, privKey });
-    
             const [items] = await connection.query(`
                 SELECT id, itemId, name, img, price, rangeFrom, rangeTo, caseVersionId FROM caseItems WHERE caseVersionId IN (?)
             `, [uniqueCases.map(e => e.revId)]);
         
+            await commit();
+
+            io.to(user.id).emit('balance', 'set', roundDecimal(user.balance - cost));
+
             cachedBattles[battleId] = {
                 id: battleId,
                 entryPrice: entryPrice,
@@ -142,6 +161,9 @@ router.post('/create', isAuthed, apiLimiter, async (req, res) => {
                 clientSeed: null,
                 EOSBlock: null,
                 serverSeed: sha256(serverSeed),
+                serverSeedHash: sha256(serverSeed),
+                randomTicket,
+                cosmicSpin,
                 gamemode: gamemode,
                 cases: uniqueCases.map(e => ({
                     ...e,
@@ -162,6 +184,8 @@ router.post('/create', isAuthed, apiLimiter, async (req, res) => {
                 endedAt: null
             }
         
+            res.json({ success: true, battleId, privKey });
+
             if (privKey) {
                 io.to(user.id).emit('battles:push', [minifyBattle(cachedBattles[battleId])]);
             } else {
@@ -172,13 +196,13 @@ router.post('/create', isAuthed, apiLimiter, async (req, res) => {
 
     } catch (e) {
         console.error(e);
-        res.status(500).json({ error: 'INTERNAL_ERROR' });
+        res.status(500).json({ error: e.message?.startsWith('RANDOM_ORG_') ? 'RANDOM_ORG_UNAVAILABLE' : 'INTERNAL_ERROR' });
     }
     
 });
 
 router.post('/:id/join', isAuthed, apiLimiter, async (req, res) => {
-    joinBattle(req, res);
+    return joinBattle(req, res);
 });
 
 async function joinBattle(req, res, bot = false) {
@@ -203,7 +227,7 @@ async function joinBattle(req, res, bot = false) {
                 if (slot < 1 || slot > totalPlayers) return res.status(400).json({ error: 'INVALID_SLOT' });
 
                 const [players] = await connection.query(`
-                    SELECT users.id, users.username, users.xp, users.anon, battlePlayers.slot, battlePlayers.team FROM battlePlayers
+                    SELECT users.id, users.username, users.xp, users.role, users.anon, battlePlayers.slot, battlePlayers.team FROM battlePlayers
                     INNER JOIN users ON users.id = battlePlayers.userId
                     WHERE battleId = ? ORDER BY slot ASC FOR UPDATE
                 `, [battleId]);
@@ -211,13 +235,11 @@ async function joinBattle(req, res, bot = false) {
                 let user;
 
                 if (bot) {
-                    // console.log(battle.ownerId, req.userId)
                     if (battle.ownerId != req.userId) return res.status(403).json({ error: 'FORBIDDEN' });
-                    [[user]] = await connection.query('SELECT id, username, xp, role, anon FROM users WHERE id NOT IN(?) AND role = ? LIMIT 1', [players.map(e => e.id), 'BOT']);
-                    if (!user) return res.status(500).json({ error: 'NO_BOTS_AVAILABLE' });
-
                     const taken = players.find(e => e.slot == slot);
                     if (taken) return res.status(400).json({ error: 'SLOT_TAKEN' });
+                    user = await findBattleBot(connection, players.map(e => e.id));
+                    if (!user) return res.status(503).json({ error: 'NO_BOTS_AVAILABLE' });
 
                 } else {
 
@@ -255,9 +277,10 @@ async function joinBattle(req, res, bot = false) {
                 newBattlePlayer(battleId, user, slot, team);
 
                 if (players.length + 1 != totalPlayers) return;
-                players.splice(slot - 1, 0, { id: user.id, username: user.username, xp: user.xp, slot: slot, team: team, anon: user.anon });
+                players.push({ id: user.id, username: user.username, xp: user.xp, role: user.role, slot, team, anon: user.anon });
+                players.sort((a, b) => a.slot - b.slot);
 
-                startBattle(battle, players);
+                startBattle(battle, players).catch(error => console.error('[battles] Failed to start battle:', battleId, error));
 
             });
 
@@ -275,7 +298,7 @@ router.post('/leave', isAuthed, apiLimiter, async (req, res) => {
 });
 
 router.post('/:id/bot', isAuthed, apiLimiter, async (req, res) => {
-    joinBattle(req, res, true);
+    return joinBattle(req, res, true);
 });
 
 module.exports = router;

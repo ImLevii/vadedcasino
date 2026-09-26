@@ -168,7 +168,7 @@ function AdminCashier(props) {
 
                             <div class='gc-toolbar'>
                                 <div class='gc-filter-row'>
-                                    <div class='search-wrapper'>
+                                    <div class='search-wrapper input-shell'>
                                         <input class='search' placeholder='SEARCH CODE...' value={gcSearch()}
                                                onInput={(e) => {
                                                    const val = e.target.value
@@ -295,7 +295,7 @@ function AdminCashier(props) {
 
             {/* ─── Generate gift cards sidebar ─── */}
             <div class='filters'>
-                <div class='search-wrapper'>
+                <div class='search-wrapper input-shell'>
                     <input class='search' placeholder='SEARCH FOR USERS' value={username()}
                            onInput={(e) => setUsername(e.target.value)}/>
                     <button class='search-button' onClick={() => setParams({search: username()})}>

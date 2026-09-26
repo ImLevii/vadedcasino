@@ -1,6 +1,6 @@
 import {createEffect, createSignal} from "solid-js";
 import {authedAPI} from "../../util/api";
-import {playGameSFX} from "../../util/sound";
+import {playGameSFX, GAME_SOUNDS} from "../../util/sound";
 
 function Tile(props) {
 
@@ -53,19 +53,9 @@ function Tile(props) {
                     active: true,
                 })
 
-                if (props?.revealed.length < 8) {
-                  playGameSFX('mines-tile-early', '/assets/sfx/tile0.mp3', {
-                    channel: 'mines-reveal', volume: 0.48, minIntervalMs: 50
-                  })
-                } else if (props?.revealed.length < 16) {
-                  playGameSFX('mines-tile-mid', '/assets/sfx/tile1.mp3', {
-                    channel: 'mines-reveal', volume: 0.5, minIntervalMs: 50
-                  })
-                } else {
-                  playGameSFX('mines-tile-late', '/assets/sfx/tile2.mp3', {
-                    channel: 'mines-reveal', volume: 0.52, minIntervalMs: 50
-                  })
-                }
+                playGameSFX('mines-click', GAME_SOUNDS.minesClick, {
+                  channel: 'mines-reveal', volume: .5, startTime: 1.94, durationMs: 320, minIntervalMs: 50,
+                })
             } else {
                 props?.setGame({
                     ...props?.game,
@@ -106,7 +96,7 @@ function Tile(props) {
 
     return (
         <>
-            <button type='button'
+            <button type='button' data-ui-sound='off'
                 className={'mine' + getTileState(props?.index) + (animate() ? ' animate' : '')}
               style={{ '--tile-index': props?.index }}
               aria-label={props?.revealed.includes(props?.index) ? 'Revealed safe tile' : props?.bombs.includes(props?.index) ? 'Mine' : `Reveal tile ${props?.index + 1}`}
@@ -117,7 +107,7 @@ function Tile(props) {
                 <img src='/assets/icons/greensparkles.png' className='popin green-sparkles' alt=''/>
 
                 <img src='/assets/icons/bomb.png' className='popin bomb-img' alt=''/>
-                <img src='/assets/icons/purplesparkles.png' className='popin purple-sparkles' alt=''/>
+                <img src='/assets/icons/greensparkles.png' className='popin burst-sparkles' alt=''/>
             </button>
 
             <style jsx>{`
@@ -210,7 +200,7 @@ function Tile(props) {
                 height: 75%;
               }
               
-              .purple-sparkles {
+              .burst-sparkles {
                 height: 100%;
               }
               
@@ -218,7 +208,7 @@ function Tile(props) {
                 width: 90%;
               }
               
-              .gem .gem-img.popin, .gem .green-sparkles.popin, .bomb .bomb-img, .bomb .purple-sparkles.popin {
+              .gem .gem-img.popin, .gem .green-sparkles.popin, .bomb .bomb-img, .bomb .burst-sparkles.popin {
                 opacity: 1;
                 transform: scale(1);
                 animation: reveal-pop .42s cubic-bezier(.2,.9,.25,1.2) both;

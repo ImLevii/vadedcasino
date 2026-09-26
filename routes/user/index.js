@@ -4,6 +4,7 @@ const router = express.Router();
 const { sql, doTransaction } = require('../../database');
 
 const { isAuthed, apiLimiter } = require('../auth/functions');
+const { avatarUrl } = require('../auth/profiles');
 const { roundDecimal, getUserLevel, sendLog } = require('../../utils');
 const io = require('../../socketio/server');
 const { enabledFeatures, checkAccountLock } = require('../admin/config');
@@ -17,7 +18,7 @@ const securityRoute = require('./security');
 
 async function getBootstrapUser(userId) {
     try {
-        const [[user]] = await sql.query('SELECT id, role, username, balance, heldBalance, xp, anon, verified, `2fa`, steamTradeUrl, steamApiKey, selfLockUntil, soundEnabled, visualEffects, notificationsEnabled FROM users WHERE id = ?', [userId]);
+        const [[user]] = await sql.query('SELECT id, role, username, avatarUrl, balance, heldBalance, xp, anon, verified, `2fa`, steamTradeUrl, steamApiKey, selfLockUntil, soundEnabled, visualEffects, notificationsEnabled FROM users WHERE id = ?', [userId]);
         return user;
     } catch (error) {
         if (error.code !== 'ER_BAD_FIELD_ERROR' && error.code !== 'SQLITE_ERROR') throw error;
@@ -199,55 +200,28 @@ const botImgs = {
     'bot3': '/public/bot3.png'
 }
 
-const defaultImg = 'https://tr.rbxcdn.com/e83624bf6ec47637373080d0d4a8be30/420/420/AvatarHeadshot/Png';
-const cachedImgs = {};
-
 router.get('/:id/img', async (req, res) => {
-    
     const userId = req.params.id;
-
+    res.set('Cache-Control', 'no-store');
     if (botImgs[userId]) return res.redirect(process.env.BASE_URL + botImgs[userId]);
-
-    const cached = cachedImgs[userId];
-    if (cached) return res.redirect(cached.url);
-
-    if (isNaN(parseInt(userId))) return res.status(400).json({ error: 'INVALID_USER_ID' });
-
+    if (!/^\d{1,20}$/.test(userId)) return res.status(400).json({ error: 'INVALID_USER_ID' });
     try {
-
-        const data = await getThumbnails([
-            {
-                "requestId": `${userId}:undefined:AvatarHeadshot:420x420:null:regular`,
-                "type": "AvatarHeadShot",
-                "targetId": userId,
-                "format": null,
-                "size": "420x420"
-            }
-        ]);
-
-        const url = data?.data?.[0]?.imageUrl;
-        if (!url) return res.redirect(defaultImg);
-
-        cachedImgs[userId] = { url, expires: Date.now() + 1000 * 60 * 60 };
-    
-        res.redirect(url);
-
-    } catch (e) {
-        res.redirect(defaultImg);
+        const [[user]] = await sql.query('SELECT avatarUrl, role, deletedAt FROM users WHERE id = ?', [userId]);
+        if (user?.role === 'BOT' && !user.deletedAt) {
+            return res.sendFile(require('path').join(__dirname, '../../public/assets/icons/battle-bot.png'));
+        }
+        const picture = avatarUrl(user?.avatarUrl);
+        if (picture) return res.redirect(picture);
+    } catch (error) {
+        console.error('Avatar lookup failed:', error.code || 'UNKNOWN');
     }
-        
+    return res.sendFile(require('path').join(__dirname, '../../public/assets/icons/default-avatar.svg'));
 });
-
-setInterval(() => {
-    for (const [userId, data] of Object.entries(cachedImgs)) {
-        if (data.expires < Date.now()) delete cachedImgs[userId];
-    }
-}, 1000 * 60 * 60);
 
 router.get('/:id/profile', async (req, res) => {
 
-    const userId = parseInt(req.params.id);
-    if (!userId || isNaN(userId)) return res.status(400).json({ error: 'INVALID_USER_ID' });
+    const userId = req.params.id;
+    if (!/^\d{1,20}$/.test(userId)) return res.status(400).json({ error: 'INVALID_USER_ID' });
 
     const [[user]] = await sql.query('SELECT id, username, xp FROM users WHERE id = ?', [userId]);
     if (!user) return res.status(404).json({ error: 'USER_NOT_FOUND' });

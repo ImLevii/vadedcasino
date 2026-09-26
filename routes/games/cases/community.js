@@ -275,17 +275,17 @@ router.post('/claim', [isAuthed, apiLimiter], async (req, res) => {
 
             const [[user]] = await connection.query('SELECT id, username, balance FROM users WHERE id = ? FOR UPDATE', [req.userId]);
 
-            const [[{ amount }]] = await connection.query(
-                'SELECT COALESCE(SUM(amount), 0) as amount FROM communityCaseEarnings WHERE creatorId = ? AND claimedAt IS NULL AND expiresAt > NOW() FOR UPDATE',
+            const [earnings] = await connection.query(
+                'SELECT id, amount FROM communityCaseEarnings WHERE creatorId = ? AND claimedAt IS NULL AND expiresAt > NOW() FOR UPDATE',
                 [req.userId]
             );
 
-            const claimable = roundDecimal(amount);
+            const claimable = roundDecimal(earnings.reduce((total, earning) => total + earning.amount, 0));
             if (claimable < 0.01) return res.status(400).json({ error: 'NOTHING_TO_CLAIM' });
 
             await connection.query(
-                'UPDATE communityCaseEarnings SET claimedAt = NOW() WHERE creatorId = ? AND claimedAt IS NULL AND expiresAt > NOW()',
-                [req.userId]
+                'UPDATE communityCaseEarnings SET claimedAt = NOW() WHERE creatorId = ? AND id IN (?)',
+                [req.userId, earnings.map(earning => earning.id)]
             );
 
             await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [claimable, user.id]);

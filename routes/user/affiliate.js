@@ -224,7 +224,7 @@ async function getAffiliateInfo(userId, offsetAmount, connection = sql) {
         INNER JOIN users ON users.id = affiliates.userId
         LEFT JOIN bets ON bets.userId = users.id AND bets.createdAt > affiliates.createdAt AND bets.completed = 1
         WHERE affiliates.affiliateId = ?
-        GROUP BY users.id ORDER BY totalEdge DESC;
+        GROUP BY users.id, users.username, users.xp, affiliates.createdAt ORDER BY totalEdge DESC;
         `,
         [lastClaimDate, lastClaimDate, userId]
     );

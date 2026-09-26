@@ -52,7 +52,7 @@ function Chats(props) {
                          xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M3.50001 0.994671C3.62547 0.994671 3.7509 1.04269 3.84655 1.13852L6.8564 4.15579C7.04787 4.34773 7.04787 4.65892 6.8564 4.85078C6.66501 5.04263 6.5 4.99467 6.16316 4.99467L3.50001 4.99467L1 4.99467C0.5 4.99467 0.335042 5.04254 0.14367 4.85068C-0.0478893 4.65883 -0.0478893 4.34764 0.14367 4.1557L3.15347 1.13843C3.24916 1.04258 3.3746 0.994671 3.50001 0.994671Z"
-                            fill="#9489DB"/>
+                            fill="#a6b8ad"/>
                     </svg>
                 </div>
 
@@ -141,13 +141,13 @@ function Chats(props) {
                 height: 9px;
 
                 top: 1px;
-                background: #201B3D;
+                background: #1c221f;
                 position: absolute;
                 right: 0;
                 
-                border-left: 1px solid #2D2654;
-                border-right: 1px solid #2D2654;
-                border-top: 1px solid #2D2654;
+                border-left: 1px solid #282e2b;
+                border-right: 1px solid #282e2b;
+                border-top: 1px solid #282e2b;
 
                 clip-path: polygon(0% 100%, 100% 0%, 100% 100%);
               }
@@ -158,8 +158,8 @@ function Chats(props) {
                 gap: 8px;
                 padding: 10px;
 
-                border: 1px solid #2D2654;
-                background: #201B3D;
+                border: 1px solid #282e2b;
+                background: #1c221f;
                 
                 margin-top: 9px;
               }

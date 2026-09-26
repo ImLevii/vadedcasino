@@ -1,3 +1,4 @@
+import TrashIcon from "../Icons/trash";
 import Level from "../Level/level";
 import {levelToXP} from "../../resources/levels";
 import Avatar from "../Level/avatar";
@@ -47,14 +48,13 @@ function Notification(props) {
       </span>
     </div>,
 
-    'reward-claimed': () => <div>
-      <span class='gold'>You claimed: </span>
-      <div class='flex'>
-        <span className='fancyamt'>
-          <img src='/assets/icons/coin.svg' height='18' width='19' alt=''/>
-          {props?.content?.amount?.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-        </span> from your rewards.
-      </div>
+    'reward-claimed': () => <div class='reward-message'>
+      <span class='gold'>You claimed</span>
+      <span className='fancyamt'>
+        <img src='/assets/icons/coin.svg' height='15' width='15' alt=''/>
+        {props?.content?.amount?.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+      </span>
+      <span>from your rewards.</span>
     </div>,
 
     'level-up': () => <p class='gold'>Congrats, you leveled up! <Level xp={levelToXP(props?.content?.level)}/></p>,
@@ -88,7 +88,7 @@ function Notification(props) {
 
           <button class='trash' type='button' aria-label='Delete notification' disabled={deleting()}
                   onClick={deleteNotification}>
-            <img src='/assets/icons/trash.svg' height='12' width='11' alt=''/>
+            <TrashIcon/>
           </button>
         </div>
 
@@ -100,7 +100,8 @@ function Notification(props) {
       <style jsx>{`
         .notification {
           width: 100%;
-          height: fit-content;
+          flex: 0 0 auto;
+          min-width: 0;
           box-sizing: border-box;
 
           border-radius: 8px;
@@ -128,6 +129,7 @@ function Notification(props) {
         }
 
         .notification-head {
+          flex: 0 0 auto;
           min-height: 35px;
           padding: 5px 7px 0 9px;
           display: flex;
@@ -174,11 +176,13 @@ function Notification(props) {
           outline: unset;
           border: 1px solid rgba(255,255,255,0.06);
           cursor: pointer;
-          opacity: .72;
+          color: #aab8b0;
+          opacity: 1;
           transition: background .15s, border-color .15s, opacity .15s;
         }
 
         .trash:hover:not(:disabled) {
+          color: #ff9292;
           background: rgba(255,70,84,.11);
           border-color: rgba(255, 90, 100, 0.25);
           opacity: 1;
@@ -190,9 +194,12 @@ function Notification(props) {
         }
 
         .content {
-          padding: 8px 11px 12px 41px;
-          color: #929cab;
-          line-height: 1.45;
+          padding: 8px 12px 14px 41px;
+          min-width: 0;
+          color: #a4afbd;
+          font-size: 12px;
+          line-height: 1.6;
+          overflow-wrap: anywhere;
         }
 
         .content > div, .content > p {
@@ -215,13 +222,15 @@ function Notification(props) {
           background: linear-gradient(180deg, rgba(31, 214, 95, 0.12), rgba(16, 79, 43, 0.1));
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
 
-          height: 28px;
+          min-height: 26px;
           padding: 0 8px;
+          flex: 0 0 auto;
+          white-space: nowrap;
 
           color: white;
           font-weight: 700;
 
-          display: flex;
+          display: inline-flex;
           align-items: center;
           gap: 6px;
         }
@@ -231,6 +240,11 @@ function Notification(props) {
           align-items: center;
           flex-wrap: wrap;
           gap: 6px;
+        }
+
+        .trash:focus-visible {
+          outline: 2px solid #1fd65f;
+          outline-offset: 2px;
         }
       `}</style>
     </>

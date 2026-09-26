@@ -14,7 +14,7 @@ async function cacheAdmin() {
 
     const [bans] = await sql.query('SELECT id, banned, sponsorLock FROM users WHERE banned = 1 OR sponsorLock = 1');
     bans.forEach(e => {
-        if (e.banned) bannedUsers.add(e.id);
+        if (e.banned) bannedUsers.add(String(e.id));
         if (e.sponsorLock) sponsorLockedUsers.add(e.id);
     });
 

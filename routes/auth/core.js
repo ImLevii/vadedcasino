@@ -1,7 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const bcrypt = require('bcrypt');
-const { createHash } = require('crypto');
+const { saveProviderProfile } = require('./profiles');
 
 const { sql } = require('../../database');
 const { isAuthed, generateJwtToken, expiresIn, apiLimiter } = require('./functions');
@@ -102,25 +102,13 @@ router.get('/google/callback', async (req, res) => {
             headers: { Authorization: `Bearer ${tokenResponse.data.access_token}` },
             timeout: 5000
         });
-        const { id: googleId, name, email } = profileResponse.data;
+        const { id: googleId, name, email, picture } = profileResponse.data;
         if (!googleId) return res.redirect(`${destination}/?modal=login&error=google_invalid`);
 
-        const fallbackName = `User${googleId.slice(-6)}`;
-        const username = (name || email?.split('@')[0] || fallbackName)
-            .replace(/[^a-zA-Z0-9_\- ]/g, '').slice(0, 20) || fallbackName;
-
-        try {
-            await sql.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS googleId VARCHAR(64) DEFAULT NULL');
-        } catch (_) {}
-
-        const [[existing]] = await sql.query('SELECT id FROM users WHERE googleId = ?', [googleId]);
-        const userId = existing?.id || BigInt(`0x${createHash('sha256').update(`google:${googleId}`).digest('hex').slice(0, 15)}`).toString();
-        if (!existing) {
-            await sql.query(
-                'INSERT INTO users (id, username, googleId) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE googleId = VALUES(googleId)',
-                [userId, username, googleId]
-            );
-        }
+        const userId = await saveProviderProfile(sql, 'google', googleId, {
+            username: name?.trim() || email?.split('@')[0],
+            avatarUrl: picture
+        });
 
         const token = generateJwtToken(userId);
         res.cookie('jwt', token, cookieOptions());
@@ -161,30 +149,20 @@ router.get('/steam/callback', async (req, res) => {
             return res.redirect(`${destination}/?modal=login&error=steam_invalid`);
         }
 
-        let username = `Player${steamId.slice(-6)}`;
+        let profile;
         if (process.env.STEAM_API_KEY) {
             try {
                 const profileResponse = await axios.get(
                     `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${process.env.STEAM_API_KEY}&steamids=${steamId}`,
                     { timeout: 5000 }
                 );
-                username = profileResponse.data?.response?.players?.[0]?.personaname || username;
+                profile = profileResponse.data?.response?.players?.find(player => player.steamid === steamId);
             } catch (_) {}
         }
-        username = username.replace(/[^a-zA-Z0-9_\- ]/g, '').slice(0, 20) || `Player${steamId.slice(-6)}`;
-
-        try {
-            await sql.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS steamId VARCHAR(32) DEFAULT NULL');
-        } catch (_) {}
-
-        const [[existing]] = await sql.query('SELECT id FROM users WHERE steamId = ?', [steamId]);
-        const userId = existing?.id || BigInt(`0x${createHash('sha256').update(`steam:${steamId}`).digest('hex').slice(0, 15)}`).toString();
-        if (!existing) {
-            await sql.query(
-                'INSERT INTO users (id, username, steamId) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE steamId = VALUES(steamId)',
-                [userId, username, steamId]
-            );
-        }
+        const userId = await saveProviderProfile(sql, 'steam', steamId, {
+            username: profile?.personaname,
+            avatarUrl: profile?.avatarfull || profile?.avatarmedium || profile?.avatar
+        });
 
         const token = generateJwtToken(userId);
         res.cookie('jwt', token, cookieOptions());

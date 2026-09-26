@@ -5,27 +5,13 @@ import {getCents} from "../../util/balance";
 import {authedAPI} from "../../util/api";
 import {resolveImageSrc} from "../../util/image";
 
-function BotIcon(props) {
-  return (
-    <svg viewBox='0 0 24 24' width={props.size || 16} height={props.size || 16} fill='none' xmlns='http://www.w3.org/2000/svg'>
-      <rect x='5' y='9' width='14' height='11' rx='2.5' stroke='currentColor' stroke-width='1.7'/>
-      <path d='M12 9V5.5' stroke='currentColor' stroke-width='1.7' stroke-linecap='round'/>
-      <circle cx='12' cy='4' r='1.4' fill='currentColor'/>
-      <circle cx='9' cy='14.5' r='1.4' fill='currentColor'/>
-      <circle cx='15' cy='14.5' r='1.4' fill='currentColor'/>
-      <path d='M9 18h6' stroke='currentColor' stroke-width='1.7' stroke-linecap='round'/>
-      <path d='M2.5 12.5v3M21.5 12.5v3' stroke='currentColor' stroke-width='1.7' stroke-linecap='round'/>
-    </svg>
-  )
-}
-
 function BattleRow(props) {
 
   const navigate = useNavigate()
   const [joining, setJoining] = createSignal(false)
 
   function isBotPlayer(player) {
-    return !!(player?.bot || player?.isBot || String(player?.type || '').toUpperCase() === 'BOT')
+    return !!(player?.bot || player?.isBot || player?.role === 'BOT' || String(player?.type || '').toUpperCase() === 'BOT')
   }
 
   function isGroup() {
@@ -140,7 +126,7 @@ function BattleRow(props) {
                     <For each={team}>{(player) => (
                       <div class={'slot ' + (player ? (isBotPlayer(player) ? 'bot' : 'user') : 'empty')} title={player?.username || 'Open seat'}>
                         {player ? (
-                          isBotPlayer(player) ? <BotIcon size={16}/> : <Avatar id={player?.id} xp={player?.xp || 0} height={30}/>
+                          <Avatar id={player?.id} xp={player?.xp || 0} height={30}/>
                         ) : (
                           <span class='dash'/>
                         )}
@@ -424,7 +410,7 @@ function BattleRow(props) {
 
         .badge.active.crazy { border-color: rgba(255,81,65,.4); background: rgba(255,81,65,.1); color: #ff6a5c; }
         .badge.active.group { border-color: rgba(34,197,94,.4); background: rgba(34,197,94,.1); color: var(--color-emerald-bright); }
-        .badge.active.cosmic { border-color: rgba(220,95,222,.4); background: rgba(220,95,222,.1); color: #dc5fde; }
+        .badge.active.cosmic { border-color: rgba(64, 201, 172,.4); background: rgba(64, 201, 172,.1); color: #40c9ac; }
         .badge.active.funded { border-color: rgba(246,196,83,.4); background: rgba(246,196,83,.1); color: var(--color-premium); }
         .badge.active.private { border-color: rgba(65,118,255,.4); background: rgba(65,118,255,.1); color: #4176ff; }
 
@@ -489,6 +475,31 @@ function BattleRow(props) {
           .battle-row { padding: 12px; gap: 10px; }
           .case-thumb { width: 52px; height: 52px; }
         }
+
+        .battle-row { display:grid; grid-template-columns:328px 184px minmax(0,1fr); gap:16px; padding:14px; background:#17191f; border:1px solid #0d0f14; border-radius:6px; box-shadow:none; }
+        .battle-row.live { border-color:#0d0f14; box-shadow:none; }
+        .left { width:auto; min-width:0; gap:12px; }
+        .avatar-row { min-height:56px; gap:12px; padding:6px 12px; border:2px solid #090b10; background:#101217; border-radius:4px; }
+        .slot { width:40px; height:40px; border-radius:7px; background:#080e10; color:#00ef9e; }
+        .slot.bot { box-shadow:inset 0 0 12px #00e99512; border:0; } .slot.bot svg { width:25px; height:25px; }
+        .drops-row { padding-left:12px; background:#101217; border:2px solid #090b10; border-radius:4px; height:40px; gap:6px; }
+        .drops-label { font-size:12px; text-transform:none; } .drops-amount { white-space:nowrap; font-size:13px; }
+        .action { height:40px; min-width:98px; border:0; border-radius:3px; background:#20232b; color:#9ba5b4; font-size:12px; }
+        .action.join { background:#20232b; color:#00ed95; }
+        .mid { width:auto; min-width:0; padding:6px 0; gap:8px; }
+        .inspect { height:44px; border:0; border-radius:3px; background:#20232b; color:#9ba5b4; font-size:12px; }
+        .badge-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+        .badge { width:auto; height:40px; background:#1b1e26; border-radius:3px; color:#8d9bab; } .badge svg { width:22px; height:22px; }
+        .cases { gap:8px; padding:6px 0; mask-image:linear-gradient(to right,transparent,#000 20px,#000 calc(100% - 24px),transparent); }
+        .case-thumb { width:92px; height:92px; border:0; border-radius:3px; background:#20232b; } .case-thumb img { width:86%; height:86%; }
+        .marker { width:8px; height:2px; background:#00ed95; }
+        @media(max-width:1300px) { .battle-row { grid-template-columns:268px 128px minmax(0,1fr); gap:12px; } .avatar-row { gap:6px; padding:6px; } .badge-row { gap:4px; } }
+        @media(max-width:800px) { .battle-row { grid-template-columns:minmax(0,1fr) 112px; padding:12px; } .cases { grid-column:1 / -1; } .case-thumb { width:80px; height:80px; } }
+        @media(max-width:420px) { .battle-row { grid-template-columns:minmax(0,1fr); } .mid { flex-direction:row; padding:0; } .inspect { width:100px; height:36px; } .badge-row { display:flex; } .badge { width:36px; height:36px; } .avatar-row { justify-content:center; } }
+
+        .avatar-row { flex-wrap:nowrap; gap:8px; justify-content:space-between; } .vs { padding:0; font-size:9px; } .team { min-width:0; }
+        .cases { scrollbar-width:none; } .cases::-webkit-scrollbar { display:none; } .case-thumb.active { box-shadow:none; }
+        .slot.bot { background:#080e10; } .badge.empty { background:#1b1e26; border:0; }
       `}</style>
     </>
   );

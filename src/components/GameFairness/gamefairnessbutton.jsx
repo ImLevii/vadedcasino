@@ -71,30 +71,4 @@ export function GameFairnessButton(props) {
   );
 }
 
-const GAME_PATHS = [
-  '/roulette', '/mines', '/cases', '/battles', '/battle', '/coinflip', '/slots'
-];
-
-export function GameFairnessDock(props) {
-  const visible = () => GAME_PATHS.some((path) => props.pathname === path || props.pathname.startsWith(`${path}/`));
-
-  return visible() ? (
-    <div class='game-fairness-dock'>
-      <GameFairnessButton/>
-      <style>{`
-        .game-fairness-dock {
-          position: fixed;
-          z-index: 30;
-          top: 82px;
-          right: 18px;
-        }
-
-        @media (max-width: 760px) {
-          .game-fairness-dock { top: 72px; right: 10px; }
-        }
-      `}</style>
-    </div>
-  ) : null;
-}
-
 export default GameFairnessButton;

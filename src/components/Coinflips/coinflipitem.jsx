@@ -58,7 +58,7 @@ function CoinflipItem(props) {
               }
 
               .pink {
-                background: linear-gradient(135deg, rgba(220, 95, 222, 0.58) 0%, rgba(220, 95, 222, 0.08) 55%, rgba(220, 95, 222, 0) 100%);
+                background: linear-gradient(135deg, rgba(64, 201, 172, 0.58) 0%, rgba(64, 201, 172, 0.08) 55%, rgba(64, 201, 172, 0) 100%);
               }
 
               .red {
@@ -91,7 +91,7 @@ function CoinflipItem(props) {
               
               .pink:before {
                 background:
-                  radial-gradient(100% 65% at 50% 100%, rgba(220, 95, 222, 0.18) 0%, rgba(220, 95, 222, 0) 100%),
+                  radial-gradient(100% 65% at 50% 100%, rgba(64, 201, 172, 0.18) 0%, rgba(64, 201, 172, 0) 100%),
                   linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.28));
               }
               

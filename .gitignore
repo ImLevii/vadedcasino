@@ -25,3 +25,5 @@ dist
 database/local.sqlite
 database/local.sqlite-shm
 database/local.sqlite-wal
+# Server-only RANDOM.ORG credentials
+.env.randomorg.local

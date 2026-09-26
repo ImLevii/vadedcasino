@@ -24,7 +24,7 @@ router.get('/postback', async (req, res) => {
 
             data.robux = +data.robux;
             data.revenue = +data.revenue;
-            const [[exists]] = await connection.query('SELECT id, userId, robux, chargedbackAt FROM surveys WHERE provider = "cpx" AND transactionId = ? FOR UPDATE', [data.transactionId]);
+            const [[exists]] = await connection.query('SELECT id, userId, coins AS robux, chargedbackAt FROM surveys WHERE provider = "cpx" AND transactionId = ? FOR UPDATE', [data.transactionId]);
     
             if (exists) {
         
@@ -46,7 +46,7 @@ router.get('/postback', async (req, res) => {
     
             const [[user]] = await connection.query('SELECT id, username, balance, xp FROM users WHERE id = ? FOR UPDATE', [data.userId]);
             
-            const [result] = await connection.query('INSERT INTO surveys (userId, provider, transactionId, robux, ip, revenue) VALUES (?, ?, ?, ?, ?, ?)', [data.userId, 'cpx', data.transactionId, data.robux, data.ip, data.revenue]);
+            const [result] = await connection.query('INSERT INTO surveys (userId, provider, transactionId, coins, ip, revenue) VALUES (?, ?, ?, ?, ?, ?)', [data.userId, 'cpx', data.transactionId, data.robux, data.ip, data.revenue]);
             await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [data.userId, data.robux, 'in', 'survey', result.insertId]);
             await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [data.robux, data.userId]);
     

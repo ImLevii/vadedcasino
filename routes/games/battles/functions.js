@@ -6,6 +6,8 @@ const { getEOSBlockNumber, waitForEOSBlock } = require('../../../fairness/eos');
 const { newBets } = require('../../../socketio/bets');
 const { getResult, combine, sha256 } = require('../../../fairness');
 const { getGameConfig } = require('../../../routes/admin/gameConfig');
+const { ensureBattleBots } = require('./bots');
+const { drawSeed, ticketFromDigest, battleRules } = require('../../../fairness/randomorg');
 
 const cachedBattles = {};
 
@@ -29,7 +31,7 @@ async function getBattle(battleId, privKey) {
         SELECT cases.id, cases.name, cases.slug, cases.img, caseVersions.price, caseVersions.id as revId, battleRounds.round FROM battleRounds
         INNER JOIN caseVersions ON battleRounds.caseVersionId = caseVersions.id
         INNER JOIN cases ON caseVersions.caseId = cases.id
-        WHERE battleId = ?
+        WHERE battleId = ? ORDER BY battleRounds.round ASC
     `, [battle.id]);
 
     const [items] = await sql.query(`
@@ -50,7 +52,7 @@ async function getBattle(battleId, privKey) {
     const [players] = await sql.query(`
         SELECT users.id, users.username, users.xp, users.role, users.anon, battlePlayers.slot, battlePlayers.team
         FROM battlePlayers INNER JOIN users ON battlePlayers.userId = users.id
-        WHERE battlePlayers.battleId = ?
+        WHERE battlePlayers.battleId = ? ORDER BY battlePlayers.slot ASC
     `, [battle.id]);
 
     let openings = [];
@@ -110,6 +112,8 @@ function battleEnded(battleId, winnerTeam, serverSeed, clientSeed) {
 
     battle.winnerTeam = winnerTeam;
     battle.endedAt = new Date();
+    battle.serverSeed = serverSeed;
+    battle.clientSeed = clientSeed;
 
     io.to('battles').emit('battles:ended', battleId, winnerTeam);
     io.to('battle:' + battleId).emit('battle:ended', battleId, { winnerTeam, serverSeed, clientSeed });
@@ -130,6 +134,8 @@ function battleEnded(battleId, winnerTeam, serverSeed, clientSeed) {
 }
 
 async function cacheBattles() {
+
+    await ensureBattleBots(sql);
 
     const [battles] = await sql.query(`
         SELECT * FROM battles WHERE endedAt IS NULL ORDER BY id DESC
@@ -183,7 +189,7 @@ async function cacheBattles() {
         cachedBattles[battle.id] = data;
 
         if (battlePlayers.length == (battle.teams * battle.playersPerTeam) && !battle.endedAt) {
-            startBattle(battle, battlePlayers)
+            startBattle(battle, battlePlayers).catch(error => console.error('[battles] Failed to resume battle:', battle.id, error));
         }
 
     })
@@ -202,6 +208,8 @@ function mapBattle(battle, cases, rounds, players, openings = []) {
         ownerFunding: battle.ownerFunding,
         playersPerTeam: battle.playersPerTeam,
         EOSBlock: battle.EOSBlock,
+        randomTicket: battle.randomTicket,
+        serverSeedHash: sha256(battle.serverSeed),
         clientSeed: battle.clientSeed,
         serverSeed: battle.startedAt ? battle.serverSeed : sha256(battle.serverSeed),
         gamemode: battle.gamemode,
@@ -256,7 +264,30 @@ const rollTime = 6500;
 const cosmicRollTime = 12000;
 const getRollTime = (battle) => battle.cosmicSpin ? cosmicRollTime : rollTime;
 
+const runningBattles = new Set();
+const retryTimers = new Map();
 async function startBattle(battle, players) {
+    if (runningBattles.has(battle.id)) return;
+    runningBattles.add(battle.id);
+    clearTimeout(retryTimers.get(battle.id));
+    retryTimers.delete(battle.id);
+    try { return await runBattle(battle, players); }
+    catch (error) {
+        if (!error.message?.startsWith('RANDOM_ORG_')) throw error;
+        if (cachedBattles[battle.id]) cachedBattles[battle.id].fairnessError = 'Waiting for verified randomness. Retrying automatically.';
+        io.to('battle:' + battle.id).emit('battle:fairness', battle.id, { status: 'pending' });
+        const timer = setTimeout(() => startBattle(battle, players).catch(() => {}), 30000);
+        timer.unref?.();
+        retryTimers.set(battle.id, timer);
+    } finally { runningBattles.delete(battle.id); }
+}
+
+async function runBattle(battle, players) {
+
+    const [[storedBattle]] = await sql.query('SELECT * FROM battles WHERE id = ?', [battle.id]);
+    if (!storedBattle || storedBattle.endedAt) return;
+    battle = storedBattle;
+    players = [...players].sort((a, b) => a.slot - b.slot);
 
     const [cases] = await sql.query(`
         SELECT cases.id, cases.name, cases.slug, cases.img, cases.creatorId, cases.commissionPct, caseVersions.price, caseVersions.id as revId, battleRounds.round FROM battleRounds
@@ -265,51 +296,10 @@ async function startBattle(battle, players) {
         WHERE battleRounds.battleId = ? ORDER BY battleRounds.round ASC
     `, [battle.id]);
 
-    // Community cases - track opens and credit creator commission (7 days to claim)
-    try {
-
-        const uniqueCases = [...new Map(cases.map(e => [e.id, e])).values()].filter(e => e.creatorId);
-
-        for (const c of uniqueCases) {
-
-            const roundsUsed = cases.filter(e => e.id === c.id).length;
-            await sql.query('UPDATE cases SET openCount = openCount + ? WHERE id = ?', [players.length * roundsUsed, c.id]);
-
-            const payers = players.filter(p => String(p.role).toLowerCase() !== 'bot' && p.id !== c.creatorId).length;
-            const commission = roundDecimal(c.price * (c.commissionPct / 100) * payers * roundsUsed);
-
-            if (commission >= 0.01) {
-                await sql.query(
-                    'INSERT INTO communityCaseEarnings (caseId, creatorId, amount, expiresAt) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))',
-                    [c.id, c.creatorId, commission]
-                );
-            }
-
-        }
-
-    } catch (e) {
-        console.error('[battles] community case commission failed:', e);
-    }
-
-    const currentRound = battle.round + 1;
-
-    const newCases = cases.filter((c, index) => index + 1 === currentRound);
-    if (!newCases || !newCases.length) {
-        let endTime = Date.now();
-
-        try {
-            await doTransaction(async (connection, commit) => {
-                await connection.query('UPDATE battles SET endedAt = ?, winnerTeam = ? WHERE id = ?', [new Date(endTime), winnerTeam, battle.id]);
-                await connection.query('UPDATE bets SET completed = 1 WHERE game = ? AND gameId = ?', ['battle', battle.id]);
-                await commit();
-            });
-        } catch (e) {
-            console.error('[battles] failed to end battle:', e);
-        }
-
-        battleEnded(battle.id, winnerTeam, battle.serverSeed, clientSeed);
-        return;
-    }
+    // A restart may resume a battle after its final round was persisted but
+    // before settlement. Reconstruct results from the committed seeds and use
+    // the normal settlement path below, even when there are no rounds left.
+    if (!cases.length) throw new Error('Battle has no case rounds');
 
     const [casesItems] = await sql.query(`SELECT * FROM caseItems WHERE caseVersionId IN(?);`, [cases.map(e => e.revId)]);
 
@@ -319,32 +309,38 @@ async function startBattle(battle, players) {
         itemsByCase[e.caseVersionId].push(e);
     });
     
-    let commitTo = battle.EOSBlock;
-
-    if (!commitTo) {
-
-        const blockNumber = await getEOSBlockNumber();
-        commitTo = blockNumber + 2;
-    
-        await sql.query("UPDATE battles SET EOSBlock = ? WHERE id = ?", [commitTo, battle.id]);
-        battleCommitTo(battle.id, commitTo);
-
+    let clientSeed = battle.clientSeed;
+    if (battle.randomTicket) {
+        battle.rulesHash = sha256(JSON.stringify(battleRules(battle, cases.map(c => ({...c, caseVersionId:c.revId, items:itemsByCase[c.revId]})), players)));
+        const draw = await drawSeed(battle);
+        clientSeed = draw.clientSeed;
+        await sql.query('UPDATE battles SET clientSeed = ?, randomProof = ? WHERE id = ?', [clientSeed, JSON.stringify(draw.proof), battle.id]);
+        if (cachedBattles[battle.id]) {
+            cachedBattles[battle.id].clientSeed = clientSeed;
+            delete cachedBattles[battle.id].fairnessError;
+        }
+        io.to('battle:' + battle.id).emit('battle:fairness', battle.id, { status: 'verified' });
+    } else {
+        // Existing battles retain their original committed EOS seed/algorithm.
+        let commitTo = battle.EOSBlock;
+        if (!commitTo) {
+            commitTo = await getEOSBlockNumber() + 2;
+            await sql.query('UPDATE battles SET EOSBlock = ? WHERE id = ?', [commitTo, battle.id]);
+            battleCommitTo(battle.id, commitTo);
+        }
+        clientSeed = clientSeed || await waitForEOSBlock(commitTo);
     }
-
-    const clientSeed = battle.clientSeed || await waitForEOSBlock(commitTo);
 
     let nonce = 0;
     const rounds = [];
     let total = 0;
 
-    const revIds = {};
     const teams = {};
     const teamsResults = {};
 
     for (let i = 0; i < cases.length; i++) {
 
         const c = cases[i];
-        revIds[c.id] = c.revId;
 
         const caseItems = itemsByCase[c.revId];
         const items = [];
@@ -355,7 +351,7 @@ async function startBattle(battle, players) {
 
             const player = players[p];
             const seed = combine(battle.serverSeed, clientSeed, nonce);
-            const result = getResult(seed);
+            const result = battle.randomTicket ? ticketFromDigest(seed) : getResult(seed);
 
             const item = caseItems.find(e => result >= e.rangeFrom && result <= e.rangeTo);
             if (!item) throw new Error('Item not found');
@@ -368,14 +364,16 @@ async function startBattle(battle, players) {
                 itemId: item.id // mapItem(item)
             });
 
-            total += item.price;
-            teams[player.team] = (teams[player.team] || 0) + item.price;
+            const itemValue = battle.randomTicket ? Math.round(item.price * 100) : item.price;
+            total += itemValue;
+            teams[player.team] = (teams[player.team] || 0) + itemValue;
             teamsResults[player.team] = (teamsResults[player.team] || 0) + result;
 
         }
 
         rounds.push({
             caseId: c.id,
+            caseVersionId: c.revId,
             round: c.round,
             items
         });
@@ -400,7 +398,27 @@ async function startBattle(battle, players) {
     
             await doTransaction(async (connection, commit) => {
 
-                if (!cachedBattle.startedAt) {
+                const [[currentBattle]] = await connection.query('SELECT startedAt FROM battles WHERE id = ? FOR UPDATE', [battle.id]);
+                if (!currentBattle.startedAt) {
+
+                    const uniqueCases = [...new Map(cases.map(e => [e.id, e])).values()].filter(e => e.creatorId);
+
+                    for (const c of uniqueCases) {
+
+                        const roundsUsed = cases.filter(e => e.id === c.id).length;
+                        await connection.query('UPDATE cases SET openCount = openCount + ? WHERE id = ?', [players.length * roundsUsed, c.id]);
+
+                        const payers = players.filter(p => String(p.role).toLowerCase() !== 'bot' && p.id !== c.creatorId).length;
+                        const commission = roundDecimal(c.price * (c.commissionPct / 100) * payers * roundsUsed);
+
+                        if (commission >= 0.01) {
+                            await connection.query(
+                                'INSERT INTO communityCaseEarnings (caseId, creatorId, amount, expiresAt) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))',
+                                [c.id, c.creatorId, commission]
+                            );
+                        }
+
+                    }
 
                     const fairRollsData = rounds.map(e => e.items).flat().map(e => [battle.serverSeed, clientSeed, e.nonce, e.seed, e.result]);
                     const fairRollsIds = [];
@@ -410,7 +428,7 @@ async function startBattle(battle, players) {
                         fairRollsIds.push(result.insertId);
                     }
                 
-                    const caseOpeningsData = rounds.map(r => r.items.map((e, i) => [e.userId, revIds[r.caseId], fairRollsIds.shift(), e.itemId])).flat();
+                    const caseOpeningsData = rounds.map(r => r.items.map((e, i) => [e.userId, r.caseVersionId, fairRollsIds.shift(), e.itemId])).flat();
                     const caseOpeningsIds = [];
                 
                     for (const row of caseOpeningsData) {
@@ -428,7 +446,7 @@ async function startBattle(battle, players) {
                     cachedBattle.startedAt = new Date();
                     cachedBattle.clientSeed = clientSeed;
                     cachedBattle.serverSeed = battle.serverSeed;
-                    io.to('battle:' + battle.id).emit('battle:start', battle.id, rounds, clientSeed, battle.serverSeed);
+
                     
                 } else {
                     await connection.query(`UPDATE battles SET round = ? WHERE id = ?`, [round.round, battle.id]);
@@ -442,6 +460,8 @@ async function startBattle(battle, players) {
             return console.error(e);
         }
 
+        if (i === 0) io.to('battle:' + battle.id).emit('battle:start', battle.id, rounds, clientSeed, battle.serverSeed);
+        io.to('battle:' + battle.id).emit('battle:fairness', battle.id, { status: 'running' });
         io.to('battles').emit('battles:round', battle.id, round.round);
         io.to('battle:' + battle.id).emit('battle:round', battle.id, round.round);
 
@@ -475,29 +495,36 @@ async function startBattle(battle, players) {
     const winnerTeam = +(winnerTeams.reduce((a, b) => teamsResults[a] < teamsResults[b] ? a : b));
 
     const teamPlayers = players.filter(e => e.team == winnerTeam);
-    const amount = roundDecimal(total / teamPlayers.length);
+    const amount = roundDecimal(total / (battle.randomTicket ? 100 : 1) / teamPlayers.length);
 
     const winnersIds = teamPlayers.map(e => e.id);
+
+    let settled = false;
 
     try {
 
         await doTransaction(async (connection, commit) => {
-        
-            await connection.query(`UPDATE users SET balance = balance + ? WHERE id IN(?) AND role <> ?`, [amount, winnersIds, 'bot']);
+
+            const [[current]] = await connection.query('SELECT endedAt FROM battles WHERE id = ? FOR UPDATE', [battle.id]);
+            if (!current || current.endedAt) return;
+            await connection.query(`UPDATE users SET balance = balance + ? WHERE id IN(?) AND role <> ?`, [amount, winnersIds, 'BOT']);
             await connection.query(`UPDATE battles SET winnerTeam = ?, endedAt = NOW() WHERE id = ?`, [winnerTeam, battle.id]);
         
             await connection.query(`
-                UPDATE bets SET completed = 1, winnings = CASE WHEN userId IN (?) THEN ? ELSE 0 END WHERE game = ? AND gameId = ?`,
+                UPDATE bets SET completed = 1, winnings = CASE WHEN userId IN (?) THEN CAST(? AS DECIMAL(20,2)) ELSE 0 END WHERE game = ? AND gameId = ?`,
                 [winnersIds, amount, 'battle', battle.id]
             );
 
             await commit();
+            settled = true;
 
         });
 
     } catch (e) {
         return console.error(e);
     }
+
+    if (!settled) return;
 
     let totalCost = 0;
         

@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 const { body, validationResult } = require('express-validator');
-const { bannedUsers, sponsorLockedUsers } = require('../config');
+const { bannedUsers, sponsorLockedUsers, lastLogouts } = require('../config');
+const { deleteUserAccount } = require('./delete');
 const { roundDecimal, sendLog } = require('../../../utils');
 const { generateJwtToken, expiresIn, getReqToken } = require('../../auth/functions');
 
@@ -20,13 +21,13 @@ router.get('/', async (req, res) => {
     const sortOrder = req.query.sortOrder || 'DESC';
     if (!['ASC', 'DESC'].includes(sortOrder)) return res.status(400).json({ error: 'INVALID_SORT_ORDER' });
 
-    let searchQuery = '';
+    let searchQuery = ' WHERE deletedAt IS NULL';
     let searchArgs = [];
 
     const search = req.query.search;
     if (search) {
         if (typeof search !== 'string' || search.length < 1 || search.length > 30) return res.status(400).json({ error: 'INVALID_SEARCH' });
-        searchQuery = ` WHERE LOWER(username) LIKE ?`;
+        searchQuery += ` AND LOWER(username) LIKE ?`;
         searchArgs.push(`%${search.toLowerCase()}%`);
     }
 
@@ -61,9 +62,9 @@ router.get('/:id', async (req, res) => {
     const userId = req.params.id;
     
     const [[user]] = await sql.query(
-        `SELECT users.id, username, xp, role, balance, banned, tipBan, leaderboardBan, rainBan, accountLock, sponsorLock, maxPerTip, maxTipPerUser, tipAllowance, rainTipAllowance, cryptoAllowance, mutedUntil, discordId FROM users
+        `SELECT users.id, username, xp, role, perms, balance, banned, tipBan, leaderboardBan, rainBan, accountLock, sponsorLock, maxPerTip, maxTipPerUser, tipAllowance, rainTipAllowance, cryptoAllowance, mutedUntil, discordId FROM users
         LEFT JOIN discordAuths ON discordAuths.userId = users.id
-        WHERE users.id = ?`,
+        WHERE users.id = ? AND deletedAt IS NULL`,
         [userId]
     );
 
@@ -102,7 +103,7 @@ router.get('/:id/possess', async (req, res) => {
 
     const userId = req.params.id;
     
-    const [[user]] = await sql.query(`SELECT id, perms FROM users WHERE id = ? OR LOWER(username) = ?`, [userId, userId.toLowerCase()]);
+    const [[user]] = await sql.query(`SELECT id, perms FROM users WHERE (id = ? OR LOWER(username) = ?) AND deletedAt IS NULL`, [userId, userId.toLowerCase()]);
     if (!user) return res.status(404).json({ error: 'USER_NOT_FOUND' });
 
     if (user.perms >= req.user.perms) return res.status(400).json({ error: 'CANNOT_POSSESS_HIGHER_USER' });
@@ -124,6 +125,25 @@ const defaultRolePermissions = {
     ADMIN: 2,
     OWNER: 3
 }
+
+router.delete('/:id', async (req, res) => {
+    try {
+        await doTransaction(async (connection, commit) => {
+            await deleteUserAccount(connection, req.user, req.params.id, req.body?.confirmId);
+            await commit();
+        });
+        const userId = req.params.id;
+        bannedUsers.add(userId);
+        lastLogouts[userId] = Date.now();
+        io.to(userId).emit('auth', { error: 'ACCOUNT_DELETED' });
+        io.in(userId).disconnectSockets(true);
+        return res.json({ success: true });
+    } catch (error) {
+        if (error.status) return res.status(error.status).json({ error: error.message });
+        console.error('Account deletion failed:', error.code || 'UNKNOWN');
+        return res.status(500).json({ error: 'INTERNAL_SERVER_ERROR' });
+    }
+});
 
 function nullableNumber(value) {
     return value === null || (typeof value === 'number' && value >= 0 && value <= 100000000);
@@ -179,7 +199,7 @@ router.post('/:id', [
             await doTransaction(async (connection, commit) => {
 
                 const userId = req.params.id;
-                const [[user]] = await connection.query('SELECT id, perms, role, username, balance FROM users WHERE id = ? FOR UPDATE', [userId]);
+                const [[user]] = await connection.query('SELECT id, perms, role, username, balance FROM users WHERE id = ? AND deletedAt IS NULL FOR UPDATE', [userId]);
                 if (!user) return res.status(404).json({ error: 'USER_NOT_FOUND' });
         
                 if (user.id != req.userId && (user.role == 'BOT' || (req.user.perms < 4 && user.perms >= req.user.perms))) return res.status(400).json({ error: 'CANNOT_EDIT_USER' });

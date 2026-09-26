@@ -121,7 +121,7 @@ function SideBar(props) {
 
   return (
     <>
-      <div class={'sidebar-container ' + (props.chat ? 'active' : '')}>
+      <div id='site-chat' aria-label='Chat' class={'sidebar-container ' + (props.chat ? 'active' : '')}>
         <div class='top-container'>
           <div class='chat-header'>
             <div class='room-title' style="display: flex; align-items: center;">
@@ -129,12 +129,8 @@ function SideBar(props) {
                 <img src='/assets/logo/cosmic-luck-logo.png' alt='Cosmic Luck' height='26'/>
               </A>
             </div>
-            <button class='menu-dot' aria-label='Chat options'>
-              <svg width='4' height='16' viewBox='0 0 4 16' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                <circle cx='2' cy='2' r='2' fill='currentColor'/>
-                <circle cx='2' cy='8' r='2' fill='currentColor'/>
-                <circle cx='2' cy='14' r='2' fill='currentColor'/>
-              </svg>
+            <button class='menu-dot chat-close' type='button' aria-label='Close chat' onClick={() => props.setChat(false)}>
+              <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'><path d='m6 6 12 12M18 6 6 18'/></svg>
             </button>
           </div>
           {(rain()?.active || userRain()) && <SidebarRain/>}
@@ -236,6 +232,7 @@ function SideBar(props) {
 
       <style jsx>{`
         .sidebar-container {
+          position: relative;
           min-width: 300px;
           width: 300px;
           height: 100vh;
@@ -247,12 +244,24 @@ function SideBar(props) {
           background:
             radial-gradient(100% 55% at 50% 0%, rgba(31, 214, 95, 0.055), transparent 62%),
             linear-gradient(180deg, rgba(12, 17, 24, 0.92), rgba(8, 12, 18, 0.9));
-          border-right: 1px solid var(--glass-border);
-          box-shadow: inset -1px 0 0 rgba(255,255,255,0.025), 10px 0 30px rgba(0,0,0,0.18);
+          border-right: 0;
+          box-shadow: none;
           backdrop-filter: blur(14px) saturate(120%);
           -webkit-backdrop-filter: blur(14px) saturate(120%);
           overflow: hidden;
           transition: left .3s;
+        }
+
+        .sidebar-container::after {
+          content: '';
+          position: absolute;
+          top: var(--site-header-height);
+          right: 0;
+          bottom: 0;
+          width: 1px;
+          background: var(--glass-border);
+          pointer-events: none;
+          z-index: 2;
         }
 
         .top-container {
@@ -262,7 +271,7 @@ function SideBar(props) {
 
         .chat-header {
           width: 100%;
-          height: 60px;
+          height: var(--site-header-height);
 
           display: flex;
           align-items: center;
@@ -271,9 +280,9 @@ function SideBar(props) {
           padding: 0 16px;
           box-sizing: border-box;
 
-          background: linear-gradient(180deg, rgba(25, 32, 43, 0.76), rgba(13, 18, 26, 0.62));
-          border-bottom: 1px solid var(--glass-border);
-          box-shadow: inset 0 1px 0 var(--glass-highlight);
+          background: var(--site-header-surface);
+          border-bottom: 1px solid var(--site-header-border);
+          box-shadow: var(--site-header-highlight);
         }
 
         .room-title {
@@ -289,6 +298,7 @@ function SideBar(props) {
         }
 
         .menu-dot {
+          padding: 0;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -373,6 +383,7 @@ function SideBar(props) {
         }
 
         .toolbar-btn {
+          padding: 0;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -397,6 +408,8 @@ function SideBar(props) {
           background: #222831;
           color: #c3cad6;
         }
+
+        .toolbar-btn svg, .menu-dot svg { flex-shrink: 0; }
 
         .room-selector {
           flex: 1;
@@ -579,12 +592,15 @@ function SideBar(props) {
           text-decoration: underline;
         }
 
+        .chat-close { display: none; }
+
         .back-btn {
           flex-shrink: 0;
           display: none;
         }
 
         @media only screen and (max-width: 1250px) {
+          .chat-close { display: flex; }
           .back-btn {
             display: flex;
           }
@@ -593,14 +609,19 @@ function SideBar(props) {
             position: fixed;
             top: 0;
             left: -300px;
-            height: calc(100% - 60px);
+            height: 100dvh;
+            visibility: hidden;
             z-index: 4;
           }
 
           .sidebar-container.active {
+            visibility: visible;
             top: 0;
             left: 0;
           }
+        }
+        @media (max-width: 1000px) {
+          .sidebar-container { height: calc(100dvh - 60px); }
         }
       `}</style>
     </>

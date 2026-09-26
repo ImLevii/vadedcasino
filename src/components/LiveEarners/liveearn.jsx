@@ -54,7 +54,7 @@ function LiveEarn(props) {
                 top: 1px;
                 left: 1px;
                 border-radius: 10px;
-                background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(252, 164, 33, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(41, 38, 77, 1);
+                background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(252, 164, 33, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), rgba(38, 44, 41, 1);
               }
               
               .live-earn-header {
@@ -70,7 +70,7 @@ function LiveEarn(props) {
                 height: 30px;
 
                 border-radius: 10px 0px 8px 0px;
-                background: rgba(142, 130, 255, 0.08);
+                background: rgba(166, 184, 173, 0.08);
                 
                 display: flex;
                 align-items: center;
@@ -89,7 +89,7 @@ function LiveEarn(props) {
                 outline: unset;
                 
                 border-radius: 0px 10px 0px 8px;
-                background: rgba(142, 130, 255, 0.08);
+                background: rgba(166, 184, 173, 0.08);
 
                 display: flex;
                 align-items: center;
@@ -122,7 +122,7 @@ function LiveEarn(props) {
                 justify-content: center;
 
                 border-radius: 10px;
-                border: 1px solid #2D2C59;
+                border: 1px solid #2c322f;
                 background: rgba(0, 0, 0, 0.21);
               }
 

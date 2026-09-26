@@ -20,70 +20,25 @@ function CaseSpinner(props) {
   const [showShockwave, setShowShockwave] = createSignal(false)
   const [showFlash, setShowFlash] = createSignal(false)
 
-  function playCosmicChargeSFX() {
-    if (typeof window === 'undefined') return;
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
-      
-      const masterGain = ctx.createGain();
-      masterGain.gain.setValueAtTime(0.20, ctx.currentTime);
-      masterGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
-      masterGain.connect(ctx.destination);
-      
-      const osc = ctx.createOscillator();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(90, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(950, ctx.currentTime + 0.9);
-      
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.Q.setValueAtTime(12, ctx.currentTime);
-      filter.frequency.setValueAtTime(140, ctx.currentTime);
-      filter.frequency.exponentialRampToValueAtTime(3200, ctx.currentTime + 0.9);
-      
-      osc.connect(filter);
-      filter.connect(masterGain);
-      
-      osc.start();
-      osc.stop(ctx.currentTime + 1.5);
-      setTimeout(() => {
-        ctx.close().catch(() => {})
-      }, 1700)
-      
-      for (let i = 0; i < 7; i++) {
-        const time = ctx.currentTime + i * 0.10;
-        const sparkOsc = ctx.createOscillator();
-        const sparkGain = ctx.createGain();
-        
-        sparkOsc.type = 'sine';
-        sparkOsc.frequency.setValueAtTime(1400 + Math.random() * 900, time);
-        
-        sparkGain.gain.setValueAtTime(0.06, time);
-        sparkGain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
-        
-        sparkOsc.connect(sparkGain);
-        sparkGain.connect(ctx.destination);
-        
-        sparkOsc.start(time);
-        sparkOsc.stop(time + 0.5);
-      }
-    } catch (e) {
-      console.error("Web Audio API not supported or blocked", e);
-    }
-  }
+  let particleFrame
+  const effectTimers = new Set()
+  const later = (fn, ms) => { const id = setTimeout(() => { effectTimers.delete(id); fn() }, ms); effectTimers.add(id) }
+  onCleanup(() => {
+    effectTimers.forEach(clearTimeout)
+    cancelAnimationFrame(particleFrame)
+    spinAnimation?.cancel()
+  })
 
   function triggerCosmicParticles() {
-    playCosmicChargeSFX();
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
     
     setShowFlash(true);
-    setTimeout(() => setShowFlash(false), 250);
+    later(() => setShowFlash(false), 250);
     
     setShowShockwave(true);
-    setTimeout(() => setShowShockwave(false), 850);
+    later(() => setShowShockwave(false), 850);
 
-    const particleCount = 50;
+    const particleCount = 20;
     const colors = [
       '#1fd65f',
       '#14b04a',
@@ -95,14 +50,15 @@ function CaseSpinner(props) {
     const newParticles = [];
     for (let i = 0; i < particleCount; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 2.5 + Math.random() * 8.5;
+      const speed = 1.4 + Math.random() * 3.5;
       newParticles.push({
         id: Math.random(),
         x: 0,
         y: 0,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed - (1 + Math.random() * 2),
-        size: 5 + Math.random() * 9,
+        size: 2 + Math.random() * 3,
+        round: Math.random() > 0.45,
         color: colors[Math.floor(Math.random() * colors.length)],
         life: 1.0,
         decay: 0.016 + Math.random() * 0.024,
@@ -113,7 +69,7 @@ function CaseSpinner(props) {
 
     setParticles(newParticles);
 
-    let animFrame;
+    cancelAnimationFrame(particleFrame);
     const update = () => {
       const current = particles();
       if (current.length === 0) return;
@@ -133,11 +89,11 @@ function CaseSpinner(props) {
       setParticles(updated);
 
       if (updated.length > 0) {
-        animFrame = requestAnimationFrame(update);
+        particleFrame = requestAnimationFrame(update);
       }
     };
 
-    animFrame = requestAnimationFrame(update);
+    particleFrame = requestAnimationFrame(update);
   }
 
   const isIdle = () => props?.spinning === '' || props?.spinning === 'loading'
@@ -147,21 +103,12 @@ function CaseSpinner(props) {
   const loopDuration = () => Math.max(20, (props?.items?.length || 0) * 1.4)
 
     createEffect(() => {
-        if (props?.spinning === 'spinning') {
-      requestAnimationFrame(() => animate())
-
-      const isCosmicWin = props.items && props.items[50]?.id === 'cosmic-spin-gem';
-      if (isCosmicWin) {
-        const timer = setTimeout(() => {
-          triggerCosmicParticles();
-        }, props.spinTime || 4800);
-        onCleanup(() => clearTimeout(timer));
+      if (props.spinning === 'spinning') {
+        const frame = requestAnimationFrame(() => animate())
+        onCleanup(() => cancelAnimationFrame(frame))
       }
-    }
-
-    if (props?.spinning === '') {
-      resetTrack()
-        }
+      if (props.spinning === 'cosmic') triggerCosmicParticles()
+      if (props.spinning === '' || props.spinning === 'loading') resetTrack()
     })
 
     function animate() {
@@ -191,6 +138,8 @@ function CaseSpinner(props) {
           duration: props?.spinTime || 4800,
                 fill: 'forwards'
             })
+        props.onSpinStart?.()
+        spinAnimation.onfinish = () => props.onSpinEnd?.()
     }
 
         function resetTrack() {
@@ -211,7 +160,7 @@ function CaseSpinner(props) {
 
     return (
         <>
-            <div class={'case-spinner-container ' + (props?.spinning === '' || props?.spinning === 'loading' ? 'idle ' : '') + (props?.layout === 'multi' ? 'multi vertical ' : '') + (props?.sideArrows ? 'side-arrows' : '')}>
+            <div data-phase={props.spinning || 'idle'} class={'case-spinner-container ' + (props?.spinning === '' || props?.spinning === 'loading' ? 'idle ' : '') + (props?.layout === 'multi' ? 'multi vertical ' : '') + (props?.sideArrows ? 'side-arrows ' : '') + (props.presentation === 'case' ? 'case-opening' : '')}>
                 {/* Side fade masks */}
                 <Show when={!isVertical()} fallback={
                   <>
@@ -229,14 +178,14 @@ function CaseSpinner(props) {
                     length='10px'
                     thickness='2px'
                     pulse={false}
-                    style={{ position: 'absolute', left: '50%', top: '11px', transform: 'translateX(-50%)', 'z-index': 5 }}
+                    style={{ position: 'absolute', left: '50%', top: '0px', transform: 'translateX(-50%)', 'z-index': 5 }}
                   />
                   <IndicatorLine
                     orientation='horizontal'
                     length='10px'
                     thickness='2px'
                     pulse={false}
-                    style={{ position: 'absolute', left: '50%', bottom: '11px', transform: 'translateX(-50%)', 'z-index': 5 }}
+                    style={{ position: 'absolute', left: '50%', bottom: '0px', transform: 'translateX(-50%)', 'z-index': 5 }}
                   />
                 </Show>
 
@@ -257,8 +206,8 @@ function CaseSpinner(props) {
                         height: `${p.size}px`,
                         background: p.color,
                         opacity: p.life,
-                        'box-shadow': `0 0 14px ${p.color}, 0 0 5px ${p.color}`,
-                        'border-radius': Math.random() > 0.45 ? '50%' : '3px'
+                        'box-shadow': `0 0 5px ${p.color}`,
+                        'border-radius': p.round ? '50%' : '1px'
                       }}
                     />
                   }</For>
@@ -269,7 +218,8 @@ function CaseSpinner(props) {
                        '--idle-to': `-${idleOffset() + loopWidth()}px`,
                        '--idle-duration': `${loopDuration()}s`
                      }}>
-                    <For each={props?.items || []}>{(item, index) => <SpinnerItem spinTime={props?.spinTime} offset={props.offset} img={item.img}
+                    <For each={props?.items || []}>{(item, index) => <SpinnerItem presentation={props.presentation} spinTime={props?.spinTime} offset={props.offset} img={item.img}
+                                                                                  cosmic={item?.cosmic}
                                                                                   name={item?.name}
                                                                                   spinning={props?.spinning}
                                                                                   price={item?.price}
@@ -277,8 +227,9 @@ function CaseSpinner(props) {
                                                                                   index={index()} position={props?.position}/>}</For>
                     {/* duplicated strip for seamless infinite idle loop */}
                     <Show when={isIdle()}>
-                        <For each={props?.items || []}>{(item, index) => <SpinnerItem spinTime={props?.spinTime} offset={props.offset} img={item.img}
-                                                                                      name={item?.name}
+                        <For each={props?.items || []}>{(item, index) => <SpinnerItem presentation={props.presentation} spinTime={props?.spinTime} offset={props.offset} img={item.img}
+                                                                                      cosmic={item?.cosmic}
+                                                                                  name={item?.name}
                                                                                       spinning={props?.spinning}
                                                                                       price={item?.price}
                                                                                       vertical={isVertical()}
@@ -288,6 +239,14 @@ function CaseSpinner(props) {
             </div>
 
             <style jsx>{`
+              .case-spinner-container.case-opening { flex:1; min-width:0; height:150px; border:0; border-radius:0; background:transparent; box-shadow:none; backdrop-filter:none; }
+              .case-spinner-container.case-opening.vertical { height:280px; }
+              .case-spinner-container.case-opening.idle { box-shadow:none; }
+              .case-opening .fade-left { width:12%; background:linear-gradient(to right,#181b22,transparent); }
+              .case-opening .fade-right { width:12%; background:linear-gradient(to left,#181b22,transparent); }
+              .case-opening.vertical .fade-top { background:linear-gradient(to bottom,#181b22,transparent); }
+              .case-opening.vertical .fade-bottom { background:linear-gradient(to top,#181b22,transparent); }
+
               .case-spinner-container {
                 flex: 1 0 320px;
                 min-width: 320px;
@@ -492,7 +451,7 @@ function CaseSpinner(props) {
                 width: 130px;
                 height: 130px;
                 border-radius: 50%;
-                border: 4px solid #1fd65f;
+                border: 1.5px solid #1fd65f;
                 box-shadow: 0 0 24px #1fd65f, inset 0 0 24px #1fd65f;
                 opacity: 0.85;
                 z-index: 11;
@@ -515,7 +474,7 @@ function CaseSpinner(props) {
               .flash-overlay {
                 position: absolute;
                 inset: 0;
-                background: radial-gradient(circle, rgba(31, 214, 95, 0.35) 0%, rgba(31, 214, 95, 0) 80%);
+                background: radial-gradient(circle, rgba(31, 214, 95, 0.18) 0%, rgba(31, 214, 95, 0) 80%);
                 z-index: 10;
                 pointer-events: none;
                 animation: flash-fade 0.25s ease-out forwards;

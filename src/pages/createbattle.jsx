@@ -1,13 +1,20 @@
-import {A, useNavigate} from "@solidjs/router";
-import CaseButton from "../components/Cases/casebutton";
-import {createResource, createSignal, For, Show} from "solid-js";
+import {useNavigate} from "@solidjs/router";
+import {resolveImageSrc} from "../util/image";
+import CasePreview from "../components/Cases/casepreview";
+import {createEffect, createResource, createSignal, For, onCleanup, Show} from "solid-js";
 import {authedAPI} from "../util/api";
-import AddCases from "../components/Battles/addcases";
+
+import {Portal} from "solid-js/web";
 import {Title} from "@solidjs/meta";
+
+function OptionIcon(props) {
+    return <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' aria-hidden='true'>
+        {props.kind==='swords'?<><path d='m3 3 5 1 12 13-3 3L4 8ZM21 3l-5 1-4 5m-3 3-5 5 3 3 4-4M2 22l4-4m12 0 4 4M3 15l6 6m6-18 6 6'/></>:props.kind==='case'?<><rect x='3' y='7' width='18' height='14' rx='2'/><path d='M8 7V3h8v4M3 12h18m-12-2v5m6-5v5'/></>:props.kind==='bot'?<><rect x='4' y='8' width='16' height='12' rx='2'/><path d='M12 8V3M9 3h6M8 13v3m8-3v3M1 12v5m22-5v5'/></>:props.kind==='private'?<><rect x='5' y='10' width='14' height='11' rx='2'/><path d='M8 10V7a4 4 0 018 0v3m-4 5v3'/></>:<><circle cx='12' cy='12' r='4'/><path d='M12 1v4m0 14v4M1 12h4m14 0h4M4 4l3 3m10 10 3 3M4 20l3-3M17 7l3-3'/></>}
+    </svg>
+}
 
 function CreateBattle(props) {
 
-    let slider
     const navigate = useNavigate()
     const [players, setPlayers] = createSignal('1v1')
     const [gamemode, setGamemode] = createSignal('standard')
@@ -16,13 +23,10 @@ function CreateBattle(props) {
     const [minLevel, setMinLevel] = createSignal(0, {equals: false})
     const [discount, setDiscount] = createSignal(0)
 
-    const [addCases, setAddCases] = createSignal(false)
     const [addedCases, setAddedCases] = createSignal([])
     const [groupedCases, setGroupedCases] = createSignal([])
     const [total, setTotal] = createSignal(0)
 
-    const [dragIndex, setDragIndex] = createSignal(null)
-    const [dragOverIndex, setDragOverIndex] = createSignal(null)
 
     const [cases, {mutate}] = createResource(fetchCases)
     async function fetchCases() {
@@ -47,11 +51,6 @@ function CreateBattle(props) {
         setFunction(num)
     }
 
-    function createTrail() {
-        let value = (slider.value - 0) / 100 * 100
-      slider.style.background = 'linear-gradient(to right, #1fd65f 0%, #1fd65f ' + value + '%, #131a24 ' + value + '%, #131a24 100%)'
-    }
-
     function addCase(caseToAdd, num) {
         if (num > 0 && addedCases().length >= 50) return
         if (num < 0) {
@@ -59,11 +58,11 @@ function CreateBattle(props) {
             if (index < 0) return
 
             setAddedCases([...addedCases().slice(0, index), ...addedCases().slice(index + 1)])
-            setTotal(addedCases()?.reduce((pv, c) => pv + c.price, 0))
+            setTotal(addedCases()?.reduce((pv, c) => pv + Number(c.price), 0))
             return setGroupedCases(groupByIdAndSumAmount(addedCases()))
         }
         setAddedCases([...addedCases(), caseToAdd])
-        setTotal(addedCases()?.reduce((pv, c) => pv + c.price, 0))
+        setTotal(addedCases()?.reduce((pv, c) => pv + Number(c.price), 0))
         return setGroupedCases(groupByIdAndSumAmount(addedCases()))
     }
 
@@ -85,26 +84,6 @@ function CreateBattle(props) {
 
     function getAmount(id) {
         return groupedCases()?.find(c => c.id === id)?.amount || 0
-    }
-
-    function reorderCases(fromIndex, toIndex) {
-        if (fromIndex === null || fromIndex === toIndex) return
-        const newGrouped = [...groupedCases()]
-        const [moved] = newGrouped.splice(fromIndex, 1)
-        newGrouped.splice(toIndex, 0, moved)
-        // Rebuild flat addedCases from the reordered grouped list
-        const newAdded = newGrouped.flatMap(c => Array(c.amount).fill(c))
-        setAddedCases(newAdded)
-        setGroupedCases(newGrouped)
-    }
-
-    function groupedCasesToIDArray() {
-        let cases = []
-        for (let c of groupedCases()) {
-            let ids = new Array(c.amount).fill(c.id)
-            cases.push(...ids)
-        }
-        return cases
     }
 
     function numberOfTeams() {
@@ -139,732 +118,187 @@ function CreateBattle(props) {
 
     }
 
-    return (
-        <>
-            <Title>Cosmic Luck | Create a Battle</Title>
 
-            <Show when={!cases.loading} fallback={<></>}>
-                {addCases() && (
-                    <AddCases total={total()} selected={addedCases().length} cases={cases()} getAmount={getAmount} addedCases={addedCases()} close={() => setAddCases(false)} addCase={addCase}/>
-                )}
-            </Show>
-
-            <div class='create-battle-container fadein'>
-                <div class='header'>
-                    <div class='header-section'>
-                        <button class='back bevel-light'>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="5" height="8" viewBox="0 0 5 8" fill="none">
-                                <path
-                                    d="M0.4976 4.00267C0.4976 3.87722 0.545618 3.75178 0.641454 3.65613L3.65872 0.646285C3.85066 0.454819 4.16185 0.454819 4.35371 0.646285C4.54556 0.837673 4.4976 1.00269 4.4976 1.33952L4.4976 4.00267L4.4976 6.50269C4.4976 7.00269 4.54547 7.16764 4.35361 7.35902C4.16175 7.55057 3.85056 7.55057 3.65863 7.35902L0.641361 4.34921C0.545509 4.25352 0.4976 4.12808 0.4976 4.00267Z"
-                                    fill="#8b92a0"/>
-                            </svg>
-                            <p>BACK</p>
-                            <A href='/battles' class='gamemode-link'></A>
-                        </button>
-
-                        <p class='title'>
-                            <img src='/assets/icons/battles.svg' height='18' alt=''/>
-                            BATTLE CREATION
-                        </p>
-                    </div>
-
-                    <div class='header-section'>
-                        <p class='state'>{props?.battle ? 'Waiting for Players...' : ''}</p>
-                    </div>
-
-                    <div class='header-section'>
-                        <div class='num-cases'>
-                            <img src='/assets/icons/cases_explosion.svg' height='16' alt=''/>
-                            <p>{addedCases()?.length || 0} <span>CASES</span></p>
-                        </div>
-
-                        <div class='cost'>
-                            <img src='/assets/icons/coin.svg' height='16' alt=''/>
-                            <span>
-                                {realCost()?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </span>
-                        </div>
-
-                        <button class='bevel-gold create' onClick={async () => {
-
-                            let teams = numberOfTeams()
-                            let playersPerTeam = getPlayersPerTeam()
-
-                            if (gamemode() === 'group') {
-                                playersPerTeam = teams
-                                teams = 1
-                            }
-
-                            let res = await authedAPI('/battles/create', 'POST', JSON.stringify({
-                                cases: groupedCasesToIDArray(),
-                                teams: teams,
-                                playersPerTeam: playersPerTeam,
-                                gamemode: gamemode(),
-                                funding: discount(),
-                                minLvl: minLevel(),
-                                isPrivate: isPrivate(),
-                                cosmicSpin: cosmicSpin()
-                            }), true)
-
-                            if (res.success) {
-                                let link = `/battle/${res?.battleId}`
-                                if (res?.privKey) {
-                                    link += `?pk=${res?.privKey}`
-                                }
-                                navigate(link)
-                            }
-                        }}>CREATE BATTLE</button>
-                    </div>
-                </div>
-
-                <div class='bar'/>
-
-                <div class='cases'>
-                    <button class='add-case' onClick={() => setAddCases(!addCases())}>
-                        <div class='plus'>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="14" viewBox="0 0 17 14"
-                                 fill="none">
-                                <path
-                                    d="M6.16963 13.085V9.05882H1.00592C0.335306 9.05882 0 8.76398 0 8.17429V5.82571C0 5.25635 0.335306 4.97168 1.00592 4.97168H6.16963V0.915032C6.16963 0.305011 6.48258 0 7.10848 0H9.82446C10.4727 0 10.7968 0.305011 10.7968 0.915032V4.97168H15.9941C16.6647 4.97168 17 5.25635 17 5.82571V8.17429C17 8.76398 16.6647 9.05882 15.9941 9.05882H10.7968V13.085C10.7968 13.695 10.4727 14 9.82446 14H7.10848C6.48258 14 6.16963 13.695 6.16963 13.085Z"
-                                    fill="white"/>
-                            </svg>
-                        </div>
-
-                        <p>ADD CASE</p>
-                    </button>
-
-                    <For each={groupedCases()}>{(c, index) => (
-                        <div
-                            class={'case-drag-wrapper' + (dragOverIndex() === index() && dragIndex() !== index() ? ' drag-over' : '') + (dragIndex() === index() ? ' dragging' : '')}
-                            draggable={true}
-                            onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setDragIndex(index()) }}
-                            onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOverIndex(index()) }}
-                            onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setDragOverIndex(null) }}
-                            onDrop={(e) => { e.preventDefault(); reorderCases(dragIndex(), index()); setDragIndex(null); setDragOverIndex(null) }}
-                            onDragEnd={() => { setDragIndex(null); setDragOverIndex(null) }}
-                        >
-                            <div class='drag-handle' title='Drag to reorder'>
-                                <svg width='10' height='14' viewBox='0 0 10 14' fill='none'>
-                                    <circle cx='2.5' cy='2.5' r='1.5' fill='#8b92a0'/>
-                                    <circle cx='7.5' cy='2.5' r='1.5' fill='#8b92a0'/>
-                                    <circle cx='2.5' cy='7' r='1.5' fill='#8b92a0'/>
-                                    <circle cx='7.5' cy='7' r='1.5' fill='#8b92a0'/>
-                                    <circle cx='2.5' cy='11.5' r='1.5' fill='#8b92a0'/>
-                                    <circle cx='7.5' cy='11.5' r='1.5' fill='#8b92a0'/>
-                                </svg>
-                            </div>
-                            <CaseButton creator={true} addCase={() => addCase(c, 1)} removeCase={() => addCase(c, -1)} amount={c?.amount || 0} c={c}/>
-                        </div>
-                    )}</For>
-                </div>
-
-                <div class='bar'/>
-
-                <div class='settings-section'>
-                    <div class='settings-title'>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15" fill="none">
-                            <path
-                                d="M20 13.6364C20 13.8775 19.9042 14.1087 19.7337 14.2792C19.5632 14.4497 19.332 14.5455 19.0909 14.5455H8.18182C7.94071 14.5455 7.70948 14.4497 7.53899 14.2792C7.36851 14.1087 7.27273 13.8775 7.27273 13.6364C7.27273 12.1897 7.8474 10.8023 8.87033 9.77942C9.89325 8.75649 11.2806 8.18182 12.7273 8.18182H14.5455C15.9921 8.18182 17.3795 8.75649 18.4024 9.77942C19.4253 10.8023 20 12.1897 20 13.6364ZM13.6364 0C12.9172 0 12.2141 0.213269 11.6161 0.612838C11.0181 1.01241 10.552 1.58033 10.2768 2.24479C10.0016 2.90925 9.92956 3.6404 10.0699 4.34578C10.2102 5.05117 10.5565 5.69911 11.0651 6.20766C11.5736 6.71622 12.2216 7.06255 12.9269 7.20286C13.6323 7.34317 14.3635 7.27115 15.0279 6.99593C15.6924 6.7207 16.2603 6.25462 16.6599 5.65662C17.0595 5.05862 17.2727 4.35557 17.2727 3.63636C17.2727 2.67194 16.8896 1.74702 16.2077 1.06507C15.5257 0.383116 14.6008 0 13.6364 0ZM5.45455 0C4.73534 0 4.03229 0.213269 3.43429 0.612838C2.83629 1.01241 2.37021 1.58033 2.09498 2.24479C1.81976 2.90925 1.74774 3.6404 1.88805 4.34578C2.02836 5.05117 2.37469 5.69911 2.88325 6.20766C3.3918 6.71622 4.03974 7.06255 4.74513 7.20286C5.45051 7.34317 6.18166 7.27115 6.84612 6.99593C7.51058 6.7207 8.0785 6.25462 8.47807 5.65662C8.87764 5.05862 9.09091 4.35557 9.09091 3.63636C9.09091 2.67194 8.70779 1.74702 8.02584 1.06507C7.34389 0.383116 6.41897 0 5.45455 0ZM5.45455 13.6364C5.45319 12.6815 5.64132 11.7358 6.00804 10.8541C6.37475 9.97243 6.91277 9.17228 7.59091 8.5C7.03594 8.29047 6.44775 8.18269 5.85455 8.18182H5.05455C3.71473 8.18422 2.43049 8.71752 1.4831 9.66492C0.535706 10.6123 0.00240325 11.8966 0 13.2364V13.6364C0 13.8775 0.0957789 14.1087 0.266267 14.2792C0.436754 14.4497 0.667985 14.5455 0.909091 14.5455H5.61818C5.51234 14.2539 5.457 13.9465 5.45455 13.6364Z"
-                                fill="#1fd65f"/>
-                        </svg>
-
-                        <p>PLAYERS</p>
-                    </div>
-
-                    <button class={'setting ' + (players() === '1v1' ? 'active' : '')}
-                            onClick={() => changePlayers('1v1')}>
-                        1v1
-                    </button>
-                    <button class={'setting ' + (players() === '1v1v1' ? 'active' : '')}
-                            onClick={() => changePlayers('1v1v1')}>
-                        1v1v1
-                    </button>
-                    <button class={'setting ' + (players() === '1v1v1v1' ? 'active' : '')}
-                            onClick={() => changePlayers('1v1v1v1')}>
-                        1v1v1v1
-                    </button>
-
-                    <button disabled={gamemode() === 'group'} class={'setting ' + (players() === '2v2' ? 'active' : '')}
-                            onClick={() => changePlayers('2v2')}>
-                        2v2
-                    </button>
-                </div>
-
-                <div class='settings-section'>
-                    <div class='settings-title'>
-                        <img src='/assets/icons/cube.svg' height='19' width='17'/>
-
-                        <p>GAMEMODE</p>
-                    </div>
-
-                    <button class={'setting ' + (gamemode() === 'standard' ? 'active' : '')}
-                            onClick={() => changeGamemode('standard')}>
-                        STANDARD
-                    </button>
-                    <button class={'setting ' + (gamemode() === 'crazy' ? 'active' : '')}
-                            onClick={() => changeGamemode('crazy')}>
-                        CRAZY MODE
-                    </button>
-                    <button class={'setting ' + (gamemode() === 'casual' ? 'active' : '')}
-                            onClick={() => changeGamemode('casual')}>
-                        CASE
-                    </button>
-                    <button disabled={players() === '2v2'} class={'setting ' + (gamemode() === 'group' ? 'active' : '')}
-                            onClick={() => changeGamemode('group')}>
-                        GROUP MODE
-                    </button>
-
-                    <button class={'setting ' + (cosmicSpin() ? 'active' : '')}
-                            onClick={() => setCosmicSpin(!cosmicSpin())}>
-                        <img src='/assets/icons/cosmic-gem.png' height='16' alt=''/>
-                        &nbsp;COSMIC SPIN
-                    </button>
-                </div>
-
-                <div class='settings-section'>
-                    <div class='settings-title'>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="15" viewBox="0 0 20 15" fill="none">
-                            <path
-                                d="M20 13.6364C20 13.8775 19.9042 14.1087 19.7337 14.2792C19.5632 14.4497 19.332 14.5455 19.0909 14.5455H8.18182C7.94071 14.5455 7.70948 14.4497 7.53899 14.2792C7.36851 14.1087 7.27273 13.8775 7.27273 13.6364C7.27273 12.1897 7.8474 10.8023 8.87033 9.77942C9.89325 8.75649 11.2806 8.18182 12.7273 8.18182H14.5455C15.9921 8.18182 17.3795 8.75649 18.4024 9.77942C19.4253 10.8023 20 12.1897 20 13.6364ZM13.6364 0C12.9172 0 12.2141 0.213269 11.6161 0.612838C11.0181 1.01241 10.552 1.58033 10.2768 2.24479C10.0016 2.90925 9.92956 3.6404 10.0699 4.34578C10.2102 5.05117 10.5565 5.69911 11.0651 6.20766C11.5736 6.71622 12.2216 7.06255 12.9269 7.20286C13.6323 7.34317 14.3635 7.27115 15.0279 6.99593C15.6924 6.7207 16.2603 6.25462 16.6599 5.65662C17.0595 5.05862 17.2727 4.35557 17.2727 3.63636C17.2727 2.67194 16.8896 1.74702 16.2077 1.06507C15.5257 0.383116 14.6008 0 13.6364 0ZM5.45455 0C4.73534 0 4.03229 0.213269 3.43429 0.612838C2.83629 1.01241 2.37021 1.58033 2.09498 2.24479C1.81976 2.90925 1.74774 3.6404 1.88805 4.34578C2.02836 5.05117 2.37469 5.69911 2.88325 6.20766C3.3918 6.71622 4.03974 7.06255 4.74513 7.20286C5.45051 7.34317 6.18166 7.27115 6.84612 6.99593C7.51058 6.7207 8.0785 6.25462 8.47807 5.65662C8.87764 5.05862 9.09091 4.35557 9.09091 3.63636C9.09091 2.67194 8.70779 1.74702 8.02584 1.06507C7.34389 0.383116 6.41897 0 5.45455 0ZM5.45455 13.6364C5.45319 12.6815 5.64132 11.7358 6.00804 10.8541C6.37475 9.97243 6.91277 9.17228 7.59091 8.5C7.03594 8.29047 6.44775 8.18269 5.85455 8.18182H5.05455C3.71473 8.18422 2.43049 8.71752 1.4831 9.66492C0.535706 10.6123 0.00240325 11.8966 0 13.2364V13.6364C0 13.8775 0.0957789 14.1087 0.266267 14.2792C0.436754 14.4497 0.667985 14.5455 0.909091 14.5455H5.61818C5.51234 14.2539 5.457 13.9465 5.45455 13.6364Z"
-                                fill="#1fd65f"/>
-                        </svg>
-
-                        <p>PRIVACY</p>
-                    </div>
-
-                    <button class={'setting ' + (!isPrivate() ? 'active' : '')} onClick={() => setIsPrivate(false)}>
-                        PUBLIC
-                    </button>
-                    <button class={'setting ' + (isPrivate() ? 'active' : '')} onClick={() => setIsPrivate(true)}>
-                        PRIVATE
-                    </button>
-                    <div class='input-setting'>
-                        <p>MIN LVL</p>
-                        <input type='number' value={minLevel()}
-                               onChange={(e) => parseNumber(e.target.valueAsNumber, setMinLevel)}/>
-                    </div>
-                </div>
-
-                <div class='settings-section'>
-                    <div class='settings-title'>
-                        <img src='/assets/icons/coin.svg' height='17' width='17'/>
-
-                        <p>FUNDING</p>
-                    </div>
-
-                    <input ref={slider} type='range' class='range' value={discount()}
-                           onInput={(e) => {
-                               setDiscount(e.target.valueAsNumber)
-                               createTrail()
-                           }}
-                    />
-
-                    <p class='coin-text'>
-                        YOU PAY
-                        <img src='/assets/icons/coin.svg' height='15' width='15' alt=''/>
-                        <span class='white'>
-                            {realCost()?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
-                    </p>
-
-                    <p class='coin-text'>
-                        OTHERS PAY
-                        <img src='/assets/icons/coin.svg' height='15' width='15' alt=''/>
-                        <span class='white'>
-                            {entryPrice()?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
-                    </p>
-
-                    <div class='input-setting'>
-                        <p>DISCOUNT</p>
-                        <span>
-                            <input type='number' value={discount()}
-                                   onChange={(e) => {
-                                       parseNumber(e.target.valueAsNumber, setDiscount)
-                                       createTrail()
-                                   }}
-                                   max="100" min="0" step="1"/>
-                            <p class='white'>%</p>
-                        </span>
-                    </div>
+    const [search, setSearch] = createSignal('')
+    const [category, setCategory] = createSignal('official')
+    const [priceLimit, setPriceLimit] = createSignal('all')
+    const [catalogOrder, setCatalogOrder] = createSignal('featured')
+    const [openingOrder, setOpeningOrder] = createSignal('low')
+    const [playBots, setPlayBots] = createSignal(false)
+    const [creating, setCreating] = createSignal(false)
+    const [preview, setPreview] = createSignal(null)
+    const [previewLoading, setPreviewLoading] = createSignal(null)
+    async function inspectCase(c) {
+        if (previewLoading()) return
+        if (c.items?.length) return setPreview(c)
+        if (!c.slug) return
+        setPreviewLoading(c.id)
+        try {
+            const result = await authedAPI(`/cases/${encodeURIComponent(c.slug)}`, 'GET', null, true)
+            if (result && !result.error) setPreview(result)
+        } finally { setPreviewLoading(null) }
+    }
+    function loadFavorites() {
+        try { const saved=JSON.parse(localStorage.getItem('battle-favorite-cases')||'[]'); return Array.isArray(saved)?saved:[] } catch { return [] }
+    }
+    const [favorites, setFavorites] = createSignal(loadFavorites())
+    function toggleFavorite(id) {
+        const next=favorites().includes(id)?favorites().filter(item=>item!==id):[...favorites(),id]
+        setFavorites(next)
+        try { localStorage.setItem('battle-favorite-cases',JSON.stringify(next)) } catch {}
+    }
+    function catalog() {
+        let list=(cases()||[]).filter(c=>(category()==='all'||category()==='favorites'&&favorites().includes(c.id)||category()==='official'&&!c.community||category()==='community'&&c.community)
+            &&(priceLimit()==='all'||Number(c.price)<=Number(priceLimit()))
+            &&String(c.name||'').toLowerCase().includes(search().toLowerCase()))
+        if(catalogOrder()==='low') list.sort((a,b)=>Number(a.price)-Number(b.price))
+        if(catalogOrder()==='high') list.sort((a,b)=>Number(b.price)-Number(a.price))
+        return list
+    }
+    function orderedIds() {
+        const selected=[...addedCases()]
+        if(openingOrder()!=='selected') selected.sort((a,b)=>openingOrder()==='low'?Number(a.price)-Number(b.price):Number(b.price)-Number(a.price))
+        return selected.map(c=>c.id)
+    }
+    async function createBattle() {
+        if(creating()||!addedCases().length) return
+        setCreating(true)
+        try {
+            let teams=numberOfTeams(), playersPerTeam=getPlayersPerTeam()
+            if(gamemode()==='group') { playersPerTeam=teams; teams=1 }
+            const result=await authedAPI('/battles/create','POST',JSON.stringify({cases:orderedIds(),teams,playersPerTeam,gamemode:gamemode(),funding:discount(),minLvl:minLevel(),isPrivate:isPrivate(),cosmicSpin:cosmicSpin()}),true,30000)
+            if(!result?.success) return
+            if(playBots()) {
+                for(let slot=2;slot<=teams*playersPerTeam;slot++) {
+                    const bot=await authedAPI(`/battles/${result.battleId}/bot`,'POST',JSON.stringify({slot,privKey:result.privKey}),true)
+                    if(!bot?.success) break
+                    if(slot<teams*playersPerTeam) await new Promise(resolve=>setTimeout(resolve,350))
+                }
+            }
+            navigate(`/battle/${result.battleId}${result.privKey?`?pk=${encodeURIComponent(result.privKey)}`:''}`)
+        } finally { setCreating(false) }
+    }
+    const [pickerOpen,setPickerOpen]=createSignal(false)
+    let picker, selectionBefore=[]
+    const modes=[
+        {id:'standard',name:'Normal Mode',description:'Unbox the most to win',icon:'swords'},
+        {id:'group',name:'Group Mode',description:'Play together in one team',icon:'bot'},
+        {id:'crazy',name:'Crazy Mode',description:'The lowest total wins',icon:'spin'},
+        {id:'casual',name:'Case Mode',description:'A case battle with friends',icon:'case'}
+    ]
+    function replaceSelection(next) {
+        setAddedCases(next);setGroupedCases(groupByIdAndSumAmount(next));setTotal(next.reduce((sum,c)=>sum+Number(c.price),0))
+    }
+    function openPicker() { selectionBefore=[...addedCases()];setPickerOpen(true) }
+    function closePicker(confirm=false) { if(!confirm)replaceSelection(selectionBefore);setPickerOpen(false) }
+    function removeCase(c) { replaceSelection(addedCases().filter(item=>item.id!==c.id)) }
+    function addRandomCase() { const list=catalog();if(list.length)addCase(list[Math.floor(Math.random()*list.length)],1) }
+    createEffect(()=>{
+        if(!pickerOpen())return
+        const previousFocus=document.activeElement, overflow=document.body.style.overflow
+        document.body.style.overflow='hidden'
+        queueMicrotask(()=>picker?.querySelector('input')?.focus())
+        const keydown=e=>{
+            if(preview())return
+            if(e.key==='Escape'){e.preventDefault();closePicker()}
+            if(e.key==='Tab'){
+                const controls=[...picker.querySelectorAll('button:not(:disabled),input,select,[tabindex="0"]')]
+                const first=controls[0],last=controls[controls.length-1]
+                if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus()}
+                else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus()}
+            }
+        }
+        document.addEventListener('keydown',keydown)
+        onCleanup(()=>{document.body.style.overflow=overflow;document.removeEventListener('keydown',keydown);previousFocus?.focus()})
+    })
+    function price(value) { return Number(value||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) }
+    function coin(value) { return <span class='coin-value'><img src='/assets/icons/coin.svg' width='15' height='15' alt=''/>{price(value)}</span> }
+    function quantity(c) { return <div class='quantity'><button aria-label={`Remove one ${c.name}`} disabled={!getAmount(c.id)} onClick={()=>addCase(c,-1)}>&minus;</button><strong>x{getAmount(c.id)}</strong><button aria-label={`Add one ${c.name}`} disabled={addedCases().length>=50} onClick={()=>addCase(c,1)}>+</button></div> }
+    function renderCard(c,selected=false) {
+        return <article class='case-card' classList={{selected:getAmount(c.id)>0}}>
+            <Show when={getAmount(c.id)>0}><button class='remove-case icon-button' aria-label={`Remove all ${c.name}`} onClick={()=>removeCase(c)}><svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7'/></svg></button></Show>
+            <button class='inspect-case icon-button' aria-label={`Inspect ${c.name}`} disabled={previewLoading()===c.id} onClick={()=>inspectCase(c)}><svg width='17' height='17' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='10' cy='10' r='6'/><path d='m15 15 6 6'/></svg></button>
+            <button class='case-art' aria-label={`Preview ${c.name}`} onClick={()=>inspectCase(c)}><img src={resolveImageSrc(c.img,'/assets/art/testcase.png')} alt={c.name} loading='lazy'/></button>
+            <strong class='case-name'>{c.name}</strong>
+            <span class='price-badge'>{coin(c.price)}</span>
+            <Show when={!selected}><button class='favorite' classList={{active:favorites().includes(c.id)}} aria-label={`Favorite ${c.name}`} aria-pressed={favorites().includes(c.id)} onClick={()=>toggleFavorite(c.id)}>{favorites().includes(c.id)?'Saved to favorites':'Save to favorites'}</button></Show>
+            <div class='case-accent'/>
+            <Show when={getAmount(c.id)>0} fallback={<button class='primary add-case' disabled={addedCases().length>=50} onClick={()=>addCase(c,1)}>Add case</button>}>{quantity(c)}</Show>
+        </article>
+    }
+    return <>
+        <Title>Cosmic Luck | Create a Battle</Title>
+        <Show when={preview()}><CasePreview case={preview()} onClose={()=>setPreview(null)}/></Show>
+        <div class='create-battle-container'>
+            <div class='builder-toolbar'>
+                <button class='secondary exit' onClick={()=>navigate('/battles')}>&lsaquo; Exit</button>
+                <div class='builder-options'>
+                    <button class='secondary toggle' classList={{enabled:cosmicSpin()}} aria-pressed={cosmicSpin()} onClick={()=>setCosmicSpin(!cosmicSpin())}><OptionIcon kind='spin'/>Cosmic Spin<span class='switch'/></button>
+                    <button class='secondary toggle' classList={{enabled:playBots()}} aria-pressed={playBots()} onClick={()=>setPlayBots(!playBots())}><OptionIcon kind='bot'/>Play Bots<span class='switch'/></button>
+                    <button class='secondary toggle' classList={{enabled:isPrivate()}} aria-pressed={isPrivate()} onClick={()=>setIsPrivate(!isPrivate())}><OptionIcon kind='private'/>Private<span class='switch'/></button>
                 </div>
             </div>
-
-            <style jsx>{`
-              .create-battle-container {
-                --cb-panel: #121b28;
-                --cb-panel-soft: #1a2434;
-                --cb-border: rgba(147, 166, 191, 0.24);
-                --cb-text: #e6eefb;
-                --cb-text-dim: #99a8be;
-
-                width: 100%;
-                max-width: 1175px;
-                height: fit-content;
-
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-
-                box-sizing: border-box;
-                padding: 14px 10px 70px;
-                margin: 0 auto;
-                position: relative;
-              }
-
-              .header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                min-height: 54px;
-                padding: 7px 9px;
-                border-radius: 8px;
-                border: 1px solid rgba(255,255,255,0.05);
-                background: #111720;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
-              }
-
-              .header-section {
-                display: flex;
-                align-items: center;
-                gap: 7px;
-                justify-content: center;
-              }
-
-              .title {
-                color: #FFF;
-                font-size: 12px;
-                font-weight: 700;
-
-                display: flex;
-                align-items: center;
-                gap: 8px;
-              }
-
-              .header-section:first-child {
-                justify-content: flex-start;
-              }
-
-              .header-section:last-child {
-                justify-content: flex-end;
-              }
-
-              .back {
-                height: 27px;
-                padding: 0 8px;
-                font-weight: 700;
-                font-family: Geogrotesque Wide;
-                position: relative;
-                border: 1px solid rgba(255,255,255,0.06);
-                border-radius: 6px;
-                background: rgba(255,255,255,0.02);
-                display: flex;
-                align-items: center;
-              }
-
-              .back p {
-                margin-top: -3px;
-              }
-
-              .back svg {
-                margin-right: 6px;
-              }
-
-              .total {
-                color: #8b92a0;
-                font-size: 15px;
-                font-weight: 700;
-              }
-
-              .num-cases {
-                height: 27px;
-                padding: 0 8px;
-                border-radius: 4px;
-                background: linear-gradient(180deg, rgba(31, 214, 95, 0.13), rgba(31, 214, 95, 0.06));
-                border: 1px solid rgba(31, 214, 95, 0.16);
-
-                display: flex;
-                align-items: center;
-                gap: 6px;
-
-                color: #FFF;
-                font-size: 10px;
-                font-weight: 600;
-              }
-
-              .num-cases span {
-                color: #8b92a0;
-                font-size: 8px;
-                font-weight: 600;
-              }
-
-              .create {
-                height: 27px;
-                width: 112px;
-                font-size: 9px;
-              }
-
-              .cost {
-                height: 27px;
-                font-size: 10px;
-                padding: 0 8px;
-                min-width: 86px;
-                gap: 6px;
-                font-variant-numeric: tabular-nums;
-                border-radius: 4px;
-                background: linear-gradient(180deg, rgba(31, 214, 95, 0.13), rgba(31, 214, 95, 0.06));
-                border: 1px solid rgba(31, 214, 95, 0.16);
-              }
-
-              .cost p {
-                margin-top: -2px;
-              }
-
-              .bar {
-                width: 100%;
-                height: 1px;
-                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
-              }
-
-              .cases {
-                min-height: 202px;
-                padding: 9px;
-                background: #0b0f16;
-                border-radius: 8px;
-                border: 1px solid rgba(255,255,255,0.06);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-                grid-gap: 7px;
-              }
-
-              .case-drag-wrapper {
-                position: relative;
-                cursor: grab;
-                border-radius: 6px;
-                transition: opacity 0.15s ease, transform 0.15s ease, outline-color 0.1s ease;
-                outline: 2px solid transparent;
-              }
-
-              .case-drag-wrapper:active {
-                cursor: grabbing;
-              }
-
-              .case-drag-wrapper.dragging {
-                opacity: 0.45;
-                transform: scale(0.97);
-              }
-
-              .case-drag-wrapper.drag-over {
-                outline: 2px solid rgba(31, 214, 95, 0.7);
-                transform: scale(1.03);
-                box-shadow: 0 0 18px rgba(31, 214, 95, 0.18);
-              }
-
-              .drag-handle {
-                position: absolute;
-                top: 5px;
-                left: 50%;
-                transform: translateX(-50%);
-                z-index: 10;
-                opacity: 0;
-                transition: opacity 0.15s ease;
-                pointer-events: none;
-                background: rgba(10, 14, 20, 0.75);
-                border-radius: 4px;
-                padding: 3px 5px;
-              }
-
-              .case-drag-wrapper:hover .drag-handle {
-                opacity: 1;
-              }
-
-              .add-case {
-                outline: unset;
-                border: unset;
-                cursor: pointer;
-
-                height: 172px;
-                background: #10151d;
-                border: 1px solid rgba(31, 214, 95, 0.14);
-                border-radius: 8px;
-
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-direction: column;
-                gap: 10px;
-
-                color: #8b92a0;
-                font-family: Geogrotesque Wide, sans-serif;
-                font-size: 13px;
-                font-weight: 600;
-                z-index: 0;
-
-                position: relative;
-                overflow: hidden;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.035);
-                transition: transform .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease;
-              }
-
-              .add-case:before {
-                width: 100%;
-                height: 100%;
-                position: absolute;
-                content: '';
-                background: radial-gradient(70% 60% at 50% 48%, rgba(31,214,95,0.06), transparent 70%), #0b0f17;
-                top: 0;
-                left: 0;
-                border-radius: 8px;
-                z-index: -1;
-              }
-
-              .add-case:hover {
-                transform: translateY(-1px);
-                color: #fff;
-                border-color: rgba(31, 214, 95, 0.4);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.045);
-              }
-
-              .plus {
-                width: 44px;
-                height: 44px;
-
-                display: flex;
-                align-items: center;
-                justify-content: center;
-
-                border-radius: 8px;
-                background: linear-gradient(180deg, rgba(31,214,95,0.2), rgba(31,214,95,0.07));
-                border: 1px solid rgba(31,214,95,0.2);
-                position: relative;
-                z-index: 0;
-              }
-
-              .plus:before {
-                width: 100%;
-                height: 100%;
-                position: absolute;
-                content: '';
-                background: radial-gradient(90% 80% at 50% 50%, rgba(31,214,95,0.14), rgba(31,214,95,0)), rgba(0, 0, 0, 0.24);
-                top: 0;
-                left: 0;
-                border-radius: 8px;
-                z-index: -1;
-              }
-
-              .settings-section {
-                outline: unset;
-                border: unset;
-
-                width: 100%;
-                min-height: 40px;
-                height: auto;
-
-                border-radius: 7px;
-                background: #111720;
-                border: 1px solid rgba(255,255,255,0.04);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-
-                color: #8b92a0;
-                font-family: Geogrotesque Wide, sans-serif;
-                font-size: 10px;
-                font-weight: 600;
-                border-bottom: 2px solid transparent;
-
-                padding: 0 10px;
-                display: flex;
-                align-items: center;
-                gap: 14px;
-                transition: border-color 0.2s ease;
-              }
-
-              .nomargin {
-                margin-right: unset !important;
-              }
-
-              .settings-title {
-                display: flex;
-                align-items: center;
-                gap: 7px;
-
-                color: #FFF;
-                font-size: 11px;
-                font-weight: 700;
-
-                margin-right: auto;
-              }
-
-              .setting {
-                border: unset;
-                outline: unset;
-                background: unset;
-
-                height: 38px;
-                padding: 0 3px;
-                cursor: pointer;
-
-                color: #8b92a0;
-                font-family: Geogrotesque Wide, sans-serif;
-                font-size: 9px;
-                font-weight: 600;
-                border-bottom: 2px solid transparent;
-
-                transition: color .2s, border-color .2s, text-shadow .2s;
-              }
-              
-              .setting:hover:not(:disabled) {
-                color: #c3cad6;
-              }
-              
-              .setting:disabled {
-                opacity: 0.5;
-                cursor: default;
-              }
-
-              .input-setting {
-                display: flex;
-                gap: 8px;
-
-                color: #8b92a0;
-                font-family: Geogrotesque Wide, sans-serif;
-                font-size: 9px;
-                font-weight: 600;
-              }
-
-              .input-setting span {
-                display: flex;
-                align-items: center;
-                gap: 0;
-              }
-
-              .input-setting input {
-                border: unset;
-                outline: unset;
-                background: unset;
-
-                height: 100%;
-                max-width: 30px;
-                padding: unset;
-
-                color: white;
-                font-family: Geogrotesque Wide, sans-serif;
-                font-size: 9px;
-                font-weight: 600;
-                text-align: right;
-
-                transition: color .2s;
-              }
-              
-              .input-setting input:focus {
-                color: #1fd65f;
-              }
-
-              .setting.active {
-                color: #1fd65f;
-                border-bottom: 2px solid #1fd65f;
-                text-shadow: 0 0 14px rgba(31,214,95,0.28);
-              }
-
-              .range {
-                -webkit-appearance: none;
-                appearance: none;
-
-                border-radius: 25px;
-                background: linear-gradient(to right, #1fd65f 0%, #1fd65f 0%, #131a24 0%, #131a24 100%);
-                max-width: 150px;
-                height: 6px;
-                border: 1px solid rgba(255,255,255,0.045);
-                box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
-                transition: border-color 0.2s ease;
-              }
-              
-              .range:hover {
-                border-color: rgba(31, 214, 95, 0.2);
-              }
-
-              .range::-webkit-slider-thumb {
-                -webkit-appearance: none;
-                appearance: none;
-                width: 13px;
-                height: 13px;
-                background: white;
-                cursor: pointer;
-                border-radius: 50%;
-                box-shadow: 0 0 0 3px rgba(31,214,95,0.12), 0 2px 4px rgba(0,0,0,0.3);
-                transition: transform 0.15s ease;
-              }
-              
-              .range::-webkit-slider-thumb:hover {
-                transform: scale(1.1);
-                box-shadow: 0 0 0 4px rgba(31,214,95,0.2), 0 3px 6px rgba(0,0,0,0.35);
-              }
-
-              .range::-moz-range-thumb {
-                -webkit-appearance: none;
-                appearance: none;
-                width: 13px;
-                height: 13px;
-                background: white;
-                cursor: pointer;
-                border-radius: 50%;
-                box-shadow: 0 0 0 3px rgba(31,214,95,0.08);
-              }
-
-              .coin-text {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                font-variant-numeric: tabular-nums;
-                font-size: 9px;
-              }
-
-              @media only screen and (max-width: 1000px) {
-                .create-battle-container {
-                  padding-bottom: 70px;
-                }
-
-                .settings-section {
-                  flex-wrap: wrap;
-                  padding: 7px 10px;
-                }
-
-                .settings-title {
-                  width: 100%;
-                }
-              }
-
-              @media only screen and (max-width: 680px) {
-                .header {
-                  flex-wrap: wrap;
-                  gap: 7px;
-                }
-
-                .header-section:first-child,
-                .header-section:last-child {
-                  width: 100%;
-                }
-
-                .header-section:last-child {
-                  justify-content: space-between;
-                }
-
-                .header-section:nth-child(2) {
-                  display: none;
-                }
-
-                .cases {
-                  grid-template-columns: repeat(2, minmax(0, 1fr));
-                }
-
-                .settings-section {
-                  gap: 9px;
-                }
-              }
-            `}</style>
-        </>
-    );
+            <div class='mode-grid'><For each={modes}>{mode=><button class='mode-card' classList={{active:gamemode()===mode.id}} aria-pressed={gamemode()===mode.id} disabled={mode.id==='group'&&players()==='2v2'} onClick={()=>changeGamemode(mode.id)}><OptionIcon kind={mode.icon}/><strong>{mode.name}</strong><span>{mode.description}</span></button>}</For></div>
+            <section class='selected-grid' aria-label='Selected cases'>
+                <button class='add-cases-tile' onClick={openPicker}><span class='plus'>+</span><strong>Add cases</strong><span>Build your next battle</span></button>
+                <For each={groupedCases()}>{c=>renderCard(c,true)}</For>
+                <For each={Array.from({length:Math.max(0,5-groupedCases().length)})}>{()=> <div class='empty-slot' aria-hidden='true'><OptionIcon kind='case'/></div>}</For>
+            </section>
+            <div class='battle-setup'>
+                <div><span class='field-label'>Players</span><div class='segmented'><For each={[['1v1','1v1'],['1v1v1','3-way'],['1v1v1v1','4-way']]}>{([value,label])=><button classList={{active:players()===value}} aria-pressed={players()===value} onClick={()=>changePlayers(value)}>{label}</button>}</For></div></div>
+                <div><span class='field-label'>Teams</span><div class='segmented'><button classList={{active:players()==='2v2'}} aria-pressed={players()==='2v2'} disabled={gamemode()==='group'} onClick={()=>changePlayers('2v2')}>2v2</button></div></div>
+                <label>Opening order<select value={openingOrder()} onChange={e=>setOpeningOrder(e.currentTarget.value)}><option value='low'>Lowest price first</option><option value='high'>Highest price first</option><option value='selected'>Selected order</option></select></label>
+                <details class='settings'><summary class='secondary'>Battle settings</summary><div class='advanced'><label>Minimum level<input type='number' min='0' max='100' value={minLevel()} onInput={e=>parseNumber(Math.round(e.currentTarget.valueAsNumber),setMinLevel)}/></label><label>Owner funding %<input type='number' min='0' max='100' value={discount()} onInput={e=>parseNumber(Math.round(e.currentTarget.valueAsNumber),setDiscount)}/></label><span>Other players pay {price(entryPrice())}</span></div></details>
+            </div>
+            <div class='creation-summary'><span><strong>{addedCases().length}</strong> / 50 rounds</span><span class='summary-total'>{coin(realCost())}</span><button class='primary create-button' disabled={!addedCases().length||creating()} onClick={createBattle}><OptionIcon kind='swords'/>{creating()?'Creating...':'Create Battle'}</button></div>
+        </div>
+        <Show when={pickerOpen()}><Portal>
+            <div class='picker-backdrop' onClick={e=>{if(e.target===e.currentTarget)closePicker()}}>
+                <section class='case-picker' ref={picker} role='dialog' aria-modal='true' aria-labelledby='picker-title'>
+                    <header class='picker-header'><h2 id='picker-title'>Select cases</h2><span class='selected-price'>{coin(total())}</span><button class='icon-button close-picker' aria-label='Close case selection' onClick={()=>closePicker()}>&times;</button></header>
+                    <div class='picker-filters'>
+                        <div class='catalog-search input-shell'><img src='/assets/icons/search.svg' width='16' alt=''/><input type='search' aria-label='Search cases' placeholder='Search for cases' value={search()} onInput={e=>setSearch(e.currentTarget.value)}/></div>
+                        <select aria-label='Sort cases' value={catalogOrder()} onChange={e=>setCatalogOrder(e.currentTarget.value)}><option value='featured'>Featured</option><option value='low'>Price: low to high</option><option value='high'>Price: high to low</option></select>
+                        <select aria-label='Case price limit' value={priceLimit()} onChange={e=>setPriceLimit(e.currentTarget.value)}><option value='all'>All prices</option><option value='1'>Up to 1</option><option value='10'>Up to 10</option><option value='100'>Up to 100</option></select>
+                    </div>
+                    <nav class='catalog-tabs' aria-label='Case categories'><For each={[['official','Official'],['community','Community'],['favorites','Favorites'],['all','All cases']]}>{([value,label])=><button classList={{active:category()===value}} aria-pressed={category()===value} onClick={()=>setCategory(value)}>{label}</button>}</For></nav>
+                    <div class='picker-scroll'><Show when={!cases.loading} fallback={<p class='empty'>Loading cases...</p>}><div class='catalog-grid'>
+                        <Show when={catalog().length}><article class='case-card random-card'><span class='random-symbol'>?</span><strong class='case-name'>Random case</strong><p>Add a random case from<br/>your current filters</p><button class='primary add-case' disabled={addedCases().length>=50} onClick={addRandomCase}>Add case</button></article></Show>
+                        <For each={catalog()}>{c=>renderCard(c)}</For>
+                    </div><Show when={!catalog().length}><p class='empty'>No cases available for these filters.</p></Show></Show></div>
+                    <footer class='picker-footer'><span>{addedCases().length} Rounds</span><span>{coin(total())}</span><button class='primary' onClick={()=>closePicker(true)}>Confirm selection</button></footer>
+                </section>
+            </div>
+        </Portal></Show>
+        <style jsx>{`
+            .create-battle-container { width:100%; max-width:1600px; margin:auto; padding:8px 0 60px; color:#969dab; }
+            button,input,select { font:inherit; } button { cursor:pointer; } button:disabled { opacity:.4; cursor:not-allowed; }
+            button:focus-visible,summary:focus-visible { outline:2px solid #1fd65f; outline-offset:3px; }
+            .builder-toolbar,.builder-options { display:flex; align-items:center; gap:12px; } .builder-toolbar { justify-content:space-between; margin-bottom:18px; } .builder-options { flex-wrap:wrap; }
+            .secondary { display:flex; align-items:center; justify-content:center; gap:9px; height:38px; padding:0 14px; border:1px solid #282e37; border-radius:5px; background:#20242d; color:#a3aaba; font-size:13px; font-weight:600; cursor:pointer; }
+            .toggle.enabled { color:#e9fff0; background:#163423; border-color:#238b42; } .switch { width:28px; height:16px; border-radius:20px; background:#12171d; padding:2px; } .switch:after { content:''; display:block; width:12px; height:12px; border-radius:50%; background:#87919f; transition:transform .2s; } .enabled .switch:after { background:#1fd65f; transform:translateX(12px); }
+            .mode-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:18px; } .mode-card { min-height:125px; padding:18px 10px; border:2px solid #252a32; border-radius:8px; background:#15191f; color:#929baa; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; } .mode-card strong { font-size:15px; color:#d5dbe4; } .mode-card span { font-size:12px; } .mode-card.active { border-color:#1fd65f; background:radial-gradient(ellipse at top,#1d3526,#14191f 80%); color:#1fd65f; } .mode-card.active strong { color:#f0fff5; }
+            .selected-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; margin-bottom:20px; } .add-cases-tile,.empty-slot { min-height:290px; border:2px solid #242b32; background:#11151b; border-radius:7px; } .add-cases-tile { display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; border-bottom-color:#1fd65f; color:#f1f7f3; background:radial-gradient(ellipse at top,#1d2822,#11151b 80%); } .add-cases-tile>span:last-child { font-size:11px; color:#87988d; } .plus { width:54px; height:54px; border:1px solid #25894a; background:#1fd65f0a; display:grid; place-items:center; border-radius:50%; font-size:32px; font-weight:400; } .empty-slot { display:grid; place-items:center; color:#1e242c; } .empty-slot :global(svg) { width:65px; height:65px; }
+            .case-card { position:relative; min-width:0; display:flex; align-items:center; flex-direction:column; padding:12px; background:radial-gradient(ellipse at top,#272d2b 0%,#181c23 60%); border:1px solid #262c33; border-radius:6px; overflow:hidden; } .selected-grid .case-card { border-bottom:2px solid #1fd65f; } .case-card.selected { background:radial-gradient(ellipse at top,#23382b,#181c23 65%); }
+            .icon-button { display:grid; place-items:center; width:34px; height:34px; border:0; border-radius:5px; background:#2b313d; color:#a7b0bf; } .inspect-case,.remove-case { position:absolute; top:8px; z-index:1; } .inspect-case { right:8px; } .remove-case { left:8px; }
+            .case-art { width:100%; height:155px; padding:12px 4px; background:none; border:0; } .case-art img { width:100%; height:100%; object-fit:contain; filter:drop-shadow(0 10px 14px #0006); transition:transform .2s; } .case-art:hover img { transform:translateY(-4px) scale(1.04); } .case-name { display:block; width:100%; text-align:center; color:#f3f6fb; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin:8px 0; } .price-badge { display:inline-flex; padding:8px; border-radius:4px; background:#22272f; }
+            .coin-value { display:inline-flex; align-items:center; justify-content:center; gap:4px; font-size:13px; font-weight:700; color:#f4fff8; white-space:nowrap; } .favorite { background:none; border:0; color:#7f8997; font-size:10px; padding:9px 0 0; } .favorite.active { color:#1fd65f; } .case-accent { height:3px; width:100%; background:linear-gradient(90deg,#125c31,#1fd65f,#7af0a3); border-radius:4px; margin:12px 0; opacity:.65; }
+            .quantity { display:flex; align-items:center; justify-content:space-between; height:40px; width:100%; margin-top:auto; background:#10151b; border-radius:4px; overflow:hidden; } .quantity button { height:100%; width:40px; border:0; color:#b0b8c4; background:#242a33; font-size:18px; } .quantity strong { color:#f4fff8; font-size:13px; }
+            .primary { display:flex; align-items:center; justify-content:center; gap:8px; height:41px; padding:0 18px; background:#1fd65f; color:#05190d; border:1px solid #25e16a; border-radius:5px; font-weight:700; font-size:13px; } .primary:hover:not(:disabled) { background:#39e779; } .add-case { width:100%; margin-top:auto; }
+            .battle-setup { display:flex; flex-wrap:wrap; align-items:flex-end; gap:24px; margin:20px 0; } .field-label,label { font-size:12px; font-weight:600; color:#919bab; } .field-label { display:block; margin-bottom:10px; } label { display:flex; flex-direction:column; gap:8px; } .segmented { display:flex; gap:2px; } .segmented button { height:40px; background:#222731; color:#939dad; border:0; padding:0 18px; border-radius:3px; font-weight:700; } .segmented button.active { background:#1c3f29; color:#65ef93; }
+            select { min-height:40px; padding:0 14px; border:1px solid #2a3039; background:#191e26; color:#d6dce5; border-radius:5px; font-size:12px; } .settings { position:relative; margin-left:auto; } .advanced { position:absolute; bottom:48px; right:0; width:270px; padding:18px; background:#20262f; border:1px solid #39424c; box-shadow:0 12px 35px #0008; border-radius:6px; z-index:4; display:grid; gap:14px; font-size:12px; } .advanced input { background:#13191f; border:1px solid #39424c; color:#fff; padding:10px; width:100%; }
+            .creation-summary { display:flex; align-items:center; gap:12px; padding:16px 0; border-top:1px solid #242d31; font-size:13px; } .summary-total { margin-left:auto; background:#202730; padding:12px; border-radius:4px; }
+            .picker-backdrop { position:fixed; inset:0; z-index:1500; background:#03070cd9; backdrop-filter:blur(5px); display:flex; align-items:center; justify-content:center; padding:20px; } .case-picker { width:min(960px,100%); max-height:92vh; max-height:92dvh; display:flex; flex-direction:column; min-height:0; background:#14181e; border:1px solid #303740; border-radius:10px; box-shadow:0 24px 100px #0009; overflow:hidden; color:#a3adba; }
+            .picker-header { display:flex; align-items:center; gap:20px; padding:16px 20px; background:#1a1f27; } h2 { margin:0; color:#f3f6fb; font-size:20px; } .selected-price { margin-left:auto; padding:10px; border:1px solid #1fd65f; border-radius:4px; } .close-picker { font-size:26px; height:40px; width:40px; }
+            .picker-filters { display:flex; gap:12px; padding:20px 18px 12px; } .catalog-search { display:flex; align-items:center; gap:10px; flex:1; min-width:0; background:#0e1319; border:1px solid #2b3139; padding:0 12px; border-radius:6px; } .catalog-search input { min-width:0; width:100%; height:40px; background:transparent; color:#e7eff6; border:0; font-size:13px; outline:none; }
+            .catalog-tabs { display:flex; gap:5px; margin:0 18px 18px; padding:5px; border-radius:5px; background:#20252e; align-self:center; } .catalog-tabs button { border:0; border-radius:4px; padding:8px 16px; background:none; color:#a4aebe; font-size:13px; font-weight:600; } .catalog-tabs button.active { background:#254231; color:#65ef93; }
+            .picker-scroll { overflow-y:auto; min-height:0; padding:0 18px 18px; overscroll-behavior:contain; scrollbar-color:#34543f #15191f; } .catalog-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:2px; } .catalog-grid .case-card { border-radius:0; border-color:#14181e; min-height:300px; } .random-symbol { display:grid; place-items:center; height:155px; color:#e3ffec; text-shadow:0 0 28px #1fd65f; font-size:90px; font-weight:800; } .random-card p { margin:0 0 18px; text-align:center; font-size:12px; line-height:1.5; }
+            .picker-footer { display:flex; align-items:center; gap:12px; padding:16px 18px; background:#1b2028; box-shadow:0 -10px 24px #10141a; } .picker-footer>span { padding:12px 10px; background:#252b34; border-radius:4px; color:#e4eee8; white-space:nowrap; font-size:13px; font-weight:700; } .picker-footer .primary { flex:1; } .empty { text-align:center; padding:70px 15px; font-size:13px; }
+            @media(max-width:1200px) { .selected-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+            @media(max-width:700px) { .builder-toolbar { align-items:flex-start; } .builder-options { justify-content:flex-end; gap:6px; } .secondary { font-size:11px; padding:0 9px; } .toggle :global(svg) { display:none; } .mode-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; } .mode-card { min-height:110px; } .mode-card span { font-size:10px; } .selected-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .empty-slot { display:none; } .selected-grid .case-card,.add-cases-tile { min-height:280px; } .battle-setup { gap:16px; } .settings { margin-left:0; } .advanced { right:auto; left:0; } .creation-summary { flex-wrap:wrap; } .create-button { flex:1; }
+                .picker-backdrop { padding:8px; } .case-picker { max-height:96dvh; } .picker-header { padding:12px; gap:10px; } h2 { font-size:17px; } .picker-filters { flex-wrap:wrap; padding:12px; gap:8px; } .catalog-search { flex-basis:100%; } .picker-filters select { flex:1; min-width:0; padding:0 6px; } .catalog-tabs { width:calc(100% - 24px); margin:0 12px 12px; gap:0; } .catalog-tabs button { flex:1; padding:8px 4px; font-size:11px; } .picker-scroll { padding:0 10px 10px; } .catalog-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .case-card { padding:9px; } .case-art { height:135px; } .picker-footer { padding:10px; gap:6px; flex-wrap:wrap; } .picker-footer>span { flex:1; text-align:center; } .picker-footer .primary { flex-basis:100%; } }
+            @media(prefers-reduced-motion:reduce) { .case-art img,.switch:after { transition:none; } }
+        `}</style>
+    </>
 }
-
 export default CreateBattle;

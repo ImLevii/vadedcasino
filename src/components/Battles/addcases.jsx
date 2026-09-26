@@ -60,11 +60,11 @@ function AddCases(props) {
                      xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M3.50001 0.994671C3.62547 0.994671 3.7509 1.04269 3.84655 1.13852L6.8564 4.15579C7.04787 4.34773 7.04787 4.65892 6.8564 4.85078C6.66501 5.04263 6.5 4.99467 6.16316 4.99467L3.50001 4.99467L1 4.99467C0.5 4.99467 0.335042 5.04254 0.14367 4.85068C-0.0478893 4.65883 -0.0478893 4.34764 0.14367 4.1557L3.15347 1.13843C3.24916 1.04258 3.3746 0.994671 3.50001 0.994671Z"
-                    fill="#9489DB"/>
+                    fill="#a6b8ad"/>
                 </svg>
               </button>
 
-              <div class='search-container'>
+              <div class='search-container input-shell'>
                 <input class='search' type='text' placeholder='SEARCH FOR CASES' value={search()}
                        onInput={(e) => setSearch(e.target.value)}/>
 
@@ -299,7 +299,7 @@ function AddCases(props) {
         .search-container:focus-within {
           border-color: rgba(31, 214, 95, 0.4);
           background: rgba(31, 214, 95, 0.04);
-          box-shadow: 0 0 0 2px rgba(31, 214, 95, 0.1);
+          box-shadow: none;
         }
 
         .search {

@@ -15,9 +15,9 @@ router.post('/redeem', [isAuthed, apiLimiter], async (req, res) => {
     if (!enabledFeatures.fiatDeposits) return res.status(400).json({ error: 'DISABLED' });
 
     let { code } = req.body;
-    if (typeof code != 'string' || code.length < 16 || code.length > 24) return res.status(400).json({ error: 'MISSING_CODE' });
-
-    code = code.replaceAll('-', '').toLowerCase();
+    if (typeof code !== 'string') return res.status(400).json({ error: 'MISSING_CODE' });
+    code = code.trim().replaceAll('-', '').toLowerCase();
+    if (!/^[a-z0-9]{16,24}$/.test(code)) return res.status(400).json({ error: 'INVALID_CODE' });
 
     try {
 

@@ -12,7 +12,7 @@ function usdToCoins(value) {
         throw new Error('Provider value must be a positive number.');
     }
 
-    return Math.floor(value * cryptoData.coinRate.coins / cryptoData.coinRate.usd);
+    return roundDecimal(value * cryptoData.coinRate.coins / cryptoData.coinRate.usd);
 }
 
 function serializeItems(items) {
@@ -109,6 +109,10 @@ async function getLockedPayment(connection, reference) {
         `SELECT * FROM paymentTransactions WHERE provider = ? AND ${column} = ? FOR UPDATE`,
         ['skindeck', value]
     );
+    if (payment && reference.providerRef != null && payment.providerRef != null
+        && reference.providerRef !== payment.providerRef) {
+        throw paymentError('PAYMENT_REFERENCE_MISMATCH');
+    }
     return payment;
 }
 
@@ -181,7 +185,7 @@ async function settleDeposit({
         }
 
         const coinValue = usdToCoins(providerValue);
-        if (coinValue < 1) throw new Error('Confirmed deposit value is below one coin.');
+        if (coinValue < 0.01) throw new Error('Confirmed deposit value is below one hundredth of a coin.');
 
         const [[user]] = await connection.query('SELECT id FROM users WHERE id = ? FOR UPDATE', [payment.userId]);
         if (!user) throw new Error('Deposit user was not found.');

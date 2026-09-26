@@ -14,7 +14,7 @@ function CaseItem(props) {
     function getRarityColor(price) {
         if (price < 1000) return '#A9B5D2'
         if (price < 10000) return '#4176FF'
-        if (price < 50000) return '#DC5FDE'
+        if (price < 50000) return '#40c9ac'
         if (price < 250000) return '#FF5141'
         return '#FFB84A'
     }

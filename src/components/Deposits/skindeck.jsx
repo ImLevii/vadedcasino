@@ -24,7 +24,7 @@ function SkinDeckDeposit() {
     const [history, {refetch}] = createResource(fetchHistory);
 
     async function fetchInventory() {
-        const response = await authedAPI('/trading/skindeck/inventory', 'GET');
+        const response = await authedAPI('/trading/skindeck/inventory', 'GET', undefined, true);
         return response?.items || [];
     }
 
@@ -73,12 +73,13 @@ function SkinDeckDeposit() {
                 <div class='provider-unavailable' role='status'>
                     <div>
                         <strong>SkinDeck is not available yet</strong>
-                        <span>{capabilities()?.mode === 'live' && !capabilities()?.contractReady ? 'The live merchant contract has not been verified. Deposits remain safely disabled.' : 'The provider is disabled or still being configured. No trade has been created.'}</span>
+                        <span>Skin deposits are temporarily unavailable. Please try again later.</span>
                     </div>
                     <button onClick={() => refetchCapabilities()}>CHECK AGAIN</button>
                 </div>
             </Show>
             <Show when={steamReady() && providerReady()} fallback={
+                <Show when={providerReady() && !steamReady()}>
                 <div class='steam-setup'>
                     <div class='setup-icon'><img src='/assets/icons/cs2-logo.svg' alt=''/></div>
                     <div class='setup-copy'>
@@ -92,18 +93,19 @@ function SkinDeckDeposit() {
                     </div>
                     <a class='profile-link' href='/profile'>OPEN PROFILE</a>
                 </div>
+                </Show>
             }>
                 <div class='market-head'>
                     <div class='market-brand'>
                         <img src='/assets/icons/cs2-logo.svg' alt='Counter-Strike 2'/>
                         <div><span>COUNTER-STRIKE 2</span><strong>Inventory Deposit</strong></div>
                     </div>
-                    <div class='market-state'><i></i><span>LIVE PRICES</span></div>
+                    <div class='market-state'><i></i><span>{capabilities()?.mode === 'sandbox' ? 'SANDBOX · TEST ITEMS' : 'LIVE PRICES'}</span></div>
                 </div>
                 <div class='market-layout'>
                     <div class='inventory-pane'>
                         <div class='toolbar'>
-                            <label class='search-box'>
+                            <label class='search-box input-shell'>
                                 <img src='/assets/icons/search.svg' alt=''/>
                                 <input value={query()} onInput={event => setQuery(event.target.value)} placeholder='Search items...'/>
                             </label>
@@ -215,7 +217,7 @@ function SkinDeckDeposit() {
                 .instant { color: #1fd65f; }
                 .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(156px, 1fr)); gap: 9px; }
                 .skin-card { --rarity:#607087; min-width: 0; height: 202px; position: relative; display: flex; flex-direction: column; padding: 11px; overflow: hidden; border: 1px solid #29313d; border-radius: 6px; background: linear-gradient(180deg, rgba(255,255,255,.018), transparent 52%), radial-gradient(circle at 50% 24%, color-mix(in srgb, var(--rarity) 18%, transparent), transparent 45%), #141922; color: inherit; text-align: left; cursor: pointer; box-shadow: inset 0 1px rgba(255,255,255,.02), 0 8px 18px rgba(0,0,0,.13); transition: border-color .16s ease, transform .16s ease, background .16s ease, box-shadow .16s ease; }
-                .skin-card.classified { --rarity:#c84edd; }
+                .skin-card.classified { --rarity:#40c9ac; }
                 .skin-card.covert { --rarity:#e84d55; }
                 .skin-card.rare { --rarity:#e4b84a; }
                 .skin-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--rarity) 60%, #303846); box-shadow: 0 12px 24px rgba(0,0,0,.25); }

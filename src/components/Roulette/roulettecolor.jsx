@@ -13,6 +13,7 @@ const iconNames = {
 function RouletteColor(props) {
 
     const [bets, setBets] = createSignal([])
+    const [placing, setPlacing] = createSignal(false)
 
     createEffect(() => {
         setBets(getBetForColor())
@@ -43,22 +44,10 @@ function RouletteColor(props) {
     }
 
     function payoutLabel() {
-      if (props?.color === 'green') {
-        return 'Win 14x | 7x Double'
-      }
-
-      if (props?.color === 'bait') {
-        return 'Win 7x on 7 or 8'
-      }
-
       return `Win ${ROULETTE_MULTIPLIERS[props?.color]}x`
     }
 
     function playLabel() {
-      if (props?.color === 'bait') {
-        return 'Bait x7'
-      }
-
       return `Play ${betColorToDisplayName(props.color)}`
     }
 
@@ -71,15 +60,17 @@ function RouletteColor(props) {
     return (
         <>
             <div class={'bet-column ' + (isGrayed())}>
-                <button class={'color ' + props.color} onClick={async () => {
-                    if (props?.amount < 1) return
-
+                <button class={'color ' + props.color} disabled={placing()} onClick={async () => {
+                    if (placing()) return
+                    if (!Number.isFinite(props?.amount) || props.amount < 1) return createNotification('error', 'Enter a bet of at least 1 coin.')
+                    setPlacing(true)
                     let res = await authedAPI('/roulette/bet', 'POST', JSON.stringify({
                         color: ROULETTE_COLORS[props?.color],
                         amount: props?.amount || 0,
                     }), true)
 
-                    if (res.success) {
+                    setPlacing(false)
+                    if (res?.success) {
                         createNotification('success', `Successfully placed a bet on ${betColorToLabel(props?.color)} for ${props?.amount} coins.`)
                     }
                 }}>
@@ -151,12 +142,12 @@ function RouletteColor(props) {
 
                 min-height: 64px;
                 max-height: 64px;
-                padding: 0 24px;
+                padding: 0 16px;
 
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 18px;
+                gap: 10px;
                 flex: 1;
 
                 border-radius: 10px;
@@ -174,12 +165,14 @@ function RouletteColor(props) {
                 font-weight: 700;
                 letter-spacing: .5px;
                 opacity: .9;
+                white-space: nowrap;
               }
 
               .payout-row {
                 display: flex;
                 align-items: center;
-                gap: 12px;
+                gap: 8px;
+                flex-shrink: 0;
               }
 
               .win-label {

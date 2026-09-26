@@ -56,6 +56,9 @@ CREATE TABLE IF NOT EXISTS `homeSlideSeedState` (
 CREATE TABLE IF NOT EXISTS `users` (
     `id`                    BIGINT UNSIGNED NOT NULL,
     `username`              VARCHAR(255)    NOT NULL DEFAULT '',
+    `avatarUrl`             TEXT            DEFAULT NULL,
+    `deletedAt`             DATETIME        DEFAULT NULL,
+    `deletedBy`             BIGINT UNSIGNED DEFAULT NULL,
     `passwordHash`          VARCHAR(255)    DEFAULT NULL,
     `ip`                    VARCHAR(64)     DEFAULT NULL,
     `country`               VARCHAR(8)      DEFAULT NULL,
@@ -254,6 +257,8 @@ CREATE TABLE IF NOT EXISTS `battles` (
     `gamemode`       ENUM('standard','crazy','group') NOT NULL DEFAULT 'standard',
     `cosmicSpin`     TINYINT(1)    NOT NULL DEFAULT 0,
     `serverSeed`     VARCHAR(255)  NOT NULL DEFAULT '',
+    `randomTicket` VARCHAR(32) DEFAULT NULL,
+    `randomProof` TEXT DEFAULT NULL,
     `EOSBlock`       BIGINT UNSIGNED DEFAULT NULL,
     `clientSeed`     VARCHAR(255)  DEFAULT NULL,
     `round`          INT UNSIGNED  NOT NULL DEFAULT 0,
@@ -514,6 +519,7 @@ CREATE TABLE IF NOT EXISTS `features` (
 -- Seed all feature flags enabled by default
 INSERT IGNORE INTO `features` (`id`, `enabled`) VALUES
     ('battles', 1),
+    ('cases', 1),
     ('coinflip', 1),
     ('crash', 1),
     ('roulette', 1),
@@ -528,6 +534,7 @@ INSERT IGNORE INTO `features` (`id`, `enabled`) VALUES
     ('affiliates', 1),
     ('surveys', 1),
     ('cryptoDeposits', 1),
+    ('fiatDeposits', 1),
     ('cryptoWithdrawals', 1),
     ('skindeck', 1),
     ('rainCaptcha', 1),
@@ -867,7 +874,7 @@ INSERT IGNORE INTO `gameSettings` (`game`, `key`, `value`, `type`, `label`, `des
 ('roulette','betTime',            '10000','number','Bet Time (ms)',    'Time players have to place bets',      '1000', '60000', '500'),
 ('roulette','rollTime',           '5000', 'number','Roll Time (ms)',   'Animation time for the roll',          '1000', '15000', '500'),
 ('roulette','maxBet',             '25000','number','Max Bet',          'Maximum bet amount',                   '100', '1000000', '100'),
-('roulette','tripleGreenBonusRake','0.75','number','Triple Green Bonus Rake (%)','Portion of double bets added to Triple Green Bonus pot','0', '5', '0.05'),
+('roulette','tripleGreenBonusRake','0.66','number','Triple Green Bonus Rake (%)','Portion of all coin-balance bets added to the Wheel Bonus pot','0', '5', '0.01'),
 ('roulette','colorsMultipliers',  '{"0":14,"1":2,"2":2,"3":7}', 'json','Color Multipliers','Payout multipliers per color', NULL, NULL, NULL),
 ('coinflip','houseEdge',          '5',    'number','House Edge (%)',   'The house edge percentage for Coinflip','0', '20', '0.5'),
 ('blackjack','houseEdge',         '2.5',  'number','House Edge (%)',   'The house edge percentage for Blackjack','0', '20', '0.5'),

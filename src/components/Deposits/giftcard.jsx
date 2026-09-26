@@ -28,6 +28,7 @@ const CARDS = {
 function GiftcardDeposit(props) {
 
     const [code, setCode] = createSignal('')
+    const [redeeming, setRedeeming] = createSignal(false)
 
     return (
         <>
@@ -35,17 +36,22 @@ function GiftcardDeposit(props) {
                 <div class='deposit-header'>
                     <p class='type'>You have selected <span class='gold'>{props?.name}</span></p>
 
-                    <div class='code-container'>
+                    <div class='code-container input-shell'>
                         <input className='text' placeholder='ENTER CODE HERE' value={code()} onInput={(e) => setCode(e.target.value)}/>
-                        <button class='bevel-gold redeem' onClick={async () => {
+                        <button class='bevel-gold redeem' disabled={redeeming() || !code().trim()} onClick={async () => {
+                            if (redeeming()) return
+                            const normalized = code().trim().replaceAll('-', '').toLowerCase()
+                            if (!/^[a-z0-9]{16,24}$/.test(normalized)) return createNotification('error', 'Enter a valid gift-card code.')
+                            setRedeeming(true)
                             let res = await authedAPI('/trading/deposit/giftcards/redeem', 'POST', JSON.stringify({
-                                code: code()
+                                code: normalized
                             }), true)
-
-                            if (res.success) {
+                            setRedeeming(false)
+                            if (res?.success) {
+                                setCode('')
                                 createNotification('success', 'Successfully redeemed your giftcard.')
                             }
-                        }}>REDEEM</button>
+                        }}>{redeeming() ? 'REDEEMING...' : 'REDEEM'}</button>
                     </div>
                 </div>
 
@@ -275,7 +281,7 @@ function GiftcardDeposit(props) {
 
               .code-container:focus-within {
                 border-color: rgba(31,214,95,.38);
-                box-shadow: 0 0 0 3px rgba(31,214,95,.06);
+                box-shadow: none;
               }
               
               .code-container input {

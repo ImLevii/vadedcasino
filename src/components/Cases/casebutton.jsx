@@ -3,17 +3,26 @@ import {A} from "@solidjs/router";
 import CaseTitle from "./casetitle";
 import CasePreview from "./casepreview";
 import {resolveImageSrc} from "../../util/image";
-import {authedAPI} from "../../util/api";
+import {authedAPI, createNotification} from "../../util/api";
 
 function CaseButton(props) {
     const [showPreview, setShowPreview] = createSignal(false)
     const [previewData, setPreviewData] = createSignal(null)
     const [loadingPreview, setLoadingPreview] = createSignal(false)
 
+    const readFavorites = () => { try { const list = JSON.parse(localStorage.getItem('battle-favorite-cases') || '[]'); return Array.isArray(list) ? list : [] } catch { return [] } }
+    const [favorite, setFavorite] = createSignal(readFavorites().includes(props.c?.id))
+    function toggleFavorite(e) {
+        e.preventDefault(); e.stopPropagation()
+        const saved = readFavorites()
+        const next = saved.includes(props.c.id) ? saved.filter(id => id !== props.c.id) : [...saved, props.c.id]
+        try { localStorage.setItem('battle-favorite-cases', JSON.stringify(next)); setFavorite(next.includes(props.c.id)) }
+        catch { createNotification('error', 'Could not save this favorite.') }
+    }
     async function openPreview(e) {
         e.preventDefault();
         e.stopPropagation();
-        if (!props?.c?.slug) return;
+        if (!props?.c?.slug || loadingPreview()) return;
         
         // If case data already has items, use it directly
         if (props?.c?.items && props.c.items.length > 0) {
@@ -26,12 +35,12 @@ function CaseButton(props) {
         setLoadingPreview(true);
         try {
             const res = await authedAPI(`/cases/${props.c.slug}`, 'GET', null);
-            if (res) {
+            if (res && !res.error && Array.isArray(res.items)) {
                 setPreviewData(res);
                 setShowPreview(true);
-            }
+            } else { createNotification('error', 'Could not load the case preview.') }
         } catch (err) {
-            console.error('Failed to fetch case preview:', err);
+            createNotification('error', 'Could not load the case preview. Please try again.');
         } finally {
             setLoadingPreview(false);
         }
@@ -46,7 +55,7 @@ function CaseButton(props) {
         <>
             <div class={'case-button ' + (props?.creator ? 'creator' : 'button')}>
               {!props.creator && (
-                <button class='favorite' aria-label='Favorite case' type='button'>
+                <button class='favorite' classList={{saved:favorite()}} aria-label={`${favorite() ? 'Unfavorite' : 'Favorite'} ${props.c?.name}`} aria-pressed={favorite()} type='button' onClick={toggleFavorite}>
                   <svg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
                     <path d='M12 3.6L14.6 8.87L20.42 9.72L16.21 13.82L17.2 19.62L12 16.88L6.8 19.62L7.79 13.82L3.58 9.72L9.4 8.87L12 3.6Z' stroke='currentColor' stroke-width='2' stroke-linejoin='round'/>
                   </svg>
@@ -57,31 +66,24 @@ function CaseButton(props) {
                 <span class='community-badge'>COMMUNITY</span>
               )}
 
-                <CaseTitle name={props?.c?.name || 'Unknown'}/>
+                <Show when={props.creator} fallback={<h2 class='case-name' title={props.c?.name}>{props.c?.name || 'Unknown'}</h2>}><CaseTitle name={props?.c?.name || 'Unknown'}/></Show>
 
                 <div class='cost'>
                     <img src='/assets/icons/coin.svg' height='13' alt='' loading="lazy"/>
-                    <p>{props?.c?.price?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || 0}</p>
+                    <p>{Number(props?.c?.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
 
-                <img class='image' src={resolveImageSrc(props?.c?.img, '/public/cases/radiation-case.png')} alt='' height={props?.creator ? '80' : '120'}/>
+                <img class='image' src={resolveImageSrc(props?.c?.img, '/public/cases/radiation-case.png')} alt='' height={props?.creator ? '80' : '120'} loading='lazy' onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = '/public/cases/radiation-case.png' }}/>
 
                 {!props.creator && (
-                  <div class='rarity-track'>
-                    <span class='track-fill'/>
-                    <span class='track-marker'/>
-                  </div>
+                  <div class='open-case'>Open case <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' aria-hidden='true'><path d='M6 18 18 6M6 6h12v12'/></svg></div>
                 )}
 
                 {!props.creator && (
-                  <div class='open-case'>OPEN CASE</div>
+                    <A href={`/cases/${props?.c?.slug}`} class='gamemode-link' aria-label={`Open ${props.c?.name}`} draggable={false}></A>
                 )}
 
-                {!props.creator && (
-                    <A href={`/cases/${props?.c?.slug}`} class='gamemode-link' draggable={false}></A>
-                )}
-
-                <button class='preview-btn-case' onClick={openPreview} aria-label='Preview case'>
+                <button class='preview-btn-case' onClick={openPreview} type='button' disabled={loadingPreview()} aria-label={`Preview ${props.c?.name}`} title='Preview contents'>
                     <svg width='11' height='11' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
                         <path d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
                         <circle cx='12' cy='12' r='3' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
@@ -292,53 +294,6 @@ function CaseButton(props) {
                 backdrop-filter: blur(4px);
               }
 
-              .rarity-track {
-                width: 100%;
-                height: 18px;
-                margin: 5px 0 14px;
-                position: relative;
-                z-index: 1;
-                display: flex;
-                align-items: center;
-              }
-
-              .rarity-track:before {
-                content: '';
-                width: 100%;
-                height: 4px;
-                border-radius: 99px;
-                background: rgba(48, 59, 49, 0.75);
-                box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
-              }
-
-              .track-fill {
-                position: absolute;
-                left: 0;
-                right: 0;
-                height: 4px;
-                border-radius: 99px;
-                background: linear-gradient(90deg, rgba(31, 214, 95, 0.4), rgba(234, 207, 79, 0.7), rgba(255, 85, 113, 0.95));
-                opacity: .92;
-                box-shadow: 0 0 8px rgba(31, 214, 95, 0.5), 0 0 16px rgba(234, 207, 79, 0.25);
-              }
-
-              .track-marker {
-                position: absolute;
-                right: 12%;
-                top: -1px;
-                width: 0;
-                height: 0;
-                border-left: 5px solid transparent;
-                border-right: 5px solid transparent;
-                border-top: 6px solid #dce2ec;
-                filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
-                transition: right .3s ease;
-              }
-
-              .case-button:hover .track-marker {
-                right: 10%;
-              }
-              
               .controls {
                 display: flex;
                 align-items: center;
@@ -524,6 +479,31 @@ function CaseButton(props) {
                 padding: 2px 4px;
                 font-size: 6px;
               }
+              .case-button.button { min-width:0; min-height:342px; padding:48px 18px 18px; border-radius:16px; background:radial-gradient(ellipse at 50% 50%, #1fd65f0b, transparent 62%), linear-gradient(145deg,#ffffff07,#ffffff01), #0e1418; box-shadow:inset 0 1px 0 #ffffff0a,0 8px 24px #0003; }
+              .case-button.button:hover { transform:translateY(-3px); border-color:#1fd65f55; box-shadow:inset 0 1px 0 #ffffff10,0 16px 30px #0005; }
+              .case-name { width:100%; margin:0; min-height:36px; font-size:15px; line-height:1.25; text-align:center; color:#eef5f1; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; z-index:1; }
+              .button .cost { min-width:0; min-height:30px; margin:6px 0 0; padding:0 12px; background:#1fd65f0c; border-color:#1fd65f26; box-shadow:inset 0 1px 0 #ffffff06; color:#a5f3bd; font-variant-numeric:tabular-nums; }
+              .button .image { width:100%; max-width:220px; height:166px; margin:4px 0 16px; object-fit:contain; z-index:1; }
+              .button .bg { opacity:.035; pointer-events:none; }
+              .button:hover .bg { opacity:.06; }
+              .button .favorite,.button .preview-btn-case { width:32px; height:32px; top:12px; bottom:auto; border:1px solid #ffffff0c; background:#ffffff05; border-radius:9px; opacity:1; pointer-events:auto; box-shadow:inset 0 1px 0 #ffffff08; }
+              .button .favorite { right:12px; }
+              .button .preview-btn-case { left:12px; right:auto; }
+              .favorite.saved { color:#46e783; background:#1fd65f18; border-color:#1fd65f44; }
+              .favorite.saved svg { fill:#1fd65f22; }
+              .preview-btn-case:disabled { cursor:wait; opacity:.5; }
+              .button .open-case { height:42px; flex-shrink:0; border-radius:9px; justify-content:space-between; padding:0 16px; box-sizing:border-box; color:#042011; background:linear-gradient(160deg,#54ea87,#1fd65f 52%,#12b34a); box-shadow:inset 0 1px 0 #ffffff55,inset 0 -2px 0 #063b2030,0 5px 14px #1fd65f15; text-transform:none; }
+              .button .open-case span { font-size:19px; font-weight:500; }
+              .button .case-name,.button .cost,.button .image,.button .open-case { pointer-events:none; }
+              .case-button:focus-within { border-color:#1fd65f77; }
+              @media(max-width:560px) {
+                .case-button.button { min-height:292px; padding:48px 12px 12px; }
+                .case-name { font-size:12px; min-height:30px; }
+                .button .image { height:132px; margin:2px 0 10px; }
+                .button .cost { font-size:12px; padding:0 8px; }
+                .button .open-case { font-size:11px; padding:0 10px; }
+              }
+              @media(prefers-reduced-motion:reduce) { .case-button,.image,.open-case { transition:none; transform:none !important; } }
             `}</style>
         </>
     );

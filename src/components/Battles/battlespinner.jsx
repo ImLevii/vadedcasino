@@ -8,118 +8,52 @@ import Countup from "../Countup/countup"
 import {useNavigate} from "@solidjs/router"
 import Chance from 'chance'
 import SpinnerDiamond from "./spinnerdiamond";
-import IndicatorLine from "../IndicatorLine/indicatorline";
-import {playGameSFX, stopSFXChannel, startAnimationTicker} from "../../util/sound";
+import {playGameSFX, stopSFXChannel, startReelSFX, playCosmicSFX} from "../../util/sound";
 
 function BattleSpinner(props) {
 
   let spinner
-  let bar
 
   const [items, setItems] = createSignal([])
   const [color, setColor] = createSignal('')
   const navigate = useNavigate()
   let cosmicTimer
-  let particleTimer
+  let particleFrame
+  let animationFrame
+  let spinAnimation
   let tickerHandle = null
+  let stopCosmicSound = () => {}
+  const soundTimers = new Set()
+  const scheduleSound = (fn, delay) => {
+    const timer = setTimeout(() => { soundTimers.delete(timer); fn() }, delay)
+    soundTimers.add(timer)
+  }
 
-  // Spin easing control points: cubic-bezier(.08,.7,.14,1)
-  const SPIN_BEZIER = [0.08, 0.7, 0.14, 1]
   const SPIN_DURATION = 5000
 
-  function startBattleTicking(duration = SPIN_DURATION) {
-    if (props?.index !== 0) return
-    if (tickerHandle) tickerHandle.cancel()
-    tickerHandle = startAnimationTicker(
-      () => {
-        playGameSFX('battle-tick', '/assets/sfx/casetick.wav', {
-          channel: 'battle-spin-tick',
-          volume: 0.45,
-          minIntervalMs: 28,
-        })
-      },
-      duration,
-      28,
-      SPIN_BEZIER
-    )
+  function startBattleTicking(duration = SPIN_DURATION, owner = 0) {
+    if (props?.index !== owner) return
+    stopBattleTicking()
+    tickerHandle = startReelSFX('battle-roll', duration * .94, [.08, .7, .14, 1])
   }
 
   function stopBattleTicking() {
-    if (props?.index !== 0) return
-    if (tickerHandle) {
-      tickerHandle.cancel()
-      tickerHandle = null
-    }
-    stopSFXChannel('battle-spin-tick', { fadeOutMs: 60 })
+    tickerHandle?.()
+    tickerHandle = null
   }
 
   const [particles, setParticles] = createSignal([])
   const [showShockwave, setShowShockwave] = createSignal(false)
   const [showFlash, setShowFlash] = createSignal(false)
 
-  function playCosmicChargeSFX() {
-    if (props?.index !== 0) return
-    if (typeof window === 'undefined') return;
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
-      
-      const masterGain = ctx.createGain();
-      masterGain.gain.setValueAtTime(0.20, ctx.currentTime);
-      masterGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
-      masterGain.connect(ctx.destination);
-      
-      const osc = ctx.createOscillator();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(90, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(950, ctx.currentTime + 0.9);
-      
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.Q.setValueAtTime(12, ctx.currentTime);
-      filter.frequency.setValueAtTime(140, ctx.currentTime);
-      filter.frequency.exponentialRampToValueAtTime(3200, ctx.currentTime + 0.9);
-      
-      osc.connect(filter);
-      filter.connect(masterGain);
-      
-      osc.start();
-      osc.stop(ctx.currentTime + 1.5);
-      setTimeout(() => {
-        ctx.close().catch(() => {})
-      }, 1700)
-      
-      for (let i = 0; i < 7; i++) {
-        const time = ctx.currentTime + i * 0.10;
-        const sparkOsc = ctx.createOscillator();
-        const sparkGain = ctx.createGain();
-        
-        sparkOsc.type = 'sine';
-        sparkOsc.frequency.setValueAtTime(1400 + Math.random() * 900, time);
-        
-        sparkGain.gain.setValueAtTime(0.06, time);
-        sparkGain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
-        
-        sparkOsc.connect(sparkGain);
-        sparkGain.connect(ctx.destination);
-        
-        sparkOsc.start(time);
-        sparkOsc.stop(time + 0.5);
-      }
-    } catch (e) {
-      console.error("Web Audio API not supported or blocked", e);
-    }
-  }
+  function triggerCosmicParticles(soundOwner) {
+    if (props.index === soundOwner) stopCosmicSound = playCosmicSFX()
 
-  function triggerCosmicParticles() {
-    playCosmicChargeSFX();
-    
     setShowFlash(true);
-    setTimeout(() => setShowFlash(false), 250);
+    scheduleSound(() => setShowFlash(false), 250);
     
     setShowShockwave(true);
-    setTimeout(() => setShowShockwave(false), 850);
+    scheduleSound(() => setShowShockwave(false), 850);
 
     const particleCount = 50;
     const colors = [
@@ -151,7 +85,7 @@ function BattleSpinner(props) {
 
     setParticles(newParticles);
 
-    let animFrame;
+    cancelAnimationFrame(particleFrame);
     const update = () => {
       const current = particles();
       if (current.length === 0) return;
@@ -171,11 +105,11 @@ function BattleSpinner(props) {
       setParticles(updated);
 
       if (updated.length > 0) {
-        animFrame = requestAnimationFrame(update);
+        particleFrame = requestAnimationFrame(update);
       }
     };
 
-    animFrame = requestAnimationFrame(update);
+    particleFrame = requestAnimationFrame(update);
   }
 
   function adjacentTeamIsWinner() {
@@ -224,54 +158,52 @@ function BattleSpinner(props) {
       const cosmic = !!props?.battle?.cosmicSpin && getRareItems(caseItems, battleCase?.price).length > 0
       if (cosmic) spinnerItems = maskRareItems(spinnerItems, battleCase?.price)
 
+      const soundOwner = cosmic ? currentRound.items.findIndex(result => isRareItem(caseItems?.find(item => item.id === result.itemId), battleCase?.price)) : -1
+      const hit = cosmic && isRareItem(winningItem, battleCase?.price)
+      const playResult = () => playGameSFX('battle-round-win', '/assets/sfx/winorcashout.mp3', {
+        channel: 'battle-result-win', volume: .5, fadeInMs: 30,
+      })
       setItems([...spinnerItems])
-      scheduleAnimation()
-      startBattleTicking(SPIN_DURATION)
-
-      // Stop ticking when animation finishes, then play win sound
-      setTimeout(() => {
-        stopBattleTicking()
-        if (props?.index === 0) {
-          playGameSFX('battle-win', '/assets/sfx/winorcashout.mp3', {
-            channel: 'battle-result-win',
-            volume: 0.58,
-            fadeInMs: 80,
-          })
-        }
-      }, SPIN_DURATION)
-
-      if (cosmic && isRareItem(winningItem, battleCase?.price)) {
-        // Exclusive second spin featuring only rare items
-        clearTimeout(cosmicTimer)
+      scheduleAnimation(false, 0, () => {
+        // One result cue per round, after the last phase has actually landed.
+        if (soundOwner < 0 && props.index === 0) playResult()
+        if (!hit) return
+        triggerCosmicParticles(soundOwner)
         cosmicTimer = setTimeout(() => {
           let rareReel = generateRareItems(caseItems, battleCase?.price, chanceObj)
           rareReel[50] = winningItem
           setItems([...rareReel])
-          scheduleAnimation(true)
-          startBattleTicking(SPIN_DURATION)
-          setTimeout(() => stopBattleTicking(), SPIN_DURATION)
-        }, 5300)
+          scheduleAnimation(true, soundOwner, () => {
+            if (props.index === soundOwner) playResult()
+          })
+        }, 300)
+      })
+      // Reactive round changes and navigation must cancel the previous round.
+      onCleanup(clearRoundEffects)
 
-        // Trigger green particles exactly when first spin finishes (5000ms)
-        clearTimeout(particleTimer)
-        particleTimer = setTimeout(() => {
-          triggerCosmicParticles();
-        }, 5000)
-      }
     }
   })
 
-  onCleanup(() => {
+  function clearRoundEffects() {
     clearTimeout(cosmicTimer)
-    clearTimeout(particleTimer)
+    cancelAnimationFrame(particleFrame)
+    cancelAnimationFrame(animationFrame)
+    if (spinAnimation) { spinAnimation.onfinish = null; spinAnimation.cancel(); spinAnimation = null }
+    soundTimers.forEach(clearTimeout)
+    soundTimers.clear()
+    stopCosmicSound()
     stopBattleTicking()
-  })
+    if (props?.index === 0) stopSFXChannel('battle-result-win')
+  }
+  onCleanup(clearRoundEffects)
 
-  function scheduleAnimation(secondPhase = false) {
-    requestAnimationFrame(() => requestAnimationFrame(() => animate(secondPhase)))
+  function scheduleAnimation(secondPhase = false, soundOwner = 0, onFinish = () => {}) {
+    animationFrame = requestAnimationFrame(() => {
+      animationFrame = requestAnimationFrame(() => animate(secondPhase, soundOwner, onFinish))
+    })
   }
 
-  function animate(secondPhase = false) {
+  function animate(secondPhase = false, soundOwner = 0, onFinish = () => {}) {
     if (!spinner) return
 
     let chanceObj = new Chance(props?.battle?.id + '-' + props?.round + (secondPhase ? '-cosmic' : ''))
@@ -291,7 +223,7 @@ function BattleSpinner(props) {
       anim.cancel()
     })
 
-    spinner.animate(
+    spinAnimation = spinner.animate(
       [
         { transform: `translateX(-${startPosition}px)` },
         { transform: `translateX(-${endPosition + 10}px)`, offset: .94 },
@@ -304,29 +236,9 @@ function BattleSpinner(props) {
       }
     )
 
-    if (!secondPhase) {
-      bar.getAnimations().forEach((anim) => {
-        anim.cancel()
-      })
+    if (!reducedMotion) startBattleTicking(duration, soundOwner)
+    spinAnimation.onfinish = () => { stopBattleTicking(); onFinish() }
 
-      let color = 'linear-gradient(90deg, rgba(249, 81, 81, 0.00) 0%, #F95151 100%)'
-      if (props?.roundWinners?.includes(props?.team))
-        color = 'linear-gradient(90deg, rgba(31, 214, 95, 0.00) 0%, #1fd65f 100%)'
-
-      bar.animate(
-        {
-          background: [color, color, color],
-          width: [`0`, '100%', '100%'],
-          easing: ['ease', 'ease-out', 'ease-out'],
-          offset: [0, 0.7, 1]
-        },
-        {
-          delay: reducedMotion ? 0 : props?.battle?.cosmicSpin ? 10500 : 5000,
-          duration: reducedMotion ? 1 : 1200,
-          fill: 'forwards',
-        }
-      )
-    }
   }
 
   async function recreateBattle() {
@@ -350,7 +262,19 @@ function BattleSpinner(props) {
     }
   }
 
+  const [joining, setJoining] = createSignal(false)
+
+  function previewItems() {
+    const caseId = props.battle?.rounds?.[Math.max(0, (props.round || 1) - 1)]?.caseId
+    const pool = props.battle?.cases?.find(c => c.id === caseId)?.items || []
+    const recent = getRecentPulls()
+    return Array.from({ length: 9 }, (_, i) => i === 4 && props.state === 'WINNERS' ? recent[recent.length - 1] : pool[i % Math.max(1, pool.length)]).filter(Boolean)
+  }
+
   async function joinBattle() {
+    if (joining()) return
+    setJoining(true)
+    try {
     if (props?.creator) {
       return await authedAPI(`/battles/${props?.battle?.id}/bot`, 'POST', JSON.stringify({
         slot: props.index + 1,
@@ -362,6 +286,7 @@ function BattleSpinner(props) {
       slot: props.index + 1,
       privKey: props?.battle?.privKey
     }), true)
+    } finally { setJoining(false) }
   }
 
   return (
@@ -370,34 +295,13 @@ function BattleSpinner(props) {
 
         {props?.player && props?.state === 'WINNERS' ? (
           <div class='result-lane'>
-            <Show when={getRecentPulls().length > 0} fallback={<span class='result-empty'>No drops</span>}>
-              <For each={getRecentPulls()}>{(item) => (
-                <BattleSpinnerItem
-                  img={item?.img}
-                  name={item?.name}
-                  price={item?.price}
-                  index={item?.round === latestPullRound() ? 50 : -1}
-                />
-              )}</For>
-            </Show>
+            <div class='resting-track'>
+              <For each={previewItems()}>{(item, i) => <BattleSpinnerItem img={item.img} name={item.name} price={item.price} index={i() === 4 ? 50 : -1}/>}</For>
+            </div>
           </div>
         ) : props?.player && props?.state === 'ROLLING' ? (
           <div class='spinner-column'>
             <div class='center-band'/>
-            <IndicatorLine
-              orientation='horizontal'
-              length='10px'
-              thickness='2px'
-              pulse={false}
-              style={{ position: 'absolute', top: '2px', left: '50%', transform: 'translateX(-50%)', 'z-index': 4 }}
-            />
-            <IndicatorLine
-              orientation='horizontal'
-              length='10px'
-              thickness='2px'
-              pulse={false}
-              style={{ position: 'absolute', bottom: '2px', left: '50%', transform: 'translateX(-50%)', 'z-index': 4 }}
-            />
             <div class='fade-left'/>
             <div class='fade-right'/>
 
@@ -436,16 +340,20 @@ function BattleSpinner(props) {
               )}</Index>
             </div>
           </div>
-        ) : props?.player ? (
-          <div class='ready'>
-            <img src='/assets/icons/logoswords.svg'/>
-            <p>READY</p>
-          </div>
         ) : (
-          <div class='spinner-content waiting'>
-            <img src='/assets/icons/waiting.png' height='50' width='50'/>
-            <p>WAITING</p>
-            <button class='bevel-gold call' onClick={() => joinBattle()}>{props?.creator ? 'CALL BOT' : 'JOIN BATTLE'}</button>
+          <div class='idle-lane'>
+            <div class='resting-track preview' aria-hidden='true'>
+              <For each={previewItems()}>{item => <BattleSpinnerItem img={item.img} name={item.name} price={item.price} index={-1}/>}</For>
+            </div>
+            <div class={'seat-status ' + (props.player ? 'ready' : 'waiting')}>
+              <svg class='seat-icon' width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' aria-hidden='true'>
+                <Show when={props.player} fallback={<><circle cx='12' cy='8' r='3'/><path d='M5 21v-3a7 7 0 0 1 14 0v3M18 5h6m-3-3v6'/></>}><path d='m6 12 4 4 8-8'/><circle cx='12' cy='12' r='10'/></Show>
+              </svg>
+              <strong>{props.player ? (props.state === 'EOS' ? 'Starting soon' : 'Ready') : 'Waiting for player'}</strong>
+              <Show when={!props.player} fallback={<span>Waiting for the battle to start</span>}>
+                <button class='call' disabled={joining()} onClick={joinBattle}>{joining() ? 'Joining?' : props.creator ? 'Call bot' : 'Join battle'}</button>
+              </Show>
+            </div>
           </div>
         )}
 
@@ -460,13 +368,14 @@ function BattleSpinner(props) {
           />
         </Show>
 
-        <div class='bar' ref={bar}/>
       </div>
 
       <style jsx>{`
         .spinner {
-          flex: 1;
-          height: 120px;
+          width: 100%;
+          min-width: 0;
+          height: var(--lane-height, 132px);
+          box-sizing: border-box;
           position: relative;
           z-index: 0;
 
@@ -476,51 +385,23 @@ function BattleSpinner(props) {
           border-radius: 0;
           overflow: hidden;
 
-          background: #141922;
+          background: #111318;
           border: 0;
           box-shadow: none;
-          transition: all var(--transition-smooth);
+          transition: background var(--transition-smooth);
         }
 
-        .spinner.gold:before {
-          position: absolute;
-          top: 0;
-          left: 0;
-          content: '';
-          width: 100%;
-          height: 100%;
-          opacity: 0.12;
-          border-radius: 0;
-          background-image: url("/assets/icons/battlestripes.png");
-        }
-
-        .spinner.green {
-          background: #141922;
-          border-bottom: 1px solid rgba(31,214,95,0.48);
-          box-shadow: none;
-        }
-
-        .spinner.red {
-          background: #141922;
-          border-bottom: 1px solid rgba(249,81,81,0.44);
-          box-shadow: none;
-        }
-
-        .gold {
-          background: radial-gradient(92% 95% at 50.00% 100.00%, rgba(255, 184, 74, 0.14) 0%, rgba(0, 0, 0, 0.00) 70%), var(--btn-glass-bg);
-          border-color: rgba(255, 184, 74, 0.14);
-        }
-
-        .ready {
-          display: none;
-        }
-
-        .gold .ready {
-          display: block;
-          text-align: center;
-          color: white;
-          font-weight: 700;
-        }
+        .spinner { border-radius:4px; background:#111318; }
+        .spinner:before,.spinner:after { content:''; position:absolute; left:calc(50% - 4px); width:8px; height:2px; background:#1fd65f; box-shadow:0 0 8px #1fd65f88; z-index:5; }
+        .spinner:before { top:1px; }.spinner:after { bottom:1px; }
+        .idle-lane,.result-lane { position:relative; width:100%; height:100%; overflow:hidden; }
+        .resting-track { display:flex; gap:6px; width:max-content; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
+        .preview { opacity:.15; filter:blur(1px); }
+        .seat-status { position:relative; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:8px; box-sizing:border-box; text-align:center; background:radial-gradient(ellipse at center,#111318 5%,#111318c9 40%,transparent 80%); }
+        .seat-status strong { color:#e8edf1; font-size:12px; font-weight:700; }.seat-status>span { color:#86928e; font-size:10px; }.seat-icon { color:#1fd65f; }
+        .seat-status .call { min-width:112px; width:auto; height:30px; padding:0 14px; border-radius:4px; text-transform:none; }
+        .call:disabled { opacity:.6; cursor:wait; }.call:focus-visible { outline:2px solid #1fd65f; outline-offset:3px; }
+        @media(max-width:700px) { .seat-status>span { max-width:115px; text-align:center; font-size:9px; }.seat-status strong { font-size:10px; }.seat-status .call { min-width:100px; } }
 
         .spinner-content {
           display: flex;
@@ -529,7 +410,7 @@ function BattleSpinner(props) {
           justify-content: center;
           gap: 5px;
 
-          color: #9296D6;
+          color: #a6b8ad;
           font-size: 10px;
           font-weight: 700;
 
@@ -547,24 +428,12 @@ function BattleSpinner(props) {
           align-items: center;
           justify-content: flex-start;
           gap: 6px;
-          padding: 2px 5px;
-          overflow-x: auto;
-          overflow-y: hidden;
+          padding: 0;
+          overflow: hidden;
           background:
-            linear-gradient(90deg, rgba(20,25,34,1), transparent 12%, transparent 88%, rgba(20,25,34,1)),
-            #141922;
+            linear-gradient(90deg, #111318, transparent 12%, transparent 88%, #111318),
+            #111318;
           animation: revealResult .35s ease-out both;
-          scrollbar-width: thin;
-          scrollbar-color: rgba(255,255,255,0.1) transparent;
-        }
-
-        .result-lane::-webkit-scrollbar {
-          height: 4px;
-        }
-
-        .result-lane::-webkit-scrollbar-thumb {
-          background: rgba(255,255,255,0.1);
-          border-radius: 999px;
         }
 
         .result-empty {
@@ -705,7 +574,7 @@ function BattleSpinner(props) {
           align-items: center;
 
           overflow: hidden;
-          background: #141922;
+          background: #111318;
         }
 
         .center-band {
@@ -735,22 +604,12 @@ function BattleSpinner(props) {
 
         .fade-left {
           left: 0;
-          background: linear-gradient(90deg, #141922 0%, rgba(20, 25, 34, 0.86) 45%, transparent 100%);
+          background: linear-gradient(90deg, #111318 0%, rgba(17,19,24,.86) 45%, transparent 100%);
         }
 
         .fade-right {
           right: 0;
-          background: linear-gradient(270deg, #141922 0%, rgba(20, 25, 34, 0.86) 45%, transparent 100%);
-        }
-
-        .bar {
-          position: absolute;
-          width: calc(100% - 8px);
-          height: 2px;
-          bottom: 0;
-          overflow: hidden;
-          border-radius: 2525px;
-          left: 0;
+          background: linear-gradient(270deg, #111318 0%, rgba(17,19,24,.86) 45%, transparent 100%);
         }
 
         .spinner-items {
@@ -765,6 +624,7 @@ function BattleSpinner(props) {
           top: 0;
           left: 0;
           z-index: 2;
+          align-items: center;
         }
 
         @keyframes revealResult {
@@ -852,23 +712,6 @@ function BattleSpinner(props) {
           100% {
             opacity: 0;
           }
-        }
-
-        @media only screen and (max-width: 1040px) {
-          .spinner {
-            width: 100%;
-            min-height: 120px;
-            height: 120px;
-          }
-        }
-
-        @media only screen and (max-width: 620px) {
-          .spinner, .spinner-column {
-            min-height: 104px;
-            height: 104px;
-          }
-
-          .spinner-column { max-width: none; }
         }
 
         @media (prefers-reduced-motion: reduce) {

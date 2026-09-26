@@ -1,4 +1,4 @@
-import {createEffect, createSignal} from "solid-js";
+import {createSignal, onCleanup} from "solid-js";
 import {useRain} from "../../contexts/raincontext";
 import Captcha from "../Captcha/captcha";
 import {authedAPI, createNotification} from "../../util/api";
@@ -8,7 +8,8 @@ import Avatar from "../Level/avatar";
 function SidebarRain(props) {
 
     const [rain, userRain, time, userTimer, joinedRain] = useRain()
-    const [token, setToken] = createSignal(null)
+    let disposed = false
+    onCleanup(() => { disposed = true })
     const [showCaptcha, setShowCaptcha] = createSignal(false)
     const [joining, setJoining] = createSignal(false)
 
@@ -24,122 +25,42 @@ function SidebarRain(props) {
       SERVER_ERROR: 'Unable to claim rain right now. Please try again.'
     }
 
-    async function ensureHcaptcha() {
-      if (typeof window !== 'undefined' && window.hcaptcha) {
-        return true
-      }
-
-      const existing = document.querySelector('script[data-hcaptcha="true"]')
-      if (existing) {
-        await new Promise((resolve) => {
-          if (window.hcaptcha) return resolve(true)
-          existing.addEventListener('load', () => resolve(true), { once: true })
-          existing.addEventListener('error', () => resolve(false), { once: true })
-        })
-        return !!window.hcaptcha
-      }
-
-      const script = document.createElement('script')
-      script.src = 'https://js.hcaptcha.com/1/api.js?render=explicit'
-      script.async = true
-      script.defer = true
-      script.dataset.hcaptcha = 'true'
-
-      const loaded = await new Promise((resolve) => {
-        script.onload = () => resolve(true)
-        script.onerror = () => resolve(false)
-        document.head.appendChild(script)
-      })
-
-      return loaded && !!window.hcaptcha
-    }
-
-    async function joinRain() {
-      if (joining()) return
+    async function joinRain(captchaResponse = null) {
+      if (joining() || disposed) return
       setJoining(true)
-
-        let res = await authedAPI('/rain/join', 'POST', JSON.stringify({
-            'captchaResponse': token()
-        }), true)
-
-        if (res.success) {
-            setToken(null)
-            joinedRain()
-            createNotification('success', `Successfully joined the rain.`)
-        setShowCaptcha(false)
-        setJoining(false)
-        return
-        }
-
-        if (res.error === 'NOT_LINKED') {
-        createNotification('error', 'You must link Discord before joining rain.')
-            let discordRes = await authedAPI('/discord/link', 'POST', null, true)
-            if (discordRes.url) {
-                attemptToLinkDiscord(discordRes.url)
-        } else {
-          createNotification('error', 'Unable to start Discord linking right now.')
-            }
-        setShowCaptcha(false)
-        setJoining(false)
-        return
-        }
-
-      const message = JOIN_ERROR_MESSAGES[res?.error] || 'Failed to claim rain. Please try again.'
-      createNotification('error', message)
-      if (res?.error !== 'CAPTCHA_REQUIRED') {
-        setShowCaptcha(false)
-      }
-      setJoining(false)
-    }
-
-    function attemptToLinkDiscord(url) {
-        let popupWindow = window.open(url, 'popUpWindow', 'height=700,width=500,left=100,top=100,resizable=yes,scrollbar=yes')
-      if (!popupWindow) {
-        createNotification('error', 'Popup blocked. Allow popups and try again.')
-        return
-      }
-        window.addEventListener("message", function (event) {
-            if (event.data === "Authorized") {
-                popupWindow.close();
-                joinRain()
-            }
-      }, { once: true })
-    }
-
-    async function handleRainJoin() {
-      if (joining()) return
-        if (userRain()?.joined || rain()?.joined) return createNotification('error', 'You have already joined this rain.')
-      if (!userRain() && !rain()?.active) return createNotification('error', 'There is no active rain to claim right now.')
-
-      const hasCaptcha = await ensureHcaptcha()
-      if (!hasCaptcha) {
-        // Fallback path for environments where captcha is disabled or script is blocked.
-        return joinRain()
-      }
-
-        setShowCaptcha(true)
-
-      setTimeout(() => {
-        if (!window.hcaptcha) {
-          createNotification('error', 'Captcha failed to load. Please try again.')
+      try {
+        // Ask the server first: it owns eligibility and the captcha setting.
+        const res = await authedAPI('/rain/join', 'POST', JSON.stringify({captchaResponse}), false)
+        if (disposed) return
+        if (res?.success) {
+          joinedRain()
           setShowCaptcha(false)
+          createNotification('success', 'Successfully joined the rain.')
           return
         }
-
-        try {
-          window.hcaptcha.render('captcha-div', {
-              sitekey: '5029f0f4-b80b-42a8-8c0e-3eba4e9edc4c',
-              theme: 'dark',
-              callback: function (captchaToken) {
-                  setToken(captchaToken)
-                  joinRain()
-              }
-          })
-        } catch (e) {
-          createNotification('error', 'Unable to open captcha right now. Please try again.')
-          setShowCaptcha(false)
+        if (res?.error === 'CAPTCHA_REQUIRED' || res?.error === 'INVALID_CAPTCHA') {
+          setShowCaptcha(true)
+          return
         }
-      }, 0)
+        setShowCaptcha(false)
+        const message = res?.error === 'UNAUTHORIZED' ? 'Sign in to claim rain.'
+          : res?.error === 'NOT_LINKED' ? 'Link Discord in your account settings to join rain.'
+          : res?.error === 'CANNOT_JOIN_OWN_RAIN' ? 'You cannot join your own rain.'
+          : res?.error === 'DISABLED' ? 'Rain claims are currently disabled.'
+          : JOIN_ERROR_MESSAGES[res?.error] || 'Unable to claim rain. Please try again.'
+        createNotification('error', message)
+      } catch {
+        if (!disposed) createNotification('error', 'Unable to claim rain. Please try again.')
+      } finally {
+        if (!disposed) setJoining(false)
+      }
+    }
+
+    function handleRainJoin() {
+      if (joining()) return
+      if (isJoined()) return
+      if (!userRain() && !rain()?.active) return createNotification('error', 'There is no active rain to claim right now.')
+      return joinRain()
     }
 
     function formatTimeLeft(ms) {
@@ -155,7 +76,7 @@ function SidebarRain(props) {
 
     return (
         <>
-            <Captcha active={showCaptcha()} close={() => setShowCaptcha(false)}/>
+            <Captcha active={showCaptcha()} close={() => setShowCaptcha(false)} onVerify={token => { setShowCaptcha(false); joinRain(token) }}/>
 
             <div class='rain-container fadein'>
                 <div class='rain-glow'/>

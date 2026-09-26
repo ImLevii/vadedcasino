@@ -141,7 +141,7 @@ function Surveys(props) {
                 height: 45px;
 
                 border-radius: 5px;
-                background: linear-gradient(90deg, rgb(104, 100, 164) -49.01%, rgba(90, 84, 149, 0.655) -5.08%, rgba(66, 53, 121, 0) 98.28%);
+                background: linear-gradient(90deg, rgb(166, 184, 173) -49.01%, rgba(166, 184, 173, 0.655) -5.08%, rgba(31, 214, 95, 0) 98.28%);
 
                 padding: 0 15px;
                 display: flex;
@@ -205,7 +205,7 @@ function Surveys(props) {
                 height: 510px;
 
                 border-radius: 15px;
-                background: #27224D;
+                background: #232926;
 
                 margin-bottom: 50px;
                 overflow: hidden;

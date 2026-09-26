@@ -7,28 +7,32 @@ import {authedAPI} from "../../util/api";
 function Cases(props) {
 
     const navigate = useNavigate()
-    const [cases, {mutate}] = createResource(fetchCases)
 
     const [search, setSearch] = createSignal('')
-    const [min, setMin] = createSignal(NaN)
-    const [max, setMax] = createSignal(NaN)
+    const [min, setMin] = createSignal('')
+    const [max, setMax] = createSignal('')
     const [sort, setSort] = createSignal('DESCENDING')
 
+    const [loadError, setLoadError] = createSignal(false)
+    const [cases, {refetch}] = createResource(fetchCases)
     async function fetchCases() {
+        setLoadError(false)
         try {
-            let cases = await authedAPI('/cases', 'GET', null)
-            return mutate(cases)
-        } catch (e) {
-            console.log(e)
-            return mutate([])
+            const response = await authedAPI('/cases', 'GET', null)
+            if (!Array.isArray(response)) throw new Error('Unable to load cases')
+            return response
+        } catch {
+            setLoadError(true)
+            return []
         }
     }
+    function resetFilters() { setSearch(''); setMin(''); setMax('') }
 
     function sortedCases() {
         if (!Array.isArray(cases())) return []
         let sorted
-        let realMax = isNaN(max()) ? Number.MAX_VALUE : max()
-        let realMin = isNaN(min()) ? 0 : Math.max(0, min())
+        let realMax = max() === '' ? Number.MAX_VALUE : Number(max())
+        let realMin = min() === '' ? 0 : Math.max(0, Number(min()))
 
         if (sort() === "DESCENDING")
             sorted = cases().slice().sort((a, b) => b.price - a.price)
@@ -36,7 +40,7 @@ function Cases(props) {
             sorted = cases().slice().sort((a, b) => a.price - b.price)
 
         sorted = sorted.filter(c => {
-            return c.price >= realMin && c.price <= realMax && c?.name?.toLowerCase()?.includes(search().toLowerCase())
+            return c.price >= realMin && c.price <= realMax && c?.name?.toLowerCase()?.includes(search().trim().toLowerCase())
         })
 
         return sorted
@@ -56,7 +60,7 @@ function Cases(props) {
                   </div>
 
                   <div class='options' aria-label='Case collection'>
-                    <button class='option active' type='button'>Official</button>
+                    <button class='option active' type='button' aria-current='page'>Official</button>
                     <button class='option community' type='button' onClick={() => navigate('/cases/community')}>
                       Community
                     </button>
@@ -64,27 +68,27 @@ function Cases(props) {
                     </div>
 
                     <div class='inputs'>
-                        <div class='search-container'>
-                    <input class='number' type='search' placeholder='Search official cases...' value={search()} onInput={(e) => setSearch(e.target.value)}/>
+                        <div class='search-container input-shell'>
+                    <input class='number' type='search' aria-label='Search official cases' placeholder='Search official cases...' value={search()} onInput={(e) => setSearch(e.target.value)}/>
 
                     <span class='search-button' aria-hidden='true'>
                             <img src='/assets/icons/search.svg' alt=''/>
                     </span>
                         </div>
 
-                        <div class='number-container small'>
+                        <div class='number-container input-shell'>
                             <img src='/assets/icons/coin.svg' height='13' alt=''/>
-                            <input class='number' type='number' placeholder='MIN PRICE...' value={min()} onInput={(e) => setMin(e.target.valueAsNumber)}/>
+                            <input class='number' type='number' min='0' step='0.01' aria-label='Minimum case price' placeholder='Min price' value={min()} onInput={(e) => setMin(e.currentTarget.value)}/>
                         </div>
 
-                        <div class='number-container small'>
+                        <div class='number-container input-shell'>
                             <img src='/assets/icons/coin.svg' height='13' alt=''/>
-                            <input class='number' type='number' placeholder='MAX PRICE...' value={max()} onInput={(e) => setMax(e.target.valueAsNumber)}/>
+                            <input class='number' type='number' min='0' step='0.01' aria-label='Maximum case price' placeholder='Max price' value={max()} onInput={(e) => setMax(e.currentTarget.value)}/>
                         </div>
 
                         <button class={'sort-by tiny ' + (sort() === 'DESCENDING' ? 'flip' : '')}
                                 onClick={() => setSort(sort() === 'DESCENDING' ? 'ASCENDING' : 'DESCENDING')}>
-                            <p>SORT BY: <span class='gold'>{sort()}</span></p>
+                            <p>Price: <span class='gold'>{sort() === 'DESCENDING' ? 'High to low' : 'Low to high'}</span></p>
 
                             <svg class='arrow' width="7" height="5" viewBox="0 0 7 5" fill="none"
                                  xmlns="http://www.w3.org/2000/svg">
@@ -94,7 +98,7 @@ function Cases(props) {
                             </svg>
                         </button>
 
-                          <span class='result-count'>{sortedCases().length} cases</span>
+                          <span class='result-count' role='status'>{sortedCases().length} cases</span>
                     </div>
                 </div>
 
@@ -105,8 +109,9 @@ function Cases(props) {
                             <div class='empty-state'>
                               <span class='empty-icon'><img src='/assets/icons/search.svg' height='18' alt=''/></span>
                               <div>
-                                <strong>No cases found</strong>
-                                <p>Try changing your search or price range.</p>
+                                <strong>{loadError() ? 'Cases could not be loaded' : 'No cases found'}</strong>
+                                <p>{loadError() ? 'Please try again.' : 'Try changing your search or price range.'}</p>
+                                <button class='reset-filters' onClick={() => loadError() ? refetch() : resetFilters()}>{loadError() ? 'Try again' : 'Clear filters'}</button>
                               </div>
                             </div>
                           </Show>
@@ -117,9 +122,10 @@ function Cases(props) {
             <style jsx>{`
               .cases-container {
                 width: 100%;
-                max-width: 1440px;
+                max-width: 1560px;
                 height: fit-content;
-                padding: 10px 0 44px;
+                padding: 10px 0 32px;
+                min-width: 0;
                 margin: 0 auto;
               }
 
@@ -130,13 +136,14 @@ function Cases(props) {
                 flex-direction: column;
                 gap: 14px;
 
-                padding: 17px 18px;
+                padding: 22px;
                 box-sizing: border-box;
                 margin: 0 0 22px;
 
-                border-radius: 10px;
+                border-radius: 14px;
                 border: 1px solid rgba(255, 255, 255, 0.065);
-                background: radial-gradient(circle at 8% 0%, rgba(31,214,95,.08), transparent 28%), linear-gradient(145deg, rgba(18, 24, 34, 0.97), rgba(8, 12, 19, 0.98));
+                background: radial-gradient(ellipse at 0% 0%, #1fd65f0c, transparent 55%), linear-gradient(135deg, #ffffff06, #ffffff01), #101619c9;
+                backdrop-filter: blur(18px);
                 box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045), 0 14px 38px rgba(0, 0, 0, 0.24);
                 position: relative;
                 overflow: hidden;
@@ -249,12 +256,13 @@ function Cases(props) {
 
               .cases {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(205px, 1fr));
-                gap: 15px;
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: 18px;
               }
 
               .inputs {
-                display: flex;
+                display: grid;
+                grid-template-columns: minmax(160px, 1fr) 124px 124px 170px auto;
                 gap: 10px;
                 align-items: center;
                 position: relative;
@@ -262,15 +270,15 @@ function Cases(props) {
               }
 
               .number-container {
-                width: 132px;
-                height: 36px;
+                min-width: 0;
+                height: 44px;
 
                 display: flex;
                 align-items: center;
                 gap: 10px;
                 padding: 0 12px;
 
-                border-radius: 5px;
+                border-radius: 8px;
                 border: 1px solid rgba(255, 255, 255, 0.05);
                 background: rgba(5, 8, 13, 0.55);
                 box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
@@ -280,7 +288,7 @@ function Cases(props) {
               .number-container:focus-within, .search-container:focus-within {
                 border-color: rgba(31, 214, 95, 0.42);
                 background: rgba(8, 13, 20, 0.78);
-                box-shadow: 0 0 0 2px rgba(31, 214, 95, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+                box-shadow: none;
               }
 
               .number {
@@ -305,10 +313,10 @@ function Cases(props) {
 
               .search-container {
                 flex: 1;
-                min-width: 220px;
-                height: 38px;
+                min-width: 0;
+                height: 44px;
 
-                border-radius: 5px;
+                border-radius: 8px;
                 border: 1px solid rgba(255, 255, 255, 0.05);
                 background: rgba(5, 8, 13, 0.55);
                 box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
@@ -321,6 +329,7 @@ function Cases(props) {
 
               .search-button {
                 width: 38px;
+                flex-shrink: 0;
                 display: grid;
                 place-items: center;
                 border-radius: 0px 5px 5px 0px;
@@ -328,8 +337,9 @@ function Cases(props) {
               }
 
               .sort-by {
-                width: 160px;
-                height: 36px;
+                width: 100%;
+                height: 44px;
+                white-space: nowrap;
 
                 font-family: Geogrotesque Wide;
                 color: #8b92a0;
@@ -343,9 +353,9 @@ function Cases(props) {
                 align-items: center;
                 justify-content: center;
 
-                border-radius: 5px;
+                border-radius: 8px;
                 border: 1px solid rgba(255, 255, 255, 0.045);
-                background: linear-gradient(180deg, #2b3340, #202632);
+                background: linear-gradient(180deg, #ffffff0d, #ffffff03);
                 box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045), 0 1px 0 rgba(0, 0, 0, 0.45);
                 cursor: pointer;
 
@@ -381,7 +391,7 @@ function Cases(props) {
                 justify-content: center;
                 gap: 12px;
                 border: 1px dashed rgba(255,255,255,.09);
-                border-radius: 10px;
+                border-radius: 14px;
                 background: rgba(12,16,24,.52);
                 color: #dce3ec;
               }
@@ -407,6 +417,11 @@ function Cases(props) {
                 margin-top: -2px;
               }
 
+              @media only screen and (max-width: 1200px) {
+                .inputs { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 180px auto; }
+                .search-container { grid-column: 1 / -1; }
+              }
+
               @media only screen and (max-width: 830px) {
                 .small {
                   display: none;
@@ -427,17 +442,19 @@ function Cases(props) {
               }
 
               @media only screen and (max-width: 560px) {
-                .sort-by {
-                  display: none;
-                }
-
-                .filter-heading { align-items: flex-start; }
+                .inputs { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+                .sort-by { grid-column: 1 / -1; }
+                .filter-heading { align-items: flex-start; flex-wrap: wrap; gap: 12px; }
                 .title-wrap h1 { font-size: 17px; }
                 .options { height: 34px; }
                 .option { padding: 0 9px; font-size: 9px; }
                 .result-count { display: none; }
-                .cases { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+                .cases { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
               }
+              .reset-filters { margin-top:12px; border:1px solid #1fd65f44; background:#1fd65f12; color:#78efa0; border-radius:8px; padding:9px 14px; font:inherit; cursor:pointer; }
+              .empty-state { padding:24px; box-sizing:border-box; }
+              .eyebrow,.result-count { color:#929ea6; }
+              @media(max-width:360px) { .cases { grid-template-columns:minmax(0,1fr); } }
             `}</style>
         </>
     );

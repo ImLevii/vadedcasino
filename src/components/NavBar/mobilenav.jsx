@@ -103,7 +103,7 @@ function BottomNavBar(props) {
                     </div>
                 </button>
 
-                <button class='button' onClick={() => props.setChat(!props.chat)}>
+                <button class='button' type='button' aria-label={props.chat ? 'Close chat' : 'Open chat'} aria-expanded={props.chat} aria-controls='site-chat' onClick={() => props.setChat(!props.chat)}>
                     <svg width="17" height="17" viewBox="0 0 17 17" fill="#8b92a0" xmlns="http://www.w3.org/2000/svg">
                         <g id="Group">
                             <g id="Group_2">

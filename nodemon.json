@@ -1,6 +1,8 @@
 {
   "watch": [
     "app.js",
+    ".env",
+    ".env.local",
     "routes",
     "socketio",
     "discord",
@@ -16,6 +18,6 @@
     "public",
     "dist"
   ],
-  "ext": "js,json",
+  "ext": "js,json,env,local",
   "delay": 500
 }

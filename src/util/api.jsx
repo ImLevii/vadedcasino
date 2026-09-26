@@ -8,7 +8,7 @@ export const dropdowns = []
 const ACCENT = {
     success: { color: '#1fd65f', rgb: '31,214,95',   label: 'SUCCESS' },
     error:   { color: '#e74c3c', rgb: '231,76,60',   label: 'ERROR'   },
-    info:    { color: '#5865f2', rgb: '88,101,242',  label: 'INFO'    },
+    info:    { color: '#1fd65f', rgb: '31,214,95',  label: 'INFO'    },
 }
 
 function ToastIcon(props) {
@@ -91,7 +91,16 @@ function resolveBaseUrl() {
     return configured.endsWith('/') ? configured.slice(0, -1) : configured
 }
 
+const pendingWrites = new Set()
+const nextWriteAt = new Map()
+
 export async function api(path, method, body, notification = false, headers =  { 'Content-Type': 'application/json' }, timeout = 10000) {
+    const writeKey = method?.toUpperCase() === 'POST' ? normalizePath(path) : null
+    if (writeKey && (pendingWrites.has(writeKey) || Date.now() < (nextWriteAt.get(writeKey) || 0))) {
+        if (notification) showToast('error', errors.SLOW_DOWN)
+        return { error: 'SLOW_DOWN' }
+    }
+    if (writeKey) { pendingWrites.add(writeKey); nextWriteAt.set(writeKey, Date.now() + 350) }
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), timeout)
 
@@ -131,11 +140,14 @@ export async function api(path, method, body, notification = false, headers =  {
             showToast('error', e.name === 'AbortError' ? 'The server took too long to respond.' : 'Unable to reach the server.')
         }
         return null
+    } finally {
+        clearTimeout(timeoutId)
+        if (writeKey) { pendingWrites.delete(writeKey); nextWriteAt.set(writeKey, Date.now() + 350) }
     }
 }
 
-export async function authedAPI(path, method, body, notification = false) {
-    return await api(path, method, body, notification, { 'Authorization': getJWT(), 'Content-Type': 'application/json' })
+export async function authedAPI(path, method, body, notification = false, timeout = 10000) {
+    return await api(path, method, body, notification, { 'Authorization': getJWT(), 'Content-Type': 'application/json' }, timeout)
 }
 
 export async function fetchUser() {

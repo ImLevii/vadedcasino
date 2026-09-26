@@ -30,11 +30,11 @@ function CrashPlayerList(props) {
           }>
             <For each={props.bets || []}>
             {(bet) => {
-              const state = getBetState(bet);
-              const isCurrentUser = bet.user?.id === props.userId;
+              const state = () => getBetState(bet);
+              const isCurrentUser = () => String(bet.user?.id) === String(props.userId);
 
               return (
-                <div class={'player-row ' + state + (isCurrentUser ? ' current-user' : '')}>
+                <div class={'player-row ' + state() + (isCurrentUser() ? ' current-user' : '')}>
                   <div class='player-info'>
                     <Avatar id={bet.user?.id} xp={bet.user?.xp || 0} height={28} />
                     <div class='player-name'>
@@ -49,9 +49,9 @@ function CrashPlayerList(props) {
                     </Show>
                     <div class='payout'>
                       <img src='/assets/chips/chip-green.png' height='15' width='15' alt='' />
-                      <p class={state === 'won' ? 'green' : state === 'lost' ? 'red' : 'muted'}>
-                        {state === 'won' && '+'}
-                        {state === 'lost' && '-'}
+                      <p class={state() === 'won' ? 'green' : state() === 'lost' ? 'red' : 'muted'}>
+                        {state() === 'won' && '+'}
+                        {state() === 'lost' && '-'}
                         {(bet.winnings || bet.amount || 0).toFixed(2)}
                       </p>
                     </div>
@@ -222,6 +222,7 @@ function CrashPlayerList(props) {
             min-width: unset;
           }
         }
+        .crash-player-list { background:#181a20; border:0; border-radius:6px; }
       `}</style>
     </>
   );

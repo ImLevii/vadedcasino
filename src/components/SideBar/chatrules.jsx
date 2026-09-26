@@ -86,21 +86,21 @@ function ChatRules() {
                 height: 9px;
 
                 top: 1px;
-                background: #201B3D;
+                background: #1c221f;
                 position: absolute;
                 left: 0;
 
-                border-left: 1px solid #2D2654;
-                border-right: 1px solid #2D2654;
-                border-top: 1px solid #2D2654;
+                border-left: 1px solid #282e2b;
+                border-right: 1px solid #282e2b;
+                border-top: 1px solid #282e2b;
 
                 clip-path: polygon(100% 100%, 0% 0%, 0% 100%);
               }
 
               .dropdown-container {
                 padding: 15px 10px;
-                border: 1px solid #2D2654;
-                background: #201B3D;
+                border: 1px solid #282e2b;
+                background: #1c221f;
                 margin-top: 9px;
 
                 font-family: 'Geogrotesque Wide';

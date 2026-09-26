@@ -89,7 +89,20 @@ function socketLogin(socket, token) {
 
 io.on('connection', function(socket) {
 
-    socket.on('auth', function(token) {
+    function onEvent(event, handler) {
+        socket.on(event, (...args) => {
+            Promise.resolve().then(() => handler(...args)).catch(error => {
+                console.error(`[socket] ${event} failed:`, error.message);
+                if (event === 'chat:join') {
+                    socket.emit('chat:join', { error: 'SERVICE_UNAVAILABLE' });
+                } else {
+                    socket.emit('toast', 'error', 'Service temporarily unavailable. Please try again.');
+                }
+            });
+        });
+    }
+
+    onEvent('auth', function(token) {
         
         if (!token) {
             const cookieHeader = socket.handshake.headers.cookie;
@@ -109,11 +122,11 @@ io.on('connection', function(socket) {
         }
 
         socketLogin(socket, token);
-        if (first) newSocket(socket);
+        if (first) return newSocket(socket);
 
     });
 
-    socket.on('bets:subscribe', async (type) => {
+    onEvent('bets:subscribe', async (type) => {
 
         const bets = await getBets(type, socket.userId);
         if (!bets) return;
@@ -162,10 +175,10 @@ io.on('connection', function(socket) {
         socket.leave('coinflips');
     });
 
-    socket.on('battles:subscribe', (battleId, privKey) => {
+    onEvent('battles:subscribe', (battleId, privKey) => {
 
         if (battleId) {
-            subscribeToBattle(socket, battleId, privKey)
+            return subscribeToBattle(socket, battleId, privKey);
         } else {
             socket.join('battles');
 
@@ -308,13 +321,13 @@ io.on('connection', function(socket) {
         socket.leave('crash');
     });
 
-    socket.on('chat:join', (channel) => {
+    onEvent('chat:join', (channel) => {
 
-        joinChat(socket, channel);
+        return joinChat(socket, channel);
 
     });
 
-    socket.on('chat:sendMessage', (message, replyTo = null) => sendMessage(socket, message, replyTo));
+    onEvent('chat:sendMessage', (message, replyTo = null) => sendMessage(socket, message, replyTo));
 
 });
 

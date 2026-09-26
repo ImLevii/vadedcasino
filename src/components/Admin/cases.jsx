@@ -185,10 +185,11 @@ const EMPTY_ITEM_RANGE = {
 function AdminCases() {
 
     const [resource, { mutate, refetch }] = createResource(fetchCases);
-  const [catalogResource] = createResource(fetchCatalog);
+  const [catalogResource, {refetch: refetchCatalog}] = createResource(fetchCatalog);
 
     const [cases, setCases] = createSignal([]);
     const [caseQuery, setCaseQuery] = createSignal('');
+    const [editorTab, setEditorTab] = createSignal('drops');
     const [selectedId, setSelectedId] = createSignal(null);
     const [detailLoading, setDetailLoading] = createSignal(false);
 
@@ -209,7 +210,11 @@ function AdminCases() {
 
     const [activeVersionId, setActiveVersionId] = createSignal(null);
     const [versions, setVersions] = createSignal([]);
-    const [stats, setStats] = createSignal({ expectedValue: 0, houseEdge: 0 });
+    const stats = createMemo(() => {
+      const expectedValue = items().reduce((sum,item) => sum + toNumber(item.price) * getItemChancePercent(item,mode()) / 100,0);
+      const casePrice = toNumber(price()) || expectedValue;
+      return {expectedValue,houseEdge:casePrice>0?(1-expectedValue/casePrice)*100:0};
+    });
 
     const [saving, setSaving] = createSignal(false);
     const [uploadingCaseImage, setUploadingCaseImage] = createSignal(false);
@@ -335,8 +340,9 @@ function AdminCases() {
         completeItems,
         isComplete: currentItems.length > 0 && completeItems === currentItems.length,
         isChanceValid: mode() === 'percentages'
-          ? Math.abs(totalPercent - 100) <= 0.01
-          : totalTickets === MAX_TICKETS
+          ? Math.abs(totalPercent - 100) <= 0.01 && currentItems.every(item => toNumber(item.percentage) > 0 && toNumber(item.percentage) <= 100)
+          : totalTickets === MAX_TICKETS && [...currentItems].sort((a,b)=>Number(a.rangeFrom)-Number(b.rangeFrom)).every((item,index,list)=>
+              Number.isInteger(Number(item.rangeFrom)) && Number.isInteger(Number(item.rangeTo)) && Number(item.rangeTo) >= Number(item.rangeFrom) && Number(item.rangeFrom) === (index ? Number(list[index-1].rangeTo)+1 : 1))
       };
     });
 
@@ -346,7 +352,8 @@ function AdminCases() {
       if (!slug().trim()) missing.push('slug');
       if (!items().length) missing.push('items');
       if (items().length && !chanceSummary().isComplete) missing.push('complete item names/prices');
-      if (items().length && !chanceSummary().isChanceValid) missing.push(mode() === 'percentages' ? '100% chance total' : '100000 tickets');
+      if (price() && toNumber(price()) <= 0) missing.push('positive price');
+      if (items().length && !chanceSummary().isChanceValid) missing.push(mode() === 'percentages' ? '100% chance total' : 'continuous ticket ranges (1-100000)');
 
       return {
         missing,
@@ -385,6 +392,7 @@ function AdminCases() {
 
     function resetForm() {
         setSelectedId(null);
+        setEditorTab('drops');
         setName('');
         setSlug('');
         setImg('');
@@ -393,10 +401,10 @@ function AdminCases() {
           setItems([]);
         setActiveVersionId(null);
         setVersions([]);
-        setStats({ expectedValue: 0, houseEdge: 0 });
     }
 
     function addItem() {
+        if (items().length >= 20) return createNotification('error', 'You can select up to 20 items.');
         setItems((prev) => [...prev, { ...EMPTY_ITEM_RANGE }]);
     }
 
@@ -406,6 +414,20 @@ function AdminCases() {
 
     function setItemValue(index, key, value) {
         setItems((prev) => prev.map((item, i) => i === index ? { ...item, [key]: value } : item));
+    }
+
+    function changeMode(next) {
+      if (next===mode()) return;
+      if (next==='percentages') {
+        setItems(prev=>prev.map(item=>({...item,percentage:String(getItemChancePercent(item,'ranges'))})));
+      } else if (items().length && chanceSummary().isChanceValid) {
+        const weighted=items().map((item,index)=>({item,index,tickets:Math.floor(toNumber(item.percentage)*1000),fraction:toNumber(item.percentage)*1000%1}));
+        let remaining=MAX_TICKETS-weighted.reduce((sum,entry)=>sum+entry.tickets,0);
+        for(const entry of [...weighted].sort((a,b)=>b.fraction-a.fraction)) { if(remaining>0){entry.tickets++;remaining--;} }
+        let cursor=1;
+        setItems(weighted.map(({item,tickets})=>{const result={...item,rangeFrom:String(cursor),rangeTo:String(cursor+tickets-1)};cursor+=tickets;return result;}));
+      }
+      setMode(next);
     }
 
     function distributeChances() {
@@ -487,13 +509,13 @@ function AdminCases() {
         const active = data.activeVersion;
 
         setSelectedId(data.id);
+        setEditorTab('drops');
         setName(data.name || '');
         setSlug(data.slug || '');
         setImg(data.img || '');
         setPrice(active?.price?.toString?.() || '');
         setActiveVersionId(active?.id || null);
         setVersions(data.versions || []);
-        setStats(data.stats || { expectedValue: 0, houseEdge: 0 });
 
         const mappedItems = (active?.items || []).map((item) => ({
             itemId: item.itemId || '',
@@ -595,6 +617,8 @@ function AdminCases() {
     }
 
     async function saveCase() {
+        if (saving()) return;
+        if (!editorStatus().ready) return createNotification('error', `Check ${editorStatus().missing.join(', ')} before saving.`);
         if (!name().trim()) return createNotification('error', 'Case name is required.');
         if (!slug().trim()) return createNotification('error', 'Slug is required.');
 
@@ -621,6 +645,8 @@ function AdminCases() {
     }
 
     async function createVersion() {
+        if (saving()) return;
+        if (!editorStatus().ready) return createNotification('error', `Check ${editorStatus().missing.join(', ')} before saving.`);
         if (!selectedId()) return createNotification('error', 'Select a case first.');
 
         setSaving(true);
@@ -652,13 +678,17 @@ function AdminCases() {
 
     return (
         <>
-            {(resource()?.mfa || needsMfa()) && <AdminMFA refetch={refetch} />}
+            {(resource()?.mfa || needsMfa()) && <AdminMFA refetch={async () => {
+              setNeedsMfa(false);
+              await Promise.all([refetch(), refetchCatalog()]);
+            }} />}
 
+            <header class='cases-heading'><div><span class='eyebrow'>CASE MANAGEMENT</span><h1>Case library</h1><p>Manage artwork, pricing and item drop chances.</p></div><div class='library-count'><strong>{cases().length}</strong><span>Cases in library</span></div></header>
             <div class='admin-cases'>
                 <div class='cases-list card'>
                     <div class='row between'>
-                        <p class='title'>CASES</p>
-                        <button class='btn gray' onClick={resetForm}>NEW</button>
+                        <p class='title'>YOUR CASES</p>
+                        <button class='btn green' onClick={resetForm}>+ New case</button>
                     </div>
 
                     <input
@@ -682,6 +712,7 @@ function AdminCases() {
                                         class={`case-row ${selectedId() === entry.id ? 'active' : ''}`}
                                         onClick={() => loadCase(entry.id)}
                                     >
+                                        <img class='case-thumb' src={resolvePreviewSrc(entry.img)} alt=''/>
                                         <div class='left'>
                                             <p>{entry.name}</p>
                                             <span>#{entry.id} • {entry.slug}</span>
@@ -701,13 +732,13 @@ function AdminCases() {
                 <div class='case-editor card'>
                     <Show when={!detailLoading()} fallback={<Loader />}>
                         <div class='row between'>
-                            <p class='title'>{isEditing() ? 'EDIT CASE' : 'CREATE CASE'}</p>
+                            <div class='editor-heading'><span class='eyebrow'>{isEditing() ? 'EDIT CASE' : 'NEW CASE'}</span><h2>{name() || 'Create a case'}</h2></div>
                             <div class='row'>
-                                <button class='btn green' disabled={saving()} onClick={saveCase}>
-                                    {saving() ? 'SAVING...' : 'SAVE'}
+                                <button class='btn green save-case' disabled={saving() || !editorStatus().ready} onClick={saveCase}>
+                                    {saving() ? 'Saving...' : 'Save case'}
                                 </button>
                                 <Show when={isEditing()}>
-                                    <button class='btn purple' disabled={saving()} onClick={createVersion}>NEW VERSION</button>
+                                    <button class='btn purple' disabled={saving() || !editorStatus().ready} onClick={createVersion}>NEW VERSION</button>
                                     <button class='btn red' disabled={saving()} onClick={deleteCase}>DELETE</button>
                                 </Show>
                             </div>
@@ -766,7 +797,9 @@ function AdminCases() {
                           <strong>{formatPercent(chanceSummary().totalPercent)}%</strong>
                         </div>
 
-                        <div class='items-head'>
+                        <nav class='editor-tabs' aria-label='Case editor sections'><button classList={{active:editorTab()==='drops'}} onClick={()=>setEditorTab('drops')}>Drop table <span>{items().length}</span></button><button classList={{active:editorTab()==='catalog'}} onClick={()=>setEditorTab('catalog')}>Add catalog items <span>{catalogStats().total.toLocaleString()}</span></button></nav>
+                        <div class='drop-controls' classList={{hidden:editorTab()!=='drops'}}><div class='row'><button class={`btn sm ${mode()==='percentages'?'green':'gray'}`} onClick={()=>changeMode('percentages')}>Percentages</button><button class={`btn sm ${mode()==='ranges'?'green':'gray'}`} onClick={()=>changeMode('ranges')}>Ticket ranges</button></div><div class='row'><button class='btn sm gray' onClick={distributeChances}>Equal chances</button><button class='btn sm green' disabled={items().length>=20} onClick={addItem}>+ Custom item</button></div></div>
+                        <div class='items-head' classList={{hidden:editorTab()!=='catalog'}}>
                           <div class='row between items-toolbar'>
                             <div>
                               <p class='title small'>SELECT UP TO 20 ITEMS</p>
@@ -800,8 +833,8 @@ function AdminCases() {
                                   </button>
                                 )}</For>
                               </div>
-                              <button class={`btn sm ${mode() === 'percentages' ? 'green' : 'gray'}`} onClick={() => setMode('percentages')}>TICKETS</button>
-                              <button class={`btn sm ${mode() === 'ranges' ? 'green' : 'gray'}`} onClick={() => setMode('ranges')}>RANGES</button>
+                              <button class={`btn sm ${mode() === 'percentages' ? 'green' : 'gray'}`} onClick={() => changeMode('percentages')}>PERCENTAGES</button>
+                              <button class={`btn sm ${mode() === 'ranges' ? 'green' : 'gray'}`} onClick={() => changeMode('ranges')}>RANGES</button>
                               <button class='btn sm purple' onClick={distributeChances}>DISTRIBUTE</button>
                               <button class='btn sm gray' onClick={addItem}>+ ITEM</button>
                             </div>
@@ -940,56 +973,20 @@ function AdminCases() {
                           </div>
                         </div>
 
-                        <div class='items-grid'>
-                          <Show when={items().length} fallback={(
-                            <div class='empty-editor-state'>
-                              <p>No selected items</p>
-                              <span>Add items from the catalog or use + ITEM for a custom item.</span>
-                            </div>
-                          )}>
-                          <For each={items()}>{(item, index) => (
-                            <div class='item-card'>
-                              <div class='row between'>
-                                <p class='item-title'>ITEM #{index() + 1}</p>
-                                <button class='btn sm red' onClick={() => removeItem(index())}>REMOVE</button>
+                        <div class='items-grid' classList={{hidden:editorTab()!=='drops'}}>
+                          <Show when={items().length} fallback={<div class='empty-editor-state'><p>Build your drop table</p><span>Choose up to 20 items and assign their chances.</span><button class='btn green' onClick={()=>setEditorTab('catalog')}>Browse item catalog</button></div>}>
+                            <For each={items()}>{(item,index)=><article class='drop-card'>
+                              <div class='drop-main'><img class='drop-art' src={resolvePreviewSrc(item.img)} alt='' loading='lazy'/><div class='drop-name'><strong>{item.name || `Item #${index()+1}`}</strong><span>{formatPrice(item.price)} coins</span></div>
+                                <div class='drop-odds'><Show when={mode()==='ranges'} fallback={<label>Chance %<input type='number' min='.001' max='100' step='.001' aria-label={`Chance for ${item.name || index()+1}`} value={item.percentage} onInput={e=>setItemValue(index(),'percentage',e.target.value)}/></label>}><label>From<input type='number' min='1' max='100000' aria-label={`First ticket for ${item.name || index()+1}`} value={item.rangeFrom} onInput={e=>setItemValue(index(),'rangeFrom',e.target.value)}/></label><label>To<input type='number' min='1' max='100000' aria-label={`Last ticket for ${item.name || index()+1}`} value={item.rangeTo} onInput={e=>setItemValue(index(),'rangeTo',e.target.value)}/></label></Show></div>
+                                <button class='btn sm red' aria-label={`Remove ${item.name || 'item'}`} onClick={()=>removeItem(index())}>&times;</button>
                               </div>
-
-                              <div class='item-card-grid'>
-                                <div class='item-card-media'>
-                                  <ImageUploadBox
-                                    previewPath={item.img}
-                                    uploading={uploadingItemIndex() === index()}
-                                    onFile={(file) => uploadItemImage(index(), file)}
-                                  />
-                                </div>
-
-                                <div class='item-card-fields'>
-                                  <input value={item.name} onInput={(e) => setItemValue(index(), 'name', e.target.value)} placeholder='Item name' />
-                                  <input value={item.itemId} onInput={(e) => setItemValue(index(), 'itemId', e.target.value)} placeholder='Item ID (optional)' />
-                                  <input value={item.img} onInput={(e) => setItemValue(index(), 'img', e.target.value)} placeholder='Image URL / path' />
-                                  <input value={item.price} onInput={(e) => setItemValue(index(), 'price', e.target.value)} placeholder='Price' />
-
-                                  <Show when={mode() === 'ranges'} fallback={
-                                    <input value={item.percentage} onInput={(e) => setItemValue(index(), 'percentage', e.target.value)} placeholder='Chance %' />
-                                  }>
-                                    <div class='chance-inputs'>
-                                      <input value={item.rangeFrom} onInput={(e) => setItemValue(index(), 'rangeFrom', e.target.value)} placeholder='Tickets from' />
-                                      <input value={item.rangeTo} onInput={(e) => setItemValue(index(), 'rangeTo', e.target.value)} placeholder='Tickets to' />
-                                    </div>
-                                  </Show>
-
-                                  <div class='chance-preview'>
-                                    <span>Chance</span>
-                                    <strong>{buildChanceLabel(item, mode())}</strong>
-                                  </div>
-
-                                  <Show when={uploadingItemIndex() === index()}>
-                                    <small class='helper'>Uploading item image...</small>
-                                  </Show>
-                                </div>
-                              </div>
-                            </div>
-                          )}</For>
+                              <div class='odds-track'><span style={{width:`${Math.min(100,Math.max(0,getItemChancePercent(item,mode())))}%`}}/></div>
+                              <details class='drop-details'><summary><span>Edit item details</span><strong>{buildChanceLabel(item,mode())}</strong></summary><div class='drop-fields'>
+                                <label>Item name<input value={item.name} onInput={e=>setItemValue(index(),'name',e.target.value)}/></label><label>Item ID<input value={item.itemId} onInput={e=>setItemValue(index(),'itemId',e.target.value)}/></label>
+                                <label>Image path / URL<input value={item.img} onInput={e=>setItemValue(index(),'img',e.target.value)}/></label><label>Item value<input type='number' min='.01' step='.01' value={item.price} onInput={e=>setItemValue(index(),'price',e.target.value)}/></label>
+                                <ImageUploadBox previewPath={item.img} uploading={uploadingItemIndex()===index()} onFile={file=>uploadItemImage(index(),file)}/>
+                              </div></details>
+                            </article>}</For>
                           </Show>
                         </div>
 
@@ -1074,8 +1071,8 @@ function AdminCases() {
               }
 
               .btn.purple {
-                border-color: rgba(132,126,193,0.35);
-                color: #837ec1;
+                border-color: rgba(166, 184, 173,0.35);
+                color: #a6b8ad;
               }
 
               .btn.red {
@@ -1848,6 +1845,22 @@ function AdminCases() {
                   grid-template-columns: 1fr 1fr;
                 }
               }
+
+              .cases-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:22px; margin-bottom:18px; border:1px solid #253b30; border-radius:12px; background:radial-gradient(ellipse at top left,#193a27,#111820 65%); }
+              .eyebrow { font-size:10px; letter-spacing:.12em; color:#48db7a; font-weight:800; } h1 { margin:5px 0 7px; font-size:26px; color:#f4fff7; } .cases-heading p { color:#94a69b; font-size:12px; } .library-count { text-align:right; display:flex; flex-direction:column; gap:4px; } .library-count strong { font-size:28px; color:#1fd65f; } .library-count span { font-size:11px; color:#a4b4ac; }
+              .admin-cases { grid-template-columns:300px minmax(0,1fr); gap:18px; min-width:0; } .card { min-width:0; padding:18px; background:#11171e; border-color:#27313b; }
+              .cases-list { position:sticky; top:12px; } .case-items { max-height:650px; overscroll-behavior:contain; } .case-row { align-items:center; padding:10px 8px; flex-shrink:0; background:#171f27; } .case-thumb { width:44px; height:44px; object-fit:contain; flex-shrink:0; } .case-row .left { flex:1; min-width:0; } .case-row .left p { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; } .case-row .left span { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:9px; } .case-row .right { flex-shrink:0; }
+              .row { flex-wrap:wrap; } .editor-heading { min-width:0; } .editor-heading h2 { margin:5px 0; font-size:19px; color:#eef9f2; overflow-wrap:anywhere; } .btn { flex-shrink:0; } .btn:disabled { opacity:.4; cursor:not-allowed; } .btn.green.save-case { background:#1fd65f; color:#05240f; } .btn.purple { color:#bdc9bf; border-color:#3b5142; }
+              .form-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin:20px 0; } .field { min-width:0; } .field input { min-width:0; width:100%; height:40px; background:#0b1117; } .field label { color:#91a297; font-size:10px; }
+              .stat-row { display:flex; flex-wrap:wrap; gap:12px; margin:14px 0; } .stat-row p { flex:1; min-width:150px; padding:14px; border:1px solid #28352e; border-radius:8px; background:#17221c; font-size:11px; color:#9eafa4; } .stat-row span { display:block; margin-top:5px; color:#64e18e; font-size:20px; }
+              .editor-status { margin-bottom:16px; } .editor-status span { display:block; margin-top:4px; line-height:1.5; } .editor-tabs { display:flex; gap:4px; border-bottom:1px solid #2b353c; margin:22px 0 14px; } .editor-tabs button { display:flex; align-items:center; gap:8px; padding:13px 14px; border:0; border-bottom:2px solid transparent; background:none; color:#8f9eab; cursor:pointer; font:inherit; font-size:12px; font-weight:700; } .editor-tabs button.active { color:#48e480; border-bottom-color:#1fd65f; background:#1fd65f09; } .editor-tabs span { border-radius:4px; padding:2px 5px; background:#22312a; font-size:10px; }
+              .drop-controls { display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; } .hidden { display:none!important; } .drop-card { min-width:0; border:1px solid #28343c; border-radius:8px; background:#171e26; overflow:hidden; } .drop-main { display:flex; gap:12px; align-items:center; padding:12px; } .drop-art { width:58px; height:46px; object-fit:contain; flex-shrink:0; } .drop-name { flex:1; min-width:0; } .drop-name strong { display:block; color:#e5edf4; font-size:12px; line-height:1.5; overflow-wrap:anywhere; } .drop-name span { display:block; color:#60d888; font-size:11px; margin-top:4px; }
+              .drop-odds { display:flex; gap:8px; flex-shrink:0; } .drop-odds label,.drop-fields label { display:flex; flex-direction:column; gap:5px; color:#8d9da8; font-size:10px; } .drop-odds input { width:86px; height:34px; border:1px solid #34443e; border-radius:5px; background:#0d1517; padding:0 8px; color:#e6fff0; font:inherit; font-size:12px; } .odds-track { height:3px; background:#0d141a; } .odds-track span { height:100%; display:block; background:#1fd65f; }
+              .drop-details summary { display:flex; justify-content:space-between; gap:10px; padding:10px 12px; color:#7d8f9b; font-size:10px; cursor:pointer; } .drop-details summary strong { color:#9eb9a8; text-align:right; } .drop-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:12px; border-top:1px solid #2c373e; } .drop-fields input { width:100%; min-width:0; height:36px; background:#0d141b; border:1px solid #303e49; border-radius:5px; padding:0 10px; color:#dbe8ef; } .drop-fields :global(.upload-box) { grid-column:1/-1; }
+              .builder-grid { grid-template-columns:minmax(0,1fr); } .chance-panel { display:none; } .items-toolbar { flex-direction:column; align-items:stretch; } .controls-wrap { justify-content:flex-start; } .catalog-search { flex:1; min-width:160px; height:36px; } .catalog-grid { grid-template-columns:repeat(auto-fill,minmax(135px,1fr)); max-height:600px; } .catalog-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } .catalog-card { min-width:0; } .catalog-selects { width:100%; } .catalog-selects select { min-width:0; flex:1; }
+              .case-editor :global(.upload-preview img) { width:100%; height:100%; object-fit:contain; } button:focus-visible,summary:focus-visible { outline:2px solid #1fd65f; outline-offset:2px; }
+              @media(max-width:1250px) { .admin-cases { grid-template-columns:minmax(0,1fr); } .cases-list { position:static; } .case-items { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); max-height:250px; } }
+              @media(max-width:650px) { .cases-heading { padding:16px; } h1 { font-size:22px; } .library-count span { max-width:80px; } .card { padding:12px; } .case-items,.form-grid { grid-template-columns:minmax(0,1fr); } .drop-main { flex-wrap:wrap; gap:8px; } .drop-name { flex-basis:calc(100% - 75px); } .drop-odds { flex:1; } .drop-odds label { flex:1; } .drop-odds input { width:100%; min-width:0; } .drop-fields { grid-template-columns:minmax(0,1fr); } .editor-tabs button { padding:11px 8px; font-size:11px; } .catalog-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .catalog-selects { flex-wrap:wrap; } .catalog-selects select { flex-basis:40%; max-width:none; } .editor-status { align-items:flex-start; } .editor-status strong { font-size:15px; } .version-row { grid-template-columns:repeat(2,minmax(0,1fr)); } }
             `}</style>
         </>
     );

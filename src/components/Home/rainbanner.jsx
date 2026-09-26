@@ -54,7 +54,7 @@ function RainBanner(props) {
           max-width: 100%;
 
           border-radius: 8px;
-          background: linear-gradient(to left, rgba(200, 87, 226, 0.7), rgba(140, 87, 226, 0.7));
+          background: linear-gradient(to left, rgba(64, 201, 172, 0.7), rgba(31, 214, 95, 0.7));
 
           display: flex;
           flex-direction: column;
@@ -81,7 +81,7 @@ function RainBanner(props) {
           left: 1px;
           z-index: 0;
 
-          background: linear-gradient(to right, rgba(149, 84, 255, 0.2) 0%, rgba(0, 0, 0, 0.00) 40%), linear-gradient(to left, rgba(255, 74, 161, 0.2) 0%, rgba(0, 0, 0, 0.00) 40%), rgba(35, 18, 85, 0.8);
+          background: linear-gradient(to right, rgba(31, 214, 95, 0.2) 0%, rgba(0, 0, 0, 0.00) 40%), linear-gradient(to left, rgba(255, 74, 161, 0.2) 0%, rgba(0, 0, 0, 0.00) 40%), rgba(23, 29, 26, 0.8);
         }
 
         .rain-banner h1 {
@@ -137,7 +137,7 @@ function RainBanner(props) {
 
         .amount {
           border-radius: 3px;
-          background: linear-gradient(0deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.08) 100%), linear-gradient(180deg, rgba(191, 128, 255, 0.15) 0%, rgba(191, 128, 255, 0.00) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
+          background: linear-gradient(0deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.08) 100%), linear-gradient(180deg, rgba(166, 184, 173, 0.15) 0%, rgba(166, 184, 173, 0.00) 100%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
           box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.32) inset, 0px -2px 4px 0px rgba(0, 0, 0, 0.05) inset;
 
           height: 40px;
@@ -162,7 +162,7 @@ function RainBanner(props) {
         .line:not(:last-child) {
           width: 1px;
           height: 100%;
-          background: linear-gradient(180deg, rgba(77, 58, 121, 0.00) 0%, #6D53AF 50.99%, rgba(77, 58, 121, 0.00) 100%);
+          background: linear-gradient(180deg, rgba(31, 214, 95, 0.00) 0%, #1fd65f 50.99%, rgba(31, 214, 95, 0.00) 100%);
         }
         
         .rain-header {
@@ -184,8 +184,8 @@ function RainBanner(props) {
           padding: 6px 10px;
 
           border-radius: 4px;
-          border: 1px solid #7718B1;
-          background: linear-gradient(268deg, rgba(79, 37, 136, 0.55) 0.82%, rgba(97, 55, 120, 0.55) 108.47%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
+          border: 1px solid #40c9ac;
+          background: linear-gradient(268deg, rgba(31, 214, 95, 0.55) 0.82%, rgba(64, 201, 172, 0.55) 108.47%), linear-gradient(253deg, #12151c -27.53%, #1f242e 175.86%);
         }
 
         .swords {

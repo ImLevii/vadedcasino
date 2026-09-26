@@ -68,7 +68,7 @@ function GamesList() {
         <>
             <div class='games'>
                 <div class='games-header'>
-                    <svg class='cube' width="19" height="22" viewBox="0 0 19 22" fill="#B09BEC"
+                    <svg class='cube' width="19" height="22" viewBox="0 0 19 22" fill="#a6b8ad"
                          xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M0 6.7481V10.7158L3.62116 12.8067V8.6235L0.013838 6.5412C0.00470492 6.60928 0 6.67839 0 6.7481Z"/>
@@ -147,7 +147,7 @@ function GamesList() {
                 height: 45px;
 
                 border-radius: 5px;
-                background: linear-gradient(90deg, rgb(104, 100, 164) -49.01%, rgba(90, 84, 149, 0.655) -5.08%, rgba(66, 53, 121, 0) 98.28%);
+                background: linear-gradient(90deg, rgb(166, 184, 173) -49.01%, rgba(166, 184, 173, 0.655) -5.08%, rgba(31, 214, 95, 0) 98.28%);
 
                 padding: 0 15px;
                 display: flex;
@@ -223,7 +223,7 @@ function GamesList() {
                 font-weight: 800;
 
                 border-radius: 3px 3px 0 0;
-                background: #423579;
+                background: #1fd65f;
                 border: 1px solid transparent;
                 background-clip: padding-box;
 
@@ -242,7 +242,7 @@ function GamesList() {
                 height: calc(100% + 2px);
                 width: calc(100% + 2px);
                 position: absolute;
-                background: linear-gradient(to top, #382D68, #6B54CC);
+                background: linear-gradient(to top, #313734, #1fd65f);
                 z-index: -1;
                 border-radius: 3px 3px 0 0;
               }

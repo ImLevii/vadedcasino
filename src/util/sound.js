@@ -1,131 +1,163 @@
+// Source recordings are preserved unchanged. Cue offsets skip recording silence.
+export const GAME_SOUNDS = Object.freeze({
+  minesClick: '/assets/sfx/cosmic-luck-mines-click-sound.mp3',
+  rouletteClick: '/assets/sfx/cosmic-luck-roullete-click-sound.mp3',
+  rouletteRoll: '/assets/sfx/cosmic-luck-roullete-roll-sound.mp3',
+  cosmicGem: '/assets/sfx/cosmicluck-gem-sound.mp3',
+  caseRoll: '/assets/sfx/cosmicluck-roll-sound.mp3',
+});
 const audioByKey = new Map();
 const channelState = new Map();
 const lastPlayedAt = new Map();
-
-function nowMs() {
-  return Date.now();
-}
+const playbackState = new Map();
+const noop = () => {};
 
 function parseGlobalVolume() {
   if (typeof window === 'undefined') return 1;
-
   const stored = window.localStorage.getItem('sound');
+  if (stored === null) return 1;
   const numeric = Number(stored);
+  return Number.isFinite(numeric) ? Math.max(0, Math.min(1, numeric / 100)) : 1;
+}
 
-  if (!Number.isFinite(numeric)) return 1;
-  return Math.max(0, Math.min(1, numeric / 100));
+// Update existing clips immediately as well as future playback.
+export function setSFXVolume(value) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric) || typeof window === 'undefined') return;
+  window.localStorage.setItem('sound', Math.max(0, Math.min(100, numeric)));
+  syncVolume();
+}
+function syncVolume() {
+  for (const [audio, state] of playbackState) {
+    audio.volume = state.volume * state.envelope * parseGlobalVolume();
+  }
+}
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', event => { if (event.key === 'sound' || event.key === null) syncVolume(); });
 }
 
 function ensureAudio(key, src) {
-  if (!audioByKey.has(key)) {
+  const existing = audioByKey.get(key);
+  if (!existing || existing.getAttribute('src') !== src) {
+    if (existing) stopAudio(existing);
     const audio = new Audio(src);
     audio.preload = 'auto';
     audioByKey.set(key, audio);
   }
-
   return audioByKey.get(key);
 }
 
-function fadeTo(audio, target, durationMs) {
-  if (!audio || durationMs <= 0) {
-    if (audio) audio.volume = target;
-    return;
-  }
-
-  const start = audio.volume;
-  const startedAt = nowMs();
-  const stepMs = 24;
-
-  const timer = setInterval(() => {
-    const elapsed = nowMs() - startedAt;
-    const t = Math.min(1, elapsed / durationMs);
-    audio.volume = start + (target - start) * t;
-
-    if (t >= 1) {
-      clearInterval(timer);
-    }
-  }, stepMs);
+// Preload and unlock the gem recording directly from the spin gesture.
+export function prepareCosmicSFX() {
+  if (typeof window === 'undefined' || parseGlobalVolume() <= 0) return;
+  const audio = ensureAudio('cosmic-gem', GAME_SOUNDS.cosmicGem);
+  if (playbackState.has(audio)) return;
+  audio.volume = 0;
+  try {
+    audio.play()?.then(() => { if (!playbackState.has(audio)) { audio.pause(); audio.currentTime = 0; } }).catch(noop);
+  } catch { /* Browser audio may be unavailable. */ }
 }
 
-function stopAudio(audio, fadeOutMs = 0) {
-  if (!audio) return;
+export function playCosmicSFX() {
+  return playGameSFX('cosmic-gem', GAME_SOUNDS.cosmicGem, {
+    channel: 'cosmic-reveal', volume: .65, startTime: 1.92, durationMs: 1100, minIntervalMs: 200,
+  });
+}
 
-  if (fadeOutMs > 0) {
-    fadeTo(audio, 0, fadeOutMs);
-    setTimeout(() => {
-      audio.pause();
-      audio.currentTime = 0;
-    }, fadeOutMs);
-    return;
-  }
-
+function dispose(audio, state) {
+  if (playbackState.get(audio) !== state) return;
+  clearTimeout(state.timer);
+  clearInterval(state.fade);
   audio.pause();
   audio.currentTime = 0;
+  audio.onended = null;
+  playbackState.delete(audio);
+  for (const [channel, active] of channelState) if (active === audio) channelState.delete(channel);
 }
-
+function fadeTo(audio, state, target, durationMs, done = noop) {
+  clearInterval(state.fade);
+  const initial = state.envelope;
+  const startedAt = Date.now();
+  state.fade = setInterval(() => {
+    if (playbackState.get(audio) !== state) return clearInterval(state.fade);
+    const t = Math.min(1, (Date.now() - startedAt) / durationMs);
+    state.envelope = initial + (target - initial) * t;
+    audio.volume = state.volume * state.envelope * parseGlobalVolume();
+    if (t === 1) { clearInterval(state.fade); done(); }
+  }, 16);
+}
+function stopAudio(audio, fadeOutMs = 0) {
+  const state = playbackState.get(audio);
+  if (!state) return;
+  clearTimeout(state.timer);
+  if (fadeOutMs > 0) fadeTo(audio, state, 0, fadeOutMs, () => dispose(audio, state));
+  else dispose(audio, state);
+}
 export function stopSFXChannel(channel, options = {}) {
-  const active = channelState.get(channel);
-  if (!active) return;
-
-  stopAudio(active.audio, options.fadeOutMs || 0);
+  const audio = channelState.get(channel);
+  if (!audio) return;
   channelState.delete(channel);
+  stopAudio(audio, options.fadeOutMs || 0);
 }
 
-/**
- * Reset audio and play from start — ensures no overlap/drift.
- */
-function resetAndPlay(audio, volume) {
-  try {
-    audio.pause();
-    audio.currentTime = 0;
-    audio.volume = volume;
-    const playPromise = audio.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {});
-    }
-  } catch (e) {
-    // Silently fail
-  }
-}
-
+// Each play owns its timers: an old fade or cleanup cannot interrupt a new spin.
 export function playGameSFX(key, src, options = {}) {
-  if (typeof window === 'undefined') return;
-
-  const globalVolume = parseGlobalVolume();
-  if (globalVolume <= 0) return;
-
-  const minIntervalMs = options.minIntervalMs || 0;
-  const lastPlayed = lastPlayedAt.get(key) || 0;
-
-  if (minIntervalMs > 0 && nowMs() - lastPlayed < minIntervalMs) {
-    return;
-  }
-
+  if (typeof window === 'undefined' || parseGlobalVolume() <= 0) return noop;
+  const now = Date.now();
+  if (options.minIntervalMs && now - (lastPlayedAt.get(key) || 0) < options.minIntervalMs) return noop;
   const audio = ensureAudio(key, src);
-  const channel = options.channel || null;
+  const channel = options.channel;
+  const previous = channelState.get(channel);
+  if (previous && previous !== audio) stopAudio(previous, options.fadeOutMs ?? 60);
+  stopAudio(audio);
+  const state = {volume: Math.max(0, Math.min(1, options.volume ?? 1)), envelope: options.fadeInMs ? 0 : 1};
+  playbackState.set(audio, state);
+  if (channel) channelState.set(channel, audio);
+  const stop = () => dispose(audio, state);
+  try {
+    audio.currentTime = options.startTime || 0;
+    audio.volume = state.volume * state.envelope * parseGlobalVolume();
+    audio.onended = stop;
+    const started = () => {
+      if (playbackState.get(audio) !== state) return;
+      if (options.fadeInMs) fadeTo(audio, state, 1, options.fadeInMs);
+      if (options.durationMs) state.timer = setTimeout(stop, options.durationMs);
+    };
+    const promise = audio.play();
+    if (promise) promise.then(started).catch(stop);
+    else started();
+    lastPlayedAt.set(key, now);
+  } catch { stop(); }
+  return stop;
+}
 
-  if (channel) {
-    const active = channelState.get(channel);
+// Capture activation once, including SVG children and keyboard-generated clicks.
+// Capture runs before navigation or dropdown handlers stop event propagation.
+export function installUIClickSFX(root = document) {
+  const onClick = event => {
+    if (!event.isTrusted || event.button > 0) return;
+    const target = event.target;
+    if (!target?.closest || target.closest('[data-ui-sound="off"], [inert], [aria-disabled="true"]')) return;
+    const control = target.closest('button, a[href], [role="button"], summary, input[type="button"], input[type="submit"]');
+    if (!control || control.matches(':disabled')) return;
+    playGameSFX('ui-click', GAME_SOUNDS.rouletteClick, {
+      channel: 'ui-click', volume: .28, startTime: 1.35, durationMs: 90, minIntervalMs: 40,
+    });
+  };
+  root.addEventListener('click', onClick, true);
+  return () => { root.removeEventListener('click', onClick, true); stopSFXChannel('ui-click'); };
+}
 
-    if (active && active.audio && active.audio !== audio) {
-      stopAudio(active.audio, options.fadeOutMs || 60);
-    }
-
-    channelState.set(channel, { key, audio });
-  }
-
-  const localVolume = options.volume == null ? 1 : options.volume;
-  const targetVolume = Math.max(0, Math.min(1, localVolume * globalVolume));
-
-  if (options.fadeInMs && options.fadeInMs > 0) {
-    audio.volume = 0;
-    resetAndPlay(audio, 0);
-    fadeTo(audio, targetVolume, options.fadeInMs);
-  } else {
-    resetAndPlay(audio, targetVolume);
-  }
-
-  lastPlayedAt.set(key, nowMs());
+// A roll is a sequence of item crossings, not the long gem recording (the
+// supplied roll/gem MP3s contain identical bytes). Use the supplied short click.
+export function startReelSFX(channel, durationMs, bezier) {
+  let stopClick = noop;
+  const ticker = startAnimationTicker(() => {
+    stopClick = playGameSFX(channel, GAME_SOUNDS.rouletteClick, {
+      channel, volume: .42, startTime: 1.35, durationMs: 90,
+    });
+  }, durationMs, 65, bezier || [.08, .78, .16, 1]);
+  return () => { ticker.cancel(); stopClick(); };
 }
 
 /**

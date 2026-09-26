@@ -19,13 +19,13 @@
 </g>
 <defs>
 <linearGradient id="paint0_linear_5804_163093" x1="1893.48" y1="-2045.19" x2="-2295.06" y2="-1312.42" gradientUnits="userSpaceOnUse">
-<stop stop-color="#2B2853"/>
-<stop offset="1" stop-color="#423C7A"/>
+<stop stop-color="#292f2c"/>
+<stop offset="1" stop-color="#1fd65f"/>
 </linearGradient>
 <linearGradient id="paint1_linear_5804_163093" x1="-582" y1="8.99961" x2="1115.69" y2="88.8903" gradientUnits="userSpaceOnUse">
-<stop stop-color="#6864A4"/>
-<stop offset="0.298225" stop-color="#5A5495" stop-opacity="0.653301"/>
-<stop offset="1" stop-color="#423579" stop-opacity="0"/>
+<stop stop-color="#a6b8ad"/>
+<stop offset="0.298225" stop-color="#a6b8ad" stop-opacity="0.653301"/>
+<stop offset="1" stop-color="#1fd65f" stop-opacity="0"/>
 </linearGradient>
 <clipPath id="clip0_5804_163093">
 <rect width="1920" height="3001" fill="white" transform="translate(-549 -1821)"/>

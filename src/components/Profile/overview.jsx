@@ -1,3 +1,4 @@
+import {setSFXVolume} from "../../util/sound";
 import {createResource, createSignal, For, onCleanup, Show} from "solid-js";
 import {authedAPI, createNotification} from "../../util/api";
 import {useUser} from "../../contexts/usercontextprovider";
@@ -184,7 +185,7 @@ function Overview(props) {
         if (res.success) {
             let key = setting === 'sound' ? 'soundEnabled' : setting === 'visual' ? 'visualEffects' : 'notificationsEnabled'
             mutateUser({...user(), [key]: !current ? 1 : 0})
-            if (setting === 'sound') localStorage.setItem('sound', !current ? 100 : 0)
+            if (setting === 'sound') setSFXVolume(!current ? 100 : 0)
         }
     }
 

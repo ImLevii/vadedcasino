@@ -207,11 +207,17 @@ let totalWagered = false;
 async function emitTotalWagered(amountToIncrease = 0, socket = io) {
 
     if (totalWagered === false) {
-        const [[result]] = await sql.query(`
-        SELECT SUM(amount) as totalWagered FROM bets JOIN users ON bets.userId=users.id
-        WHERE bets.completed = 1 AND users.sponsorLock = 0 AND users.role = 'USER';
-        `);
-        totalWagered = result.totalWagered || 0;
+        try {
+            const [[result]] = await sql.query(`
+                SELECT SUM(amount) as totalWagered FROM bets JOIN users ON bets.userId=users.id
+                WHERE bets.completed = 1 AND users.sponsorLock = 0 AND users.role = 'USER';
+            `);
+            totalWagered = result.totalWagered || 0;
+        } catch (error) {
+            // Leave the cache unset so a later request can retry after recovery.
+            console.error('[bets] Failed to load total wagered:', error.message);
+            return null;
+        }
     }
 
     if (amountToIncrease) totalWagered += amountToIncrease;

@@ -18,19 +18,10 @@ router.use((req, res, next) => {
 });
 
 router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
-    // Only (re)hydrate crash.round when it's genuinely uninitialized (e.g. a
-    // startup race). Calling updateCrash() unconditionally here would reset
-    // the in-memory round on every bet — including forcing an actively
-    // flying round back to "not started" and restarting its bet timer,
-    // since updateCrash() unconditionally clears startedAt for any round it
-    // (re)loads. That corrupted live rounds and made betting unreliable.
+    // Only the game loop creates/reloads rounds. A request during startup
+    // must not reset a live round or invent a round with a fixed crash point.
     if (!crash.round || !crash.round.id) {
-        try {
-            await updateCrash();
-        } catch (e) {
-            console.error('[crash] Failed to update round state:', e);
-            return res.status(500).json({ error: 'INTERNAL_ERROR' });
-        }
+        return res.status(503).json({ error: 'ROUND_UNAVAILABLE' });
     }
 
     if (crash.round.startedAt) return res.json({ error: 'ALREADY_STARTED' });
@@ -61,14 +52,6 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
             const xp = roundDecimal(amount * xpMultiplier);
             await connection.query('UPDATE users SET balance = balance - ?, xp = xp + ? WHERE id = ?', [amount, xp, req.userId]);
 
-            if (!crash.round || !crash.round.id) {
-                const [newRoundResult] = await connection.query('INSERT INTO crash (serverSeed, crashPoint, createdAt) VALUES (?, ?, NOW())', [
-                    require('crypto').randomBytes(16).toString('hex'), 100.0
-                ]);
-                const [[round]] = await connection.query('SELECT * FROM crash WHERE id = ?', [newRoundResult.insertId]);
-                crash.round = round;
-            }
-
             const [crashBetResult] = await connection.query('INSERT INTO crashBets (userId, roundId, amount, autoCashoutPoint) VALUES (?, ?, ?, ?)', [user.id, crash.round.id, amount, autoCashoutPoint]);
             const [betResult] = await connection.query('INSERT INTO bets (userId, amount, edge, game, gameId, completed) VALUES (?, ?, ?, ?, ?, ?)', [user.id, amount, roundDecimal(amount * 0.075), 'crash', crashBetResult.insertId, false]);
 
@@ -98,7 +81,7 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
 
             addToPot(amount);
 
-            res.json({ success: true });
+            res.json({ success: true, roundId: crash.round.id, bet });
 
         });
 
@@ -162,7 +145,7 @@ router.post('/cashout', isAuthed, apiLimiter, async (req, res) => {
             game: 'crash'
         }]);
     
-        res.json({ success: true });
+        res.json({ success: true, cashoutPoint: currentPoint, winnings });
 
     } catch (e) {
         bet.processingCashout = false;

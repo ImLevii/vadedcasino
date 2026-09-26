@@ -31,11 +31,27 @@ const startupState = {
 
 if (process.env.NODE_ENV == 'development') {
 
+    const frontendOrigins = new Set([
+        'http://localhost:3001',
+        'http://127.0.0.1:3001',
+        ...(process.env.FRONTEND_URL ? [new URL(process.env.FRONTEND_URL).origin] : [])
+    ]);
+
     app.use((req, res, next) => {
-        res.header("Access-Control-Allow-Origin", "*");
-        res.header("Access-Control-Allow-Headers", "*");
-        res.header("Access-Control-Allow-Methods", "*");
-        res.header('Access-Control-Max-Age', '7200');
+        const origin = req.get('Origin');
+        res.vary('Origin');
+        if (frontendOrigins.has(origin)) {
+            // Credentialed requests require an explicit origin and headers.
+            res.header('Access-Control-Allow-Origin', origin);
+            res.header('Access-Control-Allow-Credentials', 'true');
+            res.header('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+            res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+            res.header('Access-Control-Max-Age', '7200');
+        } else if (req.path.startsWith('/slots/hacksaw') && origin === 'https://static-live.hacksawgaming.com') {
+            res.header('Access-Control-Allow-Origin', origin);
+            res.header('Access-Control-Allow-Headers', '*');
+            res.header('Access-Control-Allow-Methods', '*');
+        }
         next();
     });
 
@@ -180,7 +196,7 @@ if (process.env.NODE_ENV !== 'development') {
     });
 } else {
     app.get('/', (req, res) => {
-        const frontendUrl = process.env.VITE_SERVER_URL || 'http://localhost:3001';
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
         res.redirect(frontendUrl);
     });
 }
@@ -192,7 +208,6 @@ const { cacheCases, cacheDrops } = require('./routes/games/cases/functions');
 const { cacheCrash } = require('./routes/games/crash/functions');
 const { cacheCryptos } = require('./routes/trading/crypto/deposit/functions');
 const { cacheWithdrawalCoins } = require('./routes/trading/crypto/withdraw/functions');
-const { cacheJackpot } = require('./routes/games/jackpot/functions');
 const { cacheRoulette } = require('./routes/games/roulette/functions');
 const { cacheCoinflips } = require('./routes/games/coinflip/functions');
 const { cacheChannels } = require('./socketio/chat/functions');
@@ -212,7 +227,6 @@ async function start() {
         cacheCrash,
         cacheCryptos,
         cacheWithdrawalCoins,
-        cacheJackpot,
         cacheRoulette,
         cacheCoinflips,
         cacheChannels,
@@ -225,12 +239,19 @@ async function start() {
 
     const port = process.env.PORT || 3000;
     startupState.status = 'warming';
+
+    // Serve the transport immediately, but defer application connections until
+    // caches have either loaded or reached their bounded startup timeout.
+    let finishWarmup;
+    const warmupComplete = new Promise(resolve => { finishWarmup = resolve; });
+    io.use((socket, next) => {
+        warmupComplete.then(() => next()).catch(next);
+    });
+    require('./socketio');
     const serverInstance = app.listen(port, '0.0.0.0', () => {
         console.log(`Listening on 0.0.0.0:${port}`);
     });
-
-    // Load socket.io handlers (imports game modules)
-    require('./socketio');
+    io.attach(serverInstance, { cors: { origin: '*' } });
 
     // Warm up caches BEFORE accepting socket connections
     const timeoutMs = Math.max(100, Number(process.env.STARTUP_CACHE_TIMEOUT_MS) || 15000);
@@ -248,8 +269,7 @@ async function start() {
         console.log('[startup] Cache warm-up completed successfully.');
     }
 
-    // Attach socket.io AFTER cache warm-up completes
-    io.attach(serverInstance, { cors: { origin: '*' } });
+    finishWarmup();
 
 }
 

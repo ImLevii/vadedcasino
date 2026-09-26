@@ -19,6 +19,7 @@ router.use((req, res, next) => {
 
 router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
 
+    if (!roulette.round.id) return res.status(503).json({ error: 'GAME_UNAVAILABLE' });
     if (roulette.round.rolledAt) return res.json({ error: 'ALREADY_STARTED' });
     const color = req.body.color;
 
@@ -29,7 +30,7 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
     const maxBet = color == 0 ? 7500 : color === 3 ? 10000 : roulette.config.maxBet;
     const amount = roundDecimal(req.body.amount);
 
-    if (!amount || amount < 0.01) {
+    if (!Number.isFinite(amount) || amount < 0.01) {
         return res.json({ error: 'INVALID_AMOUNT' });
     } else if (amount > maxBet) {
         return res.json({ error: 'MAX_BET_ROULETTE' });
@@ -39,8 +40,16 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
 
         await doTransaction(async (connection, commit) => {
 
+            const roundId = roulette.round.id;
+            const [[activeRound]] = await connection.query('SELECT id, rolledAt, endedAt FROM roulette WHERE id = ? FOR UPDATE', [roundId]);
+            if (!activeRound || activeRound.rolledAt || activeRound.endedAt || roulette.round.rolledAt || roulette.round.id !== roundId) {
+                return res.json({ error: 'ALREADY_STARTED' });
+            }
+            // Contribution and balance debit share the same transaction and rollback.
+            const bonusPot = await addToTripleGreenBonus(connection, amount);
             const [[user]] = await connection.query('SELECT id, username, balance, xp, perms, sponsorLock, anon FROM users WHERE id = ? FOR UPDATE', [req.userId]);
 
+            if (!user) return res.status(404).json({error: 'USER_NOT_FOUND'});
             if (user.balance < amount) {
                 return res.json({ error: 'INSUFFICIENT_BALANCE' });
             }
@@ -77,9 +86,7 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
                     amount: existing.amount
                 });
 
-                if (color === 3) {
-                    await addToTripleGreenBonus(amount);
-                }
+
     
             } else {
     
@@ -102,12 +109,12 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
                 roulette.bets.push(bet);
                 io.to('roulette').emit('roulette:bets', [bet]);
 
-                if (color === 3) {
-                    await addToTripleGreenBonus(amount);
-                }
+
     
             }
     
+            roulette.tripleGreenBonusPot = bonusPot;
+            io.to('roulette').emit('roulette:tripleGreenBonus:pot', bonusPot);
             io.to(user.id).emit('balance', 'set', roundDecimal(user.balance - amount));
             res.json({ success: true });
     

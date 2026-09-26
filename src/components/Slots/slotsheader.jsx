@@ -148,7 +148,7 @@ function SlotsHeader(props) {
 
         .search input:focus {
           border-color: rgba(31, 214, 95, 0.4);
-          box-shadow: 0 0 0 3px rgba(31, 214, 95, 0.1);
+          box-shadow: inset 0 0 0 1px rgba(31, 214, 95, 0.65);
         }
 
         .search input::placeholder {

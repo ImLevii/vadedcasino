@@ -107,7 +107,7 @@ function Mines(props) {
                                 <p>BET AMOUNT</p>
                             </div>
 
-                            <div className='input-container'>
+                            <div className='input-container input-shell'>
                               <img class='chip-icon' src='/assets/chips/chip-green-clover.png' height='20' width='20' alt=''/>
                                 <input type='number' value={bet()} onInput={(e) => setBet(e.target.valueAsNumber)}
                                    placeholder='0' min='1' max='20000' disabled={game()?.active}/>
@@ -131,7 +131,7 @@ function Mines(props) {
                                 <p>AMOUNT OF MINES</p>
                             </div>
 
-                            <div className='input-container'>
+                            <div className='input-container input-shell'>
                                 <input type='number' value={mines()} onInput={(e) => setMines(e.target.valueAsNumber)}
                                    placeholder='0' min='1' max='24' disabled={game()?.active}/>
                             </div>

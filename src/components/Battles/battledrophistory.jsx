@@ -6,6 +6,7 @@ function BattleDropHistory(props) {
 
     function getRoundItem(playerId, round) {
       if (!Array.isArray(props?.wonItems) || !playerId) return null
+      if (props.state !== 'WINNERS' && round >= (props.round || 0)) return null
       return props.wonItems.find(item => item.userId === playerId && item.round === round)
     }
 
@@ -14,7 +15,7 @@ function BattleDropHistory(props) {
 
       return props.wonItems
         .filter(item => {
-          if ((props?.round || 0) > 0 && item?.round >= props?.round) return false
+          if (props.state !== 'WINNERS' && item?.round >= (props.round || 0)) return false
           return item?.userId === playerId
         })
         .reduce((sum, item) => sum + (item?.price || 0), 0)
@@ -27,7 +28,7 @@ function BattleDropHistory(props) {
     function getRarityColor(price) {
       if (price >= 250000) return '#FFB84A'
       if (price >= 50000) return '#FF5141'
-      if (price >= 10000) return '#DC5FDE'
+      if (price >= 10000) return '#40c9ac'
       if (price >= 1000) return '#4176FF'
       return '#A9B5D2'
     }
@@ -76,7 +77,7 @@ function BattleDropHistory(props) {
 
     return (
       <>
-        <div class='drop-history'>
+        <div class='drop-history' style={{ '--players': props.players?.length || 2 }}>
           <For each={props?.players || []}>{(player) => (
             <div class='player-column'>
               <div class='player-header'>
@@ -133,103 +134,84 @@ function BattleDropHistory(props) {
         </div>
 
         <style jsx>{`
+
           .drop-history {
             width: 100%;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(172px, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(var(--players),minmax(0,1fr));
+            gap: 12px;
+            padding: 16px;
+            background: #17191f;
+            border-radius: 6px;
+            box-sizing: border-box;
           }
 
           .player-column {
-            background: #111720;
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 6px;
-            overflow: hidden;
+            min-width: 0;
+            container-type: inline-size;
           }
 
           .player-header {
-            height: 36px;
+            min-height: 58px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 0 7px;
-            background: #151b26;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            gap: 8px;
+            padding: 10px;
+            background: #0e1015;
+            border: 1px solid #090b0f;
+            border-radius: 4px;
+            margin-bottom: 12px;
           }
 
           .player-header-info {
             min-width: 0;
-            flex: 1;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 6px;
+            flex-direction: column;
+            gap: 5px;
           }
 
           .player-name {
-            color: #d6deeb;
-            font-family: 'Geogrotesque Wide', sans-serif;
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 700;
-            white-space: nowrap;
+            color: #eef1f5;
             overflow: hidden;
             text-overflow: ellipsis;
+            white-space: nowrap;
           }
 
           .player-total {
             display: flex;
             align-items: center;
-            gap: 3px;
-            color: #1fd65f;
-            font-family: 'Geogrotesque Wide', sans-serif;
-            font-size: 8px;
+            gap: 4px;
+            color: #fff;
+            font-size: 10px;
             font-weight: 700;
-            white-space: nowrap;
           }
 
           .player-drops {
-            display: flex;
-            flex-direction: row;
-            gap: 6px;
-            padding: 8px;
-            overflow-x: auto;
-            overflow-y: hidden;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255,255,255,0.12) transparent;
-          }
-
-          .player-drops::-webkit-scrollbar {
-            height: 4px;
-          }
-
-          .player-drops::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.12);
-            border-radius: 999px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit,minmax(min(100%,82px),1fr));
+            align-content: start;
+            gap: 8px;
           }
 
           .drop-card {
-            width: 72px;
-            min-width: 72px;
-            height: 142px;
-            border-radius: 4px;
-            border: 1px solid rgba(255,255,255,0.06);
-            background: #202632;
-            display: flex;
-            flex-direction: column;
+            min-width: 0;
+            border-radius: 3px;
+            background: #22252d;
             overflow: hidden;
-            transition: border-color .16s ease;
+            border: 1px solid transparent;
           }
 
           .drop-card:hover {
-            border-color: var(--rarity, #A9B5D2);
+            border-color: #3c4550;
           }
 
           .drop-img-wrap {
-            margin: 6px 6px 0;
-            height: 54px;
-            border-radius: 4px;
-            border: 1px solid rgba(255,255,255,0.06);
-            background: #0f141d;
+            margin: 7px 7px 0;
+            height: 84px;
+            border-radius: 3px;
+            background: #0e1116;
             position: relative;
             display: flex;
             align-items: center;
@@ -238,118 +220,132 @@ function BattleDropHistory(props) {
 
           .drop-img {
             width: 90%;
-            max-height: 44px;
+            height: 64px;
             object-fit: contain;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.45));
+            filter: drop-shadow(0 4px 8px #0006);
           }
 
           .rarity-line {
             position: absolute;
-            left: 6px;
-            right: 6px;
+            left: 9px;
+            right: 9px;
             bottom: 7px;
             height: 2px;
-            border-radius: 999px;
-            background: var(--rarity, #A9B5D2);
-            box-shadow: 0 0 8px color-mix(in srgb, var(--rarity, #A9B5D2) 50%, transparent);
+            background: var(--rarity);
+            box-shadow: 0 0 7px var(--rarity);
           }
 
           .drop-body {
-            flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 5px 6px 6px;
+            gap: 5px;
+            padding: 10px 8px 8px;
           }
 
           .drop-ext {
-            font-family: 'Geogrotesque Wide', sans-serif;
-            font-size: 7px;
-            font-weight: 800;
+            font-size: 8px;
+            font-weight: 700;
             line-height: 1;
-            text-transform: uppercase;
-            margin-bottom: 4px;
           }
 
           .drop-name {
-            font-family: 'Geogrotesque Wide', sans-serif;
-            font-size: 8px;
-            font-weight: 700;
-            line-height: 1.2;
-            color: #edf2fb;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+            font-size: 10px;
+            font-weight: 600;
+            color: #eff1f6;
+            white-space: nowrap;
             overflow: hidden;
-            min-height: 20px;
+            text-overflow: ellipsis;
           }
 
           .drop-price {
-            margin-top: 3px;
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
             color: #1fd65f;
-            font-family: 'Geogrotesque Wide', sans-serif;
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 700;
           }
 
           .drop-meta {
-            margin-top: auto;
+            margin-top: 5px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            gap: 4px;
+            gap: 3px;
           }
 
           .meta-chip {
-            min-width: 28px;
-            height: 16px;
-            padding: 0 5px;
+            background: #15171d;
+            border: 1px solid #101218;
+            padding: 2px 5px;
+            color: #9da6b6;
             border-radius: 3px;
-            border: 1px solid rgba(255,255,255,0.08);
-            background: #181e29;
-            color: #8f98aa;
-            font-family: 'Geogrotesque Wide', sans-serif;
-            font-size: 7px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 9px;
             white-space: nowrap;
           }
 
-          .meta-chip.round {
-            min-width: 16px;
-            color: #b8c1d3;
+          .round {
+            min-width: 20px;
+            text-align: center;
           }
 
           .round-placeholder {
-            color: rgba(139,146,160,0.4);
-            font-family: 'Geogrotesque Wide', sans-serif;
-            font-size: 10px;
-            font-weight: 800;
-          }
-
-          .pending .drop-price,
-          .pending .drop-name,
-          .pending .drop-ext {
-            color: #7b8596;
+            font-size: 12px;
+            font-weight: 700;
+            color: #555d6a;
           }
 
           .pending .rarity-line {
-            opacity: .3;
+            opacity: .18;
           }
 
-          @media only screen and (max-width: 1040px) {
+          .pending .drop-price,.pending .drop-name,.pending .drop-ext {
+            color: #7d8592;
+          }
+
+          @media(max-width:1200px) {
+
             .drop-history {
-              grid-template-columns: repeat(3, minmax(0, 1fr));
+              grid-template-columns: repeat(auto-fit,minmax(min(100%,240px),1fr));
             }
           }
 
-          @media only screen and (max-width: 680px) {
+          @media(max-width:700px) {
+
             .drop-history {
-              grid-template-columns: repeat(2, minmax(0, 1fr));
+              grid-template-columns: repeat(2,minmax(0,1fr));
+              gap: 12px;
+              padding: 10px;
+            }
+
+            .player-drops {
+              gap: 5px;
+              grid-template-columns: repeat(2,minmax(0,1fr));
+            }
+
+            .drop-body {
+              padding: 8px 5px;
+            }
+
+            .drop-name {
+              font-size: 9px;
+            }
+
+            .drop-price {
+              font-size: 10px;
+            }
+
+            .meta-chip {
+              font-size: 8px;
+              padding: 2px 3px;
+            }
+
+            .drop-img-wrap {
+              margin: 4px 4px 0;
+              height: 68px;
+            }
+
+            .drop-img {
+              height: 52px;
             }
           }
         `}</style>

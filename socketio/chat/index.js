@@ -31,15 +31,16 @@ setInterval(() => {
 }, 60000);
 
 async function joinChat(socket, channel) {
+    if (typeof channel !== 'string' || !Object.hasOwn(channels, channel)) {
+        return socket.emit('chat:join', { error: 'INVALID_CHANNEL' });
+    }
         
     if (channel == 'VIP') {
 
         if (!socket.userId) return sendSystemMessage(socket, `You need to be logged in to join this room.`);
         const [[user]] = await sql.query('SELECT balance FROM users WHERE id = ?', [socket.userId]);
-        if (user?.balance < 100000) return sendSystemMessage(socket, `Only VIPs can join this room.`);
+        if (!user || user.balance < 100000) return sendSystemMessage(socket, `Only VIPs can join this room.`);
 
-    } else {
-        if (!channels[channel]) return socket.emit('chat:join', { error: 'INVALID_CHANNEL' });
     }
 
     if (socket.channel) socket.leave(socket.channel);
@@ -78,7 +79,7 @@ async function sendMessage(socket, message, replyTo) {
         const command = commands.get(commandName);
 
         try {
-            command.execute(socket, args);
+            await command.execute(socket, args);
         } catch (error) {
             console.error(error);
             sendSystemMessage(socket, 'There was an error trying to execute that command!');

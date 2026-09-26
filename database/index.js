@@ -4,7 +4,7 @@ const path = require('path');
 require('dotenv').config({ path: path.join(process.cwd(), '.env.local') });
 require('dotenv').config();
 
-const dialect = (process.env.SQL_DIALECT || 'mysql').toLowerCase();
+const dialect = (process.env.SQL_DIALECT || (process.env.DATABASE_URL ? 'postgres' : 'mysql')).toLowerCase();
 
 let pool;
 let sqliteDb;
@@ -222,7 +222,10 @@ function initSqlite() {
 }
 
 if (dialect === 'sqlite') initSqlite();
-else initMySql();
+else if (['postgres', 'postgresql', 'neon'].includes(dialect)) {
+    pool = require('./postgres').createPostgresPool(process.env.DATABASE_URL);
+} else if (dialect === 'mysql') initMySql();
+else throw new Error(`Unsupported SQL_DIALECT: ${dialect}`);
 
 // pool.on('connection', function (connection) {
 //     console.log('Connection established');
@@ -324,6 +327,7 @@ async function doTransaction(transactionLogic) {
 }
 
 module.exports = {
+    dialect,
     sql: pool,
     doTransaction
 };

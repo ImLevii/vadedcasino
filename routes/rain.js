@@ -1,6 +1,3 @@
-const axios = require('axios');
-const FormData = require('form-data');
-
 const express = require('express');
 const router = express.Router();
 
@@ -9,7 +6,6 @@ const { sql, doTransaction } = require('../database');
 
 const { isAuthed, apiLimiter } = require('./auth/functions');
 const { roundDecimal, sendLog, getUserLevel } = require('../utils');
-const { getExistingAuth } = require('../discord/auth');
 const { rains } = require('../socketio/rain');
 const { newMessage } = require('../socketio/chat/functions');
 const { enabledFeatures, checkAccountLock } = require('./admin/config');
@@ -21,48 +17,42 @@ router.use((req, res, next) => {
 
 router.post('/join', [isAuthed, apiLimiter], async (req, res) => {
 
-    const linkedDiscord = await getExistingAuth(req.userId, true);
-
-    // if (!discordClient.bloxClashGuild?.members.cache.has(linkedDiscord.user.id)) {
-    //     discordClient.bloxClashGuild?.members.add(linkedDiscord.discordId, { accessToken: linkedDiscord.token });
-    // }
-
-    const [[userWagered]] = await sql.query('SELECT SUM(amount) AS wagered FROM bets WHERE userId = ? AND completed = 1 AND createdAt > DATE_SUB(NOW(), INTERVAL 30 DAY)', [req.userId]);
-    if (userWagered.wagered < 2500) return res.status(400).json({ error: 'NOT_ENOUGH_WAGERED' });
-
-    if (enabledFeatures.rainDailyDepositRequirement) {
-        const [[lastWeekDeposits]] = await sql.query('SELECT COALESCE(SUM(amount), 0) as sum FROM transactions WHERE userId = ? AND type = ? AND createdAt > ?', [req.userId, 'deposit', new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)]);
-        if (lastWeekDeposits.sum < 200) return res.status(400).json({ error: 'INSUFFICIENT_DEPOSITS' });
-    }
-
-    // console.log(req.body);
-
-    let rain;
-
-    if (rains.system.joinable) {
-
-        // if (rains.system.users.includes(req.userId)) return res.status(400).json({ error: 'ALREADY_JOINED_RAIN' });
-        rain = rains.system;
-
-    } else if (rains.user?.joinable) {
-
-        if (rains.user.host.id == req.userId) return res.status(400).json({ error: 'CANNOT_JOIN_OWN_RAIN' });
-        rain = rains.user;
-    
-    } else {
-        return res.status(404).json({ error: 'RAIN_NOT_FOUND' });
-    }
-
-    if (rain.users.includes(req.userId)) return res.status(400).json({ error: 'ALREADY_JOINED_RAIN' });
-
-    if (enabledFeatures.rainCaptcha) {
-        const captchaResponse = req.body.captchaResponse;
-        if (!captchaResponse || typeof captchaResponse !== 'string' || captchaResponse.length < 10) {
-            return res.status(400).json({ error: 'CAPTCHA_REQUIRED' });
-        }
-    }
-
     try {
+
+        const [[userWagered]] = await sql.query('SELECT SUM(amount) AS wagered FROM bets WHERE userId = ? AND completed = 1 AND createdAt > DATE_SUB(NOW(), INTERVAL 30 DAY)', [req.userId]);
+        if (userWagered.wagered < 2500) return res.status(400).json({ error: 'NOT_ENOUGH_WAGERED' });
+
+        if (enabledFeatures.rainDailyDepositRequirement) {
+            const [[lastWeekDeposits]] = await sql.query('SELECT COALESCE(SUM(amount), 0) as sum FROM transactions WHERE userId = ? AND type = ? AND createdAt > ?', [req.userId, 'deposit', new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)]);
+            if (lastWeekDeposits.sum < 200) return res.status(400).json({ error: 'INSUFFICIENT_DEPOSITS' });
+        }
+
+        // console.log(req.body);
+
+        let rain;
+
+        if (rains.system?.joinable) {
+
+            // if (rains.system.users.includes(req.userId)) return res.status(400).json({ error: 'ALREADY_JOINED_RAIN' });
+            rain = rains.system;
+
+        } else if (rains.user?.joinable) {
+
+            if (rains.user.host.id == req.userId) return res.status(400).json({ error: 'CANNOT_JOIN_OWN_RAIN' });
+            rain = rains.user;
+    
+        } else {
+            return res.status(404).json({ error: 'RAIN_NOT_FOUND' });
+        }
+
+        if (rain.users.some(id => String(id) === String(req.userId))) return res.status(400).json({ error: 'ALREADY_JOINED_RAIN' });
+
+        if (enabledFeatures.rainCaptcha) {
+            const captchaResponse = req.body.captchaResponse;
+            if (!captchaResponse || typeof captchaResponse !== 'string' || captchaResponse.length < 10) {
+                return res.status(400).json({ error: 'CAPTCHA_REQUIRED' });
+            }
+        }
 
         await doTransaction(async (connection, commit, rollback) => {
             const [[user]] = await connection.query('SELECT id, username, sponsorLock, rainBan, accountLock, balance, verified, xp, ip FROM users WHERE id = ? FOR UPDATE', [req.userId]);

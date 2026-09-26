@@ -177,6 +177,8 @@ test('duplicate completed deposit credits exactly once', async () => {
     const {settleDeposit, usdToCoins} = loadServiceWithFakeDatabase(state);
 
     assert.equal(usdToCoins(70), 100);
+    assert.equal(usdToCoins(0.35), 0.5);
+    assert.equal(usdToCoins(1), 1.42);
 
     const event = {
         providerRef: 'provider-ref',
@@ -196,4 +198,83 @@ test('duplicate completed deposit credits exactly once', async () => {
     assert.equal(state.genericTransactions, 1);
     assert.equal(state.payment.status, 'completed');
     assert.equal(state.commits, 2);
+});
+
+test('provider references cannot be rebound through an internal reference', async () => {
+    const state = {payment: {id: 1, internalRef: 'local', providerRef: 'original', type: 'deposit', status: 'pending'}};
+    const {settleDeposit} = loadServiceWithFakeDatabase(state);
+    await assert.rejects(settleDeposit({internalRef: 'local', providerRef: 'another-payment',
+        status: 'completed', providerValue: 70, providerCurrency: 'USD'}),
+        error => error.code === 'PAYMENT_REFERENCE_MISMATCH');
+});
+
+test('small confirmed deposits preserve fractional coins and remain idempotent', async () => {
+    const state = {payment: {id: 42, providerRef: 'small', userId: '100', type: 'deposit', status: 'pending'},
+        balance: 0, genericTransactions: 0, commits: 0};
+    const {settleDeposit} = loadServiceWithFakeDatabase(state);
+    const event = {providerRef: 'small', status: 'completed', providerValue: .35, providerCurrency: 'USD'};
+    await settleDeposit(event);
+    await settleDeposit(event);
+    assert.equal(state.balance, .5);
+    assert.equal(state.genericTransactions, 1);
+});
+
+test('SkinDeck uses the Steam identity, never the internal site account ID', () => {
+    const {getSteamProfile} = require('../../routes/trading/skindeck/profile');
+    const user = {id: '987654321', steamId: '76561198027391269',
+        steamTradeUrl: 'https://steamcommunity.com/tradeoffer/new/?partner=67125541&token=test', steamApiKey: 'A'.repeat(32)};
+    assert.equal(getSteamProfile(user).steamId, user.steamId);
+    assert.equal(getSteamProfile({...user, steamId: null}).steamId, user.steamId);
+    assert.throws(() => getSteamProfile({...user, steamId: '76561198027391270'}),
+        error => error.code === 'STEAM_TRADE_ACCOUNT_MISMATCH');
+    for (const url of ['https://example.test/tradeoffer/new/?partner=1&token=test',
+        'https://steamcommunity.com/tradeoffer/new/?partner=4294967296&token=test',
+        'https://steamcommunity.com/tradeoffer/new/?partner=0&token=test']) {
+        assert.throws(() => getSteamProfile({...user, steamTradeUrl: url}), error => error.code === 'INVALID_TRADE_URL');
+    }
+});
+
+test('withdrawal timeout keeps funds reserved and emits only the actual debit', async () => {
+    const {submitWithdrawal} = require('../../routes/trading/skindeck/withdrawal');
+    const states = [], deltas = [];
+    await assert.rejects(submitWithdrawal({userId: '100', itemIds: ['one'], profile: {}, client: {
+        mode: 'live', quoteItems: async () => ({providerValue: 7, providerCurrency: 'USD', items: []}),
+        createWithdrawal: async () => {throw new Error('timeout');}
+    }}, {
+        reserveWithdrawal: async () => ({internalRef: 'ref', value: 10}), usdToCoins: () => 10,
+        settleWithdrawal: async event => {states.push(event.status);return {balanceDelta: 0};},
+        notifyBalance: delta => deltas.push(delta)
+    }), /timeout/);
+    assert.deepEqual(states, ['unknown']);
+    assert.deepEqual(deltas, [-10]);
+});
+
+test('withdrawal settlement failure after provider acceptance never refunds', async () => {
+    const {submitWithdrawal} = require('../../routes/trading/skindeck/withdrawal');
+    const states = [], deltas = [];
+    await assert.rejects(submitWithdrawal({userId: '100', client: {
+        mode: 'sandbox', quoteItems: async () => ({providerValue: 7, items: []}),
+        createWithdrawal: async () => ({status: 'completed', providerRef: 'accepted'})
+    }}, {
+        reserveWithdrawal: async () => ({internalRef: 'ref', value: 10}), usdToCoins: () => 10,
+        settleWithdrawal: async event => {states.push(event.status);if (states.length === 1) throw new Error('database offline'); return {balanceDelta: 0};},
+        notifyBalance: delta => deltas.push(delta)
+    }), /database offline/);
+    assert.deepEqual(states, ['completed', 'unknown']);
+    assert.deepEqual(deltas, [-10]);
+});
+
+test('known sandbox failure restores the debit in the client balance', async () => {
+    const {submitWithdrawal} = require('../../routes/trading/skindeck/withdrawal');
+    const states = [], deltas = [];
+    await assert.rejects(submitWithdrawal({userId: '100', client: {
+        mode: 'sandbox', quoteItems: async () => ({providerValue: 7, items: []}),
+        createWithdrawal: async () => {throw new Error('sandbox rejection');}
+    }}, {
+        reserveWithdrawal: async () => ({internalRef: 'ref', value: 10}), usdToCoins: () => 10,
+        settleWithdrawal: async event => {states.push(event.status);return {balanceDelta: 10};},
+        notifyBalance: delta => deltas.push(delta)
+    }), /sandbox rejection/);
+    assert.deepEqual(states, ['failed']);
+    assert.deepEqual(deltas, [-10, 10]);
 });

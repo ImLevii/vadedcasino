@@ -207,7 +207,7 @@ router.post('/hit', async (req, res) => {
     await doTransaction(async (connection, commit) => {
 
         const [[activeGame]] = await connection.query(`
-            SELECT actions, amount, b.nonce, ss.seed as serverSeed, cs.seed as clientSeed FROM blackjack
+            SELECT actions, amount, b.nonce, ss.seed as serverSeed, cs.seed as clientSeed FROM blackjack b
             INNER JOIN clientSeeds cs ON b.clientSeedId = cs.id
             INNER JOIN serverSeeds ss ON b.serverSeedId = ss.id
             WHERE b.endedAt IS NULL AND b.userId = ?

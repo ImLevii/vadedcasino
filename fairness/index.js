@@ -23,10 +23,10 @@ const createUserSeeds = async (userId, connection = sql) => {
     const serverSeed = generateServerSeed();
     const clientSeed = generateClientSeed();
 
-    await connection.query('INSERT INTO serverSeeds (userId, seed) VALUES (?, ?)', [userId, serverSeed]);
+    const [created] = await connection.query('INSERT INTO serverSeeds (userId, seed) VALUES (?, ?)', [userId, serverSeed]);
     await connection.query('INSERT INTO clientSeeds (userId, seed) VALUES (?, ?)', [userId, clientSeed]);
 
-    return { serverSeed, clientSeed, nonce: 0 };
+    return { serverSeedId: created.insertId, serverSeed, clientSeed, nonce: 0 };
 
 };
 

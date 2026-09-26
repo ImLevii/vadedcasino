@@ -1,12 +1,12 @@
 const io = require('../server');
 const { sql } = require('../../database');
-const channels = {};
+const channels = Object.create(null);
 
 const limit = 50;
 
 const channelsIds = ['VIP', 'EN', 'BEG', 'GR', 'TR'];
 channelsIds.forEach(channel => {
-    channels[channel] = {};
+    channels[channel] = { messages: [] };
 });
 
 async function cacheChannels() {
@@ -16,7 +16,7 @@ async function cacheChannels() {
         const [messages] = await sql.query(`
             SELECT users.username, content, users.role, users.xp, chatMessages.id, chatMessages.content, chatMessages.senderId, chatMessages.type, chatMessages.replyTo, chatMessages.createdAt FROM chatMessages
             LEFT JOIN users ON users.id = chatMessages.senderId
-            WHERE (chatMessages.channelId = ? OR chatMessages.channelId IS NULL) AND deletedAt IS NULL AND chatMessages.type != 'rain-end'
+            WHERE (chatMessages.channelId = ? OR chatMessages.channelId IS NULL) AND chatMessages.deletedAt IS NULL AND chatMessages.type != 'rain-end'
             ORDER BY chatMessages.id DESC LIMIT ?;
         `, [channel, limit]);
 

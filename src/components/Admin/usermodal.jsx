@@ -5,8 +5,42 @@ import {authedAPI, createNotification} from "../../util/api";
 import {createEffect, createSignal, Show} from "solid-js";
 import Loader from "../Loader/loader";
 import {getUserLevel, levelToXP} from "../../resources/levels";
+import {useUser} from "../../contexts/usercontextprovider";
 
 function AdminUserModal(props) {
+
+  const [currentUser] = useUser()
+  const [confirmDelete, setConfirmDelete] = createSignal(false)
+  const [confirmId, setConfirmId] = createSignal('')
+  const [deleting, setDeleting] = createSignal(false)
+  const [deleteError, setDeleteError] = createSignal('')
+  const canDelete = () => ['ADMIN', 'OWNER'].includes(currentUser()?.role)
+    && String(currentUser()?.id) !== String(props.user?.id) && props.user?.role !== 'BOT'
+  const close = () => { if (!deleting()) props.close?.() }
+
+  async function deleteAccount() {
+    if (deleting() || confirmId() !== String(props.user?.id)) return
+    setDeleting(true)
+    setDeleteError('')
+    try {
+      const result = await authedAPI(`/admin/users/${props.user.id}`, 'DELETE', JSON.stringify({confirmId: confirmId()}))
+      if (!result?.success) {
+        const messages = {
+          CANNOT_DELETE_SELF: 'You cannot delete your own account.',
+          CANNOT_DELETE_USER: 'You cannot delete an account with equal or higher permissions.',
+          USER_NOT_FOUND: 'This account no longer exists.',
+          DELETE_CONFIRMATION_REQUIRED: 'Enter the exact account ID to confirm.',
+          '2FA_REQUIRED': 'Your admin session expired. Reopen the admin page and try again.'
+        }
+        setDeleteError(messages[result?.error] || 'Account deletion failed. Please try again.')
+        return
+      }
+      createNotification('success', 'Account deleted')
+      await props.onDeleted?.()
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   createEffect(() => {
     if (!props?.user?.id) return
@@ -48,12 +82,12 @@ function AdminUserModal(props) {
 
   return (
     <>
-      <div className='modal' onClick={() => props?.close()}>
+      <div className='modal' onClick={close}>
         <div class='user-container' onClick={(e) => e.stopPropagation()}>
           <Show when={!props?.loading && props?.user?.id} fallback={<Loader/>}>
             <>
               <div className='user-header'>
-                <p className='close bevel-light' onClick={() => props?.close?.()}>X</p>
+                <p className='close bevel-light' onClick={close}>X</p>
                 <h1><img src='/assets/icons/user.svg' style={{margin: '0 8px 0 0'}}/>ADMIN SETTINGS</h1>
 
                 <div className='user-info'>
@@ -112,6 +146,31 @@ function AdminUserModal(props) {
                     <p className='green'>TOTAL PROFIT</p>
                   </div>
                 </div>
+
+                <Show when={canDelete()}>
+                  <section class='delete-account' aria-label='Delete account'>
+                    <div class='delete-heading'>
+                      <div>
+                        <h2>Delete account</h2>
+                        <p>Removes this profile and blocks sign-in. Transaction history is retained. This cannot be undone here.</p>
+                      </div>
+                      <Show when={!confirmDelete()}>
+                        <button type='button' class='delete-button' onClick={() => setConfirmDelete(true)}>Delete account</button>
+                      </Show>
+                    </div>
+                    <Show when={confirmDelete()}>
+                      <form class='delete-confirmation' onSubmit={e => { e.preventDefault(); deleteAccount() }}>
+                        <label for='delete-account-id'>Type account ID <strong>{props.user.id}</strong> to confirm</label>
+                        <input id='delete-account-id' inputMode='numeric' autocomplete='off' value={confirmId()} onInput={e => setConfirmId(e.currentTarget.value)} disabled={deleting()} />
+                        <Show when={deleteError()}><p role='alert' class='delete-error'>{deleteError()}</p></Show>
+                        <div class='delete-actions'>
+                          <button type='button' class='cancel-delete' disabled={deleting()} onClick={() => { setConfirmDelete(false); setConfirmId(''); setDeleteError('') }}>Cancel</button>
+                          <button type='submit' class='delete-button' disabled={deleting() || confirmId() !== String(props.user.id)}>{deleting() ? 'Deleting…' : 'Permanently delete account'}</button>
+                        </div>
+                      </form>
+                    </Show>
+                  </section>
+                </Show>
 
                 <div className='bar' style={{margin: '25px 0 35px 0'}}/>
 
@@ -490,6 +549,18 @@ function AdminUserModal(props) {
       </div>
 
       <style jsx>{`
+        .delete-account { margin-top: 24px; padding: 16px; border: 1px solid rgba(239,68,68,.3); border-radius: 8px; background: rgba(239,68,68,.04); }
+        .delete-heading { display: flex; align-items: center; gap: 16px; }
+        .delete-heading h2 { font-size: 15px; margin-bottom: 6px; }
+        .delete-heading p, .delete-confirmation label { font-size: 12px; line-height: 1.5; color: #adb4c0; }
+        .delete-button, .cancel-delete { min-height: 38px; padding: 8px 14px; border: 1px solid rgba(239,68,68,.5); border-radius: 6px; color: #fff; background: #a92b36; font: inherit; font-size: 12px; cursor: pointer; flex-shrink: 0; }
+        .cancel-delete { background: #252c38; border-color: #424a58; }
+        .delete-button:disabled, .cancel-delete:disabled { opacity: .45; cursor: not-allowed; }
+        .delete-confirmation { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+        .delete-confirmation input { width: 100%; height: 40px; padding: 0 12px; }
+        .delete-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+        .delete-error { color: #ff9da6; font-size: 12px; }
+        @media (max-width: 600px) { .delete-heading { align-items: flex-start; flex-direction: column; } }
         .modal {
           position: fixed;
           top: 0;
@@ -498,7 +569,7 @@ function AdminUserModal(props) {
           width: 100vw;
           height: 100vh;
 
-          background: rgba(24, 23, 47, 0.55);
+          background: rgba(22, 28, 25, 0.55);
 
           display: flex;
           align-items: center;

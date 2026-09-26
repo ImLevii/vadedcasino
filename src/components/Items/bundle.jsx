@@ -66,8 +66,8 @@ function Bundle(props) {
           z-index: 0;
           padding: 12px;
 
-          border: 1px solid #524C93;
-          background: linear-gradient(228deg, rgba(67, 64, 120, 0.65) 0%, rgba(55, 47, 104, 0.65) 100%);
+          border: 1px solid #a6b8ad;
+          background: linear-gradient(228deg, rgba(166, 184, 173, 0.65) 0%, rgba(50, 56, 53, 0.65) 100%);
           box-shadow: 0px 2px 15px 0px rgba(0, 0, 0, 0.10);
 
           cursor: pointer;
@@ -94,7 +94,7 @@ function Bundle(props) {
         }
 
         .pink {
-          background: linear-gradient(45deg, rgba(220, 95, 222, 1), rgba(220, 95, 222, 0) 70%);
+          background: linear-gradient(45deg, rgba(64, 201, 172, 1), rgba(64, 201, 172, 0) 70%);
         }
 
         .red {
@@ -110,7 +110,7 @@ function Bundle(props) {
           content: '';
           border-radius: 8px;
           z-index: -1;
-          background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(169, 181, 210, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #312C5A;
+          background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(169, 181, 210, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #2d3330;
           top: 1px;
           left: 1px;
           width: calc(100% - 2px);
@@ -118,11 +118,11 @@ function Bundle(props) {
         }
 
         .blue:before {
-          background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(65, 118, 255, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #312C5A;
+          background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(65, 118, 255, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #2d3330;
         }
 
         .pink:before {
-          background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(220, 95, 222, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #312C5A;
+          background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(64, 201, 172, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #2d3330;
         }
 
         .red:before {
@@ -130,7 +130,7 @@ function Bundle(props) {
         }
 
         .gold:before {
-          background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(252, 164, 33, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #312C5A;
+          background: radial-gradient(144.25% 102.12% at 53.73% -2.06%, rgba(252, 164, 33, 0.20) 0%, rgba(0, 0, 0, 0.00) 100%), #2d3330;
         }
 
         .items {
@@ -195,7 +195,7 @@ function Bundle(props) {
           line-height: 20px;
           
           border-radius: 6.25px 0;
-          background: linear-gradient(0deg, rgba(31, 214, 95, 0.35) 0%, rgba(31, 214, 95, 0.35) 100%), linear-gradient(130deg, rgba(86, 83, 154, 0.41) 27.25%, rgba(70, 67, 124, 0.41) 103.79%);
+          background: linear-gradient(0deg, rgba(31, 214, 95, 0.35) 0%, rgba(31, 214, 95, 0.35) 100%), linear-gradient(130deg, rgba(166, 184, 173, 0.41) 27.25%, rgba(166, 184, 173, 0.41) 103.79%);
 
           color: #1fd65f;
           font-family: "Geogrotesque Wide", sans-serif;

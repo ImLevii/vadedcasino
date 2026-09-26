@@ -23,7 +23,7 @@ function SkinDeckWithdraw() {
     const [history, {refetch: refetchHistory}] = createResource(fetchHistory);
 
     async function fetchCatalog() {
-        const response = await authedAPI('/trading/skindeck/skins', 'GET');
+        const response = await authedAPI('/trading/skindeck/skins', 'GET', undefined, true);
         return response?.items || [];
     }
 
@@ -62,26 +62,28 @@ function SkinDeckWithdraw() {
         <section class='skindeck-panel'>
             <header>
                 <div class='brand'><img src='/assets/icons/cs2-logo.svg' alt='Counter-Strike 2'/><div><span class='eyebrow'>SKINDECK INVENTORY</span><h2>Withdraw a CS2 skin</h2></div></div>
-                <span class='provider'><i></i>LIVE PRICES</span>
+                <span class='provider'><i></i>{capabilities()?.mode === 'sandbox' ? 'SANDBOX · TEST ITEMS' : providerReady() ? 'LIVE PRICES' : 'UNAVAILABLE'}</span>
             </header>
 
             <Show when={!capabilities.loading && !providerReady()}>
                 <div class='provider-unavailable' role='status'>
-                    <div><strong>SkinDeck withdrawals are unavailable</strong><span>{capabilities()?.mode === 'live' && !capabilities()?.contractReady ? 'Live merchant contract verification is incomplete. Funds cannot be held or sent.' : 'The provider is disabled or being configured. Your balance has not changed.'}</span></div>
+                    <div><strong>SkinDeck withdrawals are unavailable</strong><span>Skin withdrawals are temporarily unavailable. Please try again later.</span></div>
                     <button onClick={() => refetchCapabilities()}>CHECK AGAIN</button>
                 </div>
             </Show>
 
             <Show when={steamReady() && providerReady()} fallback={
+                <Show when={providerReady() && !steamReady()}>
                 <div class='steam-setup'>
                     <img src='/assets/icons/cs2-logo.svg' alt=''/>
                     <div><strong>Steam connection required</strong><span>Add both your Steam Trade URL and Steam API Key before using SkinDeck.</span></div>
                     <a href='/profile'>OPEN PROFILE</a>
                 </div>
+                </Show>
             }>
                 <Show when={!catalog.loading} fallback={<Loader/>}>
                     <div class='toolbar'>
-                        <label class='search-box'><img src='/assets/icons/search.svg' alt=''/><input value={query()} onInput={event => setQuery(event.target.value)} placeholder='Search skins...'/></label>
+                        <label class='search-box input-shell'><img src='/assets/icons/search.svg' alt=''/><input value={query()} onInput={event => setQuery(event.target.value)} placeholder='Search skins...'/></label>
                         <select aria-label='Sort skins' value={sort()} onChange={event => setSort(event.target.value)}><option value='value-desc'>Price: High to Low</option><option value='value-asc'>Price: Low to High</option><option value='name'>Name</option></select>
                         <button class='refresh' aria-label='Refresh skins' title='Refresh skins' onClick={() => refetchCatalog()}><svg viewBox='0 0 24 24' aria-hidden='true'><path d='M20 6v5h-5M4 18v-5h5M6.1 9A7 7 0 0 1 18 6l2 2M18 15a7 7 0 0 1-12 3l-2-2'/></svg></button>
                     </div>
@@ -148,7 +150,7 @@ function SkinDeckWithdraw() {
                 .catalog-meta span:last-child { color: #1fd65f; }
                 .catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 9px; max-height: 430px; overflow: auto; }
                 .skin { --rarity:#607087; min-width: 0; height: 202px; position: relative; display: flex; flex-direction: column; padding: 11px; overflow: hidden; text-align: left; border: 1px solid #29313d; border-radius: 6px; background: linear-gradient(180deg, rgba(255,255,255,.018), transparent 52%), radial-gradient(circle at 50% 24%, color-mix(in srgb, var(--rarity) 18%, transparent), transparent 45%), #141922; color: inherit; cursor: pointer; box-shadow: inset 0 1px rgba(255,255,255,.02), 0 8px 18px rgba(0,0,0,.13); transition: border-color .16s ease, transform .16s ease, box-shadow .16s ease; }
-                .skin.classified { --rarity:#c84edd; } .skin.covert { --rarity:#e84d55; } .skin.rare { --rarity:#e4b84a; }
+                .skin.classified { --rarity:#40c9ac; } .skin.covert { --rarity:#e84d55; } .skin.rare { --rarity:#e4b84a; }
                 .skin:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--rarity) 60%, #303846); box-shadow: 0 12px 24px rgba(0,0,0,.25); }
                 .skin.selected { border-color: #1fd65f; box-shadow: inset 0 0 0 1px rgba(31,214,95,.22), 0 0 22px rgba(31,214,95,.09); }
                 .wear { position: absolute; top: 9px; left: 9px; color: #7d8795; font-size: 8px; font-weight: 700; text-transform: uppercase; }

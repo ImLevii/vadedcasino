@@ -43,7 +43,7 @@ function TipRain(props) {
                             </div>
                         </div>
 
-                        <div class='input-wrapper'>
+                        <div class='input-wrapper input-shell'>
                             <img src='/assets/icons/coin.svg' height='16'/>
                             <input type='number' placeholder='...' value={amount()} onInput={(e) => setAmount(e.target.valueAsNumber)}/>
                         </div>
@@ -137,13 +137,13 @@ function TipRain(props) {
                 height: 9px;
 
                 top: 1px;
-                background: #20153D;
+                background: #171d1a;
                 position: absolute;
                 right: 0;
 
-                border-left: 1px solid #3B2D67;
-                border-right: 1px solid #3B2D67;
-                border-top: 1px solid #3B2D67;
+                border-left: 1px solid #313734;
+                border-right: 1px solid #313734;
+                border-top: 1px solid #313734;
 
                 clip-path: polygon(0% 100%, 100% 0%, 100% 100%);
               }
@@ -154,7 +154,7 @@ function TipRain(props) {
                 margin-top: 9px;
                 
                 background: linear-gradient(252.77deg, #12151c -27.53%, #1f242e 175.86%);
-                border: 1px solid #3B2D67;
+                border: 1px solid #313734;
                 
                 display: flex;
                 flex-direction: column;
@@ -179,7 +179,7 @@ function TipRain(props) {
                 width: 100%;
                 height: 30px;
 
-                background: linear-gradient(0deg, #1C1438, #1C1438), linear-gradient(252.77deg, #12151c -27.53%, #1f242e 175.86%);
+                background: linear-gradient(0deg, #151b18, #151b18), linear-gradient(252.77deg, #12151c -27.53%, #1f242e 175.86%);
                 
                 padding: 0px 10px;
                 

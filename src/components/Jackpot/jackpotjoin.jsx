@@ -71,7 +71,7 @@ function JackpotJoin(props) {
                 />
               </div>
 
-              <div class='cost selected-coins'>
+              <div class='cost selected-coins input-shell'>
                 <img src='/assets/icons/coin.svg' height='16' alt=''/>
                 <input ref={coinInput} class='coin-input' type='number' value={amount()} onInput={(e) => {
                   resizeInput()

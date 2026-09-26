@@ -1,3 +1,4 @@
+import {setSFXVolume} from "../../util/sound";
 import {createEffect, createResource, createSignal, For, Show} from "solid-js";
 import {authedAPI, createNotification} from "../../util/api";
 import {useUser} from "../../contexts/usercontextprovider";
@@ -67,7 +68,7 @@ function Settings(props) {
                                onInput={(e) => {
                                    const value = e.target.valueAsNumber
                                    setSound(value)
-                                   localStorage.setItem('sound', value)
+                                   setSFXVolume(value)
                                }}
                         />
                     </div>
