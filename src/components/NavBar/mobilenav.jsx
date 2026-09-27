@@ -264,7 +264,7 @@ function BottomNavBar(props) {
                   position: fixed;
                   bottom: 0;
                   
-                  height: 60px;
+                  height: calc(60px + env(safe-area-inset-bottom));
                   width: 100%;
                   
                   background: #1a1f29;
@@ -273,6 +273,7 @@ function BottomNavBar(props) {
                   align-items: center;
                   justify-content: space-between;
                   padding: 0 clamp(18px, 8vw, 34px);
+                  padding-bottom: env(safe-area-inset-bottom);
                   z-index: 30;
                 }
               }

@@ -62,13 +62,41 @@ STARTUP_CACHE_TIMEOUT_MS=15000
 
 After saving the settings, perform one Dokploy redeploy. The deployment log should show `Listening on 0.0.0.0:3000` before cache completion messages.
 
-### Vercel notes (important)
+### Vercel frontend + persistent Node backend
 
-This project runs through `app.js` in production and serves both API routes and the SPA from the same Node runtime.
+Vercel serves the Vite frontend from `dist`. This does not start `app.js`.
+The current backend owns in-memory game rounds, timers, and Socket.IO sessions;
+run one persistent Node process using the Dokploy settings above (or the included
+Dockerfile). It is not implemented as Vercel Functions.
 
-- Keep `VITE_SERVER_URL` and `VITE_SOCKET_URL` set to your public origin (for example `https://cosmicluck.gg`) in Vercel project environment variables.
-- If either variable is missing, the app now falls back to same-origin at runtime.
-- Startup auth requests are timed out defensively so the loading screen cannot hang forever on a bad upstream response.
+1. Deploy the backend with `npm run build` followed by `npm start`, port `3000`.
+   Configure the database and server secrets on that host. Verify `/readyz`
+   returns HTTP 200 before directing players to it.
+2. On the backend, set `NODE_ENV=production`, `BASE_URL` to its public HTTPS
+   origin, and `FRONTEND_URL=https://vadedcasino.vercel.app`. The explicit
+   frontend origin enables API and Socket.IO CORS; arbitrary origins are not allowed.
+3. In Vercel project settings, choose **Vite**, build command `npm run build`,
+   output directory `dist`. Set `VITE_SERVER_URL` to the backend's HTTPS origin
+   (for example `https://api.your-domain.com`). `VITE_SOCKET_URL` defaults to that
+   same backend; only set it if Socket.IO runs at a different origin.
+4. Redeploy after changing Vite variables: they are compiled into browser assets.
+   Do not point them at `vadedcasino.vercel.app` or localhost. The build now
+   rejects missing/invalid backend settings on Vercel instead of shipping a
+   frontend that repeatedly calls nonexistent same-origin API routes.
+
+`vercel.json` handles browser navigation to SPA pages without rewriting the
+reported API and Socket.IO failures into HTML. It does not host or proxy the
+backend. Username/password login stores the returned token on the frontend and
+sends it in the Authorization header. OAuth cookies across unrelated domains
+need a separate same-origin auth proxy or shared-domain configuration; setting
+CORS alone does not transfer those cookies.
+
+For a single-origin deployment, serve the entire app on Dokploy instead and
+leave both `VITE_` URL settings blank. Local `npm run dev` also continues to use
+the existing Vite proxy when the settings are blank.
+
+References: [Vite on Vercel](https://vercel.com/docs/frameworks/frontend/vite),
+[Vite environment variables](https://vite.dev/guide/env-and-mode).
 
 ## Fresh Neon / PostgreSQL development database
 

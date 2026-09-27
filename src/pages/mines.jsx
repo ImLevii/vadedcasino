@@ -213,7 +213,7 @@ function Mines(props) {
             <style jsx>{`
               .mines-container {
                 width: 100%;
-                max-width: 1175px;
+                max-width: var(--page-max-width);
 
                 box-sizing: border-box;
                 padding: 28px 18px 90px;

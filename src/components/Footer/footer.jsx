@@ -95,7 +95,7 @@ function Footer(props) {
                 height: fit-content;
 
                 box-sizing: border-box;
-                padding: 50px 50px 25px 50px;
+                padding: 40px var(--page-gutter) 24px;
                 
                 display: flex;
                 flex-direction: column;
@@ -110,7 +110,7 @@ function Footer(props) {
               
               .links-section, .disclaimer {
                 width: 100%;
-                max-width: 1175px;
+                max-width: var(--page-max-width);
                 display: flex;
                 justify-content: space-between;
                 gap: 40px;

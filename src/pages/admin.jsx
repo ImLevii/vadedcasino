@@ -138,7 +138,7 @@ function Admin(props) {
             <style jsx>{`
               .admin-container {
                 width: 100%;
-                max-width: 1320px;
+                max-width: var(--page-max-width);
                 height: fit-content;
 
                 box-sizing: border-box;

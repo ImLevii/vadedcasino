@@ -316,7 +316,7 @@ function Rewards(props) {
             <style jsx>{`
               .rewards-container {
                 width: 100%;
-                max-width: 1400px;
+                max-width: var(--page-max-width);
                 height: fit-content;
 
                 box-sizing: border-box;

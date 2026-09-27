@@ -124,6 +124,8 @@ function Bets(props) {
 
             <style jsx>{`
                 .bets-container {
+                  min-width: 0;
+                  container-type: inline-size;
                   border-radius: 12px;
                   border: 1px solid rgba(255, 255, 255, 0.055);
                   background: linear-gradient(180deg, #0d1018 0%, #0b0e14 100%);
@@ -133,6 +135,7 @@ function Bets(props) {
                 .bets-options {
                   width: 100%;
                   display: flex;
+                  overflow-x: auto;
                   gap: 4px;
                   padding: 10px 12px;
                   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -140,13 +143,14 @@ function Bets(props) {
                 }
                 
                 .option {
-                  height: 32px;
+                  height: 40px;
+                  flex-shrink: 0;
                   padding: 0 14px;
                   border-radius: 6px;
                   background: transparent;
 
                   color: #7a8294;
-                  font-size: 12px;
+                  font-size: 13px;
                   font-family: 'Geogrotesque Wide', sans-serif;
                   font-weight: 700;
                   letter-spacing: .3px;
@@ -179,12 +183,12 @@ function Bets(props) {
                 
                 .bets-header {
                   width: 100%;
-                  height: 36px;
+                  height: 40px;
                   background: rgba(0, 0, 0, 0.18);
                   border-bottom: 1px solid rgba(255, 255, 255, 0.045);
 
                   color: #515a6b;
-                  font-size: 11px;
+                  font-size: 12px;
                   font-family: 'Geogrotesque Wide', sans-serif;
                   font-weight: 700;
                   letter-spacing: .6px;
@@ -199,11 +203,11 @@ function Bets(props) {
                 
                 .bet {
                   background: transparent;
-                  height: 44px;
+                  height: 48px;
                   border-bottom: 1px solid rgba(255, 255, 255, 0.028);
 
                   color: #7a8294;
-                  font-size: 13px;
+                  font-size: 14px;
                   font-family: 'Geogrotesque Wide', sans-serif;
                   font-weight: 600;
 
@@ -271,10 +275,18 @@ function Bets(props) {
                   color: #16a049;
                 }
 
-                @media only screen and (max-width: 850px) {
+                @container (max-width: 760px) {
                   .large {
                     display: none;
                   }
+                }
+
+                @container (max-width: 440px) {
+                  td, th { padding-inline: 6px; }
+                  td:first-child, th:first-child { padding-left: 12px; }
+                  .bet { font-size: 12px; }
+                  .bets-header { font-size: 10px; }
+                  .user { max-width: 108px; overflow: hidden; }
                 }
             `}</style>
         </>

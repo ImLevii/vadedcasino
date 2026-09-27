@@ -1,6 +1,6 @@
 import {createSignal, For} from "solid-js";
 import {addDropdown, closeDropdowns} from "../../util/api";
-import {A} from "@solidjs/router";
+import {A, useLocation} from "@solidjs/router";
 
 const CASE_LINKS = [
     {name: 'CASE OPENING', href: '/cases', img: '/assets/thumbnails/caseopening.jpeg'},
@@ -10,6 +10,7 @@ const CASE_LINKS = [
 ]
 
 function Cases() {
+    const location = useLocation()
 
     const [active, setActive] = createSignal(false)
     addDropdown(setActive)
@@ -17,12 +18,14 @@ function Cases() {
     return (
         <>
             <div class='cases-container' onClick={(e) => e.stopPropagation()}>
-                <button type='button' aria-expanded={active()} aria-controls='cases-menu' class={'cases ' + (active() ? 'active' : '')} onClick={() => {
+                <button type='button' aria-label='Cases' aria-expanded={active()} aria-controls='cases-menu'
+                        class='cases nav-button nav-button-menu'
+                        classList={{active: active(), 'is-current': /^\/(cases|battles|battle)(\/|$)/.test(location.pathname)}} onClick={() => {
                     const wasActive = active();
                     closeDropdowns();
                     setActive(!wasActive);
                 }}>
-                    <svg class='icon' width="16" height="16" viewBox="0 0 16 16" fill="none"
+                    <svg class='icon nav-button-icon' width="16" height="16" viewBox="0 0 16 16" fill="none"
                          xmlns="http://www.w3.org/2000/svg">
                         <path d="M1.5 5.5H14.5V13C14.5 13.5523 14.0523 14 13.5 14H2.5C1.94772 14 1.5 13.5523 1.5 13V5.5Z"
                               stroke="currentColor" stroke-width="1.5"/>
@@ -31,7 +34,10 @@ function Cases() {
                         <path d="M6.5 8.5H9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                     </svg>
 
-                    CASES
+                    <span class='nav-button-copy'>
+                        <span class='nav-button-title'>CASES</span>
+                        <span class='nav-button-detail' aria-hidden='true'>Open, battle & win</span>
+                    </span>
 
                     <svg class='arrow' width="7" height="5" viewBox="0 0 7 5" fill="none"
                          xmlns="http://www.w3.org/2000/svg">
@@ -258,7 +264,7 @@ function Cases() {
                 color: #1fd65f;
                 transform: translateX(2px);
               }
-              .cases { border:1px solid var(--nav-edge,#ffffff12); background:var(--nav-glass,linear-gradient(160deg,#ffffff10,#ffffff03)); box-shadow:var(--nav-shadow); border-radius:10px; font-family:inherit; font-size:12px; letter-spacing:.3px; color:#b6c2c6; }
+              .cases { border:1px solid var(--nav-edge,#ffffff12); background:var(--nav-glass,linear-gradient(160deg,#ffffff10,#ffffff03)); box-shadow:var(--nav-shadow); border-radius:10px; font-family:inherit; font-size:14px; letter-spacing:.3px; color:#b6c2c6; }
               .cases:hover,.cases.active { border-color:#1fd65f40; background:linear-gradient(145deg,#ffffff12,#1fd65f0c); color:#f1fff5; }
               .cases .arrow { transform:rotate(180deg); transition:transform .2s; }
               .cases.active .arrow { transform:rotate(0deg); }

@@ -129,7 +129,7 @@ function Slot(props) {
       <style jsx>{`
         .slot-base-container {
           width: 100%;
-          max-width: 1150px;
+          max-width: var(--page-max-width);
           height: fit-content;
 
           box-sizing: border-box;

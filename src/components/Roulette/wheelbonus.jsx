@@ -50,15 +50,15 @@ export default function WheelBonus(props) {
             </div>
         </Portal></Show>
         <style>{`
-            .wheel-bonus-card { display:flex; align-items:center; gap:12px; width:268px; max-width:100%; padding:8px; background:#20232c; border:1px solid #282d36; border-radius:5px; text-align:left; cursor:pointer; font-family:inherit; }
-            .wheel-bonus-icon { width:76px; height:76px; flex-shrink:0; display:grid; place-items:center; background:radial-gradient(circle,#1fd65f24,#0c1117 75%); border:1px solid #080b10; border-radius:4px; color:#1fd65f; }
-            .wheel-bonus-icon svg { width:54px; filter:drop-shadow(0 0 9px #1fd65f55); }
-            .wheel-bonus-copy { display:flex; flex-direction:column; gap:6px; }
+            .wheel-bonus-card { display:flex; align-items:center; gap:9px; width:218px; max-width:100%; padding:7px; background:#20232c; border:1px solid #282d36; border-radius:5px; text-align:left; cursor:pointer; font-family:inherit; }
+            .wheel-bonus-icon { width:48px; height:48px; flex-shrink:0; display:grid; place-items:center; background:radial-gradient(circle,#1fd65f24,#0c1117 75%); border:1px solid #080b10; border-radius:4px; color:#1fd65f; }
+            .wheel-bonus-icon svg { width:34px; filter:drop-shadow(0 0 9px #1fd65f55); }
+            .wheel-bonus-copy { display:flex; flex-direction:column; gap:3px; }
             .wheel-bonus-copy > strong { font-size:12px; color:#f4f5f9; }
             .wheel-bonus-amount { display:flex; align-items:center; gap:5px; font-weight:800; color:#1fd65f; font-size:15px; font-variant-numeric:tabular-nums; }
             .wheel-bonus-amount img { width:15px; height:15px; }
-            .wheel-bonus-streak { display:flex; gap:6px; }
-            .wheel-bonus-streak img { width:24px; height:24px; object-fit:contain; opacity:.3; filter:grayscale(.55); }
+            .wheel-bonus-streak { display:flex; gap:4px; }
+            .wheel-bonus-streak img { width:16px; height:16px; object-fit:contain; opacity:.3; filter:grayscale(.55); }
             .wheel-bonus-streak img.lit { opacity:1; filter:drop-shadow(0 0 5px #1fd65f77); }
             .wheel-bonus-card:focus-visible,.wheel-bonus-dialog button:focus-visible { outline:2px solid #1fd65f; outline-offset:3px; }
             .wheel-bonus-overlay { position:fixed; inset:0; z-index:10000; display:grid; place-items:center; padding:20px; background:#000b; backdrop-filter:blur(5px); overflow:auto; }

@@ -1,18 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500;600;700;800;900&display=swap');
 
-/* Toast progress bar shrink animation */
-@keyframes toast-shrink {
-  from { transform: scaleX(1); }
-  to   { transform: scaleX(0); }
-}
-
 :root {
   /* One continuous header finish above the chat and main navigation. */
-  --site-header-height: 60px;
-  --site-header-surface: linear-gradient(180deg, #ffffff08, #ffffff02), #0c1419;
-  --site-header-border: rgba(255, 255, 255, .075);
-  --site-header-highlight: inset 0 1px 0 rgba(255, 255, 255, .045);
+  --site-header-height: 76px;
+  --site-control-height: 48px;
+  --button-radius: 4px;
+  --site-sidebar-width: 300px;
+  --page-max-width: 100%;
+  --page-gutter: clamp(12px, 1.2vw, 24px);
+  --page-section-gap: 24px;
+  --control-surface: linear-gradient(180deg, #282d2b 0%, #1c211f 100%);
+  --control-border: #505653;
+  --control-shadow: inset 0 1px 0 #ffffff1c, inset 0 0 0 1px #ffffff04,
+    0 2px 3px #0006, 0 0 0 1px #0005;
+  --site-header-surface: linear-gradient(180deg, #151e20 0%, #0c1316 100%);
+  --site-header-border: rgba(126, 210, 165, .14);
+  --site-header-highlight: inset 0 1px 0 rgba(255, 255, 255, .055), 0 8px 28px #0003;
 
   /* Cosmic Luck design tokens */
   --color-canvas: #0a0a0a;
@@ -28,7 +32,7 @@
   --color-copy: #f4f7f5;
   --color-copy-muted: #8f9b93;
   --radius-card: 16px;
-  --radius-control: 12px;
+  --radius-control: var(--button-radius);
   --shadow-emerald: 0 0 24px rgba(34, 197, 94, 0.2);
   --shadow-emerald-strong: 0 0 34px rgba(34, 197, 94, 0.32);
 
@@ -146,6 +150,24 @@
   box-sizing: border-box;
 }
 
+/* One button silhouette across component styles, variants, and interaction states.
+   This deliberate override prevents scoped and inline corner radii from drifting. */
+:root :is(
+  button, [role="button"], input[type="button"], input[type="submit"], input[type="reset"],
+  .button, .btn, .bevel, .bevel-light, .bevel-gold, .bevel-purple,
+  .glass-btn, .glass-btn-primary, .glass-btn-solid, .glass-btn-ghost,
+  .action-btn, .oauth-btn, .validate-btn, .case-back-link, .cta, .open-case,
+  .create-battle, .coinflip-create, .jackpot-create, .gc-refresh,
+  .user-dropdown-link, .admin-link, .toolbar-btn, .emojis-button,
+  .room-selector, .room-option, .tip-rain, .pages-dropdown
+) {
+  border-radius: var(--button-radius) !important;
+}
+
+.navbar-container :is(.user-dropdown-wrapper, .balance) {
+  border-radius: var(--button-radius);
+}
+
 html, body {
   width: 100%;
   max-width: 100%;
@@ -172,10 +194,8 @@ body {
   font-family: "Geogrotesque Wide", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background:
-    radial-gradient(1200px 620px at 78% -12%, rgba(34, 197, 94, 0.1), transparent 55%),
-    radial-gradient(900px 540px at -10% 18%, rgba(246, 196, 83, 0.04), transparent 50%),
-    linear-gradient(145deg, #080908 0%, var(--color-canvas) 48%, #0d100e 100%);
+  isolation: isolate;
+  background: #101719;
   color: var(--text-primary);
 }
 
@@ -184,18 +204,28 @@ body {
   outline-offset: -2px;
 }
 
-/* Subtle scanline / noise texture overlay */
+/* Illustrated scenery stays behind the interface as pages scroll. */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
-  background-size: 40px 40px;
-  opacity: 0.25;
+  left: var(--site-sidebar-width);
+  background: url('/assets/art/background.png') center / cover no-repeat;
+  filter: hue-rotate(-65deg) saturate(.8);
+  opacity: .6;
   z-index: -1;
+}
+
+@media (max-width: 1250px) {
+  body::before { left: 0; }
+}
+
+@media (max-width: 600px) {
+  body::before {
+    background-position: right center;
+    opacity: .42;
+  }
 }
 
 /* Global smooth scrollbar hiding */
@@ -230,11 +260,11 @@ body::before {
   gap: 7px;
   
   border-radius: var(--glass-radius-sm);
-  border: 1px solid var(--btn-glass-border);
-  background: var(--btn-glass-bg);
+  border: 1px solid var(--control-border);
+  background: var(--control-surface);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--control-shadow);
   
   font-family: "Geogrotesque Wide", sans-serif;
   font-weight: 700;
@@ -248,8 +278,8 @@ body::before {
 }
 
 .glass-btn:hover {
-  border-color: rgba(31, 214, 95, 0.25);
-  background: rgba(31, 214, 95, 0.06);
+  border-color: #6a9c7b;
+  background: linear-gradient(180deg, #303a33, #202922);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 6px 20px rgba(0, 0, 0, 0.2), var(--green-glow);
   transform: translateY(-1px);
 }
@@ -310,30 +340,39 @@ body::before {
 
 .bevel {
   outline: unset;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--control-border);
 
   font-family: "Geogrotesque Wide", sans-serif;
   color: var(--text-primary);
   cursor: pointer;
 
-  background: linear-gradient(180deg, var(--surface-3) 0%, var(--surface-2) 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 2px 4px rgba(0, 0, 0, 0.22);
-  border-radius: 5px;
+  background: var(--control-surface);
+  box-shadow: var(--control-shadow);
+  border-radius: 7px;
   transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .bevel-light {
   outline: unset;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--control-border);
 
   font-family: "Geogrotesque Wide", sans-serif;
   color: var(--text-primary);
   cursor: pointer;
 
-  background: linear-gradient(180deg, var(--surface-4) 0%, var(--surface-3) 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 2px 6px rgba(0, 0, 0, 0.2);
-  border-radius: 5px;
+  background: var(--control-surface);
+  box-shadow: var(--control-shadow);
+  border-radius: 7px;
   transition: background var(--transition-fast);
+}
+
+.bevel:not(:disabled):hover, .bevel-light:not(:disabled):hover {
+  border-color: #6a9c7b;
+  background: linear-gradient(180deg, #303a33, #202922);
+}
+
+.bevel:not(:disabled):active, .bevel-light:not(:disabled):active {
+  box-shadow: inset 0 2px 5px #0005, 0 1px 0 #ffffff0a;
 }
 
 .bevel-gold {
@@ -793,7 +832,7 @@ select:disabled {
     linear-gradient(145deg, rgba(24, 31, 42, 0.97), rgba(9, 13, 20, 0.98));
   border: 1px solid rgba(var(--toast-rgb), 0.18);
   border-radius: 10px;
-  padding: 13px 14px 16px;
+  padding: 13px 14px;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.045), 0 12px 40px rgba(0, 0, 0, 0.58), 0 0 24px rgba(var(--toast-rgb), 0.055);
 
   min-width: 270px;
@@ -812,6 +851,11 @@ select:disabled {
 .toast.visible {
   opacity: 1;
   transform: translateX(0) scale(1);
+}
+
+.toast:not(.visible) {
+  pointer-events: none;
+  transition-duration: .12s;
 }
 
 .toast-glow {
@@ -889,24 +933,6 @@ select:disabled {
 .toast-dismiss:hover {
   color: #8b92a0;
   background: rgba(255, 255, 255, 0.06);
-}
-
-.toast-progress {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: rgba(var(--toast-rgb), 0.1);
-  overflow: hidden;
-}
-
-.toast-progress-fill {
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(90deg, rgba(var(--toast-rgb), 0.5), rgb(var(--toast-rgb)));
-  transform-origin: left center;
-  animation: toast-shrink linear forwards;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

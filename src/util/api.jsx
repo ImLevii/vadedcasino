@@ -1,5 +1,6 @@
 import {toast} from "solid-toast";
 import {errors} from "../resources/errors";
+import {resolveServerUrl} from './server-url.mjs';
 
 export const dropdowns = []
 
@@ -45,7 +46,8 @@ function showToast(type, message, options) {
     const duration = options?.duration ?? 3500
 
     return toast.custom((t) => (
-        <div class='toast' classList={{ visible: t.visible }} style={{ '--toast-rgb': a.rgb }}>
+        <div class='toast' classList={{ visible: t.visible }} style={{ '--toast-rgb': a.rgb }}
+             onMouseEnter={() => toast.dismiss(t.id)} onClick={() => toast.dismiss(t.id)}>
 
             {/* Ambient radial glow behind icon */}
             <div class='toast-glow'/>
@@ -59,7 +61,7 @@ function showToast(type, message, options) {
             </div>
 
             {/* Dismiss button */}
-            <button class='toast-dismiss' onClick={() => toast.dismiss(t.id)}>
+            <button class='toast-dismiss' type='button' aria-label='Dismiss notification'>
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
                     <line x1="18" y1="6" x2="6" y2="18"/>
@@ -67,10 +69,6 @@ function showToast(type, message, options) {
                 </svg>
             </button>
 
-            {/* Progress bar */}
-            <div class='toast-progress'>
-                <div class='toast-progress-fill' style={{ 'animation-duration': `${duration}ms` }}/>
-            </div>
         </div>
     ), { duration, ...options })
 }
@@ -86,9 +84,7 @@ function normalizePath(path) {
 }
 
 function resolveBaseUrl() {
-    const configured = (import.meta.env.VITE_SERVER_URL || '').trim()
-    if (!configured || configured === 'undefined') return window.location.origin
-    return configured.endsWith('/') ? configured.slice(0, -1) : configured
+    return resolveServerUrl(import.meta.env, window.location.origin)
 }
 
 const pendingWrites = new Set()

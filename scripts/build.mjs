@@ -8,9 +8,11 @@
 // Running the Vite build through this wrapper ignores any stray CLI arguments
 // and always performs a normal production build using vite.config.js.
 
-import { build } from 'vite';
+import { build, loadEnv } from 'vite';
+import { validateVercelEnv } from './validate-vercel-env.mjs';
 
 try {
+    validateVercelEnv({ ...loadEnv('production', process.cwd(), 'VITE_'), ...process.env });
     await build();
 } catch (err) {
     console.error('[build] Vite production build failed:');

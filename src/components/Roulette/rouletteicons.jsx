@@ -30,7 +30,7 @@ function PokerChip(props) {
       height={size()}
       alt=''
       draggable={false}
-      style={{ 'object-fit': 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.45))' }}
+      style={{ 'object-fit': 'contain', width: props.size === 'small' ? 'var(--roulette-small-chip-image-size, 30px)' : undefined, height: props.size === 'small' ? 'var(--roulette-small-chip-image-size, 30px)' : undefined, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.45))' }}
     />
   )
 }
@@ -79,9 +79,9 @@ function RouletteIcon(props) {
         }
 
         .small {
-        min-width: 35px;
-        width: 35px;
-        height: 40px;
+        min-width: var(--roulette-small-chip-size, 35px);
+        width: var(--roulette-small-chip-size, 35px);
+        height: var(--roulette-small-chip-size, 40px);
         border-radius: 6px;
         }
 

@@ -1,6 +1,6 @@
 import {createSignal, For} from "solid-js";
 import {addDropdown, createNotification, closeDropdowns} from "../../util/api";
-import {A} from "@solidjs/router";
+import {A, useLocation} from "@solidjs/router";
 
 const GAMEMODES = [
   {name: 'CASE BATTLES', href: '/battles', img: '/assets/thumbnails/casebattles.jpeg'},
@@ -13,6 +13,7 @@ const GAMEMODES = [
 ]
 
 function Games() {
+    const location = useLocation()
 
     const [active, setActive] = createSignal(false)
     addDropdown(setActive)
@@ -20,19 +21,24 @@ function Games() {
     return (
         <>
             <div class='games-container' onClick={(e) => e.stopPropagation()}>
-                <button type='button' aria-expanded={active()} aria-controls='games-menu' class={'games ' + (active() ? 'active' : '')} onClick={() => {
+                <button type='button' aria-label='Games' aria-expanded={active()} aria-controls='games-menu'
+                        class='games nav-button nav-button-menu'
+                        classList={{active: active(), 'is-current': /^\/(roulette|crash|mines|coinflip|slots)(\/|$)/.test(location.pathname)}} onClick={() => {
                     const wasActive = active();
                     closeDropdowns();
                     setActive(!wasActive);
                 }}>
-                    <svg class='cube' width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg class='cube nav-button-icon' width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.5" fill="currentColor"/>
                         <rect x="9" y="1.5" width="5.5" height="5.5" rx="1.5" fill="currentColor"/>
                         <rect x="1.5" y="9" width="5.5" height="5.5" rx="1.5" fill="currentColor"/>
                         <rect x="9" y="9" width="5.5" height="5.5" rx="1.5" fill="currentColor"/>
                     </svg>
 
-                    GAMES
+                    <span class='nav-button-copy'>
+                        <span class='nav-button-title'>GAMES</span>
+                        <span class='nav-button-detail' aria-hidden='true'>Explore game modes</span>
+                    </span>
 
                     <svg class='arrow' width="7" height="5" viewBox="0 0 7 5" fill="none"
                          xmlns="http://www.w3.org/2000/svg">
@@ -257,7 +263,7 @@ function Games() {
                 color: #1fd65f;
                 transform: translateX(2px);
               }
-              .games { border:1px solid var(--nav-edge,#ffffff12); background:var(--nav-glass,linear-gradient(160deg,#ffffff10,#ffffff03)); box-shadow:var(--nav-shadow); border-radius:10px; font-family:inherit; font-size:12px; letter-spacing:.3px; color:#b6c2c6; }
+              .games { border:1px solid var(--nav-edge,#ffffff12); background:var(--nav-glass,linear-gradient(160deg,#ffffff10,#ffffff03)); box-shadow:var(--nav-shadow); border-radius:10px; font-family:inherit; font-size:14px; letter-spacing:.3px; color:#b6c2c6; }
               .games:hover,.games.active { border-color:#1fd65f40; background:linear-gradient(145deg,#ffffff12,#1fd65f0c); color:#f1fff5; }
               .games .arrow { transform:rotate(180deg); transition:transform .2s; }
               .games.active .arrow { transform:rotate(0deg); }

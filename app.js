@@ -29,45 +29,9 @@ const startupState = {
     failures: []
 };
 
-if (process.env.NODE_ENV == 'development') {
-
-    const frontendOrigins = new Set([
-        'http://localhost:3001',
-        'http://127.0.0.1:3001',
-        ...(process.env.FRONTEND_URL ? [new URL(process.env.FRONTEND_URL).origin] : [])
-    ]);
-
-    app.use((req, res, next) => {
-        const origin = req.get('Origin');
-        res.vary('Origin');
-        if (frontendOrigins.has(origin)) {
-            // Credentialed requests require an explicit origin and headers.
-            res.header('Access-Control-Allow-Origin', origin);
-            res.header('Access-Control-Allow-Credentials', 'true');
-            res.header('Access-Control-Allow-Headers', 'Authorization, Content-Type');
-            res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-            res.header('Access-Control-Max-Age', '7200');
-        } else if (req.path.startsWith('/slots/hacksaw') && origin === 'https://static-live.hacksawgaming.com') {
-            res.header('Access-Control-Allow-Origin', origin);
-            res.header('Access-Control-Allow-Headers', '*');
-            res.header('Access-Control-Allow-Methods', '*');
-        }
-        next();
-    });
-
-} else {
-
-    app.use((req, res, next) => {
-        if (req.path.startsWith('/slots/hacksaw')) {
-            res.header("Access-Control-Allow-Origin", "https://static-live.hacksawgaming.com");
-            res.header("Access-Control-Allow-Headers", "*");
-            res.header("Access-Control-Allow-Methods", "*");
-            res.header('Access-Control-Max-Age', '7200');
-        }
-        next();
-    });
-
-}
+const { frontendOrigins, frontendCors } = require('./utils/frontend-cors');
+const allowedFrontendOrigins = frontendOrigins();
+app.use(frontendCors(allowedFrontendOrigins));
 
 app.options('*', (req, res) => {
     res.sendStatus(204);
@@ -251,7 +215,7 @@ async function start() {
     const serverInstance = app.listen(port, '0.0.0.0', () => {
         console.log(`Listening on 0.0.0.0:${port}`);
     });
-    io.attach(serverInstance, { cors: { origin: '*' } });
+    io.attach(serverInstance, { cors: { origin: [...allowedFrontendOrigins], credentials: true } });
 
     // Warm up caches BEFORE accepting socket connections
     const timeoutMs = Math.max(100, Number(process.env.STARTUP_CACHE_TIMEOUT_MS) || 15000);

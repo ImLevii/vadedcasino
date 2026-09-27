@@ -70,7 +70,7 @@ function Notifications(props) {
   return (
     <>
       <div className='notifications'>
-        <button class={'bell ' + (active() ? 'active' : '')} type='button' aria-label='Notifications'
+        <button class={'bell nav-button ' + (active() ? 'active' : '')} type='button' aria-label='Notifications'
                 aria-expanded={active()} onClick={(e) => {
                   const wasOpen = active(); closeDropdowns(); setActive(!wasOpen)
                   e.stopPropagation()

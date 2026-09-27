@@ -273,7 +273,7 @@ function Battles(props) {
 
               .battles-container {
                 width: 100%;
-                max-width: 1440px;
+                max-width: var(--page-max-width);
                 height: fit-content;
                 box-sizing: border-box;
                 padding: 26px 24px 80px;
@@ -511,7 +511,7 @@ function Battles(props) {
                 .live-dot { animation: none; }
               }
 
-              .battles-container { max-width:1900px; padding:8px 0 64px; }
+              .battles-container { max-width: var(--page-max-width); padding:8px 0 64px; }
               .filter-bar { background:none; border:0; box-shadow:none; padding:0 6px; gap:16px; margin-bottom:32px; }
               .filter { flex:0 1 134px; min-width:100px; }
               .filter-label { text-transform:none; font-size:11px; font-weight:500; }

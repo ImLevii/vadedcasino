@@ -1,4 +1,4 @@
-import {createResource, createSignal, onCleanup, For, Show} from "solid-js";
+import {createResource, createSignal, onMount, onCleanup, For, Show} from "solid-js";
 import {A} from "@solidjs/router";
 import {api} from "../../util/api";
 
@@ -46,6 +46,15 @@ function Carousel() {
 
   const [slides] = createResource(fetchSlides)
     const [index, setIndex] = createSignal(0)
+    const [reducedMotion, setReducedMotion] = createSignal(true)
+
+    onMount(() => {
+      const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
+      const updateMotion = () => setReducedMotion(preference.matches)
+      updateMotion()
+      preference.addEventListener('change', updateMotion)
+      onCleanup(() => preference.removeEventListener('change', updateMotion))
+    })
 
     const timer = setInterval(() => {
     setIndex((i) => (i + 1) % (slides()?.length || FALLBACK_SLIDES.length))
@@ -56,19 +65,21 @@ function Carousel() {
     return (
         <>
             <div class='carousel'>
+              <div class='header-media'>
+                <img class='header-animation' src='/assets/animations/cosmicluck-header-animation.webp' alt='' aria-hidden='true' />
+                <Show when={!reducedMotion()}>
+                  <video class='header-animation' autoplay muted loop playsinline preload='auto'
+                         poster='/assets/animations/cosmicluck-header-animation.webp' aria-hidden='true'>
+                    <source src='/assets/animations/cosmicluck-header-animation.mp4' type='video/mp4' />
+                  </video>
+                </Show>
+              </div>
                 <div class='track' style={{transform: `translateX(-${index() * 100}%)`}}>
                 <For each={slides() || FALLBACK_SLIDES}>{(slide) => (
                   <div
                     class='slide'
                     style={slide.backgroundImage ? { 'background-image': `linear-gradient(125deg, rgba(11,15,22,0.86), rgba(17,22,32,0.76), rgba(13,26,18,0.86)), url(${resolveAsset(slide.backgroundImage)})` } : {}}
                   >
-                            {/* Decorative grid lines */}
-                            <div class='slide-grid'/>
-
-                            {/* Glow orbs */}
-                            <div class='glow-orb orb-1'/>
-                            <div class='glow-orb orb-2'/>
-
                             <div class='slide-content'>
                                 <Show when={slide.tag}>
                                   <div class='slide-tag' style={{ color: slide.accentColor || '#1fd65f', borderColor: `${slide.accentColor || '#1fd65f'}55`, background: `${slide.accentColor || '#1fd65f'}1a` }}>{slide.tag}</div>
@@ -78,21 +89,14 @@ function Carousel() {
                                 <Show when={slide.cta}><div class='cta' style={{ background: `radial-gradient(60% 60% at 50% 50%, ${slide.accentColor || '#1fd65f'} 0%, #18b853 100%)` }}>{slide.cta}</div></Show>
                             </div>
 
-                              <Show when={slide.image} fallback={(
-                                <div class='slide-art'>
-                                  <div class='art-ring ring-1'/>
-                                  <div class='art-ring ring-2'/>
-                                  <div class='art-ring ring-3'/>
-                                  <div class='art-dots'/>
-                                </div>
-                              )}>
+                              <Show when={slide.image}>
                                 <div class='slide-image-wrap'>
                                   <img src={resolveAsset(slide.image)} alt={slide.title} />
                                 </div>
                               </Show>
 
                               <Show when={slide.href}>
-                                <A href={slide.href} class='gamemode-link'/>
+                                <A href={slide.href} class='gamemode-link' aria-label={slide.cta || slide.title}/>
                               </Show>
                         </div>
                     )}</For>
@@ -102,6 +106,7 @@ function Carousel() {
                 <div class='dots'>
                           <For each={slides() || FALLBACK_SLIDES}>{(_, i) => (
                         <button class={'dot ' + (index() === i() ? 'active' : '')}
+                                aria-label={`Show slide ${i() + 1}`} aria-current={index() === i() ? 'true' : undefined}
                                 onClick={() => setIndex(i())}/>
                     )}</For>
                 </div>
@@ -111,15 +116,30 @@ function Carousel() {
               .carousel {
                 position: relative;
                 width: 100%;
-                height: clamp(230px, 18vw, 286px);
+                box-sizing: border-box;
+                margin-inline: auto;
+                container-type: inline-size;
 
-                border-radius: 14px;
+                border-radius: 12px;
                 overflow: hidden;
-                border: 1px solid rgba(31, 214, 95, 0.12);
-                box-shadow: 0 0 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+                background: linear-gradient(110deg, #15332d, #202c34 60%);
+                border: 1px solid rgba(91, 220, 153, 0.22);
+                box-shadow: 0 12px 28px rgba(0,0,0,0.22);
+              }
+
+              .header-media {
+                position: relative;
+                /* A full-width banner with the video never larger than its source. */
+                width: min(100%, 1170px);
+                margin-left: auto;
+                aspect-ratio: 13 / 3;
+                mask-image: linear-gradient(90deg, transparent, #000 22%);
+                overflow: hidden;
               }
 
               .track {
+                position: absolute;
+                inset: 0;
                 display: flex;
                 width: 100%;
                 height: 100%;
@@ -134,56 +154,33 @@ function Carousel() {
                 display: flex;
                 align-items: center;
 
-                background: linear-gradient(125deg, #0b0f16 0%, #111620 50%, #0d1a12 100%);
                 background-size: cover;
                 background-position: center;
                 overflow: hidden;
               }
 
-              /* Subtle grid overlay */
-              .slide-grid {
+              .header-animation {
                 position: absolute;
                 inset: 0;
-                background-image:
-                  linear-gradient(rgba(31,214,95,0.04) 1px, transparent 1px),
-                  linear-gradient(90deg, rgba(31,214,95,0.04) 1px, transparent 1px);
-                background-size: 40px 40px;
-                mask-image: radial-gradient(ellipse 70% 100% at 60% 50%, transparent 30%, black 100%);
-              }
-
-              /* Ambient glow orbs */
-              .glow-orb {
-                position: absolute;
-                border-radius: 50%;
-                filter: blur(60px);
+                width: 100%;
+                height: 100%;
+                display: block;
+                object-fit: contain;
+                object-position: center;
                 pointer-events: none;
-              }
-
-              .orb-1 {
-                width: 320px;
-                height: 320px;
-                right: -60px;
-                top: -80px;
-                background: rgba(31, 214, 95, 0.18);
-              }
-
-              .orb-2 {
-                width: 200px;
-                height: 200px;
-                right: 200px;
-                bottom: -60px;
-                background: rgba(31, 214, 95, 0.08);
               }
 
               .slide-content {
                 position: relative;
                 z-index: 2;
-                padding: 0 52px;
-                max-width: 58%;
+                box-sizing: border-box;
+                padding: 20px clamp(24px, 5cqw, 72px) 32px;
+                width: 70%;
+                pointer-events: none;
 
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
+                gap: clamp(6px, .8cqw, 10px);
               }
 
               .slide-tag {
@@ -208,18 +205,19 @@ function Carousel() {
               .slide-content h1 {
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-weight: 800;
-                font-size: 36px;
-                line-height: 1.05;
+                font-size: clamp(20px, 2.6cqw, 36px);
+                line-height: 1.12;
                 color: #fff;
-                text-shadow: 0 0 40px rgba(31, 214, 95, 0.4);
+                text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
                 letter-spacing: -.5px;
               }
 
               .slide-content p {
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-weight: 600;
-                font-size: 14px;
-                color: #8b92a0;
+                font-size: clamp(11px, 1.1cqw, 15px);
+                line-height: 1.45;
+                color: #bed1ce;
                 letter-spacing: .3px;
               }
 
@@ -242,62 +240,9 @@ function Carousel() {
                 transition: filter .2s, transform .15s;
               }
 
-              .cta:hover {
+              .slide:has(.gamemode-link:hover) .cta {
                 filter: brightness(1.1);
                 transform: translateY(-1px);
-              }
-
-              /* Decorative rings on the right */
-              .slide-art {
-                position: absolute;
-                right: 80px;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 220px;
-                height: 220px;
-                z-index: 1;
-              }
-
-              .art-ring {
-                position: absolute;
-                border-radius: 50%;
-                border: 1px solid rgba(31, 214, 95, 0.2);
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-              }
-
-              .ring-1 {
-                width: 220px;
-                height: 220px;
-                border-color: rgba(31,214,95,0.12);
-                animation: pulse-ring 4s ease-in-out infinite;
-              }
-
-              .ring-2 {
-                width: 160px;
-                height: 160px;
-                border-color: rgba(31,214,95,0.2);
-                animation: pulse-ring 4s ease-in-out infinite .5s;
-                background: rgba(31,214,95,0.03);
-              }
-
-              .ring-3 {
-                width: 90px;
-                height: 90px;
-                border-color: rgba(31,214,95,0.4);
-                background: rgba(31,214,95,0.08);
-                animation: pulse-ring 4s ease-in-out infinite 1s;
-              }
-
-              .art-dots {
-                position: absolute;
-                inset: 0;
-                background-image: radial-gradient(circle, rgba(31,214,95,0.5) 1px, transparent 1px);
-                background-size: 18px 18px;
-                border-radius: 50%;
-                opacity: 0.4;
-                mask-image: radial-gradient(circle, black 40%, transparent 70%);
               }
 
               .slide-image-wrap {
@@ -353,24 +298,29 @@ function Carousel() {
                 box-shadow: 0 0 10px rgba(31, 214, 95, 0.7);
               }
 
-              @keyframes pulse-ring {
-                0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
-                50% { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
-              }
+              @container (max-width: 700px) {
+                .header-media { mask-image: none; }
+                .track {
+                  position: relative;
+                  inset: auto;
+                  height: auto;
+                }
 
-              @media only screen and (max-width: 700px) {
-                .carousel { height: 192px; border-radius: 10px; }
+                .slide {
+                  height: auto;
+                  align-items: flex-start;
+                  background-color: #202c34;
+                }
 
                 .slide-content {
-                  padding: 0 20px;
-                  max-width: 88%;
+                  padding: 18px 24px 40px;
+                  width: 100%;
+                  gap: 8px;
                 }
 
                 .slide-content h1 { font-size: 22px; }
                 .slide-content p { font-size: 12px; }
-                .slide-tag { display: none; }
 
-                .slide-art { display: none; }
                 .slide-image-wrap { display: none; }
 
                 .cta {
@@ -378,17 +328,18 @@ function Carousel() {
                   padding: 9px 16px;
                 }
 
-                .dots { bottom: 11px; }
+                .dots { bottom: 16px; }
                 .dot { width: 18px; }
                 .dot.active { width: 28px; }
               }
 
-              @media only screen and (max-width: 420px) {
-                .carousel { height: 180px; }
-                .slide-content { padding: 0 16px; max-width: 100%; gap: 8px; }
-                .slide-content h1 { font-size: 19px; }
-                .slide-content p { font-size: 10px; }
-                .cta { padding: 8px 13px; font-size: 10px; }
+              @container (max-width: 380px) {
+                .slide-content { padding-inline: 18px; }
+                .slide-content h1 { font-size: 20px; }
+              }
+
+              @media (prefers-reduced-motion: reduce) {
+                .track, .dot, .cta { transition: none; }
               }
             `}</style>
         </>

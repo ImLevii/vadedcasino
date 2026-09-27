@@ -1,6 +1,7 @@
 import Games from "./games";
 import Cases from "./cases";
-import {A, useSearchParams, useNavigate} from "@solidjs/router";
+import {A, useSearchParams, useNavigate, useLocation} from "@solidjs/router";
+import './navbar.css';
 import {createEffect, createSignal, onCleanup} from "solid-js";
 import {progressToNextLevel, getUserLevel} from "../../resources/levels";
 import BottomNavBar from "./mobilenav";
@@ -15,6 +16,7 @@ function NavBar(props) {
 
     const [searchParams, setSearchParams] = useSearchParams()
     const navigate = useNavigate()
+    const location = useLocation()
     const [userDropdown, setUserDropdown] = createSignal(false)
     const [wagered, setWagered] = createSignal(0)
     const [ws] = useWebsocket()
@@ -42,70 +44,81 @@ function NavBar(props) {
                     closeDropdowns(); trigger?.focus(); e.stopPropagation()
                 }
             }}>
-                <div class='navbar'>
+                <header class='navbar'>
                     <div class='left'>
                         <div class='navbar-logo'>
                             <A href='/' aria-label='Cosmic Luck home'>
                                 <img src='/assets/logo/cosmic-luck-logo.png' alt='Cosmic Luck'/>
                             </A>
                         </div>
-                        <div class='nav-links'>
+                        <nav class='nav-links' aria-label='Primary navigation'>
                             <Games/>
                             <Cases/>
 
-                            <button class='rewards' onClick={() => {
+                            <button class='rewards nav-button nav-button-menu' aria-label='Rewards' aria-haspopup='dialog'
+                                    classList={{'is-current': location.pathname.startsWith('/rewards') || searchParams.modal === 'rakeback'}} onClick={() => {
                                 if (!props?.user) return setSearchParams({modal: 'login'})
                                 setSearchParams({modal: 'rakeback'})
                             }}>
-                                <svg class='rewards-icon' width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                                <svg class='rewards-icon nav-button-icon' width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'>
                                     <rect x='1.5' y='6' width='13' height='8.5' rx='1.5' fill='currentColor' opacity='0.85'/>
                                     <rect x='0.75' y='4' width='14.5' height='3.5' rx='1.5' fill='currentColor'/>
                                     <line x1='8' y1='4' x2='8' y2='14.5' stroke='rgba(0,0,0,0.35)' stroke-width='1.5'/>
                                     <path d='M8 4 C8 4 5.5 3 4.5 1.5 C4 0.5 5.5 0.5 6 1.5 C6.5 2.5 8 4 8 4Z' fill='currentColor'/>
                                     <path d='M8 4 C8 4 10.5 3 11.5 1.5 C12 0.5 10.5 0.5 10 1.5 C9.5 2.5 8 4 8 4Z' fill='currentColor'/>
                                 </svg>
-                                <span>REWARDS</span>
+                                <span class='nav-button-copy'>
+                                    <span class='nav-button-title'>REWARDS</span>
+                                    <span class='nav-button-detail' aria-hidden='true'>Claim your bonuses</span>
+                                </span>
                                 <svg class='rewards-arrow' width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M3.50001 0.994671C3.62547 0.994671 3.7509 1.04269 3.84655 1.13852L6.8564 4.15579C7.04787 4.34773 7.04787 4.65892 6.8564 4.85078C6.66501 5.04263 6.5 4.99467 6.16316 4.99467L3.50001 4.99467L1 4.99467C0.5 4.99467 0.335042 5.04254 0.14367 4.85068C-0.0478893 4.65883 -0.0478893 4.34764 0.14367 4.1557L3.15347 1.13843C3.24916 1.04258 3.3746 0.994671 3.50001 0.994671Z" fill="currentColor"/>
                                 </svg>
                             </button>
-                        </div>
+                        </nav>
                     </div>
 
                     <div class='right'>
-                        <button class='chat-toggle' type='button' aria-label={props.chat ? 'Close chat' : 'Open chat'} aria-expanded={props.chat} aria-controls='site-chat' onClick={() => props.setChat(!props.chat)}>
+                        <button class='chat-toggle nav-button' type='button' aria-label={props.chat ? 'Close chat' : 'Open chat'} aria-expanded={props.chat} aria-controls='site-chat' onClick={() => props.setChat(!props.chat)}>
                             <svg width='19' height='19' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' aria-hidden='true'><path d='M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11.5a9.5 9.5 0 0 1 19 0Z'/><path d='M7 10h9M7 14h6'/></svg>
                         </button>
                         {props.user ? (
                             <>
-                                <button class='deposit' type='button' onClick={() => navigate('/deposit')}>Deposit</button>
-
-                                <button class='withdraw' type='button' onClick={() => navigate('/withdraw')}>Withdraw</button>
-
+                              <div class='wallet-group' aria-label='Wallet'>
                                 <div class='balance'>
-                                  <img class='coin' src='/assets/icons/coin.svg' height='18' alt='Coin'/>
+                                  <img class='coin' src='/assets/icons/coin.svg' height='22' width='22' alt='Coins'/>
+                                  <div class='balance-copy'>
+                                    <span class='wallet-label'>BALANCE</span>
                                     <div class='balance-hover'>
                                         <p class='coins'><Countup end={props?.user?.balance} gray={true}/></p>
                                         <p class='fiat'><span class='gold'>$ </span><Countup
                                             end={(props?.user?.balance || 0) * USD_PER_COIN} gray={true}/></p>
                                     </div>
+                                  </div>
                                 </div>
+                                <button class='deposit nav-button nav-button-primary' type='button' onClick={() => navigate('/deposit')}>
+                                    <svg class='deposit-icon' width='14' height='14' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'><path d='M8 3v10M3 8h10'/></svg>
+                                    Deposit
+                                </button>
+                              </div>
+
+                                <button class='withdraw nav-button' type='button' onClick={() => navigate('/withdraw')}>Withdraw</button>
 
                                 <Notifications/>
 
                                 <div class={'user-dropdown-wrapper ' + (userDropdown() ? 'active' : '')}>
-                                  <button class='user-trigger' type='button' aria-label='Account menu' aria-expanded={userDropdown()} aria-controls='account-menu' onClick={e => {
+                                  <button class='user-trigger nav-button' type='button' aria-label='Account menu' aria-expanded={userDropdown()} aria-controls='account-menu' onClick={e => {
                                     const wasOpen = userDropdown(); closeDropdowns(); setUserDropdown(!wasOpen); e.stopPropagation()
                                   }}>
                                     <img class='user-avatar'
                                          src={`${import.meta.env.VITE_SERVER_URL}/user/${props.user?.id}/img`}
                                          alt='' onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = '/assets/icons/default-avatar.svg' }}
-                                         width='30' height='30'/>
+                                         width='34' height='34'/>
 
                                     <div class='user-info'>
                                         <div class='user-name-row'>
-                                            <span class='user-level'>{getUserLevel(props?.user?.xp || 0)}</span>
                                             <span class='user-name'>{props?.user?.username}</span>
+                                            <span class='user-level'>LVL {getUserLevel(props?.user?.xp || 0)}</span>
                                         </div>
                                         <div class='xp-bar-track'>
                                             <div class='xp-bar-fill' style={`width:${Math.max(0, Math.min(100, 100 - (progressToNextLevel(props?.user?.xp || 0))))}%`}/>
@@ -125,421 +138,17 @@ function NavBar(props) {
                                 </div>
                             </>
                         ) : (
-                            <button class='bevel-gold signin' onClick={() => setSearchParams({modal: 'login'})}>SIGN
-                                IN</button>
+                            <button class='signin nav-button nav-button-primary' aria-haspopup='dialog' onClick={() => setSearchParams({modal: 'login'})}>Sign in
+                                <svg width='14' height='14' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='1.8' aria-hidden='true'><path d='M3 8h10M9 4l4 4-4 4'/></svg>
+                            </button>
                         )}
                     </div>
-                </div>
+                </header>
 
                 <BottomNavBar user={props.user} chat={props.chat} setChat={props.setChat}/>
             </div>
 
-            <style jsx>{`
-              .navbar-container {
-                --nav-control-height: 40px;
-                width: 100%;
-                height: fit-content;
-                z-index: 3;
-                position: sticky;
-                top: 0;
 
-              }
-
-              .navbar {
-                width: 100%;
-                height: var(--site-header-height);
-
-                box-sizing: border-box;
-                padding: 0 22px;
-
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 20px;
-
-                background: var(--site-header-surface);
-                border-bottom: 1px solid var(--site-header-border);
-                box-shadow: var(--site-header-highlight);
-                backdrop-filter: blur(20px) saturate(140%);
-                -webkit-backdrop-filter: blur(20px) saturate(140%);
-              }
-
-              .left, .right {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                height: 100%;
-              }
-
-              .left { min-width: 0; }
-              .right { flex-shrink: 0; }
-              .right > * { flex-shrink: 0; }
-
-              .logo {
-                display: flex;
-                align-items: center;
-                margin-right: 10px;
-              }
-
-              .navbar-logo, .chat-toggle { display: none; }
-              .navbar-logo { min-width: 0; align-items: center; }
-              .navbar-logo img { display: block; width: 164px; max-width: 100%; height: auto; }
-              .chat-toggle {
-                align-items: center;
-                justify-content: center;
-                width: 36px;
-                height: var(--nav-control-height);
-                padding: 0;
-                color: #1fd65f;
-                border: 1px solid rgba(31, 214, 95, .25);
-                border-radius: 8px;
-                background: #101b17;
-                cursor: pointer;
-              }
-              .chat-toggle:hover, .chat-toggle[aria-expanded='true'] { background: #183529; }
-              @media (max-width: 1250px) {
-                .navbar-logo, .chat-toggle { display: flex; }
-              }
-              @media (max-width: 560px) {
-                .navbar-logo img { width: 120px; }
-                .chat-toggle { display: none; }
-              }
-
-              .nav-links {
-                display: flex;
-                align-items: center;
-                gap: 4px;
-              }
-
-              .rewards {
-                position: relative;
-                display: flex;
-                align-items: center;
-                gap: 7px;
-
-                height: var(--nav-control-height);
-                padding: 0 14px;
-                border-radius: 8px;
-
-                outline: unset;
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                background: linear-gradient(180deg, rgba(38, 44, 57, 0.72), rgba(22, 27, 37, 0.82));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 12px rgba(0,0,0,0.18);
-
-                font-family: 'Geogrotesque Wide', sans-serif;
-                font-weight: 700;
-                font-size: 13px;
-                color: #8b92a0;
-
-                cursor: pointer;
-                transition: all .22s ease;
-                overflow: hidden;
-              }
-
-              .rewards:hover {
-                color: #c6ccd8;
-                border-color: rgba(255, 255, 255, 0.14);
-                background: linear-gradient(180deg, rgba(48, 55, 70, 0.78), rgba(28, 34, 46, 0.88));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 6px 18px rgba(0,0,0,0.22);
-                transform: translateY(-1px);
-              }
-
-              .rewards:active {
-                transform: translateY(0px);
-              }
-
-              .rewards span {
-                position: relative;
-                z-index: 1;
-                letter-spacing: 0.3px;
-              }
-
-              .rewards-icon {
-                position: relative;
-                z-index: 1;
-                color: #8b92a0;
-                transition: color .22s ease;
-              }
-
-              .rewards-arrow {
-                position: relative;
-                z-index: 1;
-                color: #8b92a0;
-                transition: color .22s ease;
-              }
-
-              .rewards:hover .rewards-icon,
-              .rewards:hover .rewards-arrow {
-                color: #c6ccd8;
-              }
-
-              .withdraw {
-                position: relative;
-
-                height: var(--nav-control-height);
-                padding: 0 16px;
-                border-radius: 8px;
-
-                outline: unset;
-                border: 1px solid var(--glass-border);
-                background: linear-gradient(180deg, rgba(42, 50, 64, 0.58), rgba(21, 27, 37, 0.66));
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 18px rgba(0,0,0,0.18);
-
-                font-family: 'Geogrotesque Wide', sans-serif;
-                font-weight: 700;
-                font-size: 14px;
-                color: #c3cad6;
-
-                cursor: pointer;
-                transition: background .2s, color .2s;
-              }
-
-              .withdraw:hover {
-                background: linear-gradient(180deg, rgba(52, 62, 78, 0.68), rgba(25, 32, 43, 0.76));
-                color: #fff;
-              }
-
-              .deposit {
-                position: relative;
-
-                height: var(--nav-control-height);
-                padding: 0 18px;
-                border-radius: 8px;
-
-                outline: unset;
-                border: 1px solid rgba(52, 232, 114, 0.45);
-                background: linear-gradient(180deg, #25e46a 0%, #1fd65f 55%, #18c255 100%);
-                box-shadow:
-                  inset 0 1px 0 rgba(255, 255, 255, 0.26),
-                  inset 0 -2px 0 rgba(0, 0, 0, 0.18),
-                  0 4px 18px rgba(31, 214, 95, 0.32);
-
-                font-family: 'Geogrotesque Wide', sans-serif;
-                font-weight: 800;
-                font-size: 14px;
-                color: #021a09;
-
-                cursor: pointer;
-                transition: filter .18s, transform .18s, box-shadow .18s;
-              }
-
-              .deposit:hover {
-                filter: brightness(1.07);
-                transform: translateY(-1px);
-                box-shadow:
-                  inset 0 1px 0 rgba(255, 255, 255, 0.26),
-                  inset 0 -2px 0 rgba(0, 0, 0, 0.16),
-                  0 8px 24px rgba(31, 214, 95, 0.40);
-              }
-
-              .deposit:active {
-                filter: brightness(0.97);
-                transform: translateY(0);
-              }
-
-              .balance {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-
-                height: var(--nav-control-height);
-                padding: 0 14px;
-                border-radius: 8px;
-
-                border: 1px solid rgba(31, 214, 95, 0.32);
-                background:
-                  radial-gradient(80% 110% at 50% 0%, rgba(31, 214, 95, 0.14), transparent 60%),
-                  linear-gradient(180deg, rgba(14, 22, 20, 0.88), rgba(8, 14, 14, 0.92));
-                box-shadow:
-                  inset 0 1px 0 rgba(255, 255, 255, 0.06),
-                  inset 0 0 0 1px rgba(31, 214, 95, 0.06),
-                  0 6px 20px rgba(0, 0, 0, 0.22);
-
-                font-family: 'Geogrotesque Wide', sans-serif;
-                font-weight: 700;
-                font-size: 14px;
-                color: #fff;
-                font-variant-numeric: tabular-nums;
-              }
-
-              .balance-hover {
-                position: relative;
-                display: flex;
-                align-items: center;
-                cursor: pointer;
-              }
-
-              .balance-hover:hover .coins {
-                opacity: 0;
-              }
-
-              .balance-hover:hover .fiat {
-                opacity: 1;
-              }
-
-              .coins, .fiat {
-                transition: opacity .3s;
-              }
-
-              .fiat {
-                position: absolute;
-                left: 0;
-                opacity: 0;
-                white-space: nowrap;
-              }
-
-              .right :global(.notifications-container) {
-                margin-left: 2px;
-              }
-
-              .user-dropdown-wrapper {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                height: var(--nav-control-height);
-                padding: 0 10px 0 6px;
-                position: relative;
-
-                background: linear-gradient(180deg, rgba(39, 47, 60, 0.58), rgba(18, 23, 32, 0.72));
-                border: 1px solid var(--glass-border);
-                border-radius: 8px;
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 8px 22px rgba(0,0,0,0.2);
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-
-                cursor: pointer;
-                transition: background .2s;
-              }
-
-              .user-dropdown-wrapper:hover {
-                background: linear-gradient(180deg, rgba(49, 58, 73, 0.68), rgba(23, 29, 40, 0.82));
-              }
-
-              .user-dropdown-wrapper.active .arrow {
-                transform: rotate(180deg);
-              }
-
-              .arrow {
-                transition: transform .2s;
-                flex-shrink: 0;
-              }
-
-              .user-avatar {
-                border-radius: 6px;
-                object-fit: cover;
-                flex-shrink: 0;
-              }
-
-              .user-info {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-                min-width: 60px;
-              }
-
-              .user-name-row {
-                display: flex;
-                align-items: center;
-                gap: 5px;
-              }
-
-              .user-level {
-                font-family: 'Geogrotesque Wide', sans-serif;
-                font-weight: 800;
-                font-size: 12px;
-                color: #1fd65f;
-              }
-
-              .user-name {
-                font-family: 'Geogrotesque Wide', sans-serif;
-                font-weight: 700;
-                font-size: 13px;
-                color: #ffffff;
-                max-width: 80px;
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-              }
-
-              .xp-bar-track {
-                width: 100%;
-                height: 3px;
-                background: rgba(255,255,255,0.1);
-                border-radius: 2px;
-                overflow: hidden;
-              }
-
-              .xp-bar-fill {
-                height: 100%;
-                background: linear-gradient(90deg, #18c255, #1fd65f);
-                border-radius: 2px;
-                transition: width .5s ease;
-              }
-
-              .signin {
-                outline: unset;
-                padding: 0 22px;
-
-                height: 40px;
-                min-width: 110px;
-                border-radius: 8px;
-
-                font-family: 'Geogrotesque Wide', sans-serif;
-                font-weight: 800;
-                font-size: 13px;
-                letter-spacing: 0.4px;
-                color: #021a09;
-
-                cursor: pointer;
-              }
-
-              @media only screen and (max-width: 1000px) {
-                .nav-links, .withdraw, .deposit, .user-info, .arrow {
-                  display: none;
-                }
-
-                .navbar {
-                  padding: 0 14px;
-                }
-              }
-
-              @media (min-width: 1001px) and (max-width: 1250px) {
-                .navbar { padding: 0 12px; gap: 10px; }
-                .right { gap: 6px; }
-                .user-info { display: none; }
-                .withdraw, .deposit { padding: 0 10px; }
-              }
-
-              @media (max-width: 560px) {
-                .navbar { gap: 8px; padding: 0 10px; }
-                .right { gap: 8px; margin-left: auto; }
-                .balance { padding: 0 10px; gap: 6px; }
-              }
-
-              .navbar-container { --nav-glass:linear-gradient(160deg,#ffffff10,#ffffff03); --nav-edge:#ffffff12; --nav-shadow:inset 0 1px 0 #ffffff10,0 3px 10px #0002; }
-              .rewards,.withdraw,.user-dropdown-wrapper,.chat-toggle { border-color:var(--nav-edge); background:var(--nav-glass); box-shadow:var(--nav-shadow); border-radius:10px; color:#b6c2c6; }
-              .rewards { font-size:12px; letter-spacing:.3px; }
-              .rewards-arrow { display:none; }
-              .rewards:hover,.withdraw:hover,.user-dropdown-wrapper:hover,.chat-toggle:hover { background:linear-gradient(145deg,#ffffff18,#1fd65f09); border-color:#a4e9bd30; color:#f2fff7; }
-              .deposit { border-radius:10px; background:linear-gradient(155deg,#63ed95,#1fd65f 55%,#13b74e); box-shadow:inset 0 1px 0 #ffffff70,inset 0 -2px 0 #07592b45,0 4px 16px #1fd65f22; }
-              .deposit:hover { box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #07592b40,0 6px 22px #1fd65f33; }
-              .withdraw,.deposit { font-size:13px; }
-              .balance { border-radius:10px; border-color:#1fd65f30; background:linear-gradient(140deg,#1fd65f12,#ffffff02),#09131080; box-shadow:inset 0 1px 0 #ffffff0b; }
-              .balance-hover { display:grid; }
-              .coins,.fiat { grid-area:1/1; white-space:nowrap; }
-              .fiat { position:static; }
-              .user-dropdown-wrapper { padding:0; }
-              .user-trigger { display:flex; align-items:center; gap:8px; height:100%; padding:0 10px 0 6px; background:none; border:0; border-radius:inherit; color:inherit; cursor:pointer; font:inherit; min-width:0; }
-              .user-avatar { border:1px solid #ffffff18; box-sizing:border-box; border-radius:7px; }
-              .user-info { min-width:52px; }
-              .user-name { font-size:12px; letter-spacing:.5px; }
-              .xp-bar-track { height:2px; background:#ffffff12; }
-              .chat-toggle { color:#54e88a; }
-              .rewards:active,.withdraw:active,.deposit:active { transform:translateY(1px); }
-              @media(max-width:560px) { .navbar-logo img { width:110px; } .right { gap:6px; } .balance { padding:0 8px; font-size:12px; gap:5px; } .user-trigger { padding:0 5px; } }
-              @media(max-width:360px) { .navbar-logo img { width:86px; } .navbar { padding:0 8px; gap:5px; } .right { gap:5px; } .balance { padding:0 6px; font-size:11px; } .balance .coin { height:14px; } }
-              @media(prefers-reduced-motion:reduce) { .navbar button { transition:none; transform:none; } }
-            `}</style>
         </>
     );
 }

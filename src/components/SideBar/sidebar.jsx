@@ -233,10 +233,10 @@ function SideBar(props) {
       <style jsx>{`
         .sidebar-container {
           position: relative;
-          min-width: 300px;
-          width: 300px;
-          height: 100vh;
-          max-height: 100vh;
+          min-width: var(--site-sidebar-width);
+          width: var(--site-sidebar-width);
+          height: 100dvh;
+          max-height: 100dvh;
 
           display: flex;
           flex-direction: column;
@@ -608,7 +608,7 @@ function SideBar(props) {
           .sidebar-container {
             position: fixed;
             top: 0;
-            left: -300px;
+            left: calc(-1 * var(--site-sidebar-width));
             height: 100dvh;
             visibility: hidden;
             z-index: 4;
@@ -621,7 +621,7 @@ function SideBar(props) {
           }
         }
         @media (max-width: 1000px) {
-          .sidebar-container { height: calc(100dvh - 60px); }
+          .sidebar-container { height: calc(100dvh - 60px - env(safe-area-inset-bottom)); }
         }
       `}</style>
     </>

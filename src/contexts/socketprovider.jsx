@@ -1,6 +1,7 @@
 import {createContext, useContext, createResource, onCleanup} from "solid-js";
 import io from "socket.io-client";
 import {getJWT} from "../util/api";
+import {resolveSocketUrl} from '../util/server-url.mjs';
 
 const WebsocketContext = createContext();
 
@@ -17,8 +18,7 @@ export function WebsocketProvider(props) {
 
     async function connectSocket() {
 
-        const configured = (import.meta.env.VITE_SOCKET_URL || '').trim()
-        const socketUrl = (!configured || configured === 'undefined') ? window.location.origin : configured
+        const socketUrl = resolveSocketUrl(import.meta.env, window.location.origin)
 
         function createSocket() {
             const tempWs = io(socketUrl, { transports: ['polling', 'websocket'], reconnection: true, reconnectionDelay: 1000, reconnectionAttempts: 10})

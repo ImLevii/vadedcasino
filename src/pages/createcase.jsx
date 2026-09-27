@@ -358,7 +358,7 @@ function CreateCase(props) {
             <style jsx>{`
               .create-case-container {
                 width: 100%;
-                max-width: 1200px;
+                max-width: var(--page-max-width);
                 margin: 0 auto;
                 padding: 10px 0 40px;
                 display: flex;

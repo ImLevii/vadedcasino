@@ -15,7 +15,7 @@ function Cases(props) {
             <style jsx>{`
               .cases-base-container {
                 width: 100%;
-                max-width: 2048px;
+                max-width: var(--page-max-width);
                 height: fit-content;
 
                 box-sizing: border-box;

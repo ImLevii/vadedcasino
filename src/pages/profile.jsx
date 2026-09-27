@@ -88,7 +88,7 @@ function Profile(props) {
             <style jsx>{`
               .profile-container {
                 width: 100%;
-                max-width: 1175px;
+                max-width: var(--page-max-width);
                 height: fit-content;
 
                 box-sizing: border-box;

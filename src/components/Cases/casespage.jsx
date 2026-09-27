@@ -122,7 +122,7 @@ function Cases(props) {
             <style jsx>{`
               .cases-container {
                 width: 100%;
-                max-width: 1560px;
+                max-width: var(--page-max-width);
                 height: fit-content;
                 padding: 10px 0 32px;
                 min-width: 0;

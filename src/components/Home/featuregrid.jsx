@@ -44,7 +44,7 @@ function FeatureGrid() {
                             </svg>
                         </div>
 
-                        <A href={f.href} class='gamemode-link'/>
+                        <A href={f.href} class='gamemode-link' aria-label={f.name}/>
                     </div>
                 )}</For>
             </div>
@@ -60,9 +60,9 @@ function FeatureGrid() {
               .section-title {
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-weight: 700;
-                font-size: 11px;
+                font-size: 13px;
                 letter-spacing: 0;
-                color: #6b7280;
+                color: #bed8d0;
                 white-space: nowrap;
                 text-transform: uppercase;
               }
@@ -77,8 +77,8 @@ function FeatureGrid() {
                 width: 100%;
 
                 display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: clamp(10px, 1vw, 14px);
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 16px;
               }
 
               .feature {
@@ -86,7 +86,7 @@ function FeatureGrid() {
                 display: flex;
                 flex-direction: column;
 
-                height: clamp(168px, 12.5vw, 202px);
+                min-width: 0;
                 border-radius: 10px;
                 overflow: hidden;
 
@@ -99,6 +99,10 @@ function FeatureGrid() {
 
               .feature.wide {
                 grid-column: span 2;
+              }
+
+              .feature.wide .feature-image-container {
+                aspect-ratio: 32 / 9;
               }
 
               /* Accent glow in corner */
@@ -122,7 +126,7 @@ function FeatureGrid() {
               }
 
               .feature-image-container {
-                flex: 1;
+                aspect-ratio: 16 / 9;
                 min-height: 0;
                 position: relative;
                 z-index: 1;
@@ -144,7 +148,7 @@ function FeatureGrid() {
               }
 
               .feature-label-bar {
-                height: 36px;
+                min-height: 44px;
                 background: rgba(0,0,0,0.45);
                 border-top: 1px solid rgba(255, 255, 255, 0.04);
 
@@ -173,7 +177,7 @@ function FeatureGrid() {
                 flex: 1;
                 font-family: 'Geogrotesque Wide', sans-serif;
                 font-weight: 700;
-                font-size: 10.5px;
+                font-size: 13px;
                 letter-spacing: 0.6px;
                 color: #c3cad6;
                 text-transform: uppercase;
@@ -211,38 +215,31 @@ function FeatureGrid() {
                 box-shadow: 0 0 10px var(--accent);
               }
 
-              @media only screen and (max-width: 1160px) {
-                .feature-grid {
-                  grid-template-columns: repeat(3, 1fr);
-                }
-
-                .feature { height: 174px; }
+              @container (min-width: 1500px) {
+                .feature-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
               }
 
-              @media only screen and (max-width: 760px) {
+              @container (max-width: 960px) {
                 .feature-grid {
-                  grid-template-columns: repeat(2, 1fr);
+                  grid-template-columns: repeat(2, minmax(0, 1fr));
                 }
 
                 .feature.wide {
                   grid-column: span 2;
                 }
 
-                .feature { height: 158px; }
-
                 .feature-image-container img {
                   object-position: center;
                 }
               }
 
-              @media only screen and (max-width: 520px) {
+              @container (max-width: 440px) {
                 .feature-grid {
                   grid-template-columns: minmax(0, 1fr);
                   gap: 10px;
                 }
 
                 .feature {
-                  height: clamp(170px, 46vw, 196px);
                   border-radius: 8px;
                 }
 
@@ -250,9 +247,10 @@ function FeatureGrid() {
                   grid-column: span 1;
                 }
 
+                .feature.wide .feature-image-container { aspect-ratio: 16 / 9; }
+
                 .feature-image-container img { object-fit: cover; }
-                .feature-label-bar { height: 38px; padding: 0 11px; }
-                .feature-name { font-size: 10px; }
+                .feature-label-bar { padding: 0 14px; }
               }
             `}</style>
         </>

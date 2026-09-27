@@ -228,6 +228,7 @@ function App() {
                 <Navbar user={user()} chat={chat()} setChat={setChat}/>
 
                 <div class={'content ' + (isImmersiveBattle() ? 'battle-immersive-content' : '')}>
+                  <div class='page-shell'>
                   <Routes>
                     <Route path='/' element={
                       <Suspense fallback={<Loader/>}>
@@ -511,6 +512,7 @@ function App() {
                       <Route path='*' element={<Redirect/>}/>
                     )}
                   </Routes>
+                  </div>
 
                   <div class='background'/>
                 </div>
@@ -524,8 +526,8 @@ function App() {
 
       <style jsx>{`
         .app {
-          width: 100vw;
-          height: 100vh;
+          width: 100%;
+          height: 100dvh;
 
           display: flex;
 
@@ -535,7 +537,7 @@ function App() {
         }
 
         .center {
-          height: 100vh;
+          height: 100%;
           width: 100%;
           min-width: 0;
           position: relative;
@@ -555,35 +557,19 @@ function App() {
 
           position: relative;
           isolation: isolate;
-          padding-inline: clamp(12px, 1.75vw, 30px);
-          border: 1px solid rgba(255, 255, 255, 0.045);
-          border-top: 1px solid rgba(255, 255, 255, 0.065);
-          border-radius: 14px;
-          box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.05),
-            inset 0 0 0 1px rgba(0, 0, 0, 0.06),
-            0 24px 60px rgba(0, 0, 0, 0.36);
+          padding-inline: var(--page-gutter);
+          background: transparent;
         }
 
-        /*
-         * backdrop-filter lives on this pseudo layer instead of directly on
-         * .content: applying it to .content itself would make it establish a
-         * new containing block for its position:fixed descendants (any modal
-         * rendered inside a routed page), which pins those modals to
-         * .content's box instead of the real viewport and breaks centering.
-         */
-        .content::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          z-index: -1;
-          border-radius: inherit;
-          pointer-events: none;
-          background:
-            radial-gradient(130% 60% at 50% -6%, rgba(31, 214, 95, 0.05), transparent 48%),
-            linear-gradient(200deg, rgba(12, 16, 24, 0.72), rgba(7, 10, 16, 0.78));
-          backdrop-filter: blur(10px) saturate(130%);
-          -webkit-backdrop-filter: blur(10px) saturate(130%);
+        .page-shell {
+          width: 100%;
+          min-width: 0;
+          max-width: var(--page-max-width);
+          margin-inline: auto;
+        }
+
+        .battle-immersive-content .page-shell {
+          max-width: none;
         }
 
         .battle-immersive-center {
@@ -673,18 +659,18 @@ function App() {
 
         @media only screen and (max-width: 1000px) {
           .center {
-            padding-bottom: 50px;
+            padding-bottom: calc(60px + env(safe-area-inset-bottom));
           }
 
           .content {
-            padding-inline: clamp(10px, 2.2vw, 16px);
+            padding-inline: var(--page-gutter);
             border-radius: 12px;
           }
         }
 
         @media only screen and (max-width: 600px) {
           .content {
-            padding-inline: 10px;
+            padding-inline: var(--page-gutter);
             border-left: 0;
             border-right: 0;
             border-radius: 0;

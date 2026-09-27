@@ -485,7 +485,7 @@ function Crash(props) {
       <style jsx>{`
         .crash-container {
           width: 100%;
-          max-width: 1320px;
+          max-width: var(--page-max-width);
           min-height: calc(100vh - 90px);
           margin: 0 auto;
           padding: 0 0 96px;
@@ -792,7 +792,7 @@ function Crash(props) {
           .round-status.waiting .status-dot { animation: none; }
         }
 
-        .crash-container { max-width:1900px; padding:0 0 60px; min-height:0; }
+        .crash-container { max-width: var(--page-max-width); padding:0 0 60px; min-height:0; }
         .history-panel { background:none; border:0; border-radius:0; height:36px; padding:0 8px; margin-bottom:24px; }
         .crash-main { grid-template-columns:minmax(220px,30%) minmax(0,1fr); gap:24px; height:clamp(440px,39vw,600px); min-height:0; flex:none; }
         .crash-bet-bar { margin-top:24px; padding:0 8px; border:0; box-shadow:none; background:none; border-radius:0; gap:16px; height:auto; flex-wrap:wrap; }

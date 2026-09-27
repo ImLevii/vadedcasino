@@ -172,7 +172,7 @@ function Leaderboard(props) {
             <style jsx>{`
               .leaderboard-container {
                 width: 100%;
-                max-width: 1175px;
+                max-width: var(--page-max-width);
                 box-sizing: border-box;
                 padding: 30px 18px 96px;
                 margin: 0 auto;

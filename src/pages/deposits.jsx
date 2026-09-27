@@ -248,7 +248,7 @@ function Deposits(props) {
 
         .deposits-container {
           width: 100%;
-          max-width: 1175px;
+          max-width: var(--page-max-width);
           height: 100%;
 
           overflow-y: scroll;

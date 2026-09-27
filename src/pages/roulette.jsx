@@ -283,9 +283,8 @@ function Roulette(props) {
                             </div>
                         </div>
 
-                          <WheelBonus pot={tripleGreenBonusPot()} streak={bonusStreak()} rate={config().tripleGreenBonusRake} minimum={config().tripleGreenMinimumBet}/>
-
                     </div>
+                    <WheelBonus pot={tripleGreenBonusPot()} streak={bonusStreak()} rate={config().tripleGreenBonusRake} minimum={config().tripleGreenMinimumBet}/>
                 </div>
 
                 <RouletteSpinner roll={round()} config={config()} timeLeft={timeLeft()}/>
@@ -305,7 +304,8 @@ function Roulette(props) {
             <style jsx>{`
               .roulette-container {
                 width: 100%;
-                max-width: 1175px;
+                max-width: var(--page-max-width);
+                container-type: inline-size;
                 height: fit-content;
 
                 padding: 30px 0;
@@ -314,13 +314,16 @@ function Roulette(props) {
 
               .roulette-header {
                 width: 100%;
-                display: flex;
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto auto;
                 align-items: center;
                 justify-content: space-between;
                 position: relative;
-                gap: 20px;
-                margin-bottom: 18px;
-                padding: 14px 18px;
+                gap: 16px;
+                margin-bottom: 14px;
+                padding: 10px 14px;
+                --roulette-small-chip-size: 28px;
+                --roulette-small-chip-image-size: 24px;
                 background: #0c0e14;
                 border: 1px solid rgba(255,255,255,0.05);
                 border-radius: 12px;
@@ -329,7 +332,8 @@ function Roulette(props) {
               .recent, .last100 {
                 display: flex;
                 flex-direction: column;
-                gap: 8px;
+                gap: 6px;
+                min-width: 0;
               }
 
               .last100 {
@@ -346,7 +350,7 @@ function Roulette(props) {
 
               .lastten {
                 display: flex;
-                gap: 5px;
+                gap: 4px;
               }
 
 
@@ -360,7 +364,7 @@ function Roulette(props) {
                 align-items: center;
                 gap: 6px;
 
-                padding: 4px 10px 4px 5px;
+                padding: 3px 8px 3px 4px;
                 border-radius: 6px;
                 background: rgba(255,255,255,0.04);
                 border: 1px solid rgba(255, 255, 255, 0.06);
@@ -373,6 +377,17 @@ function Roulette(props) {
               .stat.black { color: #8b92a0; }
               .stat.red { color: #e8455f; }
               .stat.bait { color: #c9a84c; border-color: rgba(201, 168, 76, 0.22); background: rgba(201, 168, 76, 0.07); }
+
+              @container (max-width: 900px) {
+                .roulette-header { grid-template-columns: minmax(0, 1fr) auto; gap: 10px 14px; }
+                .recent { grid-column: 1 / -1; }
+                .last100 { align-items: flex-start; }
+              }
+
+              @container (max-width: 520px) {
+                .roulette-header { grid-template-columns: minmax(0, 1fr); }
+                .lastten { flex-wrap: wrap; }
+              }
 
               .colors {
                 display: grid;
@@ -388,11 +403,6 @@ function Roulette(props) {
               }
 
               @media only screen and (max-width: 875px) {
-                .roulette-header {
-                  flex-wrap: wrap;
-                }
-
-
                 .colors {
                   grid-template-columns: 1fr;
                   gap: 28px;

@@ -486,9 +486,9 @@ function BattleRow(props) {
         .drops-label { font-size:12px; text-transform:none; } .drops-amount { white-space:nowrap; font-size:13px; }
         .action { height:40px; min-width:98px; border:0; border-radius:3px; background:#20232b; color:#9ba5b4; font-size:12px; }
         .action.join { background:#20232b; color:#00ed95; }
-        .mid { width:auto; min-width:0; padding:6px 0; gap:8px; }
-        .inspect { height:44px; border:0; border-radius:3px; background:#20232b; color:#9ba5b4; font-size:12px; }
-        .badge-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+        .mid { width:auto; min-width:0; padding:6px 0; gap:8px; flex-direction:column; align-items:stretch; }
+        .inspect { flex:none; height:44px; border:0; border-radius:3px; background:#20232b; color:#9ba5b4; font-size:12px; }
+        .badge-row { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
         .badge { width:auto; height:40px; background:#1b1e26; border-radius:3px; color:#8d9bab; } .badge svg { width:22px; height:22px; }
         .cases { gap:8px; padding:6px 0; mask-image:linear-gradient(to right,transparent,#000 20px,#000 calc(100% - 24px),transparent); }
         .case-thumb { width:92px; height:92px; border:0; border-radius:3px; background:#20232b; } .case-thumb img { width:86%; height:86%; }
