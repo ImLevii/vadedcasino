@@ -42,6 +42,9 @@ function addFees(amount) {
 router.get('/', async (req, res) => {
 
     res.json({
+        available: !!(enabledFeatures.cardDeposits && process.env.ZEBRA_API_KEY && process.env.ZEBRA_PARTNER_ID),
+        baseMin: min,
+        baseMax: max,
         minAmount: addFees(min),
         maxAmount: addFees(max),
         percentFee: fees.percent,
@@ -54,9 +57,10 @@ router.get('/', async (req, res) => {
 router.post('/', apiLimiter, isAuthed, async (req, res) => {
 
     if (!enabledFeatures.cardDeposits) return res.status(400).json({ error: 'DISABLED' });
+    if (!process.env.ZEBRA_API_KEY || !process.env.ZEBRA_PARTNER_ID) return res.status(503).json({error:'PAYMENT_PROVIDER_UNAVAILABLE'});
 
     let amount = req.body.amount;
-    if (typeof amount !== 'number' || isNaN(amount) || amount <= 0) return res.status(400).json({ error: 'INVALID_AMOUNT' });
+    if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) return res.status(400).json({ error: 'INVALID_AMOUNT' });
 
     amount = roundDecimal((amount / cryptoData.coinRate.coins) * cryptoData.coinRate.usd);
     if (amount < min) return res.status(400).json({ error: 'MIN_DEPOSIT_CC' });
@@ -78,6 +82,7 @@ router.post('/', apiLimiter, isAuthed, async (req, res) => {
         const { data: tradeResp } = await axios({
             url: `https://api.zebrasmarket.com/partner/${process.env.ZEBRA_PARTNER_ID}/trade_url`,
             method: 'POST',
+            timeout: 6000,
             data: dataToSend,
             validateStatus: () => true,
             headers: {
@@ -101,7 +106,8 @@ router.post('/', apiLimiter, isAuthed, async (req, res) => {
         return res.status(400).json({ error: 'UNKNOWN_ERROR' });
     }
 
-    const data = tradeRes.data;
+    const data = tradeRes?.data;
+    if (!data || !data.orderId || typeof data.url !== 'string') return res.status(503).json({error:'PAYMENT_PROVIDER_UNAVAILABLE'});
     const orderId = data.orderId;
 
     const token = data.url.split('token=')[1];
@@ -121,12 +127,12 @@ router.get('/ipn', incomingIpn);
 router.post('/ipn', incomingIpn);
 
 async function incomingIpn(req, res) {
+    if (!process.env.ZEBRA_API_KEY) return res.status(503).json({error:'PAYMENT_PROVIDER_UNAVAILABLE'});
 
     const ipnSignature = buildSignature(req.body, process.env.ZEBRA_API_KEY);
     const sentSignature = req.body.signature;
 
-    if (ipnSignature != sentSignature) {
-        console.log('invalid signature on cc deposit', req.body);
+    if (typeof sentSignature !== 'string' || !/^[a-f0-9]{64}$/i.test(sentSignature) || !crypto.timingSafeEqual(Buffer.from(ipnSignature, 'hex'), Buffer.from(sentSignature, 'hex'))) {
         return res.status(400).json({ error: 'INVALID_SIGNATURE' });
     }
 
@@ -137,7 +143,7 @@ async function incomingIpn(req, res) {
 
         await doTransaction(async (connection, commit) => {
 
-            const [[deposit]] = await connection.query('SELECT u.balance, u.username, userId, fiatAmount, completed FROM cardDeposits cd JOIN users u ON u.id = cd.userId WHERE orderId = ? FOR UPDATE', [orderId]);
+            const [[deposit]] = await connection.query('SELECT cd.id, u.balance, u.username, userId, fiatAmount, completed FROM cardDeposits cd JOIN users u ON u.id = cd.userId WHERE orderId = ? FOR UPDATE', [orderId]);
             if (!deposit) {
                 console.log(`Invalid orderId on cc deposit`, orderId);
                 return res.status(400).json({ error: 'INVALID_ORDER_ID' });
@@ -145,15 +151,15 @@ async function incomingIpn(req, res) {
             
             if (deposit.completed) return res.json({ success: true });
     
-            if (value > deposit.fiatAmount) {
+            if (!Number.isFinite(value) || value <= 0 || Math.round(value * 100) !== Math.round(Number(deposit.fiatAmount) * 100)) {
                 console.log(`Invalid amount on cc deposit`, value, deposit.fiatAmount);
                 return res.status(400).json({ error: 'INVALID_AMOUNT' });
             }
     
-            let coins = Math.floor(deposit.fiatAmount * cryptoData.coinRate.coins / cryptoData.coinRate.usd);
+            let coins = roundDecimal(deposit.fiatAmount * cryptoData.coinRate.coins / cryptoData.coinRate.usd);
     
             await connection.query('UPDATE cardDeposits SET coinAmount = ?, completed = 1 WHERE orderId = ?', [coins, orderId]);
-            const [txResult] = await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [deposit.userId, coins, 'deposit', 'card', orderId]);
+            const [txResult] = await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [deposit.userId, coins, 'deposit', 'card', deposit.id]);
             await activateDepositRewards(connection, deposit.userId, coins);
     
             if (depositBonus) {

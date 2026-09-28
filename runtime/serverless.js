@@ -21,6 +21,7 @@ async function initialize() {
             await require('../routes/auth/credentials').ensureEmailAccounts();
             await require('../socketio/chat/staff-mode').ensureStaffChatSchema(sql);
             await require('./game-controls').ensureOperationsSchema(sql);
+            await require('./cashier').ensureCashierSchema(sql);
         });
         await events.initialize();
     })().catch(error => { initialized = null; throw error; });
@@ -126,6 +127,8 @@ function setup(io) {
 }
 
 function middleware(req, res, next) {
+    // These handlers explicitly commit a payment claim before external transfers.
+    if (req.method === 'POST' && /^\/admin\/cashier\/crypto\/(accept|reconcile)\/\d+$/.test(req.path)) return run(() => {}, {scopes:['admin']}).then(() => next(), next);
     // Public presentation reads neither spend balances nor use game caches.
     // In particular, image streams must never own the game transaction lock.
     if (req.method === 'GET' && (/^\/(slides|announcements\/active)\/?$/.test(req.path) || /^\/user\/[^/]+\/img$/.test(req.path) || req.path.startsWith('/public/media/'))) {
@@ -145,10 +148,6 @@ function middleware(req, res, next) {
     res.once('close', onClose);
     run(async () => {
       if (disconnected || res.destroyed) throw new Error('Client disconnected');
-      if (req.path.startsWith('/trading')) {
-          await require('../routes/trading/crypto/deposit/functions').cacheCryptos();
-          await require('../routes/trading/crypto/withdraw/functions').cacheWithdrawalCoins();
-      }
       return new Promise((resolve, reject) => {
         cancelRoute = reject;
         res.write = (chunk, encoding, callback) => {

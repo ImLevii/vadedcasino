@@ -12,9 +12,10 @@ const { isAuthed, apiLimiter } = require('../../../auth/functions');
 const { cryptoData } = require('../deposit/functions');
 const { enabledFeatures, checkAccountLock } = require('../../../admin/config');
 const { roundDecimal, sendLog } = require('../../../../utils');
-const { withdrawalCoins, getWalletBalance, chainsConfig } = require('./functions');
+const { withdrawalCoins, getWalletBalance, chainsConfig, cacheWithdrawalCoins } = require('./functions');
 
 router.get('/', async (req, res) => {
+    await cacheWithdrawalCoins();
 
     let explorers = {};
 
@@ -23,7 +24,8 @@ router.get('/', async (req, res) => {
     }
 
     res.json({
-        currencies: Object.values(withdrawalCoins),
+        available: !!(process.env.MEXC_API_KEY && process.env.MEXC_API_SECRET && enabledFeatures.cryptoWithdrawals && Object.keys(withdrawalCoins).length),
+        currencies: Object.values(withdrawalCoins).filter(c => c.id && c.chains?.length && Date.now()-c.quotedAt<300000),
         explorers,
         coinRate: cryptoData.coinRate
     });
@@ -61,14 +63,16 @@ const kycAmount = 150; // 150usd
 router.post('/', isAuthed, apiLimiter, async (req, res) => {
 
     if (!enabledFeatures.cryptoWithdrawals) return res.status(400).json({ error: 'DISABLED' });
+    if (!process.env.MEXC_API_KEY || !process.env.MEXC_API_SECRET) return res.status(503).json({error:'CRYPTO_PROVIDER_UNAVAILABLE'});
+    await cacheWithdrawalCoins();
 
     const currency = withdrawalCoins[req.body.currency];
-    if (!currency) return res.json({ error: 'INVALID_CURRENCY' });
+    if (!currency || !currency.chains || !Number.isFinite(currency.price) || currency.price<=0 || Date.now()-currency.quotedAt>300000) return res.status(503).json({ error: 'PAYMENT_RATE_UNAVAILABLE' });
 
     const chain = currency.chains.find(e => e.id == req.body.chain);
     if (!chain) return res.json({ error: 'INVALID_CHAIN' });
 
-    if (typeof req.body.amount != 'number') return res.json({ error: 'INVALID_AMOUNT' });
+    if (typeof req.body.amount != 'number' || !Number.isFinite(req.body.amount) || req.body.amount < 0.01 || req.body.amount > 1000000) return res.status(400).json({ error: 'INVALID_AMOUNT' });
     const coinAmount = roundDecimal(req.body.amount);
 
     const fiatAmount = roundDecimal((coinAmount / cryptoData.coinRate.coins) * cryptoData.coinRate.usd);
@@ -82,14 +86,15 @@ router.post('/', isAuthed, apiLimiter, async (req, res) => {
 
     const chainConfig = chainsConfig[chain.id];
     if (!chainConfig) return res.json({ error: 'INVALID_CHAIN' });
+    if (chain.memoRequired) return res.status(400).json({error:'MEMO_NETWORK_UNSUPPORTED'});
 
     const isValid = WAValidator.validate(address, chainConfig.validator);
     if (!isValid) return res.json({ error: 'INVALID_ADDRESS' });
     // console.log(chain.id, validatorChainCurrencies[chain.id], isValid);
 
-    const walletBalance = await getWalletBalance();
-
     try {
+        const walletBalance = await getWalletBalance(currency.id);
+        if (cryptoAmount + chain.fee > walletBalance) return res.status(400).json({error:'HOT_WALLET_BALANCE'});
 
         await doTransaction(async (connection, commit) => {
 
@@ -122,16 +127,17 @@ router.post('/', isAuthed, apiLimiter, async (req, res) => {
     
             }
     
-            const [[{ pendingWithdrawals }]] = await connection.query(`SELECT COUNT(*) as pendingWithdrawals FROM cryptoWithdraws WHERE userId = ? AND status = ?`, [user.id, 'pending']);
+            const [[{ pendingWithdrawals }]] = await connection.query(`SELECT COUNT(*) as pendingWithdrawals FROM cryptoWithdraws WHERE userId = ? AND status IN (?, ?, ?)`, [user.id, 'pending', 'sending', 'sent']);
             if (pendingWithdrawals >= 1) return res.status(400).json({ error: 'PENDING_WITHDRAWAL' });
     
             const [[{ pendingSum }]] = await connection.query(`SELECT COALESCE(SUM(fiatAmount), 0) as pendingSum FROM cryptoWithdraws WHERE status = ?`, ['pending']);
-            if (pendingSum + fiatAmount > walletBalance) return res.status(400).json({ error: 'HOT_WALLET_BALANCE' });
+            const [[{reserved}]] = await connection.query('SELECT COALESCE(SUM(cryptoAmount),0) AS reserved FROM cryptoWithdraws WHERE currency=? AND status IN (?,?)',[currency.id,'pending','sending']);
+            if (Number(reserved) + cryptoAmount + chain.fee > walletBalance) return res.status(400).json({ error: 'HOT_WALLET_BALANCE' });
     
             if (!vip) {
                 
                 const [[{ todayCryptoDeposits }]] = await connection.query(`SELECT COALESCE(SUM(fiatAmount), 0) as todayCryptoDeposits FROM cryptoDeposits WHERE status = ? AND createdAt > ?`, ['completed', new Date(Date.now() - 24 * 60 * 60 * 1000)]);
-                if (pendingSum + fiatAmount > todayCryptoDeposits * 0.5) return res.status(400).json({ error: 'HOT_WALLET_BALANCE' });
+                if (Number(pendingSum) + fiatAmount > Number(todayCryptoDeposits) * 0.5) return res.status(400).json({ error: 'HOT_WALLET_BALANCE' });
             
                 if (!user.verified) {
                     if (fiatAmount > kycAmount) return res.status(400).json({ error: 'KYC' });
@@ -195,12 +201,12 @@ router.post('/cancel/:id', isAuthed, apiLimiter, async (req, res) => {
             if (!transaction) return res.status(404).json({ error: 'TRANSACTION_NOT_FOUND' });
             if (transaction.status != 'pending') return res.status(400).json({ error: 'TRANSACTION_NOT_PENDING' });
 
-            await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [transaction.coinAmount, transaction.userId]);
+            await connection.query('UPDATE users SET balance = balance + ?, cryptoAllowance = CASE WHEN cryptoAllowance IS NULL THEN NULL ELSE cryptoAllowance + ? END WHERE id = ?', [transaction.coinAmount, transaction.coinAmount, transaction.userId]);
             await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [transaction.userId, transaction.coinAmount, 'in', 'crypto-cancel', id]);
-            io.to(transaction.userId).emit('balance', 'add', transaction.coinAmount);
 
             await connection.query('UPDATE cryptoWithdraws SET status = ? WHERE id = ?', ['cancelled', id]);
             await commit();
+            io.to(String(transaction.userId)).emit('balance', 'add', transaction.coinAmount);
 
             sendLog('cryptoWithdraws', `Crypto withdraw cancelled by *${transaction.username}* (\`${req.userId}\`) - ${transaction.coinAmount} coins (#${id})`);
             res.json({ success: true });

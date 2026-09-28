@@ -32,6 +32,37 @@ async function main() {
     adapter.createPostgresPool = url => createPool(url, EmbeddedPool);
     // Keep third-party traffic out of a database smoke test.
     const axios = require('axios');
+    const cashierTest=process.env.CASHIER_TEST==='1';
+    const cashierCalls={payouts:[],giftcardBroadcasts:0};
+    if(cashierTest){
+        await db.query(`INSERT INTO users (id,username,role,perms,balance,"cryptoAllowance") VALUES (20,'Cashier player','USER',0,100,100),(21,'Cashier rollback','USER',0,100,100)`);
+        await db.query(`INSERT INTO "cryptoWallets" ("userId",currency,address) VALUES (20,'LTC','fixture-wallet'),(21,'LTC','rollback-wallet')`);
+        await db.query(`INSERT INTO "cryptoWithdraws" (id,"userId","coinAmount","fiatAmount","cryptoAmount",address,currency,chain,status) VALUES (901,20,10,7,7,'fixture-destination','LTC','LTC','pending'),(902,20,12,8.4,8.4,'fixture-uncertain','LTC','LTC','pending'),(903,20,8,5.6,5.6,'fixture-cancel','LTC','LTC','pending')`);
+        await db.query(`INSERT INTO transactions ("userId",amount,type,method,"methodId") VALUES (20,10,'out','crypto',901),(20,12,'out','crypto',902),(20,8,'out','crypto',903)`);
+        await db.exec(`CREATE FUNCTION reject_cashier_credit() RETURNS trigger AS $$ BEGIN IF NEW.id = 21 AND NEW.balance > OLD.balance THEN RAISE EXCEPTION 'fixture credit failure'; END IF; RETURN NEW; END $$ LANGUAGE plpgsql; CREATE TRIGGER cashier_failed_credit BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION reject_cashier_credit();`);
+        const originalCreate=axios.create;
+        axios.create=options=>{
+            if(options.baseURL!=='https://api.mexc.com')return originalCreate(options);
+            const client=async(input)=>{
+                const config=typeof input==='string'?{url:input}:input;
+                if(config.url==='/api/v3/capital/config/getall')return {data:[{coin:'LTC',name:'Litecoin',networkList:[{netWork:'LTC',name:'Litecoin',withdrawEnable:true,withdrawFee:'0.01',withdrawMin:'0.1',withdrawMax:'100000',withdrawIntegerMultiple:'0.00000001'}]}]};
+                if(config.url==='/api/v3/ticker/price')return {data:[{symbol:'LTCUSDT',price:'1'}]};
+                if(config.url==='/api/v3/account')return {data:{balances:[{asset:'LTC',free:'100000'}]}};
+                if(config.url==='/api/v3/capital/withdraw'){
+                    if(require('../../runtime/context').storage.getStore())throw new Error('Payout occurred before durable commit');
+                    const id=Number(config.params.withdrawOrderId.replace('cosmicluck-',''));
+                    const [[claim]]=await require('../../database').sql.query('SELECT status FROM cryptoWithdraws WHERE id=?',[id]);
+                    if(claim.status!=='sending')throw new Error('Claim was not committed');
+                    cashierCalls.payouts.push(id);
+                    if(id===902)throw new Error('Simulated provider timeout after accepting transfer');
+                    return {data:{id:'mexc-'+id}};
+                }
+                if(config.url==='/api/v3/capital/withdraw/history')return {data:cashierCalls.payouts.map(id=>({id:'mexc-'+id,withdrawOrderId:'cosmicluck-'+id,address:id===902?'fixture-uncertain':'fixture-destination',coin:'LTC',status:7,txId:'fixture-chain-'+id}))};
+                throw new Error('Unexpected MEXC request');
+            };
+            client.interceptors={request:{use(){}}};return client;
+        };
+    }
     let steamLogins = 0;
     let googleLogins = 0;
     axios.get = async (url, options) => {
@@ -56,7 +87,8 @@ async function main() {
         }
         throw new Error('External HTTP is disabled in the PostgreSQL smoke test');
     };
-    axios.post = async url => {
+    axios.post = async (url,body) => {
+        if(cashierTest&&url==='https://www.coinpayments.net/api.php')return {data:{error:'ok',result:{address:'fixture-'+new URLSearchParams(body).get('currency')+'-deposit-address'}}};
         if (url === 'https://steamcommunity.com/openid/login') return { data: 'is_valid:true' };
         if (url === 'https://oauth2.googleapis.com/token') return { data: { access_token: 'fixture-token' } };
         return { data: {} };
@@ -88,8 +120,20 @@ async function main() {
         const server = require('../../api/index');
         Object.assign(require('../../routes/games/roulette/functions').roulette.config, {betTime: 1000, rollTime: 1000});
         const requestHandler = server.listeners('request')[0];
+        if(cashierTest){const io=require('../../socketio/server');const emit=io.emit.bind(io);io.emit=(name,...args)=>{if(name==='admin:giftcards:created')cashierCalls.giftcardBroadcasts++;return emit(name,...args);};}
         server.removeAllListeners('request');
         server.on('request', (req, res) => {
+            if(cashierTest&&req.url==='/__test/cashier'){
+                require('../../runtime/serverless').run(async()=>{
+                    const {sql}=require('../../database');
+                    const [users]=await sql.query('SELECT id,balance,cryptoAllowance FROM users WHERE id IN (20,21) ORDER BY id');
+                    const [deposits]=await sql.query('SELECT * FROM cryptoDeposits');
+                    const [withdrawals]=await sql.query('SELECT * FROM cryptoWithdraws ORDER BY id');
+                    const [audit]=await sql.query('SELECT action,targetId FROM cashierAudit');
+                    const [ledger]=await sql.query('SELECT * FROM transactions WHERE userId IN (20,21)');
+                    return {users,deposits,withdrawals,audit,ledger,calls:cashierCalls};
+                },{scopes:['admin']}).then(data=>{res.setHeader('content-type','application/json');res.end(JSON.stringify(data));},error=>{res.statusCode=500;res.end(JSON.stringify({error:error.message}));});return;
+            }
             if (process.env.OPERATIONS_TEST === '1' && req.url === '/__test/operations-recovery') {
                 require('../../runtime/serverless').run(async () => {
                     const {sql} = require('../../database');

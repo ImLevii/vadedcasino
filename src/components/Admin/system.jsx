@@ -30,6 +30,18 @@ export const words = (value) =>
     .toLowerCase()
     .replace(/^./, (c) => c.toUpperCase());
 const messages = {
+  PAYOUT_REQUIRES_RECONCILIATION:
+    "The provider response is uncertain. Funds remain reserved. Close this dialog and use Reconcile with provider to check the existing transfer.",
+  PAYOUT_NOT_CONFIRMED_KEEP_RESERVED:
+    "No matching provider record was found. Funds remain reserved; investigate with the provider before any further action.",
+  TRANSACTION_NOT_PENDING:
+    "This transaction has already changed. Refresh and review its current status.",
+  CRYPTO_PROVIDER_UNAVAILABLE:
+    "The crypto provider is unavailable or has not been configured.",
+  GIFT_CARD_ALREADY_REDEEMED:
+    "This gift card has been redeemed. Its value and redemption record cannot be changed.",
+  CASHIER_UNAVAILABLE:
+    "The cashier request could not be completed. Retry to retrieve the latest result.",
   STALE_GAME_STATE:
     "This game changed. Review the latest state and start a new action.",
   ROUND_ALREADY_COMMITTED:

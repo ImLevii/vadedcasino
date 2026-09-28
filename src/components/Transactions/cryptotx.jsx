@@ -11,7 +11,7 @@ function CryptoTX(props) {
             <img class='cancel' src='/assets/icons/trash.svg' height='15' width='14' alt='cancel' onClick={async () => {
               let res = await authedAPI(`/trading/crypto/withdraw/cancel/${props?.id}`, 'POST', null, true)
 
-              if (res.success) {
+              if (res?.success) {
                 props?.cancel(props?.id)
                 createNotification('success', `Successfully cancelled your ${props?.currency} transaction.`)
               }
@@ -39,7 +39,7 @@ function CryptoTX(props) {
 
         <div>
           <img src='/assets/icons/coin.svg' height='17' width='17' alt=''/>
-          <p className='white bold'>{formatNumber(props?.robuxAmount)}</p>
+          <p className='white bold'>{formatNumber(props?.coinAmount)}</p>
           <p class='white bold'>(<span class='gold'>$</span> {formatNumber(props?.fiatAmount)})</p>
         </div>
 

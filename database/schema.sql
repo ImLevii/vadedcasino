@@ -597,7 +597,7 @@ CREATE TABLE IF NOT EXISTS `cryptoDeposits` (
     `currency`     VARCHAR(32)     NOT NULL,
     `cryptoAmount` DECIMAL(20,8)   NOT NULL DEFAULT 0,
     `fiatAmount`   DECIMAL(20,8)   NOT NULL DEFAULT 0,
-    `coinAmount`   INT UNSIGNED    NOT NULL DEFAULT 0,
+    `coinAmount`   DECIMAL(20,2)   NOT NULL DEFAULT 0,
     `txId`         VARCHAR(255)    DEFAULT NULL,
     `status`       ENUM('pending','completed','failed') NOT NULL DEFAULT 'pending',
     `createdAt`    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -628,6 +628,8 @@ CREATE TABLE IF NOT EXISTS `cryptoWithdraws` (
 
 CREATE TABLE IF NOT EXISTS `cardDeposits` (
     `id`         INT UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `orderId`    VARCHAR(128)     DEFAULT NULL,
+    `coinAmount` DECIMAL(20,2)    NOT NULL DEFAULT 0,
     `userId`     BIGINT UNSIGNED NOT NULL,
     `fiatAmount` DECIMAL(20,2)   NOT NULL DEFAULT 0,
     `completed`  TINYINT(1)      NOT NULL DEFAULT 0,
@@ -957,4 +959,29 @@ CREATE TABLE IF NOT EXISTS `gameOperationPresence` (
     `lastSeen` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`socketId`),
     KEY `idx_gameOperationPresence_lastSeen` (`lastSeen`)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS `cryptoDepositReceipts` (
+    `providerId` VARCHAR(128) NOT NULL,
+    `walletId` BIGINT NOT NULL,
+    `depositId` BIGINT DEFAULT NULL,
+    `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`providerId`)
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS `cryptoWalletMetadata` (
+    `walletId` BIGINT NOT NULL,
+    `destinationTag` VARCHAR(128) DEFAULT NULL,
+    PRIMARY KEY (`walletId`)
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS `cashierAudit` (
+    `requestId` VARCHAR(64) NOT NULL,
+    `adminId` BIGINT NOT NULL,
+    `action` VARCHAR(64) NOT NULL,
+    `targetId` BIGINT NOT NULL DEFAULT 0,
+    `fingerprint` VARCHAR(64) NOT NULL,
+    `reason` VARCHAR(500) NOT NULL,
+    `result` TEXT DEFAULT NULL,
+    `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updatedAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`requestId`)
 ) ENGINE=InnoDB;

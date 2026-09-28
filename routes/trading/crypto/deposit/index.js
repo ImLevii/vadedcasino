@@ -1,205 +1,138 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-
-const crypto = require('crypto');
-
-const { sql, doTransaction } = require('../../../../database');
-const io = require('../../../../socketio/server');
-
-const { isAuthed, apiLimiter } = require('../../../auth/functions');
-const { cryptoData, coinpayments } = require('./functions');
-const { enabledFeatures, depositBonus } = require('../../../admin/config');
-const { roundDecimal, sendLog, newNotification } = require('../../../../utils');
-const { activateDepositRewards } = require('../../../user/rewards/functions');
-
-router.get('/', async (req, res) => {
-    res.json({
-        currencies: Object.values(cryptoData.currencies).map(currency => ({
-            id: currency.id,
-            name: currency.name,
-            price: currency.price,
-            confirmations: currency.confirmations
-        })),
-        coinRate: cryptoData.coinRate
-    });
+const { sql, doTransaction } = require("../../../../database");
+const { isAuthed, apiLimiter } = require("../../../auth/functions");
+const {
+  cryptoData,
+  cacheCryptos,
+  current,
+  coinpayments,
+} = require("./functions");
+const { enabledFeatures } = require("../../../admin/config");
+const provider = require("./provider");
+const { settle } = require("./settlement");
+router.get("/", async (req, res) => {
+  const configured = provider.configuration().configured,
+    available = configured && !!enabledFeatures.cryptoDeposits;
+  if (available) await cacheCryptos();
+  res.json({
+    provider: "CoinPayments",
+    available,
+    reason: !configured
+      ? "CRYPTO_PROVIDER_UNAVAILABLE"
+      : !enabledFeatures.cryptoDeposits
+        ? "DISABLED"
+        : null,
+    currencies: Object.values(cryptoData.currencies).map((c) => ({
+      ...c,
+      price: current(c) ? c.price : null,
+      available: available && current(c),
+    })),
+    coinRate: cryptoData.coinRate,
+  });
 });
-
-const resultsPerPage = 50;
-
-router.get('/transactions', isAuthed, async (req, res) => {
-
-    let page = parseInt(req.query.page);
-    page = !isNaN(page) && page > 0 ? page : 1;
-
-    const offset = (page - 1) * resultsPerPage;
-
-    const [[{ total }]] = await sql.query('SELECT COUNT(*) as total FROM cryptoDeposits WHERE userId = ?', [req.userId]);
-    if (!total) return res.json({ page: 1, pages: 0, total: 0, data: [] });
-
-    const pages = Math.ceil(total / resultsPerPage);
-
-    if (page > pages) return res.status(404).json({ error: 'PAGE_NOT_FOUND' });
-    const [data] = await sql.query('SELECT txId, currency, cryptoAmount, fiatAmount, coinAmount, status, createdAt, modifiedAt FROM cryptoDeposits WHERE userId = ? ORDER BY id DESC LIMIT ? OFFSET ?', [req.userId, resultsPerPage, offset]);
-    
-    res.json({
-        page,
-        pages,
-        total,
-        data
-    });
-
+router.get("/transactions", isAuthed, async (req, res) => {
+  try {
+    const [[{ total }]] = await sql.query(
+      "SELECT COUNT(*) AS total FROM cryptoDeposits WHERE userId=?",
+      [req.userId],
+    );
+    const pages = Math.max(1, Math.ceil(Number(total) / 20)),
+      page = Math.min(pages, Math.max(1, parseInt(req.query.page) || 1));
+    const [data] = await sql.query(
+      "SELECT id,txId,currency,cryptoAmount,fiatAmount,coinAmount,status,createdAt,modifiedAt FROM cryptoDeposits WHERE userId=? ORDER BY id DESC LIMIT ? OFFSET ?",
+      [req.userId, 20, (page - 1) * 20],
+    );
+    res.json({ data, page, pages, total: Number(total) });
+  } catch {
+    res.status(500).json({ error: "CASHIER_UNAVAILABLE" });
+  }
 });
-
-router.use((req, res, next) => {
-    if (!enabledFeatures.cryptoDeposits) return res.status(400).json({ error: 'DISABLED' });
-    next();
-});
-
-router.post('/wallet', isAuthed, apiLimiter, async (req, res) => {
-
-    const currencyId = req.body.currency;
-
-    const currency = cryptoData.currencies[currencyId];
-    if (!currency) return res.status(400).json({ error: 'INVALID_CURRENCY' });
-
-    try {
-
-        const [[wallet]] = await sql.query('SELECT address FROM cryptoWallets WHERE userId = ? AND currency = ?', [req.userId, currencyId]);
-        let address = wallet?.address;
-    
-        if (!address) {
-            
-            const newWallet = await coinpayments.getCallbackAddress({
-                currency: currencyId
-            });
-    
-            address = newWallet.address;
-            if (!address) return res.status(500).json({ error: 'INTERNAL_ERROR' });
-            
-            await sql.query('INSERT INTO cryptoWallets (userId, currency, address) VALUES (?, ?, ?)', [req.userId, currencyId, address]);
-    
-        }
-
-        res.json({
-            coinRate: cryptoData.coinRate,
-            currency,
-            address
+router.post("/wallet", isAuthed, apiLimiter, async (req, res) => {
+  if (!enabledFeatures.cryptoDeposits)
+    return res.status(400).json({ error: "DISABLED" });
+  const config = provider.configuration();
+  if (!config.configured)
+    return res.status(503).json({ error: "CRYPTO_PROVIDER_UNAVAILABLE" });
+  const currency = cryptoData.currencies[req.body.currency];
+  if (!currency) return res.status(400).json({ error: "INVALID_CURRENCY" });
+  try {
+    await cacheCryptos();
+    if (!current(currency))
+      return res.status(503).json({ error: "PAYMENT_RATE_UNAVAILABLE" });
+    const wallet = await doTransaction(async (connection, commit) => {
+      await connection.query("SELECT id FROM users WHERE id=? FOR UPDATE", [
+        req.userId,
+      ]);
+      let [[row]] = await connection.query(
+        "SELECT w.id,w.address,m.destinationTag FROM cryptoWallets w LEFT JOIN cryptoWalletMetadata m ON m.walletId=w.id WHERE w.userId=? AND w.currency=? ORDER BY w.id LIMIT 1",
+        [req.userId, currency.id],
+      );
+      if (!row) {
+        const result = await coinpayments.getCallbackAddress({
+          currency: currency.id,
+          ipn_url: config.callbackUrl,
+          label: "Cosmic Luck deposit",
         });
-
-    } catch (e) {
-        console.error(e);
-        return res.status(500).json({ error: 'INTERNAL_ERROR' });
-    }
-
+        if (
+          typeof result.address !== "string" ||
+          !result.address ||
+          result.address.length > 512
+        )
+          throw provider.failure("CRYPTO_PROVIDER_UNAVAILABLE");
+        const [created] = await connection.query(
+          "INSERT INTO cryptoWallets (userId,currency,address) VALUES (?,?,?)",
+          [req.userId, currency.id, result.address],
+        );
+        const tag = result.dest_tag == null ? null : String(result.dest_tag);
+        await connection.query(
+          "INSERT INTO cryptoWalletMetadata (walletId,destinationTag) VALUES (?,?)",
+          [created.insertId, tag],
+        );
+        row = { address: result.address, destinationTag: tag };
+      }
+      await commit();
+      return row;
+    });
+    res.json({
+      coinRate: cryptoData.coinRate,
+      currency,
+      address: wallet.address,
+      destinationTag: wallet.destinationTag || null,
+    });
+  } catch (e) {
+    res
+      .status(503)
+      .json({
+        error:
+          e.code === "PAYMENT_RATE_UNAVAILABLE"
+            ? e.code
+            : "CRYPTO_PROVIDER_UNAVAILABLE",
+      });
+  }
 });
-
-router.post('/ipn', async (req, res) => {
-
-    const raw = req.rawUrlBody?.toString();
-    // console.log('incoming ipn', raw);
-
-    if (!raw) return res.sendStatus(500);
-
-    const calcHmac = crypto
-    .createHmac(`sha512`, process.env.COINPAYMENTS_IPN_SECRET)
-    .update(raw)
-    .digest(`hex`);
-    
-    if (calcHmac != req.header("HMAC")) {
-        console.log('Invalid event signature received');
-        return res.sendStatus(403);
-    }
-
-    const event = req.body;
-    // console.log('new event', event)
-
-    if (event.ipn_type != 'deposit') {
-        console.log('Invalid event type received', event.ipn_type);
-        return res.sendStatus(200);
-    }
-
-    const currency = cryptoData.currencies[event.currency];
-    if (!currency) {
-        console.log('Invalid event currency received', event.currency);
-        return res.sendStatus(200);
-    }
-
-    const status = event.status < 0 ? 'failed' : event.status < 100 ? 'pending' : 'completed';
-
-    // Convert the crypto amount to USD, then to site coins.
-    const usd = event.amount * currency.price;
-    let coins = Math.floor(usd * cryptoData.coinRate.coins / cryptoData.coinRate.usd);
-    
-    if (coins < 0.01) {
-        console.log('Invalid event amount received');
-        return res.sendStatus(200);
-    }
-
-    try {
-
-        await doTransaction(async (connection, commit) => {
-
-            let [[exists]] = await connection.query('SELECT id, userId FROM cryptoDeposits WHERE txId = ? AND currency = ? FOR UPDATE', [event.txn_id, currency.id]);
-            let userId = exists?.userId;
-            let depositId = exists?.id;
-
-            if (!depositId) {
-
-                const [[wallet]] = await connection.query('SELECT userId FROM cryptoWallets WHERE address = ? AND currency = ?', [event.address, currency.id]);
-
-                if (!wallet) {
-                    console.log('Invalid event wallet received');
-                    return res.sendStatus(200);
-                }
-
-                userId = wallet.userId;
-
-                const [result] = await connection.query('INSERT INTO cryptoDeposits (userId, currency, cryptoAmount, fiatAmount, coinAmount, txId, status) VALUES (?, ?, ?, ?, ?, ?, ?)', [userId, currency.id, event.amount, usd, coins, event.txn_id, status]);
-                depositId = result.insertId;
-
-                if (status != 'completed') {
-                    io.to(userId).emit('toast', 'success', `Your crypto deposit for ${coins} coins has been detected and it\'s awaiting confirmation.`, { duration: 30000 });
-                    sendLog('cryptoDeposits', `New pending crypto deposit from *${userId}* - ${coins} coins (#${depositId})`);
-                }
-
-            } else {
-                await connection.query('UPDATE cryptoDeposits SET status = ?, coinAmount = ?, fiatAmount = ? WHERE id = ?', [status, coins, usd, depositId]);
-            }
-
-            if (status != 'completed') {
-                await commit();
-                return res.sendStatus(200);
-            }
-            
-            // if (!exists) [[exists]] = await connection.query('SELECT id, userId FROM cryptoDeposits WHERE txId = ? AND currency = ?', [event.txn_id, currency.id]);
-            const [txResult] = await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [userId, coins, 'deposit', 'crypto', depositId]);
-            await activateDepositRewards(connection, userId, coins);
-
-            if (depositBonus) {
-                const bonus = roundDecimal(coins * depositBonus);
-                await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [userId, bonus, 'in', 'deposit-bonus', txResult.insertId]);
-                coins = roundDecimal(coins + bonus);
-            }
-
-            await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [coins, userId]);        
-            await newNotification(userId, 'deposit-completed', { txId: txResult.insertId, amount: coins }, connection);
-
-            await commit();
-            res.sendStatus(200);
-
-            io.to(userId).emit('balance', 'add', coins);
-            io.to(userId).emit('toast', 'success', `Your deposit of ${coins} coins has been completed.`);
-
-            sendLog('cryptoDeposits', `Crypto deposit from *${userId}* confirmed - ${coins} coins (#${depositId}). \`$${roundDecimal(usd)}usd\`${currency.explorer ? `\n${currency.explorer.replace('%txid%', event.txn_id)}` : ''}`);
-
-        });
-
-    } catch (e) {
-        console.error(e);
-        res.status(500).json({ error: 'INTERNAL_ERROR' });
-    }
-
+// Turning off new deposits never disables settlement of money already sent.
+router.post("/ipn", async (req, res) => {
+  try {
+    provider.verify(req.rawUrlBody, req.header("HMAC"), req.body);
+    if (
+      Number(req.body.status) >= 100 &&
+      !(
+        String(req.body.fiat_coin).toUpperCase() === "USD" &&
+        Number(req.body.fiat_amount) > 0
+      )
+    )
+      await cacheCryptos();
+    const result = await settle(req.body);
+    res.status(200).json({ received: true, duplicate: !!result?.duplicate });
+  } catch (e) {
+    const status =
+      e.code === "INVALID_SIGNATURE"
+        ? 403
+        : e.code === "INVALID_PAYMENT_EVENT"
+          ? 400
+          : 503;
+    res.status(status).json({ error: e.code || "CASHIER_UNAVAILABLE" });
+  }
 });
-
-
 module.exports = router;

@@ -1,280 +1,342 @@
-import {createResource, createSignal, For, Show} from "solid-js";
-import {authedAPI, createNotification} from "../../util/api";
-import Loader from "../Loader/loader";
-import AdminMFA from "../MFA/adminmfa";
-import Avatar from "../Level/avatar";
-import {useSearchParams} from "@solidjs/router";
-import Pagination from "../Pagination/pagination";
-import {addPage} from "../../util/pagination";
-import {formatNumber} from "../../util/numbers";
-
-function AdminCryptoCashier(props) {
-
-    let loadedPages = new Set()
-    const [total, setTotal] = createSignal(1)
-    const [page, setPage] = createSignal(1)
-    const [isLoading, setIsLoading] = createSignal(true)
-
-    const [username, setUsername] = createSignal('')
-    const [transactions, setTransactions] = createSignal([], {equals: false})
-
-    const [params, setParams] = useSearchParams()
-    const [txsResource, {
-        mutate: mutateTransactions,
-        refetch: refetchTransactions
-    }] = createResource(() => params?.search || '', fetchCryptoTransactions)
-
-    async function fetchCryptoTransactions(search) {
-        try {
-            setUsername(search)
-            setPage(+params?.page || 1)
-            let txRes = await authedAPI(`/admin/cashier/crypto?sortBy=coinAmount&sortOrder=DESC&page=${page()}${params?.search ? `&search=${params?.search}` : ''}`, 'GET', null)
-            if (txRes.error && txRes.error === '2FA_REQUIRED') {
-                return mutateTransactions({mfa: true})
-            }
-
-            setTotal(txRes.pages)
-            setIsLoading(false)
-            addPage(txRes?.data, page(), setTransactions)
-            return mutateTransactions(txRes)
-        } catch (e) {
-            console.log(e)
-            return mutateTransactions(null)
-        }
-    }
-
-    async function loadPage() {
-        if (isLoading()) return
-        setIsLoading(true)
-        setParams({page: page()})
-
-        let moreData = await authedAPI(`/admin/cashier/crypto?sortBy=coinAmount&sortOrder=DESC&page=${page()}${params?.search ? `&search=${params?.search}` : ''}`, 'GET', null)
-        if (!moreData) return setIsLoading(false)
-
-        addPage(moreData.data, page(), setTransactions)
-        setTotal(moreData.pages)
-        loadedPages.add(page())
-
-        setIsLoading(false)
-    }
-
-    async function approveTX(tx) {
-        let res = await authedAPI(`/admin/cashier/crypto/accept/${tx.id}`, 'POST', null, true)
-
-        if (res?.success) {
-            createNotification('success', `Successfully approved the crypto transaction.`)
-            let newTxs = transactions()
-            let index = newTxs[params.page || 1].findIndex(t => t.id === tx.id)
-
-            newTxs[params.page || 1] = [
-                ...newTxs[params.page || 1].slice(0, index),
-                ...newTxs[params.page || 1].slice(index + 1)
-            ]
-
-            setTransactions(newTxs)
-        }
-    }
-
-    async function denyTX(tx) {
-        let res = await authedAPI(`/admin/cashier/crypto/deny/${tx.id}`, 'POST', null, true)
-
-        if (res?.success) {
-            createNotification('success', `Successfully cancelled the transaction.`)
-            let newTxs = transactions()
-            let index = newTxs[params.page || 1].findIndex(t => t.id === tx.id)
-
-            newTxs[params.page || 1] = [
-                ...newTxs[params.page || 1].slice(0, index),
-                ...newTxs[params.page || 1].slice(index + 1)
-            ]
-
-            setTransactions(newTxs)
-        }
-    }
-
-    return (
-        <>
-            {txsResource()?.mfa && (
-                <AdminMFA refetch={() => {
-                    refetchTransactions()
-                }}/>
-            )}
-
-            <div className='users-wrapper'>
-                <div className='table-header'>
-                    <div className='table-column'>
-                        <p>USERNAME</p>
-                    </div>
-
-                    <div className='table-column'>
-                        <p>METHOD</p>
-                    </div>
-
-                    <div className='table-column'>
-                        <p>AMOUNT</p>
-                    </div>
-
-                    <div className='table-column'>
-                        <p>OPTION</p>
-                    </div>
-                </div>
-
-                <Show when={!txsResource.loading} fallback={<Loader/>}>
-                    <div className='table'>
-                        <For each={transactions()[page()]}>{(tx, index) =>
-                            <div className='table-data'>
-                                <div className='table-column'>
-                                    <Avatar id={tx?.userId} xp={tx.xp} height='30'/>
-                                    <p className='white'>{tx?.username || 'Anonymous'}</p>
-                                </div>
-
-                                <div className='table-column'>
-                                    <p><span class='gold'>{tx?.currency}</span> ({tx?.chain})</p>
-                                </div>
-
-                                <div className='table-column'>
-                                    <img src='/assets/icons/coin.svg' height='15' width='16' alt=''/>
-                                    <p className='white'>
-                                        {formatNumber(tx?.coinAmount)}
-                                    </p>
-                                    <p>(<span class='gold'>$</span> {formatNumber(tx?.fiatAmount)})</p>
-                                </div>
-
-                                <div className='table-column'>
-                                    <button className='approve' onClick={async () => approveTX(tx)}>
-                                        APPROVE
-                                    </button>
-
-                                    <button className='remove' onClick={async () => denyTX(tx)}>
-                                        DENY
-                                    </button>
-                                </div>
-                            </div>
-                        }</For>
-                    </div>
-                </Show>
-
-                <Pagination isLoading={isLoading()} loadedPages={loadedPages} loadPage={loadPage} page={page()}
-                            total={total()} setPage={setPage} setParams={setParams}/>
-            </div>
-
-            <style jsx>{`
-              .table {
-                display: flex;
-                flex-direction: column;
-                margin-bottom: 20px;
-              }
-
-              .table-header, .table-data {
-                display: flex;
-                justify-content: space-between;
-              }
-
-              .table-header {
-                margin: 0 0 20px 0;
-              }
-
-              .table-data {
-                height: 55px;
-                background: rgba(58, 66, 80, 0.45);
-                padding: 0 20px;
-
-                display: flex;
-                align-items: center;
-
-                color: #8b92a0;
-                font-size: 14px;
-                font-weight: 700;
-              }
-
-              .table-data:nth-of-type(2n) {
-                background: rgba(58, 66, 80, 0.2);
-              }
-
-              .table-column {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                flex: 1 1 0;
-              }
-
-              .table-column:nth-of-type(4n) {
-                justify-content: flex-end;
-              }
-
-              .table-header p {
-                background: rgba(58, 66, 80, 0.45);
-                height: 25px;
-                line-height: 25px;
-                padding: 0 15px;
-                border-radius: 2px;
-
-                color: #8b92a0;
-                font-size: 12px;
-                font-weight: 700;
-              }
-
-              .view {
-                background: unset;
-                outline: unset;
-                border: unset;
-
-                display: flex;
-                align-items: center;
-                gap: 6px;
-
-                color: #8b92a0;
-                font-family: Geogrotesque Wide, sans-serif;
-                font-size: 14px;
-                font-weight: 700;
-
-                cursor: pointer;
-              }
-
-              .users-wrapper {
-                width: 100%;
-              }
-
-              .approve {
-                outline: unset;
-                border: unset;
-
-                border-radius: 3px;
-                background: #1fd65f;
-                box-shadow: 0px 1px 0px 0px #3CAC54, 0px -1px 0px 0px #96FFAD;
-
-                color: #FFF;
-                font-family: Geogrotesque Wide, sans-serif;
-                font-size: 14px;
-                font-weight: 600;
-
-                width: 78px;
-                height: 33px;
-
-                cursor: pointer;
-              }
-
-              .remove {
-                outline: unset;
-                border: unset;
-
-                border-radius: 3px;
-                background: #E2564D;
-                box-shadow: 0px 1px 0px 0px #A1443E, 0px -1px 0px 0px #FF8D86;
-
-                color: #FFF;
-                font-family: Geogrotesque Wide, sans-serif;
-                font-size: 14px;
-                font-weight: 600;
-
-                width: 78px;
-                height: 33px;
-
-                cursor: pointer;
-              }
-            `}</style>
-        </>
+import { createSignal, For, Show } from "solid-js";
+import { authedAPI, createNotification } from "../../util/api";
+import {
+  PageHeader,
+  Badge,
+  Empty,
+  Failure,
+  Skeleton,
+  Modal,
+  money,
+  date,
+} from "../Admin/system";
+import { useCashierList, Pager, copyCashier } from "./shared";
+export default function AdminCryptoCashier() {
+  const [kind, setKind] = createSignal("withdrawals"),
+    list = useCashierList("/admin/cashier/crypto", () => ({ kind: kind() }));
+  const [dialog, setDialog] = createSignal(null),
+    [reason, setReason] = createSignal(""),
+    [busy, setBusy] = createSignal(false),
+    [error, setError] = createSignal(""),
+    [submitted, setSubmitted] = createSignal(null);
+  function open(tx, action) {
+    setDialog({ tx, action, requestId: crypto.randomUUID() });
+    setReason("");
+    setError("");
+    setSubmitted(null);
+  }
+  async function save(e) {
+    e.preventDefault();
+    if (busy()) return;
+    const d = dialog(),
+      body = submitted() || { requestId: d.requestId, reason: reason().trim() };
+    setSubmitted(body);
+    setBusy(true);
+    setError("");
+    const result = await authedAPI(
+      "/admin/cashier/crypto/" + d.action + "/" + d.tx.id,
+      "POST",
+      JSON.stringify(body),
+      false,
+      25000,
     );
+    setBusy(false);
+    list.refetch();
+    if (!result?.success) {
+      setError(result?.error || "CASHIER_UNAVAILABLE");
+      return;
+    }
+    setDialog(null);
+    createNotification("success", "Transaction updated.");
+  }
+  const statuses = () =>
+    kind() === "deposits"
+      ? ["pending", "completed", "failed"]
+      : ["pending", "sending", "sent", "completed", "failed", "cancelled"];
+  return (
+    <>
+      <PageHeader
+        eyebrow="CASHIER / CRYPTO"
+        title="Crypto transactions"
+        description="Review deposits, approve withdrawals, and reconcile pending transfers."
+      >
+        <button
+          class="adm-button"
+          disabled={list.data.loading}
+          onClick={list.refetch}
+        >
+          Refresh
+        </button>
+      </PageHeader>
+      <Show when={list.data()?.provider}>
+        <div class="cashier-providers">
+          <For each={["deposits", "withdrawals"]}>
+            {(key) => (
+              <div>
+                <div>
+                  <strong>
+                    {key === "deposits"
+                      ? "Deposit connection"
+                      : "Withdrawal connection"}
+                  </strong>
+                  <Badge
+                    value={
+                      list.data().provider[key].configured ? "active" : "paused"
+                    }
+                  >
+                    {list.data().provider[key].configured
+                      ? "Configured"
+                      : "Setup required"}
+                  </Badge>
+                </div>
+                <p>
+                  {list.data().provider[key].configured
+                    ? "Credentials are configured. Transaction requests verify provider availability."
+                    : "Missing: " +
+                      list.data().provider[key].missing.join(", ")}
+                </p>
+              </div>
+            )}
+          </For>
+        </div>
+      </Show>
+      <div class="adm-tabs">
+        <For each={["withdrawals", "deposits"]}>
+          {(key) => (
+            <button
+              classList={{ active: kind() === key }}
+              onClick={() => {
+                setKind(key);
+                list.setStatus("");
+                list.setPage(1);
+              }}
+            >
+              {key === "withdrawals" ? "Withdrawals" : "Deposits"}
+            </button>
+          )}
+        </For>
+      </div>
+      <form class="adm-filterbar" onSubmit={list.search}>
+        <label class="adm-field">
+          Search
+          <input
+            class="adm-input"
+            placeholder="Username, account ID or transaction hash"
+            maxLength="128"
+            value={list.draft()}
+            onInput={(e) => list.setDraft(e.currentTarget.value)}
+          />
+        </label>
+        <label class="adm-field">
+          Status
+          <select
+            class="adm-select"
+            value={list.status()}
+            onChange={(e) => list.setStatus(e.currentTarget.value)}
+          >
+            <option value="">All statuses</option>
+            <For each={statuses()}>
+              {(status) => (
+                <option value={status}>
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </option>
+              )}
+            </For>
+          </select>
+        </label>
+        <button class="adm-button">Search</button>
+      </form>
+      <Show
+        when={!list.data()?.error}
+        fallback={<Failure error={list.data()?.error} retry={list.refetch} />}
+      >
+        <Show when={list.data()} fallback={<Skeleton />}>
+          <section class="adm-panel">
+            <Show
+              when={list.data()?.data.length}
+              fallback={
+                <Empty title="No transactions found">
+                  Activity will appear here as payments are processed.
+                </Empty>
+              }
+            >
+              <div class="adm-table-scroll">
+                <table class="adm-table">
+                  <thead>
+                    <tr>
+                      <th>Transaction / user</th>
+                      <th>Coins</th>
+                      <th>Crypto / network</th>
+                      <th>Status</th>
+                      <th>Created</th>
+                      <th>Review</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <For each={list.data()?.data}>
+                      {(tx) => (
+                        <tr>
+                          <td>
+                            <strong>
+                              #{tx.id} · {tx.username}
+                            </strong>
+                            <small>{tx.userId}</small>
+                          </td>
+                          <td>
+                            <strong>{money(tx.coinAmount)}</strong>
+                            <small>${money(tx.fiatAmount)} USD</small>
+                          </td>
+                          <td>
+                            <strong>
+                              {tx.cryptoAmount} {tx.currency}
+                            </strong>
+                            <small>{tx.chain || tx.currency}</small>
+                          </td>
+                          <td>
+                            <Badge value={tx.status} />
+                          </td>
+                          <td>{date(tx.createdAt)}</td>
+                          <td>
+                            <button
+                              class="adm-button"
+                              onClick={() => open(tx, "inspect")}
+                            >
+                              View details
+                            </button>
+                          </td>
+                        </tr>
+                      )}
+                    </For>
+                  </tbody>
+                </table>
+              </div>
+            </Show>
+            <Pager list={list} />
+          </section>
+        </Show>
+      </Show>
+      <Show when={dialog()}>
+        <Modal
+          title={"Transaction #" + dialog().tx.id}
+          eyebrow={
+            kind() === "deposits" ? "CRYPTO DEPOSIT" : "CRYPTO WITHDRAWAL"
+          }
+          busy={busy()}
+          close={() => setDialog(null)}
+        >
+          <dl class="cashier-detail">
+            <dt>Account</dt>
+            <dd>
+              {dialog().tx.username} · {dialog().tx.userId}
+            </dd>
+            <dt>Amount</dt>
+            <dd>
+              {money(dialog().tx.coinAmount)} coins / $
+              {money(dialog().tx.fiatAmount)}
+            </dd>
+            <dt>Asset</dt>
+            <dd>
+              {dialog().tx.cryptoAmount} {dialog().tx.currency}
+            </dd>
+            <dt>Network</dt>
+            <dd>{dialog().tx.chain || dialog().tx.currency}</dd>
+            <dt>Status</dt>
+            <dd>
+              <Badge value={dialog().tx.status} />
+            </dd>
+            <Show when={dialog().tx.address}>
+              <dt>Destination</dt>
+              <dd>
+                <code>{dialog().tx.address}</code>
+                <button
+                  class="adm-button"
+                  onClick={() => copyCashier(dialog().tx.address)}
+                >
+                  Copy
+                </button>
+              </dd>
+            </Show>
+            <dt>Transaction hash</dt>
+            <dd>
+              <code>{dialog().tx.txId || "Not yet broadcast"}</code>
+            </dd>
+            <dt>Created</dt>
+            <dd>{date(dialog().tx.createdAt)}</dd>
+          </dl>
+          <Show when={kind() === "withdrawals"}>
+            <Show when={dialog().action === "inspect"}>
+              <div class="adm-actions">
+                <Show when={dialog().tx.status === "pending"}>
+                  <button
+                    class="adm-button danger"
+                    onClick={() => open(dialog().tx, "deny")}
+                  >
+                    Deny & refund
+                  </button>
+                  <button
+                    class="adm-button primary"
+                    disabled={!list.data()?.provider?.withdrawals?.configured}
+                    onClick={() => open(dialog().tx, "accept")}
+                  >
+                    Review approval
+                  </button>
+                </Show>
+                <Show when={["sending", "sent"].includes(dialog().tx.status)}>
+                  <div class="adm-notice">
+                    Funds remain reserved until the provider confirms the
+                    transfer. Reconciliation checks the existing payment without
+                    sending again.
+                  </div>
+                  <button
+                    class="adm-button primary"
+                    onClick={() => open(dialog().tx, "reconcile")}
+                  >
+                    Reconcile with provider
+                  </button>
+                </Show>
+              </div>
+            </Show>
+            <Show when={dialog().action !== "inspect"}>
+              <form onSubmit={save}>
+                <div class="adm-notice">
+                  {dialog().action === "accept"
+                    ? "Approving sends these funds to the destination above. Verify the asset, network, address and amount."
+                    : dialog().action === "deny"
+                      ? "This returns the reserved coins to the player and cancels the request."
+                      : "This checks the provider status. An unknown transfer remains reserved for investigation."}
+                </div>
+                <label class="adm-field">
+                  Reason
+                  <textarea
+                    class="adm-input"
+                    required
+                    minLength="5"
+                    maxLength="500"
+                    disabled={!!submitted()}
+                    value={reason()}
+                    onInput={(e) => setReason(e.currentTarget.value)}
+                  />
+                </label>
+                <Show when={error()}>
+                  <Failure error={error()} />
+                </Show>
+                <button class="adm-button primary" disabled={busy()}>
+                  {busy()
+                    ? "Processing…"
+                    : submitted()
+                      ? "Retry request"
+                      : "Confirm " +
+                        (dialog().action === "accept"
+                          ? "approval"
+                          : dialog().action === "deny"
+                            ? "refund"
+                            : "reconciliation")}
+                </button>
+              </form>
+            </Show>
+          </Show>
+        </Modal>
+      </Show>
+    </>
+  );
 }
-
-export default AdminCryptoCashier;

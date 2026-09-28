@@ -1,236 +1,308 @@
-
-
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-
-const axios = require('axios');
-const { sql, doTransaction } = require('../../../database');
-const { sendLog, sleep, formatConsoleError } = require('../../../utils');
-const { mexc, defaultCurrency, defaultCurrencyPrice } = require('../../trading/crypto/withdraw/functions');
-const io = require('../../../socketio/server');
-
-const resultsPerPage = 10;
-
-const privateMexc = axios.create({
-    baseURL: 'https://www.mexc.com/api/platform',
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'User-Agent': 'MEXC/1 CFNetwork/1331.0.7 Darwin/21.4.0',
-        'Cookie': 'u_id=' + process.env.MEXC_APP_TOKEN
+const { sql, doTransaction } = require("../../../database");
+const { durable } = require("../../../runtime/cashier");
+const actions = require("./actions");
+const {
+  mexc,
+  getWalletBalance,
+  cacheWithdrawalCoins,
+  withdrawalCoins,
+} = require("../../trading/crypto/withdraw/functions");
+router.get("/", async (req, res) => {
+  try {
+    const kind = req.query.kind === "deposits" ? "deposits" : "withdrawals";
+    const table = kind === "deposits" ? "cryptoDeposits" : "cryptoWithdraws";
+    const allowed =
+      kind === "deposits"
+        ? ["pending", "completed", "failed"]
+        : ["pending", "sending", "sent", "completed", "failed", "cancelled"];
+    const status = String(req.query.status || ""),
+      search = String(req.query.search || "")
+        .trim()
+        .slice(0, 128);
+    if (status && !allowed.includes(status))
+      return res.status(400).json({ error: "INVALID_STATUS" });
+    const clauses = ["1=1"],
+      args = [];
+    if (status) {
+      clauses.push("c.status=?");
+      args.push(status);
     }
-});
-
-router.get('/', async (req, res) => {
-
-    const sortBy = req.query.sortBy || 'id';
-    if (!['coinAmount', 'id'].includes(sortBy)) return res.status(400).json({ error: 'INVALID_SORT_BY' });
-
-    const sortOrder = req.query.sortOrder || 'ASC';
-    if (!['ASC', 'DESC'].includes(sortOrder)) return res.status(400).json({ error: 'INVALID_SORT_ORDER' });
-
-    let searchQuery = 'WHERE status = ?';
-    let searchArgs = ['pending'];
-
-    const search = req.query.search;
     if (search) {
-        if (typeof search !== 'string' || search.length < 1 || search.length > 30) return res.status(400).json({ error: 'INVALID_SEARCH' });
-        searchQuery += ` AND LOWER(username) LIKE ?`;
-        searchArgs.push(`%${search.toLowerCase()}%`);
+      clauses.push("(LOWER(u.username) LIKE ? OR c.txId=? OR c.userId=?)");
+      args.push(
+        "%" + search.toLowerCase() + "%",
+        search,
+        /^\d{1,18}$/.test(search) ? search : 0,
+      );
     }
-
-    let page = parseInt(req.query.page);
-    page = !isNaN(page) && page > 0 ? page : 1;
-
-    const offset = (page - 1) * resultsPerPage;
-
-    const [[{ total }]] = await sql.query(`SELECT COUNT(*) as total FROM cryptoWithdraws JOIN users ON users.id = cryptoWithdraws.userId ${searchQuery}`, searchArgs);
-    if (!total) return res.json({ page: 1, pages: 0, total: 0, data: [] });
-
-    const pages = Math.ceil(total / resultsPerPage);
-
-    if (page > pages) return res.status(404).json({ error: 'PAGE_NOT_FOUND' });
-
-    const [data] = await sql.query(
-        `
-        SELECT
-            cryptoWithdraws.id,
-            users.id as userId,
-            users.username,
-            users.role,
-            users.xp,
-            cryptoWithdraws.status,
-            cryptoWithdraws.coinAmount,
-            cryptoWithdraws.fiatAmount,
-            cryptoWithdraws.currency,
-            cryptoWithdraws.chain,
-            cryptoWithdraws.address,
-            cryptoWithdraws.createdAt
-        FROM
-            cryptoWithdraws
-        JOIN
-            users ON users.id = cryptoWithdraws.userId
-        ${searchQuery} ORDER BY ${sortBy} ${sortOrder} LIMIT ? OFFSET ?;
-       `,
-        searchArgs.concat([resultsPerPage, offset])
+    const where = clauses.join(" AND ");
+    const [[{ total }]] = await sql.query(
+      "SELECT COUNT(*) AS total FROM " +
+        table +
+        " c JOIN users u ON u.id=c.userId WHERE " +
+        where,
+      args,
     );
-
+    const pages = Math.max(1, Math.ceil(Number(total) / 20)),
+      page = Math.min(pages, Math.max(1, parseInt(req.query.page) || 1));
+    const [data] = await sql.query(
+      "SELECT c.*,u.username FROM " +
+        table +
+        " c JOIN users u ON u.id=c.userId WHERE " +
+        where +
+        " ORDER BY c.id DESC LIMIT ? OFFSET ?",
+      [...args, 20, (page - 1) * 20],
+    );
     res.json({
-        page,
-        pages,
-        total,
-        data
+      data,
+      page,
+      pages,
+      total: Number(total),
+      provider: {
+        deposits:
+          require("../../trading/crypto/deposit/provider").configuration(),
+        withdrawals: {
+          configured: !!(
+            process.env.MEXC_API_KEY && process.env.MEXC_API_SECRET
+          ),
+          missing: ["MEXC_API_KEY", "MEXC_API_SECRET"].filter(
+            (k) => !process.env[k],
+          ),
+        },
+      },
     });
-    
+  } catch (error) {
+    console.error("[cashier-list]", error.code || error.message);
+    res.status(500).json({ error: "CASHIER_UNAVAILABLE" });
+  }
 });
-
-router.post('/accept/:id', async (req, res) => {
-
-    const id = parseInt(req.params.id);
-    if (isNaN(id)) return res.status(400).json({ error: 'INVALID_ID' });
-
-    let transaction;
-
-    try {
-
-        await doTransaction(async (connection, commit, rollback) => {
-
-            [[transaction]] = await connection.query('SELECT id, currency, chain, address, coinAmount, fiatAmount, status FROM cryptoWithdraws WHERE id = ? FOR UPDATE', [id]);
-
-            if (!transaction) return res.status(404).json({ error: 'TRANSACTION_NOT_FOUND' });
-            if (transaction.status != 'pending') return res.status(400).json({ error: 'TRANSACTION_NOT_PENDING' });
-
-            await connection.query('UPDATE cryptoWithdraws SET status = ? WHERE id = ?', ['sending', id]);
-            await commit();
-
-        });
-
-    } catch (e) {
-        console.error(e);
-        return res.status(500).json({ error: 'INTERNAL_SERVER_ERROR' });
-    }
-
-    if (transaction.currency != defaultCurrency) {
-
-        try {
-
-            const { data: tradeRes } = await privateMexc({
-                url: '/spot/v4/order/place',
-                method: 'POST',
-                data: {
-                    "currency": transaction.currency,
-                    "market": defaultCurrency,
-                    "tradeType": "BUY",
-                    "orderType": "MARKET_ORDER",
-                    "amount": transaction.fiatAmount.toString()
-                }
-            });
-    
-            if (tradeRes.code != 200) {
-                console.log(`TradeRes is not 200`, tradeRes);
-                return res.status(500).json({ error: 'INTERNAL_SERVER_ERROR' });
-            }
-    
-            for (let i = 0; i < 3; i++) {
-    
-                const { data: orderDetail } = await privateMexc({
-                    url: '/spot/order/deal/detail',
-                    params: {
-                        "orderId": tradeRes.data,
-                        "orderType": "MARKET_ORDER"
-                    }
-                });
-    
-                if (orderDetail.data?.state == 'FILLED') {
-                    transaction.cryptoAmount = orderDetail.data.dealQuantity;
-                    break;
-                }
-    
-                console.log(`OrderDetail is not FILLED`, orderDetail);
-                await sleep(500);
-    
-            }
-
-        } catch (e) {
-            console.error(formatConsoleError(e));
-        } finally {
-            if (!transaction.cryptoAmount) {
-                await sql.query('UPDATE cryptoWithdraws SET status = ? WHERE id = ?', ['failed', id]);
-                return res.status(500).json({ error: 'INTERNAL_SERVER_ERROR' });
-            }
-        }
-
-    } else {
-        transaction.cryptoAmount = transaction.fiatAmount / defaultCurrencyPrice;
-    }
-    
-    try {
-
-        const withdrawRes = await mexc({
-            url: '/api/v3/capital/withdraw/apply',
-            method: 'POST',
-            sign: true,
-            validateStatus: () => true,
-            params: {
-                coin: transaction.currency,
-                network: transaction.chain,
-                address: transaction.address,
-                amount: transaction.cryptoAmount.toString()
-            }
-        });
-    
-        const withdrawId = withdrawRes.data.id;
-    
-        if (withdrawRes.status != 200 || !withdrawId) {
-            console.log(`Error withdraw res`, withdrawRes.status, withdrawRes.data);
-            await sql.query('UPDATE cryptoWithdraws SET status = ? WHERE id = ?', ['failed', id]);
-            return res.status(500).json({ error: 'INTERNAL_SERVER_ERROR' });
-        }
-    
-        await sql.query('UPDATE cryptoWithdraws SET exchangeId = ?, status = ? WHERE id = ?', [withdrawId, 'sent', id]);
-        sendLog('cryptoWithdraws', `Withdraw #${id} was approved by *${req.user.username}* (\`${req.userId}\`) - 🪙${transaction.coinAmount} Coins (${transaction.fiatAmount}usd - ${transaction.cryptoAmount} ${transaction.currency})`);
-
-        return res.json({ success: true });
-
-    } catch (e) {
-        console.error(formatConsoleError(e));
-        await sql.query('UPDATE cryptoWithdraws SET status = ? WHERE id = ?', ['failed', id]);
-        return res.status(500).json({ error: 'INTERNAL_SERVER_ERROR' });
-    }
-
+async function refund(connection, tx) {
+  await connection.query(
+    "UPDATE users SET balance=balance+?,cryptoAllowance=CASE WHEN cryptoAllowance IS NULL THEN NULL ELSE cryptoAllowance+? END WHERE id=?",
+    [tx.coinAmount, tx.coinAmount, tx.userId],
+  );
+  await connection.query(
+    "INSERT INTO transactions (userId,amount,type,method,methodId) VALUES (?,?,?,?,?)",
+    [tx.userId, tx.coinAmount, "in", "crypto-cancel", tx.id],
+  );
+  await connection.query(
+    "UPDATE cryptoWithdraws SET status=?,modifiedAt=NOW() WHERE id=?",
+    ["cancelled", tx.id],
+  );
+}
+router.post("/deny/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id < 1)
+    return res.status(400).json({ error: "INVALID_ID" });
+  try {
+    const result = await actions.perform(
+      req.user,
+      "crypto.deny",
+      id,
+      req.body,
+      async (connection) => {
+        const [[tx]] = await connection.query(
+          "SELECT * FROM cryptoWithdraws WHERE id=? FOR UPDATE",
+          [id],
+        );
+        if (!tx) return actions.fail("TRANSACTION_NOT_FOUND", 404);
+        if (tx.status !== "pending")
+          return actions.fail("TRANSACTION_NOT_PENDING", 409);
+        await refund(connection, tx);
+        return {
+          success: true,
+          balanceUpdate: { userId: tx.userId, amount: tx.coinAmount },
+        };
+      },
+    );
+    res.status(result.status || 200).json(result);
+  } catch {
+    res.status(500).json({ error: "CASHIER_UNAVAILABLE" });
+  }
 });
-
-router.post('/deny/:id', async (req, res) => {
-
-    const id = parseInt(req.params.id);
-    if (isNaN(id)) return res.status(400).json({ error: 'INVALID_ID' });
-
-    try {
-
-        await doTransaction(async (connection, commit, rollback) => {
-
-            const [[transaction]] = await connection.query('SELECT id, coinAmount, userId, status FROM cryptoWithdraws WHERE id = ? FOR UPDATE', [id]);
-
-            if (!transaction) return res.status(404).json({ error: 'TRANSACTION_NOT_FOUND' });
-            if (transaction.status != 'pending') return res.status(400).json({ error: 'TRANSACTION_NOT_PENDING' });
-
-            await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [transaction.coinAmount, transaction.userId]);
-            await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [transaction.userId, transaction.coinAmount, 'in', 'crypto-cancel', id]);
-
-            await connection.query('UPDATE cryptoWithdraws SET status = ? WHERE id = ?', ['denied', id]);
-            await commit();
-
-            io.to(transaction.userId).emit('balance', 'add', transaction.coinAmount);
-            sendLog('cryptoWithdraws', `Crypto withdraw rejected by *${req.user.username}* (\`${req.userId}\`) - 🪙${transaction.coinAmount} Coins (#${id})`);
-            res.json({ success: true });
-
-        });
-
-    } catch (e) {
-        console.error(e);
-        return res.status(500).json({ error: 'INTERNAL_SERVER_ERROR' });
-    }
-
+router.post("/accept/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id < 1)
+    return res.status(400).json({ error: "INVALID_ID" });
+  const request = actions.intent(req.user, "crypto.accept", id, req.body);
+  if (request.error) return res.status(request.status).json(request);
+  if (!process.env.MEXC_API_KEY || !process.env.MEXC_API_SECRET)
+    return res.status(503).json({ error: "CRYPTO_PROVIDER_UNAVAILABLE" });
+  let claimed = false;
+  try {
+    const [[snapshot]] = await sql.query(
+      "SELECT * FROM cryptoWithdraws WHERE id=?",
+      [id],
+    );
+    if (!snapshot)
+      return res.status(404).json({ error: "TRANSACTION_NOT_FOUND" });
+    if (snapshot.status !== "pending")
+      return res.status(409).json({ error: "TRANSACTION_NOT_PENDING" });
+    await cacheWithdrawalCoins();
+    const coin = withdrawalCoins[snapshot.currency],
+      chain = coin?.chains?.find((c) => c.id === snapshot.chain);
+    if (!chain)
+      return res.status(503).json({ error: "PAYMENT_NETWORK_UNAVAILABLE" });
+    const amount = Number(snapshot.cryptoAmount),
+      step = chain.precision || 0.00000001;
+    const sendAmount = Number(
+      (Math.floor((amount + Number.EPSILON) / step) * step).toFixed(8),
+    );
+    if (
+      !Number.isFinite(sendAmount) ||
+      sendAmount <= 0 ||
+      sendAmount < chain.min ||
+      sendAmount > chain.max
+    )
+      return res.status(400).json({ error: "INVALID_AMOUNT" });
+    if (sendAmount + chain.fee > (await getWalletBalance(snapshot.currency)))
+      return res.status(400).json({ error: "HOT_WALLET_BALANCE" });
+    // Commit the claim before contacting the exchange. An uncertain response stays reserved.
+    const claim = await durable(() =>
+      actions.perform(
+        req.user,
+        "crypto.accept",
+        id,
+        req.body,
+        async (connection) => {
+          const [[tx]] = await connection.query(
+            "SELECT * FROM cryptoWithdraws WHERE id=? FOR UPDATE",
+            [id],
+          );
+          if (tx.status !== "pending")
+            return actions.fail("TRANSACTION_NOT_PENDING", 409);
+          await connection.query(
+            "UPDATE cryptoWithdraws SET status=?,modifiedAt=NOW() WHERE id=?",
+            ["sending", id],
+          );
+          return { success: true, claimed: true };
+        },
+      ),
+    );
+    if (claim.error || claim.replayed)
+      return res.status(claim.status || 200).json(claim);
+    claimed = true;
+    const { data } = await mexc({
+      url: "/api/v3/capital/withdraw",
+      method: "POST",
+      sign: true,
+      params: {
+        coin: snapshot.currency,
+        netWork: chain.providerNetwork || snapshot.chain,
+        address: snapshot.address,
+        amount: sendAmount.toString(),
+        withdrawOrderId: "cosmicluck-" + id,
+      },
+    });
+    if (!data?.id) throw new Error("PAYOUT_UNCONFIRMED");
+    await durable(() =>
+      sql.query(
+        "UPDATE cryptoWithdraws SET exchangeId=?,status=?,modifiedAt=NOW() WHERE id=? AND status=?",
+        [String(data.id), "sent", id, "sending"],
+      ),
+    );
+    res.json({ success: true });
+  } catch {
+    res.status(claimed ? 202 : 503).json({
+      error: claimed
+        ? "PAYOUT_REQUIRES_RECONCILIATION"
+        : "CRYPTO_PROVIDER_UNAVAILABLE",
+    });
+  }
 });
-
+router.post("/reconcile/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id < 1)
+    return res.status(400).json({ error: "INVALID_ID" });
+  const request = actions.intent(req.user, "crypto.reconcile", id, req.body);
+  if (request.error) return res.status(request.status).json(request);
+  if (!process.env.MEXC_API_KEY || !process.env.MEXC_API_SECRET)
+    return res.status(503).json({ error: "CRYPTO_PROVIDER_UNAVAILABLE" });
+  try {
+    const [[snapshot]] = await sql.query(
+      "SELECT * FROM cryptoWithdraws WHERE id=?",
+      [id],
+    );
+    if (!snapshot || !["sending", "sent"].includes(snapshot.status))
+      return res.status(409).json({ error: "TRANSACTION_NOT_PENDING" });
+    const startTime = Math.max(
+      new Date(snapshot.createdAt).getTime() - 86400000,
+      Date.now() - 89 * 86400000,
+    );
+    const { data } = await mexc({
+      url: "/api/v3/capital/withdraw/history",
+      sign: true,
+      params: {
+        coin: snapshot.currency,
+        startTime,
+        endTime: Date.now(),
+        limit: 1000,
+      },
+    });
+    const remote = Array.isArray(data)
+      ? data.find(
+          (row) =>
+            row.withdrawOrderId === "cosmicluck-" + id ||
+            (snapshot.exchangeId &&
+              String(row.id) === String(snapshot.exchangeId)),
+        )
+      : null;
+    if (!remote)
+      return res
+        .status(409)
+        .json({ error: "PAYOUT_NOT_CONFIRMED_KEEP_RESERVED" });
+    if (
+      remote.address !== snapshot.address ||
+      remote.coin !== snapshot.currency
+    )
+      return res.status(409).json({ error: "PAYMENT_IDENTITY_MISMATCH" });
+    const result = await durable(() =>
+      actions.perform(
+        req.user,
+        "crypto.reconcile",
+        id,
+        req.body,
+        async (connection) => {
+          const [[tx]] = await connection.query(
+            "SELECT * FROM cryptoWithdraws WHERE id=? FOR UPDATE",
+            [id],
+          );
+          if (!["sending", "sent"].includes(tx.status))
+            return actions.fail("TRANSACTION_NOT_PENDING", 409);
+          if ([8, 9].includes(Number(remote.status)))
+            await refund(connection, tx);
+          else {
+            const completed = Number(remote.status) === 7;
+            await connection.query(
+              "UPDATE cryptoWithdraws SET status=?,exchangeId=?,txId=?,modifiedAt=NOW() WHERE id=?",
+              [
+                completed ? "completed" : "sent",
+                String(remote.id),
+                remote.txId || null,
+                id,
+              ],
+            );
+            if (completed)
+              await connection.query(
+                "UPDATE transactions SET type=? WHERE type=? AND method=? AND methodId=? AND userId=?",
+                ["withdraw", "out", "crypto", id, tx.userId],
+              );
+          }
+          return {
+            success: true,
+            providerStatus: Number(remote.status),
+            ...([8, 9].includes(Number(remote.status))
+              ? { balanceUpdate: { userId: tx.userId, amount: tx.coinAmount } }
+              : {}),
+          };
+        },
+      ),
+    );
+    res.status(result.status || 200).json(result);
+  } catch {
+    res.status(503).json({ error: "CRYPTO_PROVIDER_UNAVAILABLE" });
+  }
+});
 module.exports = router;

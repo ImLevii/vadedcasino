@@ -279,6 +279,128 @@
 .adm-metric.accent strong {
   color: var(--adm-green);
 }
+.cashier-providers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 18px 0 24px;
+}
+.cashier-providers > div {
+  padding: 18px;
+  border: 1px solid var(--adm-border);
+  border-radius: 8px;
+  background: var(--adm-panel);
+  min-width: 0;
+}
+.cashier-providers > div > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.cashier-providers strong {
+  font-size: 12px;
+}
+.cashier-providers p {
+  font-size: 11px;
+  color: var(--adm-muted);
+  line-height: 1.7;
+  margin: 10px 0 0;
+  overflow-wrap: anywhere;
+}
+.cashier-generated {
+  margin-bottom: 24px;
+}
+.cashier-generated pre {
+  max-height: 180px;
+  overflow: auto;
+  padding: 18px;
+  margin: 0;
+  line-height: 1.8;
+  font-size: 12px;
+  color: #8be5b6;
+}
+.cashier-generated .adm-panel-heading {
+  flex-wrap: wrap;
+}
+.cashier-generated p {
+  font-size: 11px;
+  color: var(--adm-muted);
+  margin: 6px 0;
+}
+.cashier-code {
+  font: 11px monospace;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #78dbab;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+}
+.cashier-note {
+  max-width: 240px;
+  overflow-wrap: anywhere;
+}
+.cashier-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px;
+  background: #102d23;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #8cd4ae;
+}
+.cashier-detail {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: 14px;
+  margin: 0 0 24px;
+  font-size: 12px;
+}
+.cashier-detail dt {
+  color: var(--adm-muted);
+}
+.cashier-detail dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.cashier-detail code {
+  font-size: 11px;
+  display: block;
+  line-height: 1.8;
+  margin-bottom: 8px;
+}
+.admin-design .adm-modal .adm-field {
+  margin-bottom: 18px;
+}
+.admin-design .adm-badge.completed,
+.admin-design .adm-badge.active {
+  color: #5bdfa1;
+}
+.admin-design .adm-badge.sending,
+.admin-design .adm-badge.pending,
+.admin-design .adm-badge.sent {
+  color: #e1bb72;
+}
+.admin-design .adm-badge.failed,
+.admin-design .adm-badge.cancelled {
+  color: #dc8c98;
+}
+@media (max-width: 600px) {
+  .cashier-providers {
+    grid-template-columns: 1fr;
+  }
+  .cashier-detail {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .cashier-detail dd {
+    margin-bottom: 10px;
+  }
+}
 .adm-panel {
   background: var(--adm-panel);
   border: 1px solid var(--adm-border);

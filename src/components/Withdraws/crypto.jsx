@@ -17,19 +17,22 @@ function CryptoWithdraw(props) {
   const [chain, setChain] = createSignal('')
   const [explorers, setExplorers] = createSignal([])
   const [transactions, setTransactions] = createSignal([])
+  const [submitting, setSubmitting] = createSignal(false)
 
   const [currencyDropdown, setCurrencyDropdown] = createSignal(false)
   const [networkDropdown, setNetworkDropdown] = createSignal(false)
   addDropdown(setCurrencyDropdown)
   addDropdown(setNetworkDropdown)
 
-  const [cryptoTypes] = createResource(fetchCryptoInfo)
+  const [cryptoTypes, {refetch: refreshCrypto}] = createResource(fetchCryptoInfo)
   const [txsInfo] = createResource(fetchCryptoTransactions)
 
   async function fetchCryptoInfo() {
     try {
       let res = await api('/trading/crypto/withdraw', 'GET')
-      if (!Array.isArray(res.currencies)) return
+      if (!res?.available || !Array.isArray(res.currencies)) return []
+      res.currencies = res.currencies.filter(c => c.id && c.price > 0 && c.chains?.length)
+      if (!res.currencies.length) return []
 
       let defaultCurrency = res.currencies.find(e => e.id == 'USDT') || res.currencies[0]
       setRates({
@@ -52,7 +55,7 @@ function CryptoWithdraw(props) {
   async function fetchCryptoTransactions() {
     try {
       let res = await authedAPI('/trading/crypto/withdraw/transactions', 'GET')
-      if (!Array.isArray(res.data)) return
+      if (!Array.isArray(res?.data)) return
 
       setTransactions(res.data || [])
       return res
@@ -64,7 +67,9 @@ function CryptoWithdraw(props) {
   }
 
   function convertAmounts(coins, dollars, crypto) {
-    if (!rates()) return
+    if (!rates() || !price()) return
+    if (![coins,dollars,crypto].every(Number.isFinite) || (!coins && !dollars && !crypto)) {setCoins(0);setDollars(0);setCrypto(0);return;}
+    if (coins < 0 || dollars < 0 || crypto < 0) return
 
     if (coins) {
       dollars = Math.floor(coins / rates().coins * rates().usd * 10000) / 10000 // Round to 4 decimals
@@ -95,11 +100,11 @@ function CryptoWithdraw(props) {
   }
 
   function availableChains() {
-    return cryptoTypes().find(coin => coin.id === symbol())?.chains || []
+    return cryptoTypes()?.find(coin => coin.id === symbol())?.chains || []
   }
 
   function getCoin(symbol) {
-    return cryptoTypes().find(coin => coin.id === symbol)
+    return cryptoTypes()?.find(coin => coin.id === symbol)
   }
 
   function changeCrypto(symbol) {
@@ -146,6 +151,7 @@ function CryptoWithdraw(props) {
         <div class='bar' style={{margin: '15px 0 30px 0'}}/>
 
         <Show when={!cryptoTypes.loading} fallback={<Loader/>}>
+          <Show when={cryptoTypes()?.length} fallback={<div role='status' style={{padding:'24px',color:'#b5c4bd','line-height':'1.8'}}><strong>Crypto withdrawals are temporarily unavailable.</strong><p>Your existing transactions are listed below.</p><button class='bevel-grey' onClick={refreshCrypto}>Check again</button></div>}>
           <>
             <div class='dropdowns'>
               <div class={'dropdown-wrapper ' + (currencyDropdown() ? 'active' : '')} onClick={(e) => {
@@ -243,34 +249,37 @@ function CryptoWithdraw(props) {
                 </div>
               </div>
 
-              <button class='bevel-gold submit' onClick={async () => {
+              <button class='bevel-gold submit' disabled={submitting() || !address().trim() || coins()<=0} onClick={async () => {
+                if(submitting())return;
+                setSubmitting(true);
                 let res = await authedAPI('/trading/crypto/withdraw', 'POST', JSON.stringify({
                   currency: symbol(),
                   chain: chain().id,
                   address: address(),
-                  amount: robux(),
+                  amount: coins(),
                 }), true)
+                setSubmitting(false);
 
-                if (res.error && res.error === 'KYC') {
+                if (res?.error === 'KYC') {
                   props?.setKYC(true)
                   return
                 }
 
-                if (res.success) {
+                if (res?.success) {
                   setTransactions([res.transaction, ...transactions()].slice(0,10))
-                  createNotification('success', `Successfully created a ${chain().coinName} withdrawal worth ${robux()} coins.`)
+                  createNotification('success', `Successfully created a ${chain().coinName} withdrawal worth ${coins()} coins.`)
                 }
               }}>
-                SUBMIT WITHDRAWAL
+                {submitting() ? 'SUBMITTING…' : 'SUBMIT WITHDRAWAL'}
               </button>
             </div>
 
             <div className='disclaimer'>
               <p className='disclaimer-text'>
-                Enter the coin amount you’d like to withdraw. Network fees will be deducted from your withdraw amount.
+                Enter the coin amount you’d like to withdraw. The estimated network fee is shown below.
                 Average network fees are <span class='white'>${formatNumber(chain()?.fee * price())}</span>
-                &nbsp;<span class='bold white noto'>( <img src='/assets/icons/coin.svg' height='12'/> {formatNumber(chain()?.fee * price() / rates().usd * rates().robux)} )</span>.
-                Keep in mind that after submitting a withdrawal, the transaction becomes irreversible.
+                &nbsp;<span class='bold white noto'>( <img src='/assets/icons/coin.svg' height='12'/> {formatNumber(chain()?.fee * price() / rates().usd * rates().coins)} coins )</span>.
+                A pending request can be cancelled until it is approved.
                 Double check all input information before proceeding.
 
                 <br/><br/>
@@ -279,6 +288,7 @@ function CryptoWithdraw(props) {
               </p>
             </div>
           </>
+          </Show>
         </Show>
 
         <Show when={!txsInfo.loading}>

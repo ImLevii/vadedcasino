@@ -5,18 +5,14 @@ const { sql } = require('../../../../database');
 const { formatConsoleError, sendLog } = require('../../../../utils');
 const { default: PQueue } = require('p-queue');
 
-const withdrawalCoins = {
-    'BTC': {},
-    'ETH': {},
-    'LTC': {},
-    'BNB': {},
-    'USDC': {},
-    'USDT': {},
-    'DOGE': {}
-};
+const withdrawalCoins = {};
+const supportedCoins = new Set(['BTC','ETH','LTC','BNB','USDC','USDT','DOGE']);
+let refreshedAt = 0;
 
 const mexc = axios.create({
     baseURL: 'https://api.mexc.com',
+    timeout: 6000,
+    maxRedirects: 0,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -85,9 +81,9 @@ const defaultCurrency = 'USDT';
 const defaultCurrencyPrice = 1;
 
 async function cacheWithdrawalCoins() {
+    if (Date.now() - refreshedAt < 60000) return;
     
     if (!process.env.MEXC_API_KEY || !process.env.MEXC_API_SECRET) {
-        console.warn('[cacheWithdrawalCoins] MEXC_API_KEY / MEXC_API_SECRET not set, skipping crypto withdrawal config.');
         return;
     }
 
@@ -104,12 +100,11 @@ async function cacheWithdrawalCoins() {
 
     for (const currency of data) {
 
-        if (!withdrawalCoins[currency.coin]) continue;
+        if (!supportedCoins.has(currency.coin)) continue;
         const price = currency.coin === defaultCurrency ? defaultCurrencyPrice : prices.find(e => e.symbol === `${currency.coin}USDT`)?.price;
         
         if (!price) {
-            if (!withdrawalCoins[currency.coin].price) throw new Error(`No price found for ${currency.coin}`);
-            console.log(`No price found for ${currency.coin}`);
+            delete withdrawalCoins[currency.coin];
             continue;
         }
 
@@ -119,20 +114,24 @@ async function cacheWithdrawalCoins() {
         for (const chain of currency.networkList) {
         
             if (!chain.withdrawEnable) continue;
-            if (!chainsConfig[chain.network]) continue;
+            const chainId = chainsConfig[chain.network] ? chain.network : chain.netWork;
+            if (!chainsConfig[chainId]) continue;
 
             chains.push({
-                id: chain.network,
+                id: chainId,
+                providerNetwork: chain.netWork || chain.network,
                 coinName: chain.name,
                 fee: +chain.withdrawFee,
                 min: currency.coin == defaultCurrency ? +chain.withdrawMin : Math.max(+chain.withdrawMin, minWithdraw),
-                max: +chain.withdrawMax
+                max: +chain.withdrawMax,
+                precision: +chain.withdrawIntegerMultiple || 0.00000001,
+                memoRequired: !!chain.memoRequired
             });
 
         }
 
         if (!chains.length) {
-            console.log(`No chains found for ${currency.coin}`);
+            delete withdrawalCoins[currency.coin];
             continue;
         }
 
@@ -140,16 +139,16 @@ async function cacheWithdrawalCoins() {
             id: currency.coin,
             name: currency.name,
             price: +price,
+            quotedAt: Date.now(),
             chains
         }
 
     }
 
-    !require('../../../../runtime/context').enabled && setTimeout(cacheWithdrawalCoins, 1000 * 60 * 5); // 5 minutes
+    refreshedAt = Date.now();
 
     } catch (e) {
-        console.error('[cacheWithdrawalCoins] Error fetching MEXC data:', e.message);
-        !require('../../../../runtime/context').enabled && setTimeout(cacheWithdrawalCoins, 1000 * 60 * 5);
+        for (const key of Object.keys(withdrawalCoins)) delete withdrawalCoins[key];
     }
 
 }
@@ -167,7 +166,7 @@ async function getWalletBalance(asset = defaultCurrency) {
         const { data } = await mexc('/api/v3/account', { sign: true });
 
         const balance = data.balances.find(e => e.asset === asset);
-        return balance ? Math.ceil(+balance.free) : 0;
+        return balance ? Math.max(0, Number(balance.free) || 0) : 0;
 
     });
     
@@ -176,7 +175,7 @@ async function getWalletBalance(asset = defaultCurrency) {
 async function updateSentWithdrawals() {
 
     const [pendingTxs] = await sql.query('SELECT id, exchangeId, currency, chain, userId FROM cryptoWithdraws WHERE status = ?', ['sent']);
-    const pendingTxsMap = new Map(pendingTxs.map(e => [e.exchangeId, e]));
+    const pendingTxsMap = new Map(pendingTxs.map(e => [String(e.exchangeId), e]));
 
     if (pendingTxs.length) {
 
@@ -186,14 +185,14 @@ async function updateSentWithdrawals() {
 
             for (const tx of data) {
     
-                if (!tx.txId) continue;
-                const pendingTx = pendingTxsMap.get(tx.id);
+                if (!tx.txId || Number(tx.status) !== 7) continue;
+                const pendingTx = pendingTxsMap.get(String(tx.id));
                 if (!pendingTx) continue;
     
                 await sql.query('UPDATE cryptoWithdraws SET txId = ?, status = ? WHERE id = ?', [tx.txId, 'completed', pendingTx.id]);
                 await sql.query('UPDATE transactions SET type = ? WHERE type = ? AND method = ? AND methodId = ? AND userId = ?', ['withdraw', 'out', 'crypto', pendingTx.id, pendingTx.userId]);
 
-                const explorer = chainsConfig[pendingTx.chain].explorer.replace('{id}', tx.txId);
+                const explorer = chainsConfig[pendingTx.chain]?.explorer?.replace('{id}', tx.txId) || '';
                 sendLog('cryptoWithdraws', `Withdraw #${pendingTx.id} completed.\n${explorer}`);
     
             }

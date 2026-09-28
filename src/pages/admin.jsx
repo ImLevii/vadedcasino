@@ -224,7 +224,7 @@ export default function Admin() {
                   <div class="adm-tabs" style={{ "margin-bottom": "18px" }}>
                     <For
                       each={[
-                        ["", "Coins"],
+                        ["", "Gift cards"],
                         ["crypto", "Crypto"],
                         ["skindeck", "Skins"],
                       ]}
