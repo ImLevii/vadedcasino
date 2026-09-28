@@ -21,7 +21,7 @@ async function initialize() {
             await require('../routes/auth/credentials').ensureEmailAccounts();
             await require('../socketio/chat/staff-mode').ensureStaffChatSchema(sql);
             await require('./game-controls').ensureOperationsSchema(sql);
-            await require('./cashier').ensureCashierSchema(sql);
+            await require('./cashier').ensureCashierSchema(context.connection);
         });
         await events.initialize();
     })().catch(error => { initialized = null; throw error; });

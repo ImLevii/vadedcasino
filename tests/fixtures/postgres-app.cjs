@@ -35,6 +35,8 @@ async function main() {
     const cashierTest=process.env.CASHIER_TEST==='1';
     const cashierCalls={payouts:[],giftcardBroadcasts:0};
     if(cashierTest){
+        // Exercise upgrading the existing production schema, not just a fresh install.
+        await db.exec('ALTER TABLE "cryptoDeposits" ALTER COLUMN "coinAmount" TYPE INTEGER');
         await db.query(`INSERT INTO users (id,username,role,perms,balance,"cryptoAllowance") VALUES (20,'Cashier player','USER',0,100,100),(21,'Cashier rollback','USER',0,100,100)`);
         await db.query(`INSERT INTO "cryptoWallets" ("userId",currency,address) VALUES (20,'LTC','fixture-wallet'),(21,'LTC','rollback-wallet')`);
         await db.query(`INSERT INTO "cryptoWithdraws" (id,"userId","coinAmount","fiatAmount","cryptoAmount",address,currency,chain,status) VALUES (901,20,10,7,7,'fixture-destination','LTC','LTC','pending'),(902,20,12,8.4,8.4,'fixture-uncertain','LTC','LTC','pending'),(903,20,8,5.6,5.6,'fixture-cancel','LTC','LTC','pending')`);

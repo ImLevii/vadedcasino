@@ -14,8 +14,8 @@ async function ensureCashierSchema(connection) {
       "SELECT data_type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'cryptoDeposits' AND column_name = 'coinAmount'",
     );
     if (column && column.data_type !== "numeric")
-      await connection.query(
-        "ALTER TABLE cryptoDeposits ALTER COLUMN coinAmount TYPE NUMERIC(20,2)",
+      await connection.nativeQuery(
+        'ALTER TABLE "cryptoDeposits" ALTER COLUMN "coinAmount" TYPE NUMERIC(20,2)',
       );
     await connection.query(
       "ALTER TABLE cardDeposits ADD COLUMN IF NOT EXISTS orderId VARCHAR(128) DEFAULT NULL",
