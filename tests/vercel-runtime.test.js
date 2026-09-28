@@ -51,9 +51,10 @@ test('Vercel API recovers overdue rounds exactly once, serves auth and reconnect
     const opponentBets = (await opponentHistory.json()).data;
     assert.equal(opponentBets[0].winnings, 0);
     assert.equal(opponentBets[0].completed, 1);
-    for (const path of ['/readyz', '/cases', '/coinflip']) {
-        const response = await fetch(origin + path, { headers: { accept: 'application/json' } });
+    for (const path of ['/readyz', '/cases', '/mines']) {
+        const response = await fetch(origin + path, { headers: { cookie, accept: 'application/json' } });
         assert.equal(response.status, 200, `${path}: ${output}`);
+        assert.match(response.headers.get('content-type'), /application\/json/);
     }
     const admin = await fetch(origin + '/admin/2fa', { method: 'POST', headers: { cookie } });
     assert.equal((await admin.json()).success, true, output);
