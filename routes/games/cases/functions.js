@@ -98,7 +98,8 @@ async function cacheDrops(top = false) {
         FROM caseOpenings INNER JOIN caseVersions ON caseOpenings.caseVersionId = caseVersions.id
         INNER JOIN cases ON caseVersions.caseId = cases.id
         INNER JOIN users ON caseOpenings.userId = users.id INNER JOIN caseItems ON caseOpenings.caseItemId = caseItems.id
-        ${top ? `WHERE caseItems.price > ${topDropPrice}` : ''} ORDER BY caseOpenings.id DESC LIMIT ${limit}
+        WHERE users.role <> 'BOT' AND users.deletedAt IS NULL
+        ${top ? `AND caseItems.price > ${topDropPrice}` : ''} ORDER BY caseOpenings.id DESC LIMIT ${limit}
     `);
 
     const after = Date.now();
@@ -130,6 +131,7 @@ async function cacheDrops(top = false) {
 }
 
 function newDrops(user, caseInfo, results) {
+    if (user.role === 'BOT') return;
 
     const topDrops = [];
 

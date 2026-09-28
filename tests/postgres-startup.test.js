@@ -167,6 +167,10 @@ test('fresh PostgreSQL starts all caches and serves login, API and chat', { time
     assert.equal((await deleteRequest(target.id, cookie)).status, 404);
     const activeUsers = await (await fetch(origin + '/admin/users', {headers: {Cookie: cookie}})).json();
     assert.ok(!activeUsers.data.some(user => user.id === target.id));
+    assert.ok(activeUsers.data.every(user => user.role !== 'BOT'));
+    assert.equal(activeUsers.total, 2, 'Pagination counts only the remaining human accounts');
+    const botSearch = await (await fetch(origin + '/admin/users?search=Bob', {headers:{Cookie:cookie}})).json();
+    assert.equal(botSearch.total, 0, 'Searching must not reveal bot accounts');
     const deletedLogin = await providerCallback('steam');
     assert.ok(!deletedLogin.headers.getSetCookie().some(value => value.startsWith('jwt=')));
     assert.match(deletedLogin.headers.get('location'), /error=steam_error/);

@@ -18,6 +18,8 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
     );
 }
 
+// Replace the first-paint loader in the same task as mounting the application.
+root.replaceChildren();
 render(() => <>
     <UserProvider>
         <WebsocketProvider>

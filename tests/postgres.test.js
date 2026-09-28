@@ -620,3 +620,52 @@ test('RANDOM.ORG battle fails closed, resumes with committed proof, and exposes 
         assert.ok([100,104.44].includes(balances.find(p=>p.id===900310).balance));
     } finally {await db.query('ROLLBACK');}
 });
+
+test('bot drops and wins are excluded from historical and live public feeds without hiding human drops', async()=>{
+    await db.query('BEGIN');
+    try {
+        const human={id:900801,username:'Bob#123',role:'USER',xp:0};
+        const bot={id:900802,username:'Robot',role:'BOT',xp:0};
+        await query('INSERT INTO users (id, username, role) VALUES (?, ?, ?), (?, ?, ?)',[human.id,human.username,human.role,bot.id,bot.username,bot.role]);
+        const [c]=await query('INSERT INTO cases (name, slug) VALUES (?, ?)',['Feed test','feed-test']);
+        const [v]=await query('INSERT INTO caseVersions (caseId, price) VALUES (?, ?)',[c.insertId,2000]);
+        const [item]=await query('INSERT INTO caseItems (caseVersionId, name, price, rangeFrom, rangeTo) VALUES (?, ?, ?, ?, ?)',[v.insertId,'Feed prize',30000,0,99999]);
+        for(const user of [human,bot]) {
+            for(let i=0;i<16;i++) {
+                await query('INSERT INTO caseOpenings (userId, caseVersionId, caseItemId) VALUES (?, ?, ?)',[user.id,v.insertId,item.insertId]);
+                await query('INSERT INTO bets (userId, amount, winnings, game, completed) VALUES (?, ?, ?, ?, ?)',[user.id,2000,30000,'case',1]);
+            }
+        }
+        const emitted=[];const chat=[];
+        const io={to(){return this},except(){return this},emit(...args){emitted.push(args)}};
+        const drops=loadRouteModule('routes/games/cases/functions.js',{
+            '../../../socketio/server':io,'../../../database':{sql:{query}},
+            '../../../utils/csgo/items':{getItemById:()=>null},'../../../socketio/chat/functions':{newMessage:m=>chat.push(m)}
+        });
+        await drops.cacheDrops();
+        for(const type of ['all','top']) {
+            assert.equal(drops.cachedDrops[type].length,15,'Filter bots before applying the feed limit');
+            assert.ok(drops.cachedDrops[type].every(drop=>drop.user.id===human.id));
+        }
+        const results=[{item:{name:'Prize',price:30000}}];
+        drops.newDrops(bot,{name:'Case'},results);
+        assert.equal(emitted.length,0);assert.equal(chat.length,0);
+        drops.newDrops(human,{name:'Case'},results);
+        assert.equal(emitted.length,1);assert.equal(chat.length,1);
+        assert.equal(emitted[0][1][0].user.id,human.id);
+        emitted.length=0;
+        const bets=loadRouteModule('socketio/bets.js',{
+            './server':io,'../database':{sql:{query}},
+            '../utils':{...routeUtils,mapUser:user=>({id:user.id,username:user.username})},
+            './rain':{rains:{}},'../routes/admin/config':{sponsorLockedUsers:new Set()},'../routes/user/rakeback/functions':{cachedRakebacks:{}}
+        });
+        await bets.cacheBets();
+        for(const type of ['all','high','lucky']) {
+            const rows=await bets.getBets(type);assert.equal(rows.length,10);assert.ok(rows.every(bet=>bet.user.id===human.id));
+        }
+        emitted.length=0;
+        await bets.newBets([{user:bot,amount:2000,payout:30000,game:'battle'},{user:human,amount:2000,payout:30000,game:'battle'}]);
+        for(const event of emitted.filter(event=>event[0]==='bets')) assert.ok(event[2].every(bet=>bet.user.id===human.id));
+        assert.equal((await query('SELECT COUNT(*) AS count FROM caseOpenings WHERE userId = ?',[bot.id]))[0][0].count,16,'Bot battle history remains intact');
+    } finally {await db.query('ROLLBACK');}
+});

@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
     const sortOrder = req.query.sortOrder || 'DESC';
     if (!['ASC', 'DESC'].includes(sortOrder)) return res.status(400).json({ error: 'INVALID_SORT_ORDER' });
 
-    let searchQuery = ' WHERE deletedAt IS NULL';
+    let searchQuery = " WHERE deletedAt IS NULL AND role <> 'BOT'";
     let searchArgs = [];
 
     const search = req.query.search;
