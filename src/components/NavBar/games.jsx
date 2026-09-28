@@ -1,16 +1,7 @@
 import {createSignal, For} from "solid-js";
-import {addDropdown, createNotification, closeDropdowns} from "../../util/api";
+import {addDropdown, closeDropdowns} from "../../util/api";
 import {A, useLocation} from "@solidjs/router";
-
-const GAMEMODES = [
-  {name: 'CASE BATTLES', href: '/battles', img: '/assets/thumbnails/casebattles.jpeg'},
-    {name: 'SLOTS', href: '/slots', img: '/assets/gamemodes/slots-green.svg'},
-    {name: 'MINES', href: '/mines', img: '/assets/thumbnails/mines.jpeg'},
-    {name: 'COINFLIP', href: '/coinflip', img: '/assets/gamemodes/coinflip-green.svg'},
-    {name: 'ROULETTE', href: '/roulette', img: '/assets/gamemodes/roulette-green.svg'},
-    {name: 'CRASH', href: '/crash', img: '/assets/thumbnails/crash.jpeg'},
-    {name: 'CASES', href: '/cases', img: '/assets/thumbnails/caseopening.jpeg'},
-]
+import {GAMEMODES} from '../../resources/gamemodes';
 
 function Games() {
     const location = useLocation()
@@ -23,7 +14,7 @@ function Games() {
             <div class='games-container' onClick={(e) => e.stopPropagation()}>
                 <button type='button' aria-label='Games' aria-expanded={active()} aria-controls='games-menu'
                         class='games nav-button nav-button-menu'
-                        classList={{active: active(), 'is-current': /^\/(roulette|crash|mines|coinflip|slots)(\/|$)/.test(location.pathname)}} onClick={() => {
+                        classList={{active: active(), 'is-current': /^\/(roulette|crash|mines|coinflip)(\/|$)/.test(location.pathname)}} onClick={() => {
                     const wasActive = active();
                     closeDropdowns();
                     setActive(!wasActive);

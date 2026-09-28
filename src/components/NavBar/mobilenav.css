@@ -1,0 +1,92 @@
+.bottom-navbar { display: none; }
+
+@media (max-width: 1000px) {
+    .bottom-navbar {
+        position: fixed;
+        inset: auto 0 0;
+        z-index: 30;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        height: calc(60px + env(safe-area-inset-bottom));
+        padding: 0 12px env(safe-area-inset-bottom);
+        background: #101b19;
+        border-top: 1px solid #78dda429;
+        box-shadow: 0 -8px 28px #0005;
+    }
+
+    .bottom-navbar .mobile-account-wrapper { position: relative; }
+    .bottom-navbar .mobile-nav-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        width: 72px;
+        height: 48px;
+        padding: 4px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: #91aaa0;
+        font: 600 10px 'Geogrotesque Wide', sans-serif;
+        cursor: pointer;
+        touch-action: manipulation;
+    }
+
+    .bottom-navbar .mobile-nav-button:is(:hover, [aria-expanded='true']) {
+        color: #76efac;
+        background: #59e6940c;
+        border-color: #59e69422;
+    }
+
+    .bottom-navbar :is(button, a):focus-visible { outline: 2px solid #76efac; outline-offset: -2px; }
+
+    .bottom-navbar .mobile-games-menu {
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: max(10px, env(safe-area-inset-left));
+        right: max(10px, env(safe-area-inset-right));
+        width: auto;
+        max-width: 560px;
+        max-height: calc(100vh - var(--site-header-height, 68px) - 88px - env(safe-area-inset-bottom));
+        max-height: calc(100dvh - var(--site-header-height, 68px) - 88px - env(safe-area-inset-bottom));
+        margin-inline: auto;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 12px;
+        border: 1px solid #78dda435;
+        border-radius: 8px;
+        background: linear-gradient(145deg, #182820, #0e1717);
+        box-shadow: 0 12px 40px #0009;
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .bottom-navbar .mobile-games-menu.active { visibility: visible; opacity: 1; pointer-events: auto; }
+    .bottom-navbar .mobile-games-heading { display: flex; align-items: center; justify-content: space-between; color: #b5cebf; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; }
+    .bottom-navbar .mobile-games-heading button { width: 44px; height: 44px; border: 0; background: transparent; color: #b5cebf; font-size: 24px; cursor: pointer; }
+    .bottom-navbar .mobile-games-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .bottom-navbar .mobile-game-link {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        min-height: 72px;
+        padding: 8px;
+        border: 1px solid #ffffff0e;
+        border-radius: var(--button-radius);
+        background: #ffffff04;
+        color: #e5f2e9;
+        text-decoration: none;
+        touch-action: manipulation;
+    }
+
+    .bottom-navbar .mobile-game-link:is(:hover, [aria-current='page']) { border-color: #61e89555; background: #61e8950d; }
+    .bottom-navbar .mobile-game-link img { width: 48px; height: 42px; border-radius: var(--button-radius); object-fit: cover; flex-shrink: 0; }
+    .bottom-navbar .mobile-game-link span { font-size: 11px; font-weight: 700; overflow-wrap: anywhere; }
+}
+
+@media (max-width: 360px) {
+    .bottom-navbar .mobile-game-link { flex-direction: column; gap: 6px; text-align: center; }
+}

@@ -135,7 +135,7 @@ async function startCoinflip(coinflip) {
             if (winner.role != 'BOT') await connection.query("UPDATE users SET balance = balance + ? WHERE id = ?", [winnings, winner.id]);
     
             await connection.query(`
-                UPDATE bets SET completed = 1, winnings = CASE WHEN userId = ? THEN ? ELSE 0 END WHERE game = ? AND gameId = ?`,
+                UPDATE bets SET completed = 1, winnings = CASE WHEN userId = ? THEN CAST(? AS DECIMAL(20,2)) ELSE 0 END WHERE game = ? AND gameId = ?`,
                 [winner.id, winnings, 'coinflip', coinflip.id]
             );
 

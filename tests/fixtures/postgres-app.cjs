@@ -69,6 +69,11 @@ async function main() {
         const roulette = await db.query(`INSERT INTO roulette ("serverSeed", result, color, "createdAt", "rolledAt") VALUES ('test-roulette-seed', 1, 1, NOW() - INTERVAL '40 seconds', NOW() - INTERVAL '30 seconds') RETURNING id`);
         const rb = await db.query(`INSERT INTO "rouletteBets" ("userId", "roundId", amount, color) VALUES (1, $1, 5, 1) RETURNING id`, [roulette.rows[0].id]);
         await db.query(`INSERT INTO bets ("userId", amount, edge, game, "gameId", completed) VALUES (1, 5, 0.25, 'roulette', $1, 0)`, [rb.rows[0].id]);
+        // This committed seed selects fire. A fractional payout previously
+        // caused every Vercel request to roll back while resuming this game.
+        await db.query("INSERT INTO users (id, username) VALUES (2, 'coinflip-opponent')");
+        const coinflip = await db.query(`INSERT INTO coinflips ("ownerId", fire, ice, amount, "serverSeed", "clientSeed", "EOSBlock") VALUES (1, 1, 2, 1, 'test-coinflip-seed', 'test-client-seed', 100) RETURNING id`);
+        await db.query(`INSERT INTO bets ("userId", amount, edge, game, "gameId", completed) VALUES (1, 1, 0.05, 'coinflip', $1, 0), (2, 1, 0.05, 'coinflip', $1, 0)`, [coinflip.rows[0].id]);
         require('../../api/index').listen(Number(process.env.PORT), '127.0.0.1');
     } else require('../../app');
 }

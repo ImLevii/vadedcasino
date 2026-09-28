@@ -39,7 +39,22 @@ test('Vercel API recovers overdue rounds exactly once, serves auth and reconnect
         assert.equal(profile.status, 200, output);
         return (await profile.json()).balance;
     }));
-    assert.deepEqual(balances, [107, 107, 107], 'Recovered auto cashout + roulette payout must credit once');
+    assert.deepEqual(balances, [108.9, 108.9, 108.9], 'Recovered crash, roulette and fractional coinflip payouts must credit once');
+    const history = await fetch(origin + '/user/bets?games=coinflip', { headers: { cookie } });
+    assert.equal(history.status, 200, output);
+    const settled = (await history.json()).data;
+    assert.equal(settled.length, 1);
+    assert.equal(settled[0].winnings, 1.9);
+    assert.equal(settled[0].completed, 1);
+    const opponentToken = require('jsonwebtoken').sign({ uid: 2 }, 'fixture-secret-that-is-longer-than-thirty-two-characters');
+    const opponentHistory = await fetch(origin + '/user/bets?games=coinflip', { headers: { authorization: opponentToken } });
+    const opponentBets = (await opponentHistory.json()).data;
+    assert.equal(opponentBets[0].winnings, 0);
+    assert.equal(opponentBets[0].completed, 1);
+    for (const path of ['/readyz', '/cases', '/coinflip']) {
+        const response = await fetch(origin + path, { headers: { accept: 'application/json' } });
+        assert.equal(response.status, 200, `${path}: ${output}`);
+    }
     const admin = await fetch(origin + '/admin/2fa', { method: 'POST', headers: { cookie } });
     assert.equal((await admin.json()).success, true, output);
     const settings = await fetch(origin + '/admin/games/settings', { headers: { cookie } });

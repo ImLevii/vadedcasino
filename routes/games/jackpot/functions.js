@@ -242,7 +242,7 @@ async function jackpotInterval() {
             }
 
             await connection.query(`
-                UPDATE bets SET completed = 1, winnings = CASE WHEN gameId = ? THEN ? ELSE 0 END WHERE game = ? AND gameId IN(?)`,
+                UPDATE bets SET completed = 1, winnings = CASE WHEN gameId = ? THEN CAST(? AS DECIMAL(20,2)) ELSE 0 END WHERE game = ? AND gameId IN(?)`,
                 [jackpot.round.winnerBet, winnings, 'jackpot', betIds]
             );
 

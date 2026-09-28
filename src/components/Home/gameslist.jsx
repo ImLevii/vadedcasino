@@ -17,14 +17,6 @@ function GamesList() {
         },
         {
             tag: 'new',
-            icon: '/assets/icons/slot.svg',
-            title: 'SLOTS',
-            type: 'PROVIDER',
-            image: '/assets/gamemodes/slots.png',
-            link: '/slots',
-        },
-        {
-            tag: 'new',
             icon: '/assets/icons/mines.svg',
             title: 'MINES',
             type: 'HOUSE',
