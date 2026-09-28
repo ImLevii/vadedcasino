@@ -1,5 +1,6 @@
 const io = require('../server');
 const { sql } = require('../../database');
+const {ensureStaffChatSchema, publicChatUser} = require('./staff-mode');
 const channels = Object.create(null);
 
 const limit = 50;
@@ -10,12 +11,14 @@ channelsIds.forEach(channel => {
 });
 
 async function cacheChannels() {
+    if (!require('../../runtime/context').enabled) await ensureStaffChatSchema(sql);
 
     await Promise.all(channelsIds.map(async channel => {
 
         const [messages] = await sql.query(`
-            SELECT users.username, content, users.role, users.xp, chatMessages.id, chatMessages.content, chatMessages.senderId, chatMessages.type, chatMessages.replyTo, chatMessages.createdAt FROM chatMessages
+            SELECT users.username, content, users.role, users.xp, chatMessages.id, chatMessages.content, chatMessages.senderId, chatMessages.type, chatMessages.replyTo, chatMessages.createdAt, staffChatMessages.messageId AS staffMessageId FROM chatMessages
             LEFT JOIN users ON users.id = chatMessages.senderId
+            LEFT JOIN staffChatMessages ON staffChatMessages.messageId = chatMessages.id
             WHERE (chatMessages.channelId = ? OR chatMessages.channelId IS NULL) AND chatMessages.deletedAt IS NULL AND chatMessages.type != 'rain-end'
             ORDER BY chatMessages.id DESC LIMIT ?;
         `, [channel, limit]);
@@ -38,12 +41,12 @@ async function cacheChannels() {
                 replyTo: e.replyTo,
                 type: e.type,
                 createdAt: e.createdAt,
-                user: e.senderId && {
+                user: e.senderId && publicChatUser({
                     id: e.senderId,
                     username: e.username,
                     role: e.role,
                     xp: e.xp
-                }
+                }, !!e.staffMessageId)
             });
             
         });

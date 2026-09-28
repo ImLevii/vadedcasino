@@ -1,7 +1,8 @@
 const io = require('../server');
 const { sendSystemMessage, sendOnlineUsers, channels, newMessage } = require('./functions');
 const { bannedPhrases, bannedUsers } = require('../../routes/admin/config');
-const { sql } = require('../../database');
+const { sql, doTransaction } = require('../../database');
+const {getStaffChatMode, publicChatUser} = require('./staff-mode');
 const path = require('path');
 const { enabledFeatures } = require('../../routes/admin/config');
 
@@ -91,6 +92,7 @@ async function sendMessage(socket, message, replyTo) {
         if (message.length > 300) return sendSystemMessage(socket, 'Message is too long.');
 
         const [[user]] = await sql.query('SELECT id, username, xp, role, perms, mutedUntil FROM users WHERE id = ?', [socket.userId]);
+        if (!user) return sendSystemMessage(socket, 'Account not found.');
         const now = Date.now();
 
         if (user.perms < 1) {
@@ -144,6 +146,7 @@ async function sendMessage(socket, message, replyTo) {
             for (let i = 0; i < mentions.length; i++) {
 
                 const mention = mentions[i].slice(1);
+                if (mention.toUpperCase() === 'COSMICLUCK') continue;
 
                 const [[mentionedUser]] = await sql.query('SELECT id, username, mentionsEnabled FROM users WHERE LOWER(username) = LOWER(?) LIMIT 1', [mention]);
                 if (!mentionedUser) return sendSystemMessage(socket, `@${mention} not found.`);
@@ -155,7 +158,13 @@ async function sendMessage(socket, message, replyTo) {
 
         }
 
-        const [result] = await sql.query('INSERT INTO chatMessages(type, senderId, content, channelId, replyTo) VALUES (?, ?, ?, ?, ?)', ['user', user.id, message, socket.channel, replyTo]);
+        const staffMode = await getStaffChatMode(sql, user);
+        const result = await doTransaction(async (connection, commit) => {
+            const [saved] = await connection.query('INSERT INTO chatMessages(type, senderId, content, channelId, replyTo) VALUES (?, ?, ?, ?, ?)', ['user', user.id, message, socket.channel, replyTo]);
+            if (staffMode) await connection.query('INSERT INTO staffChatMessages (messageId) VALUES (?)', [saved.insertId]);
+            await commit();
+            return saved;
+        });
 
         newMessage({
             id: result.insertId,
@@ -163,12 +172,7 @@ async function sendMessage(socket, message, replyTo) {
             type: 'user',
             createdAt: now,
             replyTo: replyTo,
-            user: {
-                id: user.id,
-                username: user.username,
-                role: user.role,
-                xp: user.xp
-            }
+            user: publicChatUser(user, staffMode)
         }, socket.channel);
     
         // socket.emit('chat:sendMessage', { success: true });

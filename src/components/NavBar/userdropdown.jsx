@@ -1,5 +1,7 @@
 import {A, useSearchParams} from "@solidjs/router";
 import {ADMIN_ROLES} from "../../resources/users";
+import {getUserLevel} from '../../resources/levels';
+import StaffModeButton from '../Chat/staffmode';
 import {logout} from "../../util/api";
 
 function UserDropdown(props) {
@@ -11,14 +13,14 @@ function UserDropdown(props) {
             <div id={props.id} inert={props.active ? undefined : ''} aria-hidden={!props.active} class={'dropdown' + (props?.mobile ? ' mobile ' : ' ') + (props.active ? 'active' : '')} onClick={(e) => e.stopPropagation()}>
                 <div class='decoration-arrow'/>
                 <div class='links'>
-                    {props?.mobile && (
+                    {props.user && <div class='account-summary'><span>{getUserLevel(props.user.xp || 0)}</span><strong>{props.user.username}</strong></div>}
+                    <StaffModeButton/>
                     <div class='menu-group'>
                       <A href='/withdraw' class='user-dropdown-link withdraw' onClick={() => props.setActive(false)}>
                         <img src='/assets/icons/cart.svg' height='12' alt=''/>
                         Withdraw
                       </A>
                     </div>
-                    )}
 
                   <div class='menu-group'>
                     <A href='/profile' class='user-dropdown-link' onClick={() => props.setActive(false)}>
@@ -43,6 +45,18 @@ function UserDropdown(props) {
                     </div>
 
                   <div class='menu-group divided'>
+                    <A href='/rewards' class='user-dropdown-link' onClick={() => props.setActive(false)}>
+                      <img src='/assets/icons/coin.svg' height='14' alt=''/>
+                      Rewards
+                    </A>
+                    <A href='/affiliates' class='user-dropdown-link' onClick={() => props.setActive(false)}>
+                      <img src='/assets/icons/user.svg' height='14' alt=''/>
+                      Affiliates
+                    </A>
+                    <A href='/docs/provably' class='user-dropdown-link' onClick={() => props.setActive(false)}>
+                      <img src='/assets/icons/settings.svg' height='14' alt=''/>
+                      Provably Fair
+                    </A>
                     <button class='user-dropdown-link reward' onClick={() => {
                       setSearchParams({ modal: 'freecoins' })
                       props.setActive(false)
@@ -98,7 +112,8 @@ function UserDropdown(props) {
               }
 
               .dropdown.active {
-                max-height: 440px;
+                max-height: min(680px, calc(100dvh - 90px));
+                overflow-y: auto;
                 opacity: 1;
                 transform: translateY(0);
                 pointer-events: auto;
@@ -142,6 +157,13 @@ function UserDropdown(props) {
 
                 margin-top: 9px;
               }
+              .account-summary {display:flex;align-items:center;gap:10px;padding:14px 12px;margin-bottom:8px;background:#14191d;border:1px solid #ffffff06;border-radius:4px;font-size:12px;}
+              .account-summary>span {padding:2px 6px;border-radius:3px;background:#a6a8ac;color:#15191c;font-size:10px;font-weight:700;}
+              .account-summary strong {color:#00edac;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+              .dropdown {min-width:240px;border-radius:5px;}
+              .links {padding:12px;background:#20262e;border:1px solid #ffffff09;border-radius:5px;box-shadow:0 14px 40px #0008;}
+              .user-dropdown-link {min-height:40px;}
+              .links :global(a.user-dropdown-link::after) {content:'\u203a';margin-left:auto;color:#00d59b;font-size:18px;}
 
               .menu-group {
                 display: flex;
@@ -242,9 +264,7 @@ function UserDropdown(props) {
                   font-size: 13px;
                 }
               }
-              .dropdown:not(.mobile) { border-radius:12px; }
               .decoration-arrow { display:none; }
-              .links { background:linear-gradient(145deg,#ffffff0a,#ffffff02),#10191cfa; border-color:#ffffff18; border-radius:12px; box-shadow:inset 0 1px 0 #ffffff0e,0 18px 40px #0006; }
             `}</style>
         </>
     );

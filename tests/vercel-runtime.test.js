@@ -129,6 +129,37 @@ test('Vercel API recovers overdue rounds exactly once, serves auth and reconnect
     authenticated = once(socket, 'auth');
     socket.emit('auth', token);
     assert.equal((await authenticated)[0].success, true);
+    const setStaffMode = (auth, enable) => fetch(origin + '/user/staff-mode', {
+        method:'POST', headers:{authorization:auth, 'content-type':'application/json'}, body:JSON.stringify({enable})
+    });
+    assert.equal((await setStaffMode(created.data.token, true)).status, 403, 'Players cannot use the staff identity');
+    assert.equal((await setStaffMode(token, 'true')).status, 400, 'The preference must be a boolean');
+    await new Promise(resolve => setTimeout(resolve, 350));
+    const modeEvent = once(socket, 'staff:mode');
+    assert.equal((await setStaffMode(token, true)).status, 200, output);
+    assert.equal((await modeEvent)[0], true, 'Staff mode synchronizes across the account sockets');
+    const staffProfile = await (await fetch(origin + '/user', {headers:{cookie}})).json();
+    assert.equal(staffProfile.staffMode, true, 'The setting survives a new bootstrap request');
+    let chat = once(socket, 'chat:pushMessage');
+    socket.emit('chat:join', 'EN');
+    await chat;
+    chat = once(socket, 'chat:pushMessage');
+    socket.emit('chat:sendMessage', 'Staff identity test');
+    const branded = (await chat)[0][0];
+    assert.equal(branded.content, 'Staff identity test', JSON.stringify(branded));
+    assert.deepEqual(branded.user, {username:'COSMICLUCK', role:'STAFF', staffMode:true}, 'Live staff messages must not expose name, account ID, rank or level');
+    await new Promise(resolve => setTimeout(resolve, 350));
+    assert.equal((await setStaffMode(token, false)).status, 200, output);
+    chat = once(socket, 'chat:pushMessage');
+    socket.emit('chat:sendMessage', '@COSMICLUCK Thanks for your help', branded.id);
+    const normal = (await chat)[0][0];
+    assert.equal(normal.user.username, 'pgsmoke', JSON.stringify(normal));
+    assert.equal(normal.user.id, 1);
+    assert.equal(normal.replyTo, branded.id, 'Players can reply to the brand identity');
+    chat = once(socket, 'chat:pushMessage');
+    socket.emit('chat:join', 'EN');
+    const cached = (await chat)[0].find(message => message.id === branded.id);
+    assert.deepEqual(cached.user, branded.user, 'History remains anonymous after staff mode is disabled and the database cache reloads');
     snapshot = once(socket, 'crash:set');
     socket.emit('crash:subscribe');
     assert.ok((await snapshot)[0].round.id);

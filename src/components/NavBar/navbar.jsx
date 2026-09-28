@@ -2,12 +2,10 @@ import Games from "./games";
 import Cases from "./cases";
 import {A, useSearchParams, useNavigate, useLocation} from "@solidjs/router";
 import './navbar.css';
-import {createEffect, createSignal, onCleanup} from "solid-js";
-import {progressToNextLevel, getUserLevel} from "../../resources/levels";
+import {createSignal} from "solid-js";
 import BottomNavBar from "./mobilenav";
 import UserDropdown from "./userdropdown";
 import {addDropdown, closeDropdowns} from "../../util/api";
-import {useWebsocket} from "../../contexts/socketprovider";
 import Countup from "../Countup/countup";
 import Notifications from "./notifications";
 import {USD_PER_COIN} from "../../util/numbers";
@@ -18,23 +16,8 @@ function NavBar(props) {
     const navigate = useNavigate()
     const location = useLocation()
     const [userDropdown, setUserDropdown] = createSignal(false)
-    const [wagered, setWagered] = createSignal(0)
-    const [ws] = useWebsocket()
 
     addDropdown(setUserDropdown)
-
-    createEffect(() => {
-      const socket = ws()
-      if (!socket || !socket.connected) return
-
-      const onTotalWagered = (amt) => setWagered(amt)
-      socket.off('totalWagered', onTotalWagered)
-      socket.on('totalWagered', onTotalWagered)
-
-      onCleanup(() => {
-        socket.off('totalWagered', onTotalWagered)
-      })
-    })
 
     return (
         <>
@@ -55,11 +38,7 @@ function NavBar(props) {
                             <Games/>
                             <Cases/>
 
-                            <button class='rewards nav-button nav-button-menu' aria-label='Rewards' aria-haspopup='dialog'
-                                    classList={{'is-current': location.pathname.startsWith('/rewards') || searchParams.modal === 'rakeback'}} onClick={() => {
-                                if (!props?.user) return setSearchParams({modal: 'login'})
-                                setSearchParams({modal: 'rakeback'})
-                            }}>
+                            <A href='/rewards' class='rewards nav-button nav-button-menu' aria-label='Rewards' classList={{'is-current':location.pathname.startsWith('/rewards')}}>
                                 <svg class='rewards-icon nav-button-icon' width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'>
                                     <rect x='1.5' y='6' width='13' height='8.5' rx='1.5' fill='currentColor' opacity='0.85'/>
                                     <rect x='0.75' y='4' width='14.5' height='3.5' rx='1.5' fill='currentColor'/>
@@ -74,7 +53,7 @@ function NavBar(props) {
                                 <svg class='rewards-arrow' width="7" height="5" viewBox="0 0 7 5" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M3.50001 0.994671C3.62547 0.994671 3.7509 1.04269 3.84655 1.13852L6.8564 4.15579C7.04787 4.34773 7.04787 4.65892 6.8564 4.85078C6.66501 5.04263 6.5 4.99467 6.16316 4.99467L3.50001 4.99467L1 4.99467C0.5 4.99467 0.335042 5.04254 0.14367 4.85068C-0.0478893 4.65883 -0.0478893 4.34764 0.14367 4.1557L3.15347 1.13843C3.24916 1.04258 3.3746 0.994671 3.50001 0.994671Z" fill="currentColor"/>
                                 </svg>
-                            </button>
+                            </A>
                         </nav>
                     </div>
 
@@ -84,25 +63,20 @@ function NavBar(props) {
                         </button>
                         {props.user ? (
                             <>
+                              <button class='withdraw nav-button' type='button' onClick={() => navigate('/withdraw')}>Withdraw</button>
                               <div class='wallet-group' aria-label='Wallet'>
-                                <div class='balance'>
-                                  <img class='coin' src='/assets/icons/coin.svg' height='22' width='22' alt='Coins'/>
-                                  <div class='balance-copy'>
-                                    <span class='wallet-label'>BALANCE</span>
-                                    <div class='balance-hover'>
-                                        <p class='coins'><Countup end={props?.user?.balance} gray={true}/></p>
-                                        <p class='fiat'><span class='gold'>$ </span><Countup
-                                            end={(props?.user?.balance || 0) * USD_PER_COIN} gray={true}/></p>
-                                    </div>
+                                <button class='deposit nav-button nav-button-primary' type='button' aria-label='Deposit' title='Deposit' onClick={() => navigate('/deposit')}>
+                                    <svg width='18' height='18' viewBox='0 0 20 20' fill='none' stroke='currentColor' stroke-width='2.5' aria-hidden='true'><path d='M10 3v14M3 10h14'/></svg>
+                                </button>
+                                <div class='balance' aria-label='Account balance'>
+                                  <svg class='wallet-icon' width='21' height='21' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' aria-hidden='true'><path d='M20 8V6a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h11a3 3 0 0 0 3-3v-2M3 7h14a3 3 0 0 1 3 3v1'/><path d='M16 10h5v7h-5a3.5 3.5 0 0 1 0-7Z'/><path d='M16 13.5h1'/></svg>
+                                  <img class='coin' src='/assets/icons/coin.svg' height='18' width='18' alt='Coins'/>
+                                  <div class='balance-hover'>
+                                    <p class='coins'><Countup end={props?.user?.balance} gray={false}/></p>
+                                    <p class='fiat'><span>$ </span><Countup end={(props?.user?.balance || 0) * USD_PER_COIN} gray={false}/></p>
                                   </div>
                                 </div>
-                                <button class='deposit nav-button nav-button-primary' type='button' onClick={() => navigate('/deposit')}>
-                                    <svg class='deposit-icon' width='14' height='14' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='2' aria-hidden='true'><path d='M8 3v10M3 8h10'/></svg>
-                                    Deposit
-                                </button>
                               </div>
-
-                                <button class='withdraw nav-button' type='button' onClick={() => navigate('/withdraw')}>Withdraw</button>
 
                                 <Notifications/>
 
@@ -114,23 +88,6 @@ function NavBar(props) {
                                          src={`${import.meta.env.VITE_SERVER_URL || ''}/user/${props.user?.id}/img`}
                                          alt='' onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = '/assets/icons/default-avatar.svg' }}
                                          width='34' height='34'/>
-
-                                    <div class='user-info'>
-                                        <div class='user-name-row'>
-                                            <span class='user-name'>{props?.user?.username}</span>
-                                            <span class='user-level'>LVL {getUserLevel(props?.user?.xp || 0)}</span>
-                                        </div>
-                                        <div class='xp-bar-track'>
-                                            <div class='xp-bar-fill' style={`width:${Math.max(0, Math.min(100, 100 - (progressToNextLevel(props?.user?.xp || 0))))}%`}/>
-                                        </div>
-                                    </div>
-
-                                    <svg class='arrow' width="7" height="5" viewBox="0 0 7 5" fill="none"
-                                         xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M3.50001 0.994671C3.62547 0.994671 3.7509 1.04269 3.84655 1.13852L6.8564 4.15579C7.04787 4.34773 7.04787 4.65892 6.8564 4.85078C6.66501 5.04263 6.5 4.99467 6.16316 4.99467L3.50001 4.99467L1 4.99467C0.5 4.99467 0.335042 5.04254 0.14367 4.85068C-0.0478893 4.65883 -0.0478893 4.34764 0.14367 4.1557L3.15347 1.13843C3.24916 1.04258 3.3746 0.994671 3.50001 0.994671Z"
-                                            fill="#6b7280"/>
-                                    </svg>
 
                                   </button>
                                     <UserDropdown id="account-menu" user={props?.user} active={userDropdown()}

@@ -53,6 +53,7 @@ const FAQ = lazy(() => import('./components/Documentation/faq'))
 
 const Profile = lazy(() => import('./pages/profile'))
 const Rewards = lazy(() => import('./pages/rewards'))
+const RewardsHub = lazy(() => import('./pages/rewardshub'))
 const Overview = lazy(() => import('./components/Profile/overview'))
 const Transactions = lazy(() => import('./components/Profile/transactions'))
 const History = lazy(() => import('./components/Profile/history'))
@@ -83,7 +84,7 @@ function App() {
 
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [user, {hasFetched, setBalance, setXP, getUser}] = useUser()
+  const [user, {hasFetched, setBalance, setXP, getUser, mutateUser}] = useUser()
   const [ws] = useWebsocket()
   const [chat, setChat] = createSignal(false)
 
@@ -110,6 +111,10 @@ function App() {
       ws().off('balance')
       ws().off('xp')
       ws().off('coinflip:own:started')
+      ws().off('staff:mode')
+      ws().on('staff:mode', enabled => {
+        if (getUser()) mutateUser({...getUser(), staffMode:enabled})
+      })
 
       ws().on('balance', (type, amount, delay) => {
         if (type === 'set') {
@@ -364,6 +369,12 @@ function App() {
                         </Suspense>
                       }/>
                     </Route>
+
+                    <Route path='/rewards' element={
+                      <Suspense fallback={<Loader/>}>
+                        <RewardsHub/>
+                      </Suspense>
+                    }/>
 
                     {user() && (
                       <>

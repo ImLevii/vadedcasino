@@ -5,6 +5,7 @@ import RainTip from "./raintip";
 import {useUser} from "../../contexts/usercontextprovider";
 import {addDropdown} from "../../util/api";
 import {DEFAULT_CHAT_EMOJIS} from "../../resources/chatEmojis";
+import StaffModeButton from './staffmode';
 
 function Chat(props) {
 
@@ -135,6 +136,7 @@ function Chat(props) {
                     <div ref={messagesRef}/>
                 </div>
 
+                <div class='chat-staff-mode'><StaffModeButton/></div>
                 <div class='send-message input-shell'>
                     <div class='message-wrapper'>
                         {replying() && (
@@ -227,6 +229,8 @@ function Chat(props) {
                 overflow: hidden;
                 position: relative;
               }
+              .chat-staff-mode { padding: 0 14px; }
+              .chat-staff-mode:empty { display: none; }
 
               .messages {
                 width: 100%;

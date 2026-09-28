@@ -911,6 +911,17 @@ INSERT INTO "gameSettings" ("game", "key", "value", "type", "label", "descriptio
 ('cases',   'topDropPrice',       '25000','number','Top Drop Price',   'Minimum item price for top drops',      '1000', '1000000', '1000'),
 ('battles', 'houseEdge',          '10',   'number','House Edge (%)',   'The house edge percentage for Battles', '0', '20', '0.5') ON CONFLICT DO NOTHING;
 
+CREATE TABLE IF NOT EXISTS "staffChatSettings" (
+    "userId" BIGINT NOT NULL,
+    "enabled" SMALLINT NOT NULL DEFAULT 0,
+    PRIMARY KEY ("userId")
+);
+
+CREATE TABLE IF NOT EXISTS "staffChatMessages" (
+    "messageId" BIGINT NOT NULL,
+    PRIMARY KEY ("messageId")
+);
+
 ALTER TABLE roulette ADD COLUMN IF NOT EXISTS "serverSeed" VARCHAR(255);
 
 ALTER TABLE "fairRolls" ADD COLUMN IF NOT EXISTS "serverSeed" VARCHAR(255) NOT NULL DEFAULT '';

@@ -19,6 +19,7 @@ async function initialize() {
             }
             await require('../routes/homeSlides').seedDefaultHomeSlides();
             await require('../routes/auth/credentials').ensureEmailAccounts();
+            await require('../socketio/chat/staff-mode').ensureStaffChatSchema(sql);
         });
         await events.initialize();
     })().catch(error => { initialized = null; throw error; });

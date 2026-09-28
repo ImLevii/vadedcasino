@@ -15,6 +15,7 @@ const rakebackRoute = require('./rakeback');
 const notificationsRoute = require('./notifications');
 const rewardsRoute = require('./rewards');
 const securityRoute = require('./security');
+const {isStaff, ensureStaffChatSchema, getStaffChatMode} = require('../../socketio/chat/staff-mode');
 
 async function getBootstrapUser(userId) {
     try {
@@ -47,6 +48,8 @@ router.get('/', isAuthed, async (req, res) => {
     try {
         const user = await getBootstrapUser(req.userId);
         if (!user) return res.status(404).json({ error: 'USER_NOT_FOUND' });
+        if (!require('../../runtime/context').enabled && isStaff(user)) await ensureStaffChatSchema(sql);
+        user.staffMode = await getStaffChatMode(sql, user);
 
         const [notifications, rakebacks] = await Promise.all([
             sql.query('SELECT COUNT(*) as notifications FROM notifications WHERE userId = ? AND seen = 0', [req.userId])
@@ -72,6 +75,17 @@ router.get('/', isAuthed, async (req, res) => {
         return res.status(500).json({ error: 'INTERNAL_ERROR' });
     }
 
+});
+
+router.post('/staff-mode', isAuthed, apiLimiter, async (req, res) => {
+    const [[user]] = await sql.query('SELECT id, role FROM users WHERE id = ? AND deletedAt IS NULL', [req.userId]);
+    if (!isStaff(user)) return res.status(403).json({error:'UNAUTHORIZED'});
+    const enabled = req.body.enable;
+    if (typeof enabled !== 'boolean') return res.status(400).json({error:'INVALID_ENABLED'});
+    if (!require('../../runtime/context').enabled) await ensureStaffChatSchema(sql);
+    await sql.query('INSERT INTO staffChatSettings (userId, enabled) VALUES (?, ?) ON DUPLICATE KEY UPDATE enabled = VALUES(enabled)', [user.id, enabled ? 1 : 0]);
+    io.to(String(user.id)).emit('staff:mode', enabled);
+    res.json({success:true, staffMode:enabled});
 });
 
 router.post('/anon', isAuthed, async (req, res) => {

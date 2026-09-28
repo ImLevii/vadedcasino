@@ -43,7 +43,7 @@
 .navbar-container .navbar-logo a { display: flex; align-items: center; }
 .navbar-container .navbar-logo img { width: 174px; height: auto; display: block; }
 
-.navbar-container button.nav-button {
+.navbar-container .nav-button {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -63,9 +63,9 @@
   transition: color .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
 }
 
-.navbar-container button.nav-button:hover,
-.navbar-container button.nav-button[aria-expanded='true'],
-.navbar-container button.nav-button.is-current {
+.navbar-container .nav-button:hover,
+.navbar-container .nav-button[aria-expanded='true'],
+.navbar-container .nav-button.is-current {
   background: linear-gradient(180deg, #51ed9810, #51ed9805);
   border-color: #63e89d38;
   color: #f1fff7;
@@ -73,17 +73,17 @@
   transform: none;
 }
 
-.navbar-container button.nav-button:active {
+.navbar-container .nav-button:active {
   background: #0a1511;
   box-shadow: inset 0 2px 5px #0005;
 }
 
-.navbar-container button.nav-button:focus-visible {
+.navbar-container .nav-button:focus-visible {
   outline: 2px solid var(--nav-accent);
   outline-offset: 3px;
 }
 
-.navbar-container button.nav-button-menu {
+.navbar-container .nav-button-menu {
   justify-content: flex-start;
   gap: 11px;
   padding: 0 13px 0 9px;
@@ -91,7 +91,7 @@
   overflow: visible;
 }
 
-.navbar-container button.nav-button-menu::after {
+.navbar-container .nav-button-menu::after {
   content: '';
   position: absolute;
   bottom: -1px;
@@ -104,7 +104,7 @@
   transition: opacity .18s ease;
 }
 
-.navbar-container button.nav-button-menu:is(.is-current, [aria-expanded='true'])::after { opacity: 1; }
+.navbar-container .nav-button-menu:is(.is-current, [aria-expanded='true'])::after { opacity: 1; }
 .navbar-container .nav-button-copy { display: flex; flex-direction: column; gap: 4px; line-height: 1.1; }
 .navbar-container .nav-button-title { font-size: 12px; font-weight: 800; letter-spacing: .85px; color: #e2ece7; }
 .navbar-container .nav-button-detail { color: #80928c; font-size: 10px; font-weight: 500; letter-spacing: .25px; }
@@ -161,7 +161,7 @@
 .navbar-container .balance-hover:hover .fiat { opacity: 1; }
 .navbar-container .balance-hover:hover .coins { opacity: 0; }
 
-.navbar-container button.nav-button-primary {
+.navbar-container .nav-button-primary {
   color: #072313;
   background: linear-gradient(135deg, #83f5ad 0%, #42dd83 65%, #32ce75 100%);
   border-color: #a4fbc047;
@@ -169,14 +169,14 @@
   font-weight: 800;
 }
 
-.navbar-container button.nav-button-primary:hover {
+.navbar-container .nav-button-primary:hover {
   color: #052112;
   background: linear-gradient(135deg, #a1fac1, #51e38e);
   border-color: #b0ffd066;
   box-shadow: inset 0 1px 0 #ffffff77, 0 4px 20px #31d77b30;
 }
 
-.navbar-container button.nav-button-primary:active { background: #3dce79; box-shadow: inset 0 2px 4px #126d3440; }
+.navbar-container .nav-button-primary:active { background: #3dce79; box-shadow: inset 0 2px 4px #126d3440; }
 .navbar-container button.deposit { height: 44px; padding-inline: 16px; }
 .navbar-container button.signin { min-width: 122px; gap: 16px; }
 .navbar-container button.withdraw { color: #a1b1ab; background: transparent; border-color: transparent; box-shadow: none; padding-inline: 10px; }
@@ -206,7 +206,7 @@
 
 @media (max-width: 1599px) {
   .navbar-container .nav-button-detail, .navbar-container .wallet-label, .navbar-container .user-level { display: none; }
-  .navbar-container button.nav-button-menu { gap: 8px; padding-inline: 9px; }
+  .navbar-container .nav-button-menu { gap: 8px; padding-inline: 9px; }
   .navbar-container .nav-button .nav-button-icon { width: 26px; height: 26px; padding: 5px; }
   .navbar-container .right { gap: 8px; }
   .navbar-container .wallet-group { gap: 6px; }
@@ -259,7 +259,27 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .navbar-container button.nav-button,
-  .navbar-container button.nav-button-menu::after,
+  .navbar-container .nav-button,
+  .navbar-container .nav-button-menu::after,
   .navbar-container :is(.coins, .fiat, .xp-bar-fill) { transition: none; }
 }
+/* Compact wallet controls, matching the emerald account actions. */
+.navbar-container {--nav-accent:#00efac;--nav-control-height:42px;}
+.navbar-container .nav-button {text-decoration:none;border-radius:4px;}
+.navbar-container .right {gap:8px;}
+.navbar-container .wallet-group {gap:8px;height:42px;padding:0;border:0;background:none;box-shadow:none;}
+.navbar-container .balance {height:42px;padding:0 15px;gap:7px;min-width:132px;background:#063e30;border:1px solid #00eaa316;border-radius:4px;color:#00efac;font-size:15px;}
+.navbar-container .balance .coin {width:18px;height:18px;filter:none;}
+.navbar-container .wallet-icon {margin-right:2px;flex-shrink:0;}
+.navbar-container button.deposit {display:inline-flex;width:42px;height:42px;padding:0;background:#00ec9f;border-color:#00f8ac;color:#02392a;box-shadow:inset 0 1px #a4ffdb33;}
+.navbar-container button.deposit:hover {background:#30ffbc;border-color:#71ffd2;}
+.navbar-container button.withdraw {display:inline-flex;height:42px;padding:0 15px;background:#20262f;border:1px solid #ffffff04;color:#a1adb8;box-shadow:none;font-size:12px;}
+.navbar-container button.withdraw:hover {background:#2b333f;color:#edf5f1;}
+.navbar-container button.user-trigger {width:42px;height:42px;padding:3px;background:#171d21;border-color:#ffffff0b;}
+.navbar-container .user-avatar {width:34px;height:34px;border-radius:4px;}
+.navbar-container .rewards {--nav-accent:#00efac;}
+.navbar-container .rewards .nav-button-icon {color:#00eca8;background:#00d9990b;border-color:#00f1a91a;}
+.navbar-container .rewards .nav-button-title {color:#d6ede5;}
+@media(max-width:1250px){.navbar-container button.withdraw{display:none;}}
+@media(max-width:560px){.navbar-container{--nav-control-height:36px;}.navbar-container .right{gap:6px;}.navbar-container .wallet-group{height:36px;gap:5px;}.navbar-container .balance{height:36px;min-width:0;padding:0 8px;font-size:12px;gap:5px;}.navbar-container .wallet-icon{display:none;}.navbar-container button.deposit{width:32px;height:36px;}.navbar-container button.user-trigger{width:36px;height:36px;}.navbar-container .user-avatar{width:28px;height:28px;}}
+@media(max-width:360px){.navbar-container .navbar-logo img{width:82px;}.navbar-container .right{gap:4px;}.navbar-container .balance{padding:0 6px;font-size:11px;}.navbar-container .balance .coin{width:14px;height:14px;}}

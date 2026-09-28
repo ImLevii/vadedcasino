@@ -896,3 +896,14 @@ EXECUTE rouletteStmt;
 DEALLOCATE PREPARE rouletteStmt;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- Staff chat preferences and per-message identity snapshots.
+CREATE TABLE IF NOT EXISTS `staffChatSettings` (
+    `userId` BIGINT NOT NULL,
+    `enabled` TINYINT NOT NULL DEFAULT 0,
+    PRIMARY KEY (`userId`)
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS `staffChatMessages` (
+    `messageId` BIGINT NOT NULL,
+    PRIMARY KEY (`messageId`)
+) ENGINE=InnoDB;
