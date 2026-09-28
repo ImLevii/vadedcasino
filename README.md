@@ -31,6 +31,9 @@ Your app is ready to be deployed!
 
 ## Deployment
 
+The admin operations workspace, permissions, control restrictions, recovery behavior,
+and validation procedures are documented in [Admin operations](docs/admin-operations.md).
+
 The production service is a single Node process that serves the Express API, Socket.IO, and the built SolidJS SPA. Do not deploy only the `dist` directory.
 
 ### Dokploy with Railpack
@@ -90,7 +93,7 @@ Keep the project preset **Vite**, build command `npm run build`, output director
 For a fresh Neon database, apply `npm run db:neon:bootstrap` once from a trusted
 local shell with `DIRECT_DATABASE_URL` and `DATABASE_URL` set privately. This
 creates the application schema and seed settings. The API creates only its small
-runtime event/session/media tables automatically; it does not initialize the full
+runtime event/session/media and game operations tables automatically; it does not initialize the full
 application schema or an administrator. `npm run db:neon:check` verifies the
 connection. Optional OAuth/payment providers still require their own credentials.
 

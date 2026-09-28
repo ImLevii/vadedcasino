@@ -172,10 +172,11 @@ test('roulette settles green at 14x and both bait numbers at 7x using PostgreSQL
         '../../../database': { sql: { query } },
         '../../../socketio/bets': {},
         '../../../utils': { roundDecimal: value => Math.floor(value * 100) / 100 },
-        '../../../routes/admin/gameConfig': { getGameConfig: (game, key, fallback) => fallback },
+        '../../admin/gameConfig': { getGameConfig: (game, key, fallback) => fallback },
+        '../../../runtime/game-controls': require('../runtime/game-controls'),
         '../../../fairness': {},
         '../../../socketio/server': {},
-        crypto: require('node:crypto'),
+        'node:crypto': require('node:crypto'),
         './bonus': require('../routes/games/roulette/bonus'),
     };
     vm.runInNewContext(fs.readFileSync(path.join(root, 'routes/games/roulette/functions.js'), 'utf8'), {
@@ -202,6 +203,8 @@ test('roulette settles green at 14x and both bait numbers at 7x using PostgreSQL
             assert.ok(settled.every(bet => bet.completed === 1));
             const [[user]] = await query('SELECT balance FROM users WHERE id = ?', [900001]);
             assert.equal(user.balance, expected.reduce((sum, payout) => sum + payout, 0));
+            assert.equal((await settleRouletteBets({query},{result,color:resultToColor(result)},bets)).length,0);
+            assert.equal((await query('SELECT balance FROM users WHERE id = ?',[900001]))[0][0].balance,user.balance,'Settlement retry must not credit twice');
         } finally { await db.query('ROLLBACK'); }
         assert.deepEqual((await query('SELECT id FROM users WHERE id = ?', [900001]))[0], []);
     }
@@ -263,6 +266,7 @@ test('roulette bet route funds the pot from every color and never from rejected 
     const dependencies = {
         express: require('express'),
         '../../../runtime/context': { enabled: false },
+        '../../../runtime/game-controls': require('../runtime/game-controls'),
         '../../../database': {doTransaction: async fn => {
             await db.query('SAVEPOINT test_bet');
             let committed = false;
@@ -358,6 +362,7 @@ function loadRouteModule(file, dependencies) {
         if (['express','crypto'].includes(name)) return require(name);
         if (name === '../../../fairness/randomorg') return {...require('../fairness/randomorg'),createTicket:async()=> '0123456789abcdef'};
         if (name === './fairness') return {};
+        if(name==='../../../runtime/game-controls')return require('../runtime/game-controls');
         throw new Error(`Unexpected dependency ${name}`);
     }};
     vm.runInNewContext(fs.readFileSync(path.join(root,file),'utf8'),context);

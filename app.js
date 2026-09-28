@@ -239,6 +239,7 @@ async function start() {
 
     // Warm up caches BEFORE accepting socket connections
     const timeoutMs = Math.max(100, Number(process.env.STARTUP_CACHE_TIMEOUT_MS) || 15000);
+    await timedPromise(() => require('./runtime/game-controls').ensureOperationsSchema(require('./database').sql), 'operationsSchema', timeoutMs);
     const results = await Promise.all(promises.map((promise) => timedPromise(promise, promise.name, timeoutMs)));
     startupState.failures = results.filter((result) => result.error).map((result) => ({
         name: result.name,

@@ -41,31 +41,9 @@ function RouletteIcon(props) {
 
   createEffect(() => setType(numberToColor(props.num)))
 
-  createEffect(() => {
-    if (typeof props.roll?.result === 'number') {
-      rollSpinner(props.roll?.result)
-    }
-  })
-
-  function rollSpinner(number) {
-    if (number === props.num) return
-
-    icon.animate([
-      { filter: 'grayscale(0%)', offset: 0 },
-      { filter: 'grayscale(100%)', offset: 0.05 },
-      { filter: 'grayscale(100%)', offset: 0.9 },
-      { filter: 'grayscale(0%)', offset: 0.95 },
-      { filter: 'grayscale(0%)', offset: 1 }
-    ], {
-      iterations: 1,
-      duration: 2000,
-      delay: props.config?.rollTime
-    })
-  }
-
-  return (
+return (
     <>
-      <div ref={icon} class={'spinner-icon ' + type() + ' ' + (props.size || 'large')}>
+      <div ref={icon} style={{filter:props.landed && props.roll?.result!==props.num ? 'grayscale(1)' : 'none'}} class={'spinner-icon ' + type() + ' ' + (props.size || 'large')}>
         <PokerChip color={type()} size={props.size || 'large'} num={props.num} />
       </div>
 

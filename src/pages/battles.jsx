@@ -32,11 +32,11 @@ function Battles(props) {
             unsubscribeFromGames(ws())
             subscribeToGame(ws(), 'battles')
 
-            ws().on('battles:push', (b) => {
+            ws().on('battles:push', (b, replace=false) => {
                 let curBattles = battles() || []
                 b.forEach((battle) => battle.players = fillEmptySlots(battle.playersPerTeam * battle.teams, battle.players))
                 const ids = new Set(b.map(battle => battle.id))
-                setBattles([...b, ...curBattles.filter(battle => !ids.has(battle.id))])
+                setBattles([...b, ...(replace ? [] : curBattles.filter(battle => !ids.has(battle.id)))])
             })
 
             ws().on('battles:join', (id, user) => {

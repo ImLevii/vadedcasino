@@ -1,135 +1,311 @@
-import { A } from '@solidjs/router';
-import { createResource, For, Show } from 'solid-js';
-import { authedAPI } from '../../util/api';
-import Loader from '../Loader/loader';
-import LineChart from './linechart';
-import AdminMFA from '../MFA/adminmfa';
-
-function AdminDashboard() {
-  const [stats, { mutate: mutateStats, refetch: refetchStats }] = createResource(fetchStats);
-
-  async function fetchStats() {
-    const response = await authedAPI('/admin/dashboard', 'GET', null);
-    if (response?.error === '2FA_REQUIRED') {
-      mutateStats({ mfa: true });
-      return { mfa: true };
-    }
-    if (!response || response.error) throw new Error(response?.error || 'Dashboard unavailable');
-    return { ...response, growth: [...(response.growth || [])].reverse() };
-  }
-
-  const money = (value) => Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const cards = () => [
-    { label: 'Profit today', value: `$${money(stats()?.profit?.lastDay)}`, note: 'Rolling 24 hours' },
-    { label: 'Profit this week', value: `$${money(stats()?.profit?.last7d)}`, note: 'Last 7 days' },
-    { label: 'Profit this month', value: `$${money(stats()?.profit?.last31d)}`, note: 'Last 31 days' },
-    { label: 'Lifetime profit', value: `$${money(stats()?.profit?.total)}`, note: 'All recorded activity', accent: true },
-  ];
-
+import { A } from "@solidjs/router";
+import { createSignal, onMount, For, Show } from "solid-js";
+import { authedAPI } from "../../util/api";
+import { createOperationsFeed } from "./live-operations";
+import {
+  PageHeader,
+  Metric,
+  Badge,
+  Failure,
+  Skeleton,
+  Empty,
+  money,
+  words,
+  duration,
+  date,
+} from "./system";
+export default function Dashboard() {
+  const [stats, setStats] = createSignal(),
+    [loading, setLoading] = createSignal(true),
+    [error, setError] = createSignal();
+  const feed = createOperationsFeed(() => ({
+    view: "active",
+    limit: 5,
+    sort: "exposure",
+  }));
+  const load = async () => {
+    setLoading(true);
+    const r = await authedAPI("/admin/dashboard", "GET");
+    if (r && !r.error) {
+      setStats({ ...r, growth: [...(r.growth || [])].reverse() });
+      setError(null);
+    } else setError(r?.error || "CONNECTION_UNAVAILABLE");
+    setLoading(false);
+  };
+  onMount(load);
+  const points = () => stats()?.growth || [];
+  const maximum = () => Math.max(1, ...points().map((p) => Number(p.players)));
   return (
     <>
-      <Show when={stats()?.mfa}><AdminMFA refetch={refetchStats}/></Show>
-
-      <div class='dashboard-toolbar'>
-        <div>
-          <h2>Operations overview</h2>
-          <p>Revenue and platform controls in one place.</p>
-        </div>
-        <button onClick={() => refetchStats()} disabled={stats.loading}>
-          {stats.loading ? 'Refreshing…' : 'Refresh data'}
+      <PageHeader
+        eyebrow="PLATFORM OVERVIEW"
+        title="Operations at a glance"
+        description="Game health, recorded revenue, and the tools to keep play moving."
+      >
+        <Badge value={feed.fresh() ? "connected" : "reconnecting"}>
+          {feed.fresh() ? "Live operations" : "Connecting"}
+        </Badge>
+        <button class="adm-button" disabled={loading()} onClick={load}>
+          Refresh financials
         </button>
-      </div>
-
-      <Show when={!stats.loading} fallback={<div class='dashboard-loader'><Loader/></div>}>
-        <Show when={!stats.error} fallback={
-          <div class='dashboard-state' role='alert'>
-            <strong>Dashboard data is unavailable</strong>
-            <p>Check the admin API connection, then try again.</p>
-            <button onClick={() => refetchStats()}>Try again</button>
-          </div>
-        }>
-          <section class='stats-grid' aria-label='Profit summary'>
-            <For each={cards()}>{(card) => (
-              <article class='metric-card' classList={{ accent: card.accent }}>
-                <p>{card.label}</p>
-                <strong>{card.value}</strong>
-                <span>{card.note}</span>
-              </article>
-            )}</For>
-          </section>
-
-          <div class='dashboard-grid'>
-            <section class='chart-panel'>
-              <div class='panel-heading'>
-                <div>
-                  <span>Performance</span>
-                  <h3>Growth trend</h3>
-                </div>
-                <span class='live-status'><i/> Live data</span>
-              </div>
-              <div class='graph'><LineChart data={stats()?.growth || []}/></div>
-            </section>
-
-            <aside class='quick-panel'>
-              <div class='panel-heading'>
-                <div><span>Workflows</span><h3>Quick actions</h3></div>
-              </div>
-              <nav>
-                <A href='/admin/cashier'>Review transactions <span>→</span></A>
-                <A href='/admin/users'>Manage users <span>→</span></A>
-                <A href='/admin/games'>Game controls <span>→</span></A>
-                <A href='/admin/games/probability'>Fairness settings <span>→</span></A>
-              </nav>
-              <div class='security-note'>
-                <i/>
-                <div><strong>Protected session</strong><span>Sensitive actions remain MFA-gated.</span></div>
-              </div>
-            </aside>
-          </div>
-        </Show>
+      </PageHeader>
+      <Show when={error()}>
+        <Failure error={error()} retry={load} />
       </Show>
-
-      <style jsx>{`
-        .dashboard-toolbar { margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-        .dashboard-toolbar > div { display: flex; flex-direction: column; gap: 4px; }
-        .dashboard-toolbar h2, .panel-heading h3 { margin: 0; color: #f3f6f8; font: 750 17px 'Geogrotesque Wide', sans-serif; }
-        .dashboard-toolbar p { color: #758191; font-size: 12px; }
-        button { min-height: 34px; padding: 0 12px; border: 1px solid rgba(31,214,95,.28); border-radius: 6px; background: #15221d; color: #1fd65f; font-size: 11px; font-weight: 750; cursor: pointer; }
-        button:disabled { opacity: .55; cursor: wait; }
-
-        .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-        .metric-card { min-width: 0; min-height: 120px; padding: 16px; display: flex; flex-direction: column; gap: 8px; border: 1px solid rgba(255,255,255,.06); border-radius: 7px; background: #0e141c; }
-        .metric-card p, .panel-heading span { color: #687586; font-size: 10px; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
-        .metric-card strong { overflow: hidden; color: #f3f6f8; font: 750 21px 'Geogrotesque Wide', sans-serif; text-overflow: ellipsis; }
-        .metric-card span { margin-top: auto; color: #687586; font-size: 10px; }
-        .metric-card.accent { border-color: rgba(31,214,95,.3); background: #111d19; }
-        .metric-card.accent strong { color: #1fd65f; }
-
-        .dashboard-grid { margin-top: 10px; display: grid; grid-template-columns: minmax(0, 2fr) minmax(240px, .8fr); gap: 10px; }
-        .chart-panel, .quick-panel { min-width: 0; border: 1px solid rgba(255,255,255,.06); border-radius: 7px; background: #0e141c; }
-        .panel-heading { min-height: 58px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(255,255,255,.06); }
-        .panel-heading > div { display: flex; flex-direction: column; gap: 4px; }
-        .live-status { display: flex; align-items: center; gap: 6px; }
-        .live-status i, .security-note > i { width: 7px; height: 7px; border-radius: 50%; background: #1fd65f; }
-        .graph { width: 100%; height: 270px; border: 0 !important; border-radius: 0 !important; }
-        .quick-panel nav { padding: 7px; display: flex; flex-direction: column; gap: 3px; }
-        .quick-panel a { min-height: 38px; padding: 0 10px; display: flex; align-items: center; justify-content: space-between; border-radius: 5px; color: #aab3bf; font-size: 11px; font-weight: 700; text-decoration: none; }
-        .quick-panel a:hover { background: #151d26; color: #f3f6f8; }
-        .quick-panel a span { color: #1fd65f; }
-        .security-note { margin: 7px; padding: 11px; display: flex; align-items: flex-start; gap: 9px; border: 1px solid rgba(31,214,95,.18); border-radius: 6px; background: #111d19; }
-        .security-note div { display: flex; flex-direction: column; gap: 3px; }
-        .security-note strong { color: #dfe5e9; font-size: 11px; }
-        .security-note span { color: #748090; font-size: 10px; line-height: 1.45; }
-        .dashboard-loader, .dashboard-state { min-height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(255,255,255,.06); border-radius: 7px; background: #0e141c; text-align: center; }
-        .dashboard-state strong { color: #f3f6f8; }
-        .dashboard-state p { color: #758191; font-size: 12px; }
-
-        @media (max-width: 1000px) { .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-        @media (max-width: 700px) { .dashboard-grid { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr 1fr; } }
-        @media (max-width: 460px) { .stats-grid { grid-template-columns: 1fr; } .dashboard-toolbar { align-items: flex-start; } }
-      `}</style>
+      <Show when={stats()} fallback={<Skeleton />}>
+        <div class="adm-metrics">
+          <For
+            each={[
+              ["GGR · 24 hours", "lastDay", "Settled stakes less game payouts"],
+              ["GGR · 7 days", "last7d", "Excludes bots and unfinished bets"],
+              ["GGR · 31 days", "last31d", "Bonuses and expenses excluded"],
+              ["Lifetime GGR", "total", "Recorded game ledger"],
+            ]}
+          >
+            {([label, key, note]) => (
+              <Metric
+                label={label}
+                value={money(stats()?.ggr?.[key])}
+                note={note}
+                accent={key === "total"}
+              />
+            )}
+          </For>
+        </div>
+        <div class="adm-two-col">
+          <section class="adm-panel">
+            <div class="adm-panel-heading">
+              <div>
+                <span class="adm-eyebrow">LIVE GAME HEALTH</span>
+                <h3>{feed.snapshot()?.summary.total || 0} active games</h3>
+              </div>
+              <A href="/admin/games" class="adm-button">
+                Open control center →
+              </A>
+            </div>
+            <Show when={feed.error()}>
+              <div class="adm-panel-content">
+                <Failure error={feed.error()} />
+              </div>
+            </Show>
+            <Show
+              when={feed.rows.length}
+              fallback={
+                <Empty
+                  title={
+                    feed.snapshot()
+                      ? "No active games"
+                      : "Connecting to live games"
+                  }
+                >
+                  New rounds and player sessions will appear here.
+                </Empty>
+              }
+            >
+              <div class="adm-table-scroll">
+                <table class="adm-table" style={{ "min-width": "500px" }}>
+                  <thead>
+                    <tr>
+                      <th>Game</th>
+                      <th>State</th>
+                      <th>Players</th>
+                      <th class="adm-numeric">Exposure</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <For each={feed.rows}>
+                      {(g) => (
+                        <tr>
+                          <td>
+                            <strong>{words(g.game)}</strong>
+                            <small>Round #{g.id}</small>
+                          </td>
+                          <td>
+                            <Badge value={g.state} />
+                            <small>{words(g.health)}</small>
+                          </td>
+                          <td>{g.playerCount}</td>
+                          <td class="adm-numeric">{money(g.exposure)}</td>
+                        </tr>
+                      )}
+                    </For>
+                  </tbody>
+                </table>
+              </div>
+            </Show>
+            <div class="adm-pagination">
+              <span>
+                {feed.snapshot()?.summary.onlinePlayers || 0} signed-in players
+                online
+              </span>
+              <span>Updated {duration(feed.age())} ago</span>
+            </div>
+          </section>
+          <aside class="adm-panel">
+            <div class="adm-panel-heading">
+              <div>
+                <span class="adm-eyebrow">WORKSPACE</span>
+                <h3>Quick access</h3>
+              </div>
+            </div>
+            <nav class="adm-panel-content adm-quick-links">
+              <For
+                each={[
+                  ["/admin/cashier", "Review transactions"],
+                  ["/admin/users", "Manage players"],
+                  ["/admin/games/settings", "Configure games"],
+                  ["/admin/audit", "Inspect audit history"],
+                  ["/admin/games/probability", "Probability & fairness"],
+                ]}
+              >
+                {([href, label]) => (
+                  <A class="adm-quick-link" href={href}>
+                    {label}
+                    <span>↗</span>
+                  </A>
+                )}
+              </For>
+            </nav>
+            <div class="adm-panel-content">
+              <small>
+                Privileged changes require an active staff session. Controls
+                check permissions and the current game state on the server.
+              </small>
+            </div>
+          </aside>
+        </div>
+        <div class="adm-two-col">
+          <section class="adm-panel">
+            <div class="adm-panel-heading">
+              <div>
+                <span class="adm-eyebrow">PLAYER GROWTH</span>
+                <h3>Weekly registrations</h3>
+              </div>
+              <small>Latest 9 recorded weeks · bots excluded</small>
+            </div>
+            <div class="adm-panel-content">
+              <Show
+                when={points().length}
+                fallback={
+                  <Empty title="No registrations yet">
+                    New player registrations will be charted here.
+                  </Empty>
+                }
+              >
+                <div
+                  style={{
+                    height: "210px",
+                    display: "grid",
+                    "grid-template-columns":
+                      "repeat(" + points().length + ",minmax(0,1fr))",
+                    gap: "10px",
+                    "align-items": "end",
+                    "border-bottom": "1px solid #354252",
+                    "padding-top": "20px",
+                  }}
+                >
+                  <For each={points()}>
+                    {(p) => (
+                      <div
+                        style={{
+                          height: "100%",
+                          display: "flex",
+                          "flex-direction": "column",
+                          "justify-content": "flex-end",
+                          "align-items": "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <small>{p.players}</small>
+                        <div
+                          title={
+                            p.from +
+                            " – " +
+                            p.to +
+                            ": " +
+                            p.players +
+                            " players"
+                          }
+                          style={{
+                            height:
+                              Math.max(
+                                2,
+                                (Number(p.players) / maximum()) * 160,
+                              ) + "px",
+                            width: "65%",
+                            background: "linear-gradient(#48e695,#1b7153)",
+                            "border-radius": "4px 4px 0 0",
+                          }}
+                        />
+                      </div>
+                    )}
+                  </For>
+                </div>
+                <div class="adm-chart-labels" style={{ "margin-top": "12px" }}>
+                  <span>{points()[0]?.from}</span>
+                  <span>{points().at(-1)?.to}</span>
+                </div>
+                <details style={{ "margin-top": "14px" }}>
+                  <summary class="adm-muted">View registration counts</summary>
+                  <For each={points()}>
+                    {(p) => (
+                      <p>
+                        {p.from} – {p.to}: {p.players} players
+                      </p>
+                    )}
+                  </For>
+                </details>
+              </Show>
+            </div>
+          </section>
+          <section class="adm-panel">
+            <div class="adm-panel-heading">
+              <div>
+                <span class="adm-eyebrow">INFRASTRUCTURE</span>
+                <h3>Engine heartbeat</h3>
+              </div>
+            </div>
+            <div class="adm-panel-content adm-audit-list">
+              <Show
+                when={feed.snapshot()?.health.length}
+                fallback={
+                  <p class="adm-muted">
+                    Heartbeats appear after a game is advanced.
+                  </p>
+                }
+              >
+                <For each={feed.snapshot()?.health}>
+                  {(h) => (
+                    <div class="adm-gate">
+                      <div>
+                        <strong>{words(h.game)}</strong>
+                        <small>{h.nodeId}</small>
+                        <small>{date(h.updatedAt)}</small>
+                      </div>
+                      <Badge
+                        value={
+                          h.errorCode
+                            ? "error"
+                            : Date.now() - new Date(h.updatedAt).valueOf() >
+                                45000
+                              ? "waiting"
+                              : "healthy"
+                        }
+                      />
+                    </div>
+                  )}
+                </For>
+              </Show>
+            </div>
+          </section>
+        </div>
+        <p class="adm-muted">
+          Financial snapshot: {date(stats()?.serverTime)}. GGR is game revenue,
+          before bonus costs and operating expenses. Recorded net cashflow:{" "}
+          {money(stats()?.profit?.total)} USD; this is a separate payment
+          metric.
+        </p>
+      </Show>
     </>
   );
 }
-
-export default AdminDashboard;

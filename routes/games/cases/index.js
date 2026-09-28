@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const {admissionError}=require('../../../runtime/game-controls');
 
 const { sql, doTransaction } = require('../../../database');
 
@@ -111,6 +112,8 @@ router.post('/:id/open', [isAuthed, apiLimiter], async (req, res) => {
     try {
 
         await doTransaction(async (connection, commit) => {
+            const blocked=await admissionError(connection,'cases');
+            if(blocked)return res.status(409).json({error:blocked});
 
             const [[user]] = await connection.query('SELECT id, balance, username, perms, sponsorLock, role, anon, xp FROM users WHERE id = ? FOR UPDATE', [req.userId]);
             if (user.balance < price) return res.status(400).json({ error: 'INSUFFICIENT_BALANCE' });
@@ -151,7 +154,7 @@ router.post('/:id/open', [isAuthed, apiLimiter], async (req, res) => {
                 );
         
                 await connection.query(`
-                    INSERT INTO bets (userId, amount, winnings, edge, game, gameId) VALUES (?, ?, ?, ?, ?, ?)`,
+                    INSERT INTO bets (userId, amount, winnings, edge, game, gameId, completed) VALUES (?, ?, ?, ?, ?, ?, 1)`,
                     [user.id, caseInfo.price, item.price, edge, 'case', openingResult.insertId]
                 );
     

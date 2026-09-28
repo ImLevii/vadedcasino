@@ -60,7 +60,7 @@ function RouletteColor(props) {
     return (
         <>
             <div class={'bet-column ' + (isGrayed())}>
-                <button class={'color ' + props.color} disabled={placing()} onClick={async () => {
+                <button class={'color ' + props.color} disabled={placing() || props.state!==''} onClick={async () => {
                     if (placing()) return
                     if (!Number.isFinite(props?.amount) || props.amount < 1) return createNotification('error', 'Enter a bet of at least 1 coin.')
                     setPlacing(true)

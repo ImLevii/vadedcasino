@@ -5,14 +5,19 @@ const vm = require('node:vm');
 const express = require('express');
 
 function fixture() {
-    const crash = {round: {id: 7}, bets: [], config: {minBet: .1, maxBet: 1000}};
+    const crash = {round: {id: 7,createdAt:new Date(),crashPoint:2}, bets: [], config: {minBet: .1, maxBet: 1000,betTime:10000}};
     const user = {id: 42, username: 'Tester', balance: 100, xp: 0, role: 0};
     const writes = [], events = [];
     let commits = 0;
     const dependencies = {
         express,
         '../../../runtime/context': { enabled: false },
+        '../../../runtime/game-controls': require('../runtime/game-controls'),
         '../../../database': {doTransaction: fn => fn({query: async (sql, params) => {
+            if(sql.includes('FROM gameOperationControls'))return [[]];
+            if(sql.includes('FROM crash WHERE'))return [[crash.round]];
+            if(sql.includes('FROM crashBets WHERE'))return [crash.bets];
+            if(sql.includes('FROM bets WHERE'))return [[{id:25,completed:0}]];
             if (sql.startsWith('SELECT')) return [[user]];
             writes.push({sql, params});
             return [{insertId: 25}];

@@ -1,311 +1,307 @@
-const { sql, doTransaction } = require('../../../database');
-const { newBets } = require('../../../socketio/bets');
-const { sleep, roundDecimal } = require('../../../utils');
-const { getGameConfig } = require('../../../routes/admin/gameConfig');
-const { generateServerSeed } = require('../../../fairness');
-const io = require('../../../socketio/server');
-const crypto = require('crypto');
-
-const { addContribution, distributeBonus, loadBonus, MINIMUM_BET } = require('./bonus');
+const { sql, doTransaction } = require("../../../database");
+const { newBets } = require("../../../socketio/bets");
+const { roundDecimal } = require("../../../utils");
+const { getGameConfig } = require("../../admin/gameConfig");
+const { generateServerSeed } = require("../../../fairness");
+const io = require("../../../socketio/server");
+const crypto = require("node:crypto");
+const {
+  addContribution,
+  distributeBonus,
+  loadBonus,
+  MINIMUM_BET,
+} = require("./bonus");
+const controls = require("../../../runtime/game-controls");
 
 function getColorsMultipliers() {
-    const configured = getGameConfig('roulette', 'colorsMultipliers', {0:14,1:2,2:2,3:7}) || {};
-
-    return {
-        // Enforced mechanics
-        0: 14,
-        3: 7,
-        // Keep standard colors at 2x unless explicitly set to a valid positive number
-        1: Number(configured[1]) > 0 ? Number(configured[1]) : 2,
-        2: Number(configured[2]) > 0 ? Number(configured[2]) : 2
-    };
+  const configured =
+    getGameConfig("roulette", "colorsMultipliers", {
+      0: 14,
+      1: 2,
+      2: 2,
+      3: 7,
+    }) || {};
+  return {
+    0: 14,
+    1: Number(configured[1]) > 0 ? Number(configured[1]) : 2,
+    2: Number(configured[2]) > 0 ? Number(configured[2]) : 2,
+    3: 7,
+  };
 }
-
 function resultToColor(result) {
-    if (result === 0) return 0;
-    if (result <= 7) return 1;
-    return 2;
+  return result === 0 ? 0 : result <= 7 ? 1 : 2;
 }
-
 function betWins(color, result, resultColor) {
-    if (color === resultColor) return true;
-    if (color === 3) return result === 7 || result === 8;
-    return false;
+  return (
+    color === resultColor || (color === 3 && (result === 7 || result === 8))
+  );
 }
+function getTripleGreenBonusRake() {
+  const value = Number(getGameConfig("roulette", "tripleGreenBonusRake", 0.66));
+  return Number.isFinite(value) && value >= 0 && value <= 5 ? value : 0.66;
+}
+const roulette = {
+  round: {},
+  bets: [],
+  last: [],
+  tripleGreenBonusPot: 0,
+  tripleGreenStreak: 0,
+  config: {
+    betTime: 10000,
+    rollTime: 5000,
+    maxBet: 25000,
+    tripleGreenMinimumBet: MINIMUM_BET,
+    tripleGreenBonusRake: 0.66,
+  },
+};
+const timestamp = (value) => (value ? new Date(value).valueOf() : 0);
 
 async function settleRouletteBets(connection, round, bets) {
-    const multipliers = getColorsMultipliers();
-    const edge = getGameConfig('roulette', 'houseEdge', 5);
-    const settled = [];
-    for (const bet of bets) {
-        const payout = betWins(bet.color, round.result, round.color)
-            ? bet.amount * multipliers[bet.color] : 0;
-        if (payout > 0) {
-            await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [payout, bet.user.id]);
-        }
-        await connection.query('UPDATE bets SET completed = 1, winnings = ? WHERE game = ? AND gameId = ?', [payout, 'roulette', bet.id]);
-        settled.push({ user: bet.user, amount: bet.amount, edge: roundDecimal(bet.amount * (edge / 100)), payout, game: 'roulette' });
-    }
-    return settled;
-}
-
-const roulette = {
-    round: {},
-    bets: [],
-    last: [],
-    tripleGreenBonusPot: 0,
-    tripleGreenStreak: 0,
-    config: {
-        get tripleGreenBonusRake() { return getTripleGreenBonusRake(); },
-        tripleGreenMinimumBet: MINIMUM_BET,
-        maxBet: getGameConfig('roulette', 'maxBet', 25000),
-        betTime: getGameConfig('roulette', 'betTime', 10000),
-        rollTime: getGameConfig('roulette', 'rollTime', 5000)
-    }
-};
-
-const lastResults = 100;
-
-// Expose the same validated rate to the bet ledger and the rules dialog.
-function getTripleGreenBonusRake() {
-    const configured = Number(getGameConfig('roulette', 'tripleGreenBonusRake', 0.66));
-    if (!Number.isFinite(configured) || configured < 0 || configured > 5) return 0.66;
-    return configured;
-}
-
-async function loadTripleGreenBonusPot() {
-    const {pot, streak} = await loadBonus(sql);
-    roulette.tripleGreenBonusPot = pot;
-    roulette.tripleGreenStreak = streak;
-}
-
-async function addToTripleGreenBonus(connection, amount) {
-    return addContribution(connection, amount, getTripleGreenBonusRake());
-}
-
-// Provably fair roulette result using server seed
-function computeRouletteResult(serverSeed) {
-    const hash = crypto.createHash('sha256').update(serverSeed).digest('hex');
-    const h = parseInt(hash.slice(0, 8), 16);
-    return h % 15; // 0-14
-}
-
-async function createRouletteRound() {
-    const serverSeed = generateServerSeed();
-    const result = computeRouletteResult(serverSeed);
-    const color = resultToColor(result);
-    const [ins] = await sql.query('INSERT INTO roulette (result, color, serverSeed) VALUES (?, ?, ?)', [result, color, serverSeed]);
-    const [[newRound]] = await sql.query('SELECT * FROM roulette WHERE id = ?', [ins.insertId]);
-    return newRound;
-}
-
-async function getRouletteRound() {
-
-    const [[round]] = await sql.query('SELECT * FROM roulette WHERE endedAt IS NULL ORDER BY id ASC LIMIT 1');
-    if (!round) return createRouletteRound();
-
-    const now = new Date();
-
-    if (!round.createdAt) {
-        await sql.query('UPDATE roulette SET createdAt = ? WHERE id = ?', [now, round.id]);
-        round.new = true;
-    }
-
-    round.createdAt = now;
-    return round;
-
-}
-
-async function updateRoulette() {
-
-    const round = await getRouletteRound();
-    if (!round) return;
-
-    roulette.round = round;
-    
-    if (!roulette.round.new) {
-
-        const [bets] = await sql.query(`
-            SELECT rouletteBets.userId, users.username, users.xp, users.anon, rouletteBets.color, rouletteBets.amount, rouletteBets.id FROM rouletteBets
-            INNER JOIN users ON users.id = rouletteBets.userId WHERE roundId = ?
-        `, [round.id]);
-
-        roulette.bets = bets.map(bet => ({
-            id: bet.id,
-            user: {
-                id: bet.userId,
-                username: bet.username,
-                xp: bet.xp,
-                anon: bet.anon
-            },
-            color: bet.color,
-            amount: bet.amount
-        }));
-
-    } else {
-        roulette.bets = [];
-    }
-
-    io.to('roulette').emit('roulette:new', {
-        id: round.id,
-        createdAt: round.createdAt
+  const multipliers = round.rules?.multipliers || getColorsMultipliers();
+  const settled = [];
+  for (const bet of bets) {
+    const [[ledger]] = await connection.query(
+      "SELECT id, completed FROM bets WHERE game = ? AND gameId = ? FOR UPDATE",
+      ["roulette", bet.id],
+    );
+    if (!ledger || ledger.completed) continue;
+    const payout = betWins(bet.color, round.result, round.color)
+      ? roundDecimal(bet.amount * multipliers[bet.color])
+      : 0;
+    if (payout > 0)
+      await connection.query(
+        "UPDATE users SET balance = balance + ? WHERE id = ?",
+        [payout, bet.user.id],
+      );
+    await connection.query(
+      "UPDATE bets SET completed = 1, winnings = ? WHERE id = ?",
+      [payout, ledger.id],
+    );
+    settled.push({
+      user: bet.user,
+      amount: bet.amount,
+      edge: roundDecimal(bet.amount * 0.05),
+      payout,
+      game: "roulette",
     });
-
-    if (roulette.bets.length) {
-        io.to('roulette').emit('roulette:bets', roulette.bets);
-    }
-
+  }
+  return settled;
 }
-
-async function cacheRoulette() {
-
-    if (require('../../../runtime/context').enabled) return advanceRoulette();
-
-    const [last] = await sql.query('SELECT result FROM roulette WHERE endedAt IS NOT NULL ORDER BY id DESC LIMIT ?', [lastResults]);
-    roulette.last = last.map(bet => bet.result);
-
-    await loadTripleGreenBonusPot();
-
-    await updateRoulette();
-    
-    // Start the roulette interval loop
-    if (!roulette.intervalStarted) {
-        roulette.intervalStarted = true;
-        rouletteInterval();
-    }
-
+async function addToTripleGreenBonus(connection, amount) {
+  return addContribution(
+    connection,
+    amount,
+    roulette.round.rules?.tripleGreenBonusRake ?? getTripleGreenBonusRake(),
+  );
 }
-
-async function rouletteInterval() {
-    try {
-        // Guard: if no active round (shouldn't happen after fix, but just in case)
-        if (!roulette.round || !roulette.round.id) {
-            await sleep(2000);
-            await updateRoulette();
-            return setTimeout(rouletteInterval, 0);
-        }
-
-        if (!roulette.round.rolledAt) {
-            await sleep(roulette.config.betTime);
-
-            roulette.round.rolledAt = new Date();
-            await sql.query('UPDATE roulette SET rolledAt = ? WHERE id = ?', [roulette.round.rolledAt, roulette.round.id]);
-
-            io.to('roulette').emit('roulette:roll', {
-                id: roulette.round.id,
-                result: roulette.round.result,
-                color: roulette.round.color
-            });
-
-        }
-
-        await sleep(roulette.config.rollTime);
-
-        roulette.round.endedAt = new Date();
-
-        let tripleGreenBonusResult = null;
-
-        let socketBets = [];
-        await doTransaction(async (connection, commit) => {
-            const [[stored]] = await connection.query('SELECT endedAt FROM roulette WHERE id = ? FOR UPDATE', [roulette.round.id]);
-            if (!stored) throw new Error('Roulette round missing');
-            if (!stored.endedAt) {
-                socketBets = await settleRouletteBets(connection, roulette.round, roulette.bets);
-                await connection.query('UPDATE roulette SET endedAt = ? WHERE id = ?', [roulette.round.endedAt, roulette.round.id]);
-            }
-            const result = await distributeBonus(connection);
-            await commit();
-            tripleGreenBonusResult = result;
-            if (result) roulette.tripleGreenBonusPot = result.carriedOver;
-        });
-        for (const bet of socketBets) {
-            if (bet.payout > 0) io.to(String(bet.user.id)).emit('balance', 'add', bet.payout);
-        }
-        if (socketBets.length) newBets(socketBets);
-
-        roulette.tripleGreenStreak = tripleGreenBonusResult ? 0 : roulette.round.result === 0 ? Math.min(2, roulette.tripleGreenStreak + 1) : 0;
-        io.to('roulette').emit('roulette:bonus:streak', roulette.tripleGreenStreak);
-
-        if (tripleGreenBonusResult) {
-            for (const payout of tripleGreenBonusResult.payouts) {
-                io.to(payout.userId).emit('balance', 'add', payout.amount);
-            }
-
-            io.to('roulette').emit('roulette:tripleGreenBonus:pot', roulette.tripleGreenBonusPot);
-            io.to('roulette').emit('roulette:tripleGreenBonus:won', {
-                total: tripleGreenBonusResult.total,
-                distributed: tripleGreenBonusResult.distributed,
-                carriedOver: tripleGreenBonusResult.carriedOver,
-                rounds: tripleGreenBonusResult.rounds,
-                payouts: tripleGreenBonusResult.payouts
-            });
-        }
-
-    } catch (error) {
-        console.error("Roulette err:", error);
-        return setTimeout(rouletteInterval, 2500);
-    }
-
-    roulette.last.unshift(roulette.round.result);
-    if (roulette.last.length > lastResults) roulette.last.pop();
-
-    await sleep(2500);
-
-    try {
-        await updateRoulette();
-    } catch (error) {
-        console.error("Roulette updateRoulette err:", error);
-    }
-
-    // Use setTimeout instead of recursive call to prevent stack overflow
-    setTimeout(rouletteInterval, 0);
+function snapshot() {
+  const r = roulette.round;
+  const rolled = !!r.rolledAt && !r.control?.cancelledAt;
+  return {
+    serverTime: Date.now(),
+    config: roulette.config,
+    bets: roulette.bets,
+    last: roulette.last,
+    tripleGreenBonusPot: roulette.tripleGreenBonusPot,
+    tripleGreenStreak: roulette.tripleGreenStreak,
+    round: {
+      id: r.id,
+      createdAt: r.createdAt,
+      rolledAt: r.rolledAt,
+      endedAt: r.endedAt,
+      result: rolled ? r.result : null,
+      color: rolled ? r.color : null,
+      serverSeedHash: r.serverSeed
+        ? crypto.createHash("sha256").update(r.serverSeed).digest("hex")
+        : null,
+      previousResult: r.previousResult ?? 0,
+      bettingClosesAt: timestamp(r.createdAt) + roulette.config.betTime,
+      animationEndsAt: rolled
+        ? timestamp(r.rolledAt) + roulette.config.rollTime
+        : null,
+      controlRevision: r.control?.revision || 0,
+      pausedAt: r.control?.pausedAt,
+      status: r.control?.cancelledAt
+        ? "cancelled"
+        : r.endedAt
+          ? "ended"
+          : r.control?.pausedAt
+            ? "paused"
+            : rolled
+              ? "rolling"
+              : "created",
+      phase: r.control?.cancelledAt
+        ? "CANCELLED"
+        : r.endedAt
+          ? "ROUND_COMPLETE"
+          : r.control?.pausedAt
+            ? "PAUSED"
+            : rolled
+              ? "SPINNING"
+              : r.control?.locked
+                ? "BETTING_LOCKED"
+                : "BETTING",
+    },
+  };
 }
-
 async function advanceRoulette() {
-    const [[latest]] = await sql.query('SELECT * FROM roulette ORDER BY id DESC LIMIT 1');
+  let publicBets = [];
+  await doTransaction(async (connection, commit) => {
+    await connection.query(
+      "SELECT gameId FROM gameOperationControls WHERE game = ? AND gameId = 0 FOR UPDATE",
+      ["roulette"],
+    );
+    let [[round]] = await connection.query(
+      "SELECT * FROM roulette ORDER BY id DESC LIMIT 1 FOR UPDATE",
+    );
     const now = Date.now();
-    let round = latest;
-    if (!round || (round.endedAt && now >= new Date(round.endedAt).valueOf() + 2500)) {
-        round = await createRouletteRound();
-        io.to('roulette').emit('roulette:new', { id: round.id, createdAt: round.createdAt, serverTime: new Date(), betTime: roulette.config.betTime });
+    const global = await controls.getControl(connection, "roulette", 0);
+    if (!round || (round.endedAt && now >= timestamp(round.endedAt) + 2500)) {
+      if (!global.pausedAt && !global.locked) {
+        const serverSeed = generateServerSeed();
+        const result =
+          parseInt(
+            crypto
+              .createHash("sha256")
+              .update(serverSeed)
+              .digest("hex")
+              .slice(0, 8),
+            16,
+          ) % 15;
+        const [insert] = await connection.query(
+          "INSERT INTO roulette (result, color, serverSeed) VALUES (?, ?, ?)",
+          [result, resultToColor(result), serverSeed],
+        );
+        [[round]] = await connection.query(
+          "SELECT * FROM roulette WHERE id = ?",
+          [insert.insertId],
+        );
+      }
     }
+    if (!round) {
+      await commit();
+      return;
+    }
+    const rules = await controls.roundRules(connection, "roulette", round.id, {
+      betTime: Number(getGameConfig("roulette", "betTime", 10000)),
+      rollTime: Number(getGameConfig("roulette", "rollTime", 5000)),
+      maxBet: Number(getGameConfig("roulette", "maxBet", 25000)),
+      multipliers: getColorsMultipliers(),
+      tripleGreenBonusRake: getTripleGreenBonusRake(),
+    });
+    round.rules = rules;
+    roulette.config = { ...roulette.config, ...rules };
+    round.control = await controls.getControl(connection, "roulette", round.id);
+    round.control = {
+      ...round.control,
+      locked: round.control.locked || global.locked,
+    };
+    const [rows] = await connection.query(
+      "SELECT rb.*, u.username, u.xp, u.anon FROM rouletteBets rb JOIN users u ON u.id = rb.userId WHERE rb.roundId = ?",
+      [round.id],
+    );
+    roulette.bets = rows.map((row) => ({
+      id: row.id,
+      color: row.color,
+      amount: row.amount,
+      user: {
+        id: row.userId,
+        username: row.username,
+        xp: row.xp,
+        anon: row.anon,
+      },
+    }));
+    if (
+      !round.endedAt &&
+      !round.control.cancelledAt &&
+      !round.control.pausedAt
+    ) {
+      const roll = round.rolledAt
+        ? timestamp(round.rolledAt)
+        : timestamp(round.createdAt) + rules.betTime;
+      if (now >= roll && !round.rolledAt) {
+        round.rolledAt = new Date(roll);
+        await connection.query(
+          "UPDATE roulette SET rolledAt = ? WHERE id = ? AND rolledAt IS NULL",
+          [round.rolledAt, round.id],
+        );
+        io.to("roulette").emit("roulette:roll", {
+          id: round.id,
+          result: round.result,
+          color: round.color,
+          rolledAt: round.rolledAt,
+          serverTime: now,
+          rollTime: rules.rollTime,
+        });
+      }
+      if (round.rolledAt && now >= roll + rules.rollTime) {
+        const settled = await settleRouletteBets(
+          connection,
+          round,
+          roulette.bets,
+        );
+        round.endedAt = new Date(roll + rules.rollTime);
+        await connection.query(
+          "UPDATE roulette SET endedAt = ? WHERE id = ? AND endedAt IS NULL",
+          [round.endedAt, round.id],
+        );
+        const bonus = await distributeBonus(connection);
+        for (const bet of settled)
+          if (bet.payout)
+            io.to(String(bet.user.id)).emit("balance", "add", bet.payout);
+        publicBets = settled;
+        if (bonus) {
+          for (const payout of bonus.payouts)
+            io.to(String(payout.userId)).emit("balance", "add", payout.amount);
+          io.to("roulette").emit("roulette:tripleGreenBonus:won", {
+            ...bonus,
+            eventId: "roulette-bonus:" + round.id,
+          });
+        }
+      }
+    }
+    const [last] = await connection.query(
+      "SELECT r.result, r.id FROM roulette r LEFT JOIN gameOperationControls c ON c.game = ? AND c.gameId = r.id WHERE r.endedAt IS NOT NULL AND c.cancelledAt IS NULL ORDER BY r.id DESC LIMIT 100",
+      ["roulette"],
+    );
+    roulette.last = last.map((r) => r.result);
+    round.previousResult =
+      last.find((r) => String(r.id) !== String(round.id))?.result ?? 0;
     roulette.round = round;
-    const [rows] = await sql.query(`SELECT rb.*, u.username, u.xp, u.anon FROM rouletteBets rb JOIN users u ON u.id = rb.userId WHERE rb.roundId = ?`, [round.id]);
-    roulette.bets = rows.map(row => ({ id: row.id, color: row.color, amount: row.amount,
-        user: { id: row.userId, username: row.username, xp: row.xp, anon: row.anon } }));
-    if (!round.endedAt) {
-        const roll = round.rolledAt ? new Date(round.rolledAt).valueOf() : new Date(round.createdAt).valueOf() + roulette.config.betTime;
-        if (now >= roll && !round.rolledAt) {
-            round.rolledAt = new Date(roll);
-            await sql.query('UPDATE roulette SET rolledAt = ? WHERE id = ?', [round.rolledAt, round.id]);
-            io.to('roulette').emit('roulette:roll', { id: round.id, result: round.result, color: round.color, rolledAt: round.rolledAt, serverTime: new Date() });
-        }
-        if (now >= roll + roulette.config.rollTime) {
-            const settled = await settleRouletteBets(sql, round, roulette.bets);
-            round.endedAt = new Date(roll + roulette.config.rollTime);
-            await sql.query('UPDATE roulette SET endedAt = ? WHERE id = ?', [round.endedAt, round.id]);
-            const bonus = await distributeBonus(sql);
-            for (const bet of settled) if (bet.payout) io.to(String(bet.user.id)).emit('balance', 'add', bet.payout);
-            if (settled.length) await newBets(settled);
-            if (bonus) {
-                for (const payout of bonus.payouts) io.to(payout.userId).emit('balance', 'add', payout.amount);
-                io.to('roulette').emit('roulette:tripleGreenBonus:won', bonus);
-            }
-        }
-    }
-    await loadTripleGreenBonusPot();
-    const [last] = await sql.query('SELECT result FROM roulette WHERE endedAt IS NOT NULL ORDER BY id DESC LIMIT ?', [lastResults]);
-    roulette.last = last.map(row => row.result);
-    io.to('roulette').emit('roulette:bonus:streak', roulette.tripleGreenStreak);
-    io.to('roulette').emit('roulette:tripleGreenBonus:pot', roulette.tripleGreenBonusPot);
+    const bonus = await loadBonus(connection);
+    roulette.tripleGreenBonusPot = bonus.pot;
+    roulette.tripleGreenStreak = bonus.streak;
+    await controls.health(connection, "roulette");
+    await commit();
+  });
+  if (publicBets.length) await newBets(publicBets);
+  io.to("roulette").emit("roulette:state", snapshot());
 }
-
+let timer;
+async function cacheRoulette() {
+  await advanceRoulette();
+  if (!require("../../../runtime/context").enabled && !timer) {
+    const tick = async () => {
+      try {
+        await advanceRoulette();
+      } catch (error) {
+        console.error("[roulette]", error.code || "ADVANCEMENT_FAILED");
+        await controls.health(sql, "roulette", error).catch(() => {});
+      }
+      timer = setTimeout(tick, 200);
+      timer.unref?.();
+    };
+    timer = setTimeout(tick, 200);
+    timer.unref?.();
+  }
+}
 module.exports = {
-    settleRouletteBets,
-    roulette,
-    resultToColor,
-    betWins,
-    getColorsMultipliers,
-    cacheRoulette,
-    addToTripleGreenBonus
-}
+  settleRouletteBets,
+  roulette,
+  resultToColor,
+  betWins,
+  getColorsMultipliers,
+  cacheRoulette,
+  addToTripleGreenBonus,
+  snapshot,
+};

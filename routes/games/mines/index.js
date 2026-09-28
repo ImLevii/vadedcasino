@@ -17,6 +17,7 @@ const { isAuthed } = require('../../auth/functions');
 const { enabledFeatures, xpMultiplier } = require('../../admin/config');
 const { generateMinePositions, calculateMultiplier, totalTiles, houseEdge } = require('./functions');
 const { getGameConfig } = require('../../admin/gameConfig');
+const {admissionError} = require('../../../runtime/game-controls');
 const io = require('../../../socketio/server');
 
 const { sql, doTransaction } = require('../../../database');
@@ -42,15 +43,17 @@ router.post('/start', apiLimiter, async (req, res) => {
     if (!enabledFeatures.mines) return res.status(400).json({ error: 'DISABLED' });
 
     let { amount, minesCount } = req.body;
-    if (!Number.isInteger(minesCount) || minesCount < 1 || minesCount > totalTiles - 1) return res.status(400).json({ error: 'INVALID_MINES_COUNT' });
+    if (!Number.isInteger(minesCount) || minesCount < 1 || minesCount > totalTiles() - 1) return res.status(400).json({ error: 'INVALID_MINES_COUNT' });
 
     amount = roundDecimal(amount);
-    if (amount < 1) return res.status(400).json({ error: 'MINES_MIN_BET' });
+    if (!Number.isFinite(amount) || amount < 1) return res.status(400).json({ error: 'MINES_MIN_BET' });
     if (amount > 20000) return res.status(400).json({ error: 'MINES_MAX_BET' });
 
     try {
 
         await doTransaction(async (connection, commit) => {
+            const blocked = await admissionError(connection,'mines');
+            if(blocked)return res.status(409).json({error:blocked});
             const [[activeGame]] = await connection.query('SELECT id FROM mines WHERE userId = ? AND endedAt IS NULL FOR UPDATE', [req.userId]);
             if (activeGame) return res.status(400).json({ error: 'MINES_GAME_ACTIVE' });
 
@@ -99,7 +102,7 @@ router.post('/reveal', apiLimiter, async (req, res) => {
     if (!enabledFeatures.mines) return res.status(400).json({ error: 'DISABLED' });
 
     const { field } = req.body;
-    if (!Number.isInteger(field) || field < 0 || field > totalTiles - 1) return res.status(400).json({ error: 'INVALID_FIELD' });
+    if (!Number.isInteger(field) || field < 0 || field > totalTiles() - 1) return res.status(400).json({ error: 'INVALID_FIELD' });
 
     try {
 
@@ -107,6 +110,8 @@ router.post('/reveal', apiLimiter, async (req, res) => {
 
             const [[activeGame]] = await connection.query('SELECT id, mines, revealedTiles, amount, minesCount FROM mines WHERE endedAt IS NULL AND userId = ? FOR UPDATE', [req.userId]);
             if (!activeGame) return res.status(400).json({ error: 'NO_MINES_GAME_ACTIVE' });
+            const blocked=await admissionError(connection,'mines',activeGame.id,{existing:true});
+            if(blocked)return res.status(409).json({error:blocked});
     
             const revealedTiles = JSON.parse(activeGame.revealedTiles);
             if (revealedTiles.includes(field)) return res.status(400).json({ error: 'ALREADY_REVEALED' });
@@ -139,7 +144,7 @@ router.post('/reveal', apiLimiter, async (req, res) => {
             const multiplier = calculateMultiplier(activeGame.minesCount, revealedTiles.length);
             const currentPayout = roundDecimal(activeGame.amount * multiplier);
     
-            if (revealedTiles.length == totalTiles - activeGame.minesCount) {
+            if (revealedTiles.length == totalTiles() - activeGame.minesCount) {
                 await doPayout(connection, commit, activeGame, multiplier, currentPayout, req, res, revealedTiles)
             } else {
                 await connection.query('UPDATE mines SET revealedTiles = ? WHERE id = ?', [JSON.stringify(revealedTiles), activeGame.id]);

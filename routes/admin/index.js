@@ -9,26 +9,22 @@ const { sendLog } = require('../../utils');
 
 router.use(isAuthed);
 
-const adminRoles = ['ADMIN', 'OWNER', 'DEV'];
-const authorizedAdmins = {};
+const access = require('./access');
+const adminRoles = access.roles;
 
 router.post('/2fa', apiLimiter, async (req, res) => {
 
     const jwt = getReqToken(req);
-    const alreadyAuthorized = require('../../runtime/context').enabled
-        ? await require('../../runtime/kv').get('admin', jwt) : authorizedAdmins[jwt];
+    const alreadyAuthorized = await access.session(jwt);
     if (alreadyAuthorized) return res.json({ error: 'ALREADY_AUTHORIZED' });
 
     const [[user]] = await sql.query('SELECT id, username, 2fa, role FROM users WHERE id = ?', [req.userId]);
     if (!user || !adminRoles.includes(user.role)) return res.json({ error: 'UNAUTHORIZED' });
 
-    // 2FA disabled - authorize admins directly without requiring a token
-    authorizedAdmins[jwt] = true;
-    if (require('../../runtime/context').enabled) await require('../../runtime/kv').set('admin', jwt, true, 30 * 60 * 1000);
-
-    setTimeout(() => {
-        delete authorizedAdmins[jwt];
-    }, 1000 * 60 * 30);
+    if(user['2fa'] && !speakeasy.totp.verify({secret:user['2fa'],encoding:'base32',token:String(req.body?.token || ''),window:1})) {
+        return res.status(403).json({error:'INVALID_2FA'});
+    }
+    await access.grant(jwt);
 
     sendLog('admin', `[\`${req.userId}\`] *${user.username}* logged into admin panel.`);
     return res.json({ success: true });
@@ -50,14 +46,15 @@ router.use(async (req, res, next) => {
     const [[user]] = await sql.query('SELECT id, role, username, perms FROM users WHERE id = ?', [req.userId]);
     if (!user || !adminRoles.includes(user.role)) return res.json({ error: 'UNAUTHORIZED' });
 
-    const authorized = require('../../runtime/context').enabled
-        ? await require('../../runtime/kv').get('admin', getReqToken(req))
-        : authorizedAdmins[getReqToken(req)];
+    const authorized = await access.session(getReqToken(req));
     if (!authorized) {
         return res.json({ error: '2FA_REQUIRED' });
     }
 
     req.user = user;
+    req.permissions = access.permissions[user.role] || [];
+    if (user.role === 'DEV' && !['/session','/operations','/games'].some(path => req.path === path || req.path.startsWith(path+'/'))) return res.status(403).json({error:'FORBIDDEN'});
+    if (user.role === 'DEV' && req.method !== 'GET' && !req.path.startsWith('/operations/')) return res.status(403).json({error:'FORBIDDEN'});
     next();
 
 });
@@ -87,5 +84,8 @@ router.use('/cases', casesRoute);
 router.use('/slides', slidesRoute);
 router.use('/rewards', rewardsRoute);
 router.use('/games', gamesRoute);
+router.use('/operations', require('./operations'));
+
+router.get('/session', (req,res)=>res.json({success:true,user:{id:req.user.id,username:req.user.username,role:req.user.role},permissions:req.permissions}));
 
 module.exports = router;

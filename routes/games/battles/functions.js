@@ -15,10 +15,11 @@ async function getBattle(battleId, privKey) {
 
     if (!privKey) privKey = null;
     const cached = cachedBattles[battleId];
+    const control=await require('../../../runtime/game-controls').getControl(sql,'battles',battleId);
 
     if (cached) {
         if (cached.privKey && cached.privKey != privKey) return false;
-        return cached;
+        return {...cached,control};
     }
 
     const [[battle]] = await sql.query(`
@@ -68,7 +69,7 @@ async function getBattle(battleId, privKey) {
 
     const battleData = mapBattle(battle, cases, rounds, players, openings);
     if (!battle.startedAt) cachedBattles[battleId] = battleData;
-    return battleData;
+    return {...battleData,control};
 
 }
 
@@ -133,18 +134,18 @@ function battleEnded(battleId, winnerTeam, serverSeed, clientSeed) {
 
 }
 
-async function cacheBattles() {
+async function cacheBattles(targetId) {
 
     const serverless = require('../../../runtime/context').enabled;
-    if (serverless) for (const id of Object.keys(cachedBattles)) delete cachedBattles[id];
+    if (serverless && !targetId) for (const id of Object.keys(cachedBattles)) delete cachedBattles[id];
 
     await ensureBattleBots(sql);
 
     const [battles] = await sql.query(`
-        SELECT * FROM battles WHERE endedAt IS NULL ORDER BY id DESC
-    `);
+        SELECT * FROM battles WHERE endedAt IS NULL ${targetId ? 'AND id = ?' : ''} ORDER BY id DESC
+    `,targetId ? [targetId] : []);
 
-    if (battles.length < minBattles) {
+    if (!targetId && battles.length < minBattles) {
         const [recentBattles] = await sql.query(`
             SELECT * FROM battles WHERE endedAt IS NOT NULL ORDER BY id DESC LIMIT ?
         `, [minBattles - battles.length]);
@@ -288,6 +289,8 @@ async function startBattle(battle, players) {
 }
 
 async function runBattle(battle, players) {
+    const control=await require('../../../runtime/game-controls').getControl(sql,'battles',battle.id);
+    if(control.cancelledAt || control.pausedAt)return;
 
     const [[storedBattle]] = await sql.query('SELECT * FROM battles WHERE id = ?', [battle.id]);
     if (!storedBattle || storedBattle.endedAt) return;

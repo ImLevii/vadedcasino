@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const {admissionError}=require('../../../runtime/game-controls');
 
 const { isAuthed, apiLimiter } = require('../../auth/functions');
 const { roundDecimal, getUserLevel, sendLog, xpChanged } = require('../../../utils');
@@ -103,6 +104,8 @@ router.post('/create', isAuthed, apiLimiter, async (req, res) => {
         if (req.aborted) return;
 
         await doTransaction(async (connection, commit) => {
+            const blocked=await admissionError(connection,'battles');
+            if(blocked)return res.status(409).json({error:blocked});
 
             const [[user]] = await connection.query('SELECT id, username, xp, balance, role, sponsorLock, perms FROM users WHERE id = ? FOR UPDATE', [req.userId]);
             if (cost > user.balance) return res.status(400).json({ error: 'INSUFFICIENT_BALANCE' });
@@ -217,6 +220,8 @@ async function joinBattle(req, res, bot = false) {
             await doTransaction(async (connection, commit) => {
 
                 const [[battle]] = await connection.query(`SELECT * FROM battles WHERE id = ? FOR UPDATE`, [battleId]);
+                const blocked=await admissionError(connection,'battles',battleId);
+                if(blocked)return res.status(409).json({error:blocked});
                 if (!battle) return res.status(400).json({ error: 'INVALID_BATTLE_ID' });
 
                 if (battle.winnerTeam || battle.startedAt) return res.status(400).json({ error: 'ALREADY_STARTED' });

@@ -47,6 +47,7 @@ test('reconnects authenticate, restore each active subscription once, and never 
     socket.emit('place-bet');
     await waitFor(() => actions === 1);
     socket.io.engine.close();
+    socket.emit('place-bet');
     socket.emit('battles:unsubscribe', 'private-battle');
     await waitFor(() => snapshots.length === 2);
     assert.deepEqual(connections[1], ['auth', 'crash', 'bets:high']);

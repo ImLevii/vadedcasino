@@ -21,6 +21,7 @@ function createCoordinator(pool) {
                 const rollback = async () => {
                     await connection.query(`ROLLBACK TO SAVEPOINT ${name}`);
                     await connection.query(`RELEASE SAVEPOINT ${name}`);
+                    context.emissions.length = emissionCount;
                     ended = true;
                 };
                 const emissionCount = context.emissions.length;

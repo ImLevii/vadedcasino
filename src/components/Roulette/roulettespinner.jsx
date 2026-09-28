@@ -1,78 +1,44 @@
-import {createEffect, For, Show, onCleanup} from "solid-js";
-import RouletteIcon from "./rouletteicons";
-import RouletteNumbers from "./roulettenumbers";
-
-// Keep bait numbers adjacent to green so the spinner visually lands with bait
-// slots flanking green on both sides.
-const NUMBERS = [1, 14, 2, 13, 3, 12, 4, 11, 5, 10, 6, 9, 7, 0, 8]
+import {For, Show, createSignal, onCleanup, onMount} from 'solid-js';
+import RouletteIcon from './rouletteicons';
+import RouletteNumbers from './roulettenumbers';
+import {ROULETTE_NUMBERS as NUMBERS,spinPosition,visualOffset,numberOffset,TILE_PITCH} from '../../util/roulette-motion.mjs';
 
 function RouletteSpinner(props) {
-
-    let animations = []
-    let icons
-    let numbers
-    let prev = 0
-    onCleanup(() => animations.forEach(animation => animation?.cancel()))
-
-    createEffect(() => {
-        if (typeof props.roll?.result === 'number') {
-            rollSpinner(props.roll?.result)
-        }
-    })
-
-    function rollSpinner(number) {
-        let startOffset = numberToOffset(prev) + 1275
-        let resetOffset = numberToOffset(number) + 1275
-        let offset = resetOffset + 5100
-        let randomOffset = getRandomNumber(-35, 35)
-
-        prev = number
-
-        animations[0]?.cancel()
-        animations[1]?.cancel()
-
-        let slide = [
-            {transform: `translateX(-${startOffset}px)`, offset: 0, easing: 'cubic-bezier(.14,.15,0,1)'},
-            {transform: `translateX(-${offset + randomOffset}px)`, offset: 0.9, easing: 'cubic-bezier(.14,.15,0,1)'},
-            {transform: `translateX(-${offset + randomOffset}px)`, offset: 0.95, easing: 'cubic-bezier(.14,.15,0,1)'},
-            {transform: `translateX(-${offset}px)`, offset: 1, easing: 'cubic-bezier(.14,.15,0,1)'},
-            {transform: `translateX(-${resetOffset}px)`, offset: 1, easing: 'cubic-bezier(.14,.15,0,1)'},
-        ]
-
-        animations[0] = icons.animate(slide, {
-            iterations: 1,
-            duration: props.config?.rollTime,
-            fill: 'forwards'
-        })
-
-        animations[1] = numbers.animate(slide, {
-            iterations: 1,
-            duration: props.config?.rollTime,
-            fill: 'forwards'
-        })
-        const elapsed = Math.min(props.config?.rollTime || 5000, props.roll?.elapsedMs || 0)
-        for (const animation of animations) animation.currentTime = elapsed
-    }
-
-    function getRandomNumber(min, max) {
-        return Math.floor(Math.random() * (max - min + 1) ) + min
-    }
-
-    function numberToOffset(num) {
-        return (NUMBERS.indexOf(num) * 85) + 40
-    }
-
+    let icons,numbers,frame,previousTile=null,previousRound=null;
+    const [landedRound,setLandedRound]=createSignal(null);
+    onMount(()=>{
+        const draw=()=>{
+            const r=props.roll;
+            const now=props.serverNow();
+            const position=spinPosition(r,now,props.config?.rollTime);
+            const transform='translate3d(-'+visualOffset(position)+'px,0,0)';
+            icons.style.transform=transform;numbers.style.transform=transform;
+            icons.dataset.roundId=r?.id || '';
+            icons.dataset.position=String(position);
+            const landed=!!r?.endedAt && r.status!=='cancelled' && now>=r.animationEndsAt;
+            icons.dataset.phase=landed ? 'landed' : 'moving';
+            icons.dataset.result=String(r?.result ?? '');
+            setLandedRound(landed ? r.id : null);
+            const tile=Math.floor(position/TILE_PITCH);
+            if(r?.id===previousRound && previousTile!==null && tile!==previousTile && r?.rolledAt && now<r.animationEndsAt && !document.hidden)props.onTick?.();
+            previousTile=tile;previousRound=r?.id;
+            frame=requestAnimationFrame(draw);
+        };
+        frame=requestAnimationFrame(draw);
+    });
+    onCleanup(()=>cancelAnimationFrame(frame));
     return (
         <>
-            <div class='spinner-wrapper'>
+            <div class='spinner-wrapper' aria-label='Roulette wheel'>
+                <p class='round-status' role='status'>{props.state==='CONNECTING' ? 'Reconnecting to the round...' : props.state==='PAUSED' ? 'Betting paused by an administrator' : props.state==='CANCELLED' ? 'Round cancelled. Stakes refunded.' : props.state==='LOCKED' ? 'Betting closed' : props.state==='RESOLVING' ? 'Confirming result...' : ''}</p>
                 <div class='fade-left'/>
                 <div class='fade-right'/>
                 <div class='spinner-container' classList={{ 'is-waiting': props.timeLeft > 0 }}>
                     <span class='center-marker marker-top' aria-hidden='true'/>
                     <span class='center-marker marker-bottom' aria-hidden='true'/>
-                    <div class='icons' ref={icons} style={{ transform: `translateX(-${numberToOffset(0) + 1275}px)` }}>
+                    <div class='icons' ref={icons} style={{ transform: `translateX(-${visualOffset(numberOffset(0))}px)` }}>
                         <For each={[...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS]}>{(num, index) =>
-                            <RouletteIcon num={num} roll={props.roll} config={props.config}/>
+                            <RouletteIcon num={num} roll={props.roll} landed={landedRound()===props.roll?.id && !!props.roll?.endedAt}/>
                         }</For>
                     </div>
                     <Show when={props.timeLeft > 0}>
@@ -86,15 +52,16 @@ function RouletteSpinner(props) {
                 </div>
 
                 <div class='numbers-container'>
-                    <div class='numbers' ref={numbers} style={{ transform: `translateX(-${numberToOffset(0) + 1275}px)` }}>
+                    <div class='numbers' ref={numbers} style={{ transform: `translateX(-${visualOffset(numberOffset(0))}px)` }}>
                         <For each={[...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS, ...NUMBERS]}>{(num, index) =>
-                            <RouletteNumbers num={num} roll={props.roll} config={props.config}/>
+                            <RouletteNumbers num={num} roll={props.roll} landed={landedRound()===props.roll?.id && !!props.roll?.endedAt}/>
                         }</For>
                     </div>
                 </div>
             </div>
 
             <style jsx>{`
+              .round-status {min-height:18px;margin:0 0 5px;color:#88a99a;font-size:11px;text-align:center;}
               .spinner-wrapper {
                 width: 100%;
                 height: fit-content;

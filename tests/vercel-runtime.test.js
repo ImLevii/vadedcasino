@@ -101,6 +101,11 @@ test('Vercel API recovers overdue rounds exactly once, serves auth and reconnect
     assert.equal((await admin.json()).success, true, output);
     const settings = await fetch(origin + '/admin/games/settings', { headers: { cookie } });
     assert.equal((await settings.json()).success, true, output);
+    const operations=await (await fetch(origin+'/admin/operations?view=all',{headers:{cookie}})).json();
+    assert.equal(operations.success,true,JSON.stringify(operations)+' '+output);
+    assert.ok(operations.data.some(game=>game.game==='roulette'));
+    const inspection=await (await fetch(origin+'/admin/operations/roulette/1',{headers:{cookie}})).json();
+    assert.equal(inspection.success,true,JSON.stringify(inspection)+' '+output);
     const png = await require('sharp')({ create: { width: 2, height: 2, channels: 4, background: '#00ff00' } }).png().toBuffer();
     const upload = await fetch(origin + '/admin/slides/upload', {
         method: 'POST', headers: { cookie, 'content-type': 'application/json' },

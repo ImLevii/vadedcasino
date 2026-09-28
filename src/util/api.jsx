@@ -121,6 +121,7 @@ export async function api(path, method, body, notification = false, headers =  {
         if (!res.ok && !data?.error) {
             data = { error: 'SERVER_ERROR' }
         }
+        if(path.startsWith('/admin/') && path!=='/admin/session' && data?.error==='2FA_REQUIRED')window.dispatchEvent(new Event('admin:reauth'));
 
         if (data.error && notification) {
             showToast('error', errors[data.error] || data.error)

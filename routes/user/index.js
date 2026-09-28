@@ -43,6 +43,11 @@ router.use('/rakeback', rakebackRoute);
 router.use('/notifications', notificationsRoute);
 router.use('/rewards', rewardsRoute);
 router.use('/', securityRoute);
+router.get('/balance',isAuthed,async(req,res)=>{
+    const [[user]]=await sql.query('SELECT id, balance, heldBalance FROM users WHERE id = ? AND deletedAt IS NULL AND banned = 0',[req.userId]);
+    if(!user)return res.status(404).json({error:'USER_NOT_FOUND'});
+    res.json(user);
+});
 
 router.get('/', isAuthed, async (req, res) => {
     try {

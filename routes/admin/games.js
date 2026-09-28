@@ -27,7 +27,7 @@ router.get('/settings', async (req, res) => {
             };
         }
         
-        res.json({ success: true, data: grouped });
+        res.json({ success: true, data: grouped, versions:Object.fromEntries(Object.keys(grouped).map(game=>[game,require('./operations-settings').version(settings.filter(s=>s.game===game))])) });
     } catch (e) {
         console.error('[admin/games] Error fetching settings:', e);
         res.status(500).json({ error: 'INTERNAL_ERROR' });
@@ -67,47 +67,9 @@ router.get('/settings/:game', async (req, res) => {
     }
 });
 
-// POST /admin/games/settings/:game - Update a game setting
-router.post('/settings/:game', async (req, res) => {
-    try {
-        const game = req.params.game;
-        const { key, value } = req.body;
-        
-        if (!key) return res.status(400).json({ error: 'MISSING_KEY' });
-        if (value === undefined) return res.status(400).json({ error: 'MISSING_VALUE' });
-
-        const [[settingMeta]] = await sql.query(
-            'SELECT `type`, `min`, `max` FROM gameSettings WHERE game = ? AND `key` = ? LIMIT 1',
-            [game, key]
-        );
-
-        if (!settingMeta) return res.status(404).json({ error: 'SETTING_NOT_FOUND' });
-
-        if (settingMeta.type === 'number') {
-            const numericValue = Number(value);
-            if (!Number.isFinite(numericValue)) return res.status(400).json({ error: 'INVALID_VALUE' });
-
-            const min = settingMeta.min !== null ? Number(settingMeta.min) : null;
-            const max = settingMeta.max !== null ? Number(settingMeta.max) : null;
-
-            if (min !== null && Number.isFinite(min) && numericValue < min) {
-                return res.status(400).json({ error: 'VALUE_BELOW_MIN', min });
-            }
-
-            if (max !== null && Number.isFinite(max) && numericValue > max) {
-                return res.status(400).json({ error: 'VALUE_ABOVE_MAX', max });
-            }
-        }
-        
-        await updateGameSetting(game, key, value, req.user);
-        
-        sendLog('admin', `[\`${req.user.id}\`] *${req.user.username}* updated \`${game}.${key}\` = \`${JSON.stringify(value)}\``);
-        
-        res.json({ success: true });
-    } catch (e) {
-        console.error('[admin/games] Error updating setting:', e);
-        res.status(500).json({ error: 'INTERNAL_ERROR' });
-    }
+router.post('/settings/:game',async(req,res)=>{
+    try{const result=await require('./operations-settings').saveSettings(req.user,req.params.game,req.body);res.status(result.status || 200).json(result);}
+    catch(error){res.status(error.status || 400).json({error:error.status ? error.code : 'INVALID_SETTINGS_REQUEST'});}
 });
 
 // GET /admin/games/probability - Get probability/fairness tables for all games
@@ -117,11 +79,12 @@ router.get('/probability', async (req, res) => {
         
         // Crash probability table
         const crashEdge = getGameConfig('crash', 'houseEdge', 4);
-        const houseWinChance = (crashEdge / 100) * 25;
+        const instantCrashDivisor = Math.max(2, Math.round(25 * (crashEdge / 4)));
         data.crash = {
             houseEdge: crashEdge,
+            edgeLabel: 'Configured multiplier adjustment',
             description: 'Crash game uses provably fair SHA-256 based crash point generation. House edge determines the multiplier adjustment.',
-            crashProbability: `~${Math.round(houseWinChance)}% chance of immediate house win (crash at 1.00x)`
+            crashProbability: `Instant-crash gate: approximately ${(100 / instantCrashDivisor).toFixed(2)}%. Multiplier adjustment and rounding can also produce 1.00x; this setting is not the total effective edge.`
         };
         
         // Mines probability table
@@ -133,15 +96,15 @@ router.get('/probability', async (req, res) => {
         };
         
         // Roulette probability table
-        const rouletteEdge = getGameConfig('roulette', 'houseEdge', 5);
-        const colorsMultipliers = getGameConfig('roulette', 'colorsMultipliers', {0:14,1:2,2:2,3:7});
+        const colorsMultipliers = require('../games/roulette/functions').getColorsMultipliers();
         data.roulette = {
-            houseEdge: rouletteEdge,
+            edgeLabel: 'Expected return',
+            edgeValue: 'Varies by position; see below',
             description: 'Roulette uses provably fair seeded results. 15 possible outcomes (0-14).',
             colors: {
                 0: { name: 'Green', multiplier: colorsMultipliers[0], probability: `${(1/15*100).toFixed(1)}%`, houseEdge: `${((1 - 14/15)*100).toFixed(1)}%` },
-                1: { name: 'Red', multiplier: colorsMultipliers[1], probability: `${(7/15*100).toFixed(1)}%`, houseEdge: `${((1 - 7/15*2)*100).toFixed(1)}%` },
-                2: { name: 'Black', multiplier: colorsMultipliers[2], probability: `${(7/15*100).toFixed(1)}%`, houseEdge: `${((1 - 7/15*2)*100).toFixed(1)}%` },
+                1: { name: 'Red', multiplier: colorsMultipliers[1], probability: `${(7/15*100).toFixed(1)}%`, houseEdge: `${((1 - 7/15*colorsMultipliers[1])*100).toFixed(1)}%` },
+                2: { name: 'Black', multiplier: colorsMultipliers[2], probability: `${(7/15*100).toFixed(1)}%`, houseEdge: `${((1 - 7/15*colorsMultipliers[2])*100).toFixed(1)}%` },
                 3: { name: 'Gold', multiplier: colorsMultipliers[3], probability: `${(2/15*100).toFixed(1)}%`, houseEdge: `${((1 - 2/15*7)*100).toFixed(1)}%` }
             }
         };
@@ -158,7 +121,9 @@ router.get('/probability', async (req, res) => {
         const blackjackEdge = getGameConfig('blackjack', 'houseEdge', 2.5);
         data.blackjack = {
             houseEdge: blackjackEdge,
-            description: 'Blackjack uses HMAC-SHA256 card generation. Standard blackjack rules with dynamic house edge.'
+            edgeLabel: 'Availability',
+            edgeValue: 'New bets disabled',
+            description: 'Legacy stakes can be inspected and refunded. The unfinished Blackjack engine must be completed and validated before reopening.'
         };
         
         res.json({ success: true, data });

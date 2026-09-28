@@ -1,262 +1,94 @@
-import {createEffect, createSignal, For, onCleanup} from "solid-js";
-import RouletteSpinner from "../components/Roulette/roulettespinner";
-import RouletteIcon from "../components/Roulette/rouletteicons";
-import {useWebsocket} from "../contexts/socketprovider";
-import {numberToColor} from "../util/roulettehelpers";
-import RouletteBetControls from "../components/Roulette/betcontrols";
-import RouletteColor from "../components/Roulette/roulettecolor";
-import {subscribeToGame, unsubscribeFromGames} from "../util/socket";
-import {Meta, Title} from "@solidjs/meta";
-import {playGameSFX, stopSFXChannel, startAnimationTicker, GAME_SOUNDS} from "../util/sound";
-import {createNotification} from "../util/api";
-
-import WheelBonus from "../components/Roulette/wheelbonus";
+import {createEffect, createSignal, For, onCleanup} from 'solid-js';
+import RouletteSpinner from '../components/Roulette/roulettespinner';
+import RouletteIcon from '../components/Roulette/rouletteicons';
+import {useWebsocket} from '../contexts/socketprovider';
+import {numberToColor} from '../util/roulettehelpers';
+import RouletteBetControls from '../components/Roulette/betcontrols';
+import RouletteColor from '../components/Roulette/roulettecolor';
+import {subscribeToGame, unsubscribeFromGames} from '../util/socket';
+import {Meta, Title} from '@solidjs/meta';
+import {playGameSFX, stopSFXChannel, GAME_SOUNDS} from '../util/sound';
+import {createNotification} from '../util/api';
+import {createRouletteTimeline,timestamp} from '../util/roulette-motion.mjs';
+import WheelBonus from '../components/Roulette/wheelbonus';
 
 function Roulette(props) {
-
-    let hasConnected = false
-    let countdownFrame
-
-    let rouletteTicker = null
-    let rouletteResultTimer
-
-    // Roulette spin easing: cubic-bezier(.14,.15,0,1)
-    const ROULETTE_BEZIER = [0.14, 0.15, 0, 1]
-
-    // spinPhase = the active-spin window (0 → 90% of rollTime).
-    // Ticking stops naturally here; the hold + snap phases are silent.
-    function startRouletteTicking(spinPhase) {
-        stopRouletteTicking()
-        playGameSFX('roulette-roll', GAME_SOUNDS.rouletteRoll, {
-          channel: 'roulette-roll', volume: .48, durationMs: 640,
-        })
-
-        // Pass the real cubic-bezier so ticks fire densely early and
-        // decelerate as the spinner slows toward the landing position.
-        rouletteTicker = startAnimationTicker(
-          () => {
-            playGameSFX('roulette-tick', GAME_SOUNDS.rouletteClick, {
-              channel: 'roulette-tick',
-              startTime: 1.34, durationMs: 110,
-              volume: 0.48,
-              minIntervalMs: 28,
-            })
-          },
-          spinPhase,
-          28,
-          ROULETTE_BEZIER
-        )
-    }
-
-    function stopRouletteTicking() {
-        if (rouletteTicker) {
-          rouletteTicker.cancel()
-          rouletteTicker = null
+    const timeline=createRouletteTimeline();
+    const [bets,setBets]=createSignal([]);
+    const [bet,setBet]=createSignal(0);
+    const [timeLeft,setTimeLeft]=createSignal(0);
+    const [config,setConfig]=createSignal({rollTime:5000,betTime:10000});
+    const [round,setRound]=createSignal(null);
+    const [last10,setLast10]=createSignal([]);
+    const [state,setState]=createSignal('CONNECTING');
+    const [tripleGreenBonusPot,setTripleGreenBonusPot]=createSignal(0);
+    const [bonusStreak,setBonusStreak]=createSignal(0);
+    const [stats,setStats]=createSignal({green:0,red:0,black:0,bait:0});
+    const [ws]=useWebsocket();
+    const seenBonuses=new Set();
+    let lastHistory='',landedRound=null,spinSoundRound=null,frame;
+    const serverNow=()=>timeline.now(performance.now());
+    function accept(data) {
+        if(!timeline.accept(data,performance.now())) return;
+        setRound(data.round);setConfig(data.config);setBets(data.bets || []);
+        setTripleGreenBonusPot(Number(data.tripleGreenBonusPot || 0));
+        setBonusStreak(Number(data.tripleGreenStreak || 0));
+        const r=data.round;
+        if(r.rolledAt && r.id!==spinSoundRound && serverNow()-timestamp(r.rolledAt)<600) {
+            spinSoundRound=r.id;
+            playGameSFX('roulette-roll',GAME_SOUNDS.rouletteRoll,{channel:'roulette-roll',volume:.48,durationMs:640});
         }
-        clearTimeout(rouletteResultTimer)
-        stopSFXChannel('roulette-tick')
-        stopSFXChannel('roulette-roll')
     }
-
-    const [bets, setBets] = createSignal([])
-    const [bet, setBet] = createSignal(0)
-    const [timeLeft, setTimeLeft] = createSignal(10000)
-    const [config, setConfig] = createSignal({ rollTime: 5000, betTime: 10000 })
-    const [round, setRound] = createSignal(null)
-    const [last10, setLast10] = createSignal([])
-    const [state, setState] = createSignal('')
-    const [tripleGreenBonusPot, setTripleGreenBonusPot] = createSignal(0)
-    const [bonusStreak, setBonusStreak] = createSignal(0)
-
-    const [last100, setLast100] = createSignal([])
-    const [stats, setStats] = createSignal({
-        green: 0,
-        red: 0,
-        black: 0,
-        bait: 0
-    })
-
-    const [ws] = useWebsocket()
-
-    createEffect(() => {
-        if (ws() && ws().connected && !hasConnected) {
-            unsubscribeFromGames(ws())
-            subscribeToGame(ws(), 'roulette')
-
-        ws().off('roulette:set')
-        ws().off('roulette:bets')
-        ws().off('roulette:bet:update')
-        ws().off('roulette:new')
-        ws().off('roulette:roll')
-        ws().off('roulette:tripleGreenBonus:pot')
-        ws().off('roulette:tripleGreenBonus:won')
-        ws().off('roulette:bonus:streak')
-
-            ws().on('roulette:set', (data) => {
-                let stats = { green: 0, red: 0, black: 0, bait: 0 }
-                let last10 = []
-
-                for (let i = 0; i < data.last.length; i++) {
-                    let color = numberToColor(data.last[i])
-                    stats[color]++
-                    if (data.last[i] === 7 || data.last[i] === 8) stats.bait++
-
-                    if (i < 10) {
-                        last10.push(data.last[i])
-                    }
+    function updateFrame() {
+        const data=timeline.snapshot();
+        if(data && ws()?.connected) {
+            const r=data.round,now=serverNow();
+            const left=r.phase==='BETTING' ? Math.max(0,timestamp(r.bettingClosesAt)-now) : 0;
+            setTimeLeft(left);
+            const spinning=r.rolledAt && now<timestamp(r.animationEndsAt);
+            setState(r.status==='cancelled' ? 'CANCELLED' : r.status==='paused' ? 'PAUSED' : spinning ? 'ROLLING' : r.endedAt ? 'WINNERS' : r.rolledAt ? 'RESOLVING' : r.phase==='BETTING_LOCKED' ? 'LOCKED' : left>0 ? '' : 'LOCKED');
+            if(!spinning) {
+                const history=JSON.stringify(data.last || []);
+                if(history!==lastHistory) {
+                    lastHistory=history;setLast10((data.last || []).slice(0,10));
+                    const counts={green:0,red:0,black:0,bait:0};
+                    for(const result of data.last || []){counts[numberToColor(result)]++;if(result===7 || result===8)counts.bait++;}
+                    setStats(counts);
                 }
-
-                setStats(stats)
-                setLast100(data.last)
-                setLast10(last10)
-                setConfig(data.config)
-                setBets(data.bets)
-                setTripleGreenBonusPot(Number(data.tripleGreenBonusPot || 0))
-                setBonusStreak(Number(data.tripleGreenStreak || 0))
-
-                stopRouletteTicking()
-                const now = new Date(data.serverTime).getTime()
-                const elapsedMs = data.round.rolledAt ? Math.max(0, now - new Date(data.round.rolledAt).getTime()) : 0
-                setRound({...data.round, elapsedMs})
-                const finished = data.round.status === 'ended' || (data.round.rolledAt && elapsedMs >= data.config.rollTime)
-                setState(finished ? 'WINNERS' : data.round.rolledAt ? 'ROLLING' : '')
-                startCountdown(data.round.rolledAt ? 0 : new Date(data.round.createdAt).getTime() + data.config.betTime - now)
-                if (data.round.rolledAt && !finished) rouletteResultTimer = setTimeout(() => setState('WINNERS'), data.config.rollTime - elapsedMs)
-            })
-
-            ws().on('roulette:bets', (b) => {
-                setBets(bets => [...b, ...bets])
-            })
-
-            ws().on('roulette:bet:update', (b) => {
-                let curBets = bets()
-                let betIndex = curBets?.findIndex(bet => bet.id === b.id)
-                if (betIndex < 0) return
-
-                let newBet = curBets[betIndex]
-                newBet.amount = b.amount
-
-                setBets([...curBets.slice(0, betIndex), {...newBet}, ...curBets.slice(betIndex + 1)])
-            })
-
-            ws().on('roulette:new', (roll) => {
-                setBets([])
-                setRound({...roll, status: 'created', result: null})
-                setState('')
-              stopRouletteTicking()
-
-                const remaining = roll.serverTime ? new Date(roll.createdAt).getTime() + (roll.betTime || config().betTime) - new Date(roll.serverTime).getTime() : config().betTime
-                startCountdown(remaining)
-            })
-
-            ws().on('roulette:roll', (roll) => {
-                startCountdown(0)
-                setState('ROLLING')
-                let prev10 = last10()
-                let newLast100 = last100()
-
-                newLast100.unshift(roll?.result)
-                newLast100 = newLast100.slice(0, 100)
-
-                prev10.unshift(roll?.result)
-                prev10 = prev10.slice(0, 10)
-
-                // Capture rollTime once so both the ticker and the win-sound
-                // timeout reference the same value
-                const rollTime = config().rollTime || 5000
-                const elapsedMs = roll.rolledAt && roll.serverTime ? Math.max(0, new Date(roll.serverTime) - new Date(roll.rolledAt)) : 0
-                const remaining = Math.max(0, rollTime - elapsedMs)
-
-                // Tick only during the active-spin phase (first 90 % of rollTime).
-                // The remaining 10 % is the hold + snap — silence there feels correct.
-                if (remaining > 0) startRouletteTicking(remaining * 0.9)
-
-                // Win sound fires exactly when the animation finishes
-                rouletteResultTimer = setTimeout(() => {
-                  stopRouletteTicking()
-                  playGameSFX('roulette-land', GAME_SOUNDS.rouletteRoll, {
-                    channel: 'roulette-land',
-                    startTime: 5.79, durationMs: 800,
-                    volume: 0.62,
-                    fadeInMs: 80,
-                  })
-                    setStats(calculateStats(newLast100))
-                    setLast100(newLast100)
-                    setLast10(prev10)
-                    setState('WINNERS')
-                }, remaining)
-
-                setRound({...roll, status: 'rolling', elapsedMs})
-            })
-
-              ws().on('roulette:bonus:streak', value => setBonusStreak(Number(value || 0)))
-              ws().on('roulette:tripleGreenBonus:pot', (amount) => {
-                setTripleGreenBonusPot(Number(amount || 0))
-              })
-
-              ws().on('roulette:tripleGreenBonus:won', (data) => {
-                const distributed = Number(data?.distributed || 0)
-                const userPayout = (data?.payouts || []).find(p => String(p.userId) === String(props.user?.id))
-
-                if (userPayout?.amount) {
-                  createNotification('success', `Wheel Bonus paid ${Number(userPayout.amount).toFixed(2)} coins to your account.`)
-                } else if (distributed > 0) {
-                  createNotification('info', `Wheel Bonus triggered: ${distributed.toFixed(2)} coins distributed.`)
+                if(r.endedAt && !r.control?.cancelledAt && r.id!==landedRound) {
+                    landedRound=r.id;
+                    if(r.id===spinSoundRound) playGameSFX('roulette-land',GAME_SOUNDS.rouletteRoll,{channel:'roulette-land',startTime:5.79,durationMs:800,volume:.62,fadeInMs:80});
                 }
-              })
-
-            hasConnected = true
+            }
         }
-
-        if (!ws() || !ws().connected) {
-            hasConnected = false
-            cancelAnimationFrame(countdownFrame)
-            stopRouletteTicking()
-            setTimeLeft(0)
-            setState('CONNECTING')
-        }
-    })
-
-      onCleanup(() => {
-        cancelAnimationFrame(countdownFrame)
-        stopRouletteTicking()
-        stopSFXChannel('roulette-land')
-
-        if (ws() && ws().connected) {
-          ws().off('roulette:set')
-          ws().off('roulette:bets')
-          ws().off('roulette:bet:update')
-          ws().off('roulette:new')
-          ws().off('roulette:roll')
-          ws().off('roulette:tripleGreenBonus:pot')
-          ws().off('roulette:tripleGreenBonus:won')
-        ws().off('roulette:bonus:streak')
-          unsubscribeFromGames(ws())
-        }
-      })
-
-    function startCountdown(duration = config().betTime) {
-        cancelAnimationFrame(countdownFrame)
-        const deadline = performance.now() + Math.max(0, Number(duration) || 0)
-        function tick() {
-            const remaining = Math.max(0, deadline - performance.now())
-            setTimeLeft(remaining)
-            if (remaining > 0) countdownFrame = requestAnimationFrame(tick)
-        }
-        tick()
+        frame=requestAnimationFrame(updateFrame);
     }
-
-    function calculateStats(history) {
-        let stats = { green: 0, red: 0, black: 0, bait: 0 }
-
-        for (let i = 0; i < history.length; i++) {
-            let color = numberToColor(history[i])
-            stats[color]++
-            if (history[i] === 7 || history[i] === 8) stats.bait++
-        }
-
-        return stats
-    }
+    frame=requestAnimationFrame(updateFrame);
+    createEffect(()=>{
+        const socket=ws();
+        if(!socket) return;
+        const onDisconnect=()=>{setState('CONNECTING');setTimeLeft(0);stopSFXChannel('roulette-roll');};
+        const onBets=incoming=>setBets(previous=>[...new Map([...previous,...incoming].map(b=>[String(b.id),b])).values()]);
+        const onUpdate=bet=>setBets(previous=>previous.map(item=>String(item.id)===String(bet.id) ? {...item,amount:bet.amount} : item));
+        const onBonus=data=>{
+            const id=data.eventId || (data.rounds || []).map(r=>r.roundId).join('-');
+            if(!id || seenBonuses.has(id))return;
+            seenBonuses.add(id);if(seenBonuses.size>50)seenBonuses.delete(seenBonuses.values().next().value);
+            const payout=(data.payouts || []).find(p=>String(p.userId)===String(props.user?.id));
+            if(payout?.amount)createNotification('success','Wheel Bonus paid '+Number(payout.amount).toFixed(2)+' coins to your account.');
+        };
+        socket.on('roulette:set',accept);socket.on('roulette:state',accept);
+        socket.on('roulette:bets',onBets);socket.on('roulette:bet:update',onUpdate);
+        socket.on('roulette:tripleGreenBonus:won',onBonus);socket.on('disconnect',onDisconnect);
+        if(socket.connected){unsubscribeFromGames(socket);subscribeToGame(socket,'roulette');}
+        onCleanup(()=>{
+            socket.off('roulette:set',accept);socket.off('roulette:state',accept);
+            socket.off('roulette:bets',onBets);socket.off('roulette:bet:update',onUpdate);
+            socket.off('roulette:tripleGreenBonus:won',onBonus);socket.off('disconnect',onDisconnect);
+            unsubscribeFromGames(socket);
+        });
+    });
+    onCleanup(()=>{cancelAnimationFrame(frame);for(const name of ['roulette-roll','roulette-tick','roulette-land'])stopSFXChannel(name);});
 
     return (
         <>
@@ -302,7 +134,7 @@ function Roulette(props) {
                     <WheelBonus pot={tripleGreenBonusPot()} streak={bonusStreak()} rate={config().tripleGreenBonusRake} minimum={config().tripleGreenMinimumBet}/>
                 </div>
 
-                <RouletteSpinner roll={round()} config={config()} timeLeft={timeLeft()}/>
+                <RouletteSpinner roll={round()} config={config()} timeLeft={timeLeft()} serverNow={serverNow} state={state()} onTick={()=>playGameSFX('roulette-tick',GAME_SOUNDS.rouletteClick,{channel:'roulette-tick',startTime:1.34,durationMs:110,volume:.35,minIntervalMs:45})}/>
                 <RouletteBetControls bet={bet()} setBet={setBet} user={props.user}/>
 
                 <div class='colors'>

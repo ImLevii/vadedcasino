@@ -1,309 +1,264 @@
-import {A, Outlet, useLocation, useSearchParams} from "@solidjs/router";
-import {useUser} from "../contexts/usercontextprovider";
-import {createEffect, createSignal, onCleanup} from "solid-js";
-
-const URL_TO_PAGE = {
-    '/admin': 'DASHBOARD',
-    '/admin/users': 'USERS',
-    '/admin/user': 'USERS',
-    '/admin/statistics': 'STATISTICS',
-    '/admin/filter': 'FILTER',
-    '/admin/cashier': 'CASHIER',
-    '/admin/rain': 'RAIN',
-    '/admin/announcements': 'ANNOUNCEMENTS',
-    '/admin/cases': 'CASES',
-    '/admin/rewards': 'REWARDS',
-    '/admin/slides': 'SLIDER',
-    '/admin/statsbook': 'STATSBOOK',
-    '/admin/settings': 'SETTINGS',
-    '/admin/games': 'GAME CONTROL',
-    '/admin/games/probability': 'FAIRNESS'
-}
-
-function Admin(props) {
-
-    const location = useLocation()
-    const [user] = useUser()
-    const [params, setParams] = useSearchParams()
-    const [openMenu, setOpenMenu] = createSignal(null)
-
-    let pageMenuRef
-    let cashierMenuRef
-
-    createEffect(() => {
-      location.pathname
-      setOpenMenu(null)
-    })
-
-    const closeOnOutsideClick = (e) => {
-      const target = e.target
-
-      if (pageMenuRef && pageMenuRef.contains(target)) return
-      if (cashierMenuRef && cashierMenuRef.contains(target)) return
-
-      setOpenMenu(null)
+import {
+  A,
+  Outlet,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "@solidjs/router";
+import {
+  createSignal,
+  createEffect,
+  onMount,
+  onCleanup,
+  For,
+  Show,
+} from "solid-js";
+import { useUser } from "../contexts/usercontextprovider";
+import { authedAPI } from "../util/api";
+import { AdminContext, Failure, Skeleton } from "../components/Admin/system";
+import "../components/Admin/admin.css";
+const navigation = [
+  [
+    "Operations",
+    [
+      ["/admin", "Overview"],
+      ["/admin/games", "Live games"],
+      ["/admin/audit", "Audit history"],
+    ],
+  ],
+  [
+    "Platform",
+    [
+      ["/admin/users", "Users"],
+      ["/admin/cashier", "Cashier"],
+      ["/admin/statistics", "Statistics"],
+      ["/admin/statsbook", "Statsbook"],
+    ],
+  ],
+  [
+    "Management",
+    [
+      ["/admin/games/settings", "Game settings"],
+      ["/admin/games/probability", "Fairness"],
+      ["/admin/cases", "Cases"],
+      ["/admin/rewards", "Rewards"],
+      ["/admin/rain", "Rain"],
+      ["/admin/announcements", "Announcements"],
+      ["/admin/slides", "Home banners"],
+      ["/admin/filter", "Chat filter"],
+      ["/admin/settings", "Features"],
+    ],
+  ],
+];
+export default function Admin() {
+  const [user] = useUser(),
+    location = useLocation(),
+    navigate = useNavigate(),
+    [params, setParams] = useSearchParams();
+  const [session, setSession] = createSignal(),
+    [loading, setLoading] = createSignal(true),
+    [error, setError] = createSignal(),
+    [code, setCode] = createSignal(""),
+    [busy, setBusy] = createSignal(false);
+  const allowed = (path) =>
+    user()?.role !== "DEV" ||
+    ["/admin/games", "/admin/audit", "/admin/games/probability"].includes(path);
+  const groups = () =>
+    navigation
+      .map(([label, links]) => [label, links.filter(([path]) => allowed(path))])
+      .filter(([, links]) => links.length);
+  const active = (path) =>
+    location.pathname === path ||
+    (path === "/admin/users" && location.pathname.startsWith("/admin/user/"));
+  const refresh = async () => {
+    setLoading(true);
+    const res = await authedAPI("/admin/session", "GET");
+    if (res?.success) {
+      setSession(res);
+      setError(null);
+    } else {
+      setSession(null);
+      setError(res?.error || "CONNECTION_UNAVAILABLE");
     }
-
-    document.addEventListener('click', closeOnOutsideClick)
-    onCleanup(() => {
-      document.removeEventListener('click', closeOnOutsideClick)
-    })
-
-    return (
-        <>
-            <div class='admin-container fadein'>
-
-                <div class='banner'>
-                    <svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#1fd65f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'><circle cx='12' cy='12' r='3'/><path d='M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z'/></svg>
-                    <p>ADMIN PANEL</p>
-                    <div class='line'/>
-                </div>
-
-                <div class='user-info'>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="19" viewBox="0 0 16 19" fill="none">
-                        <path d="M7.99971 0.104492C5.35299 0.104492 3.19971 2.25777 3.19971 4.90449C3.19971 7.55121 5.35299 9.70449 7.99971 9.70449C10.6464 9.70449 12.7997 7.55121 12.7997 4.90449C12.7997 2.25777 10.6464 0.104492 7.99971 0.104492Z" fill="#8b92a0"/>
-                        <path d="M13.9721 12.8403C12.658 11.506 10.9159 10.7712 9.06667 10.7712H6.93333C5.08416 10.7712 3.34201 11.506 2.02788 12.8403C0.720178 14.1681 0 15.9208 0 17.7756C0 18.0702 0.238791 18.309 0.533333 18.309H15.4667C15.7612 18.309 16 18.0702 16 17.7756C16 15.9208 15.2798 14.1681 13.9721 12.8403Z" fill="#8b92a0"/>
-                    </svg>
-
-                    <p>
-                        ADMIN USER -
-                        &nbsp;<span class='gold id'>ACCOUNT ID</span>
-                        &nbsp;<span class='id gray'>{user()?.id}</span>
-                    </p>
-
-                    <div class='pages-container'>
-                        {URL_TO_PAGE[location?.pathname] === 'CASHIER' && (
-                          <div
-                            ref={cashierMenuRef}
-                            className={'pages bevel-light ' + (openMenu() === 'cashier' ? 'active' : '')}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setOpenMenu(openMenu() === 'cashier' ? null : 'cashier')
-                            }}
-                          >
-                                <p>{params?.type || 'COINS'}</p>
-
-                                <div className='pages-dropdown' onClick={(e) => e.stopPropagation()}>
-                              <p onClick={() => {
-                                setParams({ type: null })
-                                setOpenMenu(null)
-                              }}>COINS</p>
-                              <p onClick={() => {
-                                setParams({ type: 'crypto' })
-                                setOpenMenu(null)
-                              }}>CRYPTO</p>
-                              <p onClick={() => {
-                                setParams({ type: 'skindeck' })
-                                setOpenMenu(null)
-                              }}>SKINDECK</p>
-                                </div>
-                            </div>
-                        )}
-
-                        <div
-                          ref={pageMenuRef}
-                          class={'pages bevel-light ' + (openMenu() === 'pages' ? 'active' : '')}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setOpenMenu(openMenu() === 'pages' ? null : 'pages')
-                          }}
-                        >
-                            <p>{URL_TO_PAGE[location?.pathname]}</p>
-
-                            <div class='pages-dropdown' onClick={(e) => e.stopPropagation()}>
-                            <A href='/admin' class='admin-link' onClick={() => setOpenMenu(null)}>DASHBOARD</A>
-                            <A href='/admin/users' class='admin-link' onClick={() => setOpenMenu(null)}>USERS</A>
-                            <A href='/admin/statistics' class='admin-link' onClick={() => setOpenMenu(null)}>STATISTICS</A>
-                            <A href='/admin/filter' class='admin-link' onClick={() => setOpenMenu(null)}>FILTER</A>
-                            <A href='/admin/cashier' class='admin-link' onClick={() => setOpenMenu(null)}>CASHIER</A>
-                            <A href='/admin/rain' class='admin-link' onClick={() => setOpenMenu(null)}>RAIN</A>
-                            <A href='/admin/announcements' class='admin-link' onClick={() => setOpenMenu(null)}>ANNOUNCEMENTS</A>
-                            <A href='/admin/cases' class='admin-link' onClick={() => setOpenMenu(null)}>CASES</A>
-                            <A href='/admin/rewards' class='admin-link' onClick={() => setOpenMenu(null)}>REWARDS</A>
-                            <A href='/admin/slides' class='admin-link' onClick={() => setOpenMenu(null)}>SLIDER</A>
-                            <A href='/admin/statsbook' class='admin-link' onClick={() => setOpenMenu(null)}>STATSBOOK</A>
-                            <A href='/admin/settings' class='admin-link' onClick={() => setOpenMenu(null)}>SETTINGS</A>
-                            <A href='/admin/games' class='admin-link' onClick={() => setOpenMenu(null)}>GAME CONTROL</A>
-                            <A href='/admin/games/probability' class='admin-link' onClick={() => setOpenMenu(null)}>FAIRNESS</A>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className='bar' style={{margin: '25px 0 30px 0'}}/>
-
-                <Outlet/>
-            </div>
-
-            <style jsx>{`
-              .admin-container {
-                width: 100%;
-                max-width: var(--page-max-width);
-                height: fit-content;
-
-                box-sizing: border-box;
-                padding: 30px 20px;
-                margin: 0 auto;
-              }
-
-              .bar {
-                width: 100%;
-                height: 1px;
-                min-height: 1px;
-                background: rgba(255,255,255,0.06);
-              }
-              
-              .user-info {
-                display: flex;
-                gap: 10px;
-                align-items: center;
-
-                color: #c3cad6;
-                font-size: 14px;
-                font-weight: 700;
-              }
-              
-              .pages-container {
-                margin-left: auto;
-                display: flex;
-                gap: 10px;
-              }
-              
-              .pages {
-                display: flex;
-                gap: 8px;
-                align-items: center;
-                justify-content: center;
-                font-size: 12px;
-                font-weight: 700;
-                position: relative;
-                user-select: none;
-                width: 130px;
-                height: 36px;
-                border-radius: 6px;
-                background: #1a1f29;
-                border: 1px solid rgba(255,255,255,0.07);
-                color: #c3cad6;
-              }
-              
-              .pages-dropdown {
-                display: none;
-                position: absolute;
-                z-index: 10;
-
-                border-radius: 8px;
-                background: #1a1f29;
-                border: 1px solid rgba(255,255,255,0.07);
-                box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-                
-                flex-direction: column;
-                
-                width: 100%;
-                top: 42px;
-                
-                padding: 6px;
-                gap: 2px;
-              }
-              
-              .pages {
-                text-transform: uppercase;
-              }
-              
-              .pages-dropdown a {
-                color: #6b7280;
-                font-size: 11px;
-                font-weight: 700;
-                padding: 6px 10px;
-                border-radius: 4px;
-                transition: background .15s, color .15s;
-                text-decoration: none;
-              }
-
-              .pages-dropdown p {
-                margin: 0;
-                color: #6b7280;
-                font-size: 11px;
-                font-weight: 700;
-                padding: 6px 10px;
-                border-radius: 4px;
-                transition: background .15s, color .15s;
-                text-decoration: none;
-                cursor: pointer;
-              }
-              
-              .pages-dropdown a:hover,
-              .pages-dropdown p:hover {
-                background: rgba(255,255,255,0.06);
-                color: #c3cad6;
-              }
-              
-              .active .pages-dropdown {
-                display: flex;
-              }
-              
-              .id {
-                font-size: 14px;
-              }
-              
-              .id.gray {
-                color: #6b7280;
-                font-weight: 500;
-              }
-              
-              .banner {
-                outline: unset;
-                border: unset;
-                border-left: 3px solid rgba(31,214,95,0.5);
-
-                width: 100%;
-                height: 44px;
-
-                border-radius: 0 6px 6px 0;
-                background: linear-gradient(90deg, rgba(31,214,95,0.08) 0%, rgba(18,21,28,0) 60%);
-
-                padding: 0 16px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-
-                color: #c3cad6;
-                font-size: 15px;
-                font-weight: 700;
-                letter-spacing: 0.05em;
-                
-                margin-bottom: 24px;
-              }
-
-              .line {
-                flex: 1;
-                height: 1px;
-
-                background: linear-gradient(90deg, rgba(31,214,95,0.2) 0%, transparent 100%);
-              }
-
-              @media only screen and (max-width: 768px) {
-                .admin-container {
-                  padding: 16px 12px 90px 12px;
-                }
-
-                .user-info {
-                  flex-wrap: wrap;
-                }
-
-                .pages-container {
-                  margin-left: 0;
-                  width: 100%;
-                  justify-content: flex-end;
-                }
-
-                .pages {
-                  width: 100px;
-                  font-size: 10px;
-                }
-              }
-            `}</style>
-        </>
+    setLoading(false);
+  };
+  const unlock = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    const res = await authedAPI(
+      "/admin/2fa",
+      "POST",
+      JSON.stringify({ token: code() }),
     );
+    if (res?.success || res?.error === "ALREADY_AUTHORIZED") await refresh();
+    else setError(res?.error || "CONNECTION_UNAVAILABLE");
+    setBusy(false);
+  };
+  onMount(() => {
+    refresh();
+    const expire = () => {
+      setSession(null);
+      setError("2FA_REQUIRED");
+    };
+    window.addEventListener("admin:reauth", expire);
+    onCleanup(() => window.removeEventListener("admin:reauth", expire));
+  });
+  createEffect(() => {
+    if (user()?.role === "DEV" && !allowed(location.pathname))
+      navigate("/admin/games", { replace: true });
+  });
+  return (
+    <AdminContext.Provider
+      value={{
+        session,
+        refresh,
+        can: (permission) => session()?.permissions?.includes(permission),
+      }}
+    >
+      <div class="admin-design adm-shell">
+        <header class="adm-topbar">
+          <div class="adm-brand">
+            <span class="adm-brand-icon" aria-hidden="true">
+              ◇
+            </span>
+            <div>
+              <span class="adm-eyebrow">COSMIC LUCK</span>
+              <strong>Administration</strong>
+            </div>
+          </div>
+          <div class="adm-account">
+            <strong>
+              {user()?.username} · {user()?.role}
+            </strong>
+            <small>Account {user()?.id}</small>
+          </div>
+        </header>
+        <div class="adm-mobile-nav">
+          <label class="adm-field">
+            Navigate to
+            <select
+              class="adm-select"
+              aria-label="Admin navigation"
+              value={location.pathname}
+              onChange={(e) => navigate(e.currentTarget.value)}
+            >
+              <For each={groups()}>
+                {([label, links]) => (
+                  <optgroup label={label}>
+                    <For each={links}>
+                      {([path, title]) => <option value={path}>{title}</option>}
+                    </For>
+                  </optgroup>
+                )}
+              </For>
+            </select>
+          </label>
+        </div>
+        <div class="adm-layout">
+          <nav class="adm-sidebar" aria-label="Administration">
+            <For each={groups()}>
+              {([label, links]) => (
+                <div class="adm-nav-group">
+                  <span>{label}</span>
+                  <For each={links}>
+                    {([path, title]) => (
+                      <A
+                        href={path}
+                        class="adm-nav-link"
+                        classList={{ active: active(path) }}
+                        end={path === "/admin"}
+                      >
+                        <i class="adm-nav-dot" />
+                        {title}
+                      </A>
+                    )}
+                  </For>
+                </div>
+              )}
+            </For>
+            <small class="adm-panel-content">
+              COSMICLUCK
+              <br />
+              Operations workspace
+            </small>
+          </nav>
+          <main class="adm-body">
+            <Show when={!loading()} fallback={<Skeleton />}>
+              <Show
+                when={session()}
+                fallback={
+                  <form class="adm-auth" onSubmit={unlock}>
+                    <span class="adm-eyebrow">PROTECTED WORKSPACE</span>
+                    <h1>Admin access</h1>
+                    <p>
+                      {user()?.has2fa
+                        ? "Enter the code from your authenticator to open a 30-minute admin session."
+                        : "Continue with your signed-in staff account to open a 30-minute admin session."}
+                    </p>
+                    <Show when={error() && error() !== "2FA_REQUIRED"}>
+                      <Failure error={error()} />
+                    </Show>
+                    <Show when={user()?.has2fa}>
+                      <label class="adm-field">
+                        Authenticator code
+                        <input
+                          class="adm-input"
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          pattern="[0-9]{6}"
+                          maxLength="6"
+                          required
+                          value={code()}
+                          onInput={(e) => setCode(e.currentTarget.value)}
+                        />
+                      </label>
+                    </Show>
+                    <button class="adm-button primary" disabled={busy()}>
+                      {busy() ? "Verifying…" : "Open admin workspace"}
+                    </button>
+                    <A href="/">Return to site</A>
+                  </form>
+                }
+              >
+                <Show when={location.pathname === "/admin/cashier"}>
+                  <div class="adm-tabs" style={{ "margin-bottom": "18px" }}>
+                    <For
+                      each={[
+                        ["", "Coins"],
+                        ["crypto", "Crypto"],
+                        ["skindeck", "Skins"],
+                      ]}
+                    >
+                      {([value, label]) => (
+                        <button
+                          classList={{ active: (params.type || "") === value }}
+                          onClick={() =>
+                            setParams({ type: value || undefined })
+                          }
+                        >
+                          {label}
+                        </button>
+                      )}
+                    </For>
+                  </div>
+                </Show>
+                <div
+                  classList={{
+                    "adm-legacy": ![
+                      "/admin",
+                      "/admin/games",
+                      "/admin/audit",
+                      "/admin/games/settings",
+                    ].includes(location.pathname),
+                  }}
+                >
+                  <Outlet />
+                </div>
+              </Show>
+            </Show>
+          </main>
+        </div>
+      </div>
+    </AdminContext.Provider>
+  );
 }
-
-export default Admin;

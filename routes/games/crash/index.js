@@ -9,6 +9,7 @@ const io = require('../../../socketio/server');
 const { crash, capWinnings, addToPot } = require('./functions')
 const { newBets } = require('../../../socketio/bets');
 const { enabledFeatures, xpMultiplier } = require('../../admin/config');
+const {admissionError} = require('../../../runtime/game-controls');
 
 // const clientSeed = '00000000000000000003e5a54c2898a18d262eb5860e696441f8a4ebbff03697'; // btc block hash
 
@@ -42,6 +43,12 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
     try {
 
         await doTransaction(async (connection, commit) => {
+            const [[round]]=await connection.query('SELECT startedAt, endedAt, createdAt FROM crash WHERE id = ? FOR UPDATE',[crash.round.id]);
+            if(!round || round.startedAt || round.endedAt || Date.now()>=new Date(round.createdAt).valueOf()+crash.config.betTime)return res.status(409).json({error:'ALREADY_STARTED'});
+            const blocked=await admissionError(connection,'crash',crash.round.id);
+            if(blocked)return res.status(409).json({error:blocked});
+            const [[existing]]=await connection.query('SELECT id FROM crashBets WHERE roundId = ? AND userId = ?',[crash.round.id,req.userId]);
+            if(existing)return res.status(409).json({error:'ALREADY_JOINED'});
 
             const [[user]] = await connection.query('SELECT id, username, role, balance, xp, anon FROM users WHERE id = ? FOR UPDATE', [req.userId]);
 
@@ -56,6 +63,7 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
             const [betResult] = await connection.query('INSERT INTO bets (userId, amount, edge, game, gameId, completed) VALUES (?, ?, ?, ?, ?, ?)', [user.id, amount, roundDecimal(amount * 0.075), 'crash', crashBetResult.insertId, false]);
 
             await xpChanged(user.id, user.xp, roundDecimal(user.xp + xp), connection);
+            await addToPot(amount,connection);
             await commit();
 
             io.to(user.id).emit('balance', 'set', roundDecimal(user.balance - amount));
@@ -79,7 +87,6 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
 
             crash.bets.push(bet);
 
-            addToPot(amount);
 
             res.json({ success: true, roundId: crash.round.id, bet });
 
@@ -116,6 +123,10 @@ router.post('/cashout', isAuthed, apiLimiter, async (req, res) => {
     try {
 
         const user = await doTransaction(async (connection, commit) => {
+            const [[round]]=await connection.query('SELECT startedAt, endedAt, crashPoint FROM crash WHERE id = ? FOR UPDATE',[crash.round.id]);
+            if(!round?.startedAt || round.endedAt || Date.now()-new Date(round.startedAt).valueOf()>=Math.ceil(Math.log(Number(round.crashPoint))/.00006))return null;
+            const [[ledger]]=await connection.query('SELECT id, completed FROM bets WHERE game = ? AND gameId = ? FOR UPDATE',['crash',bet.id]);
+            if(!ledger || ledger.completed)return null;
 
             const [[user]] = await connection.query('SELECT id, username, balance, xp, anon FROM users WHERE id = ?', [req.userId]);
 
@@ -128,6 +139,7 @@ router.post('/cashout', isAuthed, apiLimiter, async (req, res) => {
 
         });
 
+        if(!user){bet.processingCashout=false;return res.status(409).json({error:'CASHOUT_NO_LONGER_AVAILABLE'});}
         bet.cashoutPoint = currentPoint;
         bet.winnings = winnings;
         bet.processingCashout = false;

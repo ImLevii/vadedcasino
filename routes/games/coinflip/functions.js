@@ -9,6 +9,7 @@ const crypto = require('crypto');
 
 function getCoinflipEdge() { return getGameConfig('coinflip', 'houseEdge', 5); }
 
+const {getControl}=require('../../../runtime/game-controls');
 const cachedCoinflips = {};
 
 const combine = (serverSeed, clientSeed) => {
@@ -22,9 +23,9 @@ const getResult = hashedValue => {
 
 const minCoinflips = 10;
 
-async function cacheCoinflips() {
+async function cacheCoinflips(targetId) {
 
-    if (require('../../../runtime/context').enabled) for (const id of Object.keys(cachedCoinflips)) delete cachedCoinflips[id];
+    if (!targetId && require('../../../runtime/context').enabled) for (const id of Object.keys(cachedCoinflips)) delete cachedCoinflips[id];
 
     const [coinflips] = await sql.query(`
         SELECT c.*,
@@ -33,10 +34,10 @@ async function cacheCoinflips() {
         FROM coinflips c
         LEFT JOIN users f ON c.fire = f.id
         LEFT JOIN users i ON c.ice = i.id
-        WHERE c.winnerSide IS NULL
-    `);
+        WHERE c.winnerSide IS NULL ${targetId ? 'AND c.id = ?' : ''}
+    `,targetId ? [targetId] : []);
 
-    if (coinflips.length < minCoinflips) {
+    if (!targetId && coinflips.length < minCoinflips) {
         const [recentCoinflips] = await sql.query(`
             SELECT c.*,
             f.id AS fire_id, f.username AS fire_username, f.role AS fire_role, f.xp AS fire_xp,
@@ -50,6 +51,8 @@ async function cacheCoinflips() {
     }
 
     for (const coinflip of coinflips) {
+        const control=await getControl(sql,'coinflip',coinflip.id);
+        if(control.cancelledAt){delete cachedCoinflips[coinflip.id];continue;}
 
         if (coinflip.fire) {
             coinflip.fire = {
@@ -102,6 +105,8 @@ async function cacheCoinflips() {
 }
 
 async function startCoinflip(coinflip) {
+    const control=await getControl(sql,'coinflip',coinflip.id);
+    if(control.cancelledAt || control.pausedAt)return;
 
     let commitTo = coinflip.EOSBlock;
 
@@ -129,7 +134,7 @@ async function startCoinflip(coinflip) {
         await doTransaction(async (connection, commit) => {
 
             const [[stored]] = await connection.query('SELECT winnerSide FROM coinflips WHERE id = ? FOR UPDATE', [coinflip.id]);
-            if (!stored || stored.winnerSide) return;
+            if (!stored || stored.winnerSide || (await getControl(connection,'coinflip',coinflip.id)).cancelledAt) return;
 
             await connection.query("UPDATE coinflips SET clientSeed = ?, winnerSide = ?, startedAt = NOW() WHERE id = ?", [clientSeed, winnerSide, coinflip.id]);
             if (winner.role != 'BOT') await connection.query("UPDATE users SET balance = balance + ? WHERE id = ?", [winnings, winner.id]);

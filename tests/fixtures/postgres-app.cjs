@@ -64,6 +64,7 @@ async function main() {
     if (process.env.VERCEL === '1') {
         require('../../fairness').generateServerSeed = () => 'fixture-live-8';
         await db.query(`UPDATE "gameSettings" SET value = '1000' WHERE game = 'crash' AND key = 'betTime'`);
+        await db.query(`UPDATE "gameSettings" SET value = '1000' WHERE game = 'roulette' AND key IN ('betTime','rollTime')`);
         await db.query('UPDATE users SET balance = 85 WHERE id = 1');
         const crash = await db.query(`INSERT INTO crash ("serverSeed", "crashPoint", "createdAt", "startedAt") VALUES ('test-crash-seed', 2, NOW() - INTERVAL '40 seconds', NOW() - INTERVAL '30 seconds') RETURNING id`);
         const cb = await db.query(`INSERT INTO "crashBets" ("userId", "roundId", amount, "autoCashoutPoint") VALUES (1, $1, 10, 1.2) RETURNING id`, [crash.rows[0].id]);
@@ -76,11 +77,32 @@ async function main() {
         await db.query("INSERT INTO users (id, username) VALUES (2, 'coinflip-opponent')");
         const coinflip = await db.query(`INSERT INTO coinflips ("ownerId", fire, ice, amount, "serverSeed", "clientSeed", "EOSBlock") VALUES (1, 1, 2, 1, 'test-coinflip-seed', 'test-client-seed', 100) RETURNING id`);
         await db.query(`INSERT INTO bets ("userId", amount, edge, game, "gameId", completed) VALUES (1, 1, 0.05, 'coinflip', $1, 0), (2, 1, 0.05, 'coinflip', $1, 0)`, [coinflip.rows[0].id]);
+        if(process.env.OPERATIONS_TEST==='1') {
+            await db.query(`INSERT INTO users (id,username,role,perms,balance,"2fa") VALUES (3,'Second admin','ADMIN',4,100,NULL),(4,'Read only developer','DEV',0,0,NULL),(5,'MFA owner','OWNER',4,0,'JBSWY3DPEHPK3PXP'),(6,'Refund failure fixture','USER',0,100,NULL)`);
+            for(const [id,userId,tiles] of [[901,1,'[]'],[902,2,'[1,2]'],[903,6,'[]']]) {
+                await db.query(`INSERT INTO mines (id,"userId",amount,"clientSeedId","serverSeedId",nonce,"minesCount",mines,"revealedTiles") VALUES ($1,$2,10,1,1,1,1,'[0]',$3)`,[id,userId,tiles]);
+                await db.query(`INSERT INTO bets ("userId",amount,game,"gameId",completed) VALUES ($1,10,'mines',$2,0)`,[userId,id]);
+            }
+            await db.exec(`CREATE FUNCTION reject_fixture_refund() RETURNS trigger AS $$ BEGIN IF NEW.id = 6 AND NEW.balance > OLD.balance THEN RAISE EXCEPTION 'fixture credit failure'; END IF; RETURN NEW; END $$ LANGUAGE plpgsql; CREATE TRIGGER fixture_failed_credit BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION reject_fixture_refund();`);
+        }
         const server = require('../../api/index');
         Object.assign(require('../../routes/games/roulette/functions').roulette.config, {betTime: 1000, rollTime: 1000});
         const requestHandler = server.listeners('request')[0];
         server.removeAllListeners('request');
         server.on('request', (req, res) => {
+            if (process.env.OPERATIONS_TEST === '1' && req.url === '/__test/operations-recovery') {
+                require('../../runtime/serverless').run(async () => {
+                    const {sql} = require('../../database');
+                    const [crash] = await sql.query("INSERT INTO crash (serverSeed, crashPoint, createdAt, startedAt) VALUES ('recovery-test', 2, DATE_SUB(NOW(), INTERVAL 40 SECOND), DATE_SUB(NOW(), INTERVAL 30 SECOND))");
+                    const [cb] = await sql.query('INSERT INTO crashBets (userId, roundId, amount, autoCashoutPoint) VALUES (1, ?, 10, 1.2)', [crash.insertId]);
+                    await sql.query("INSERT INTO bets (userId, amount, game, gameId, completed) VALUES (1, 10, 'crash', ?, 0)", [cb.insertId]);
+                    const [roulette] = await sql.query("INSERT INTO roulette (serverSeed, result, color, createdAt, rolledAt) VALUES ('recovery-test', 1, 1, DATE_SUB(NOW(), INTERVAL 40 SECOND), DATE_SUB(NOW(), INTERVAL 30 SECOND))");
+                    const [rb] = await sql.query('INSERT INTO rouletteBets (userId, roundId, amount, color) VALUES (1, ?, 5, 1)', [roulette.insertId]);
+                    await sql.query("INSERT INTO bets (userId, amount, game, gameId, completed) VALUES (1, 5, 'roulette', ?, 0)", [rb.insertId]);
+                    return {crash:crash.insertId,roulette:roulette.insertId};
+                }, {scopes:['admin']}).then(data=>{res.setHeader('content-type','application/json');res.end(JSON.stringify(data));},error=>{res.statusCode=500;res.end(JSON.stringify({error:error.message}));});
+                return;
+            }
             if (req.url !== '/__test/disconnect') return requestHandler(req, res);
             req.path = req.url;
             require('../../runtime/serverless').middleware(req, res, async () => {

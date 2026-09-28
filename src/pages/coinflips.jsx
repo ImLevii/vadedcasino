@@ -51,14 +51,15 @@ function Coinflips(props) {
             unsubscribeFromGames(ws())
             subscribeToGame(ws(), 'coinflip')
 
-            ws().on('coinflips:push', (flips) => {
+            ws().on('coinflips:push', (flips, serverTime, replace=false) => {
                 flips.forEach(flip => {
                     if (!flip.startedAt) return
                     flip.endsAt = new Date(flip.startedAt).getTime() + END_DELAY
                 })
 
                 const ids = new Set(flips.map(flip => flip.id))
-                setFlips((f) => [...flips, ...f.filter(flip => !ids.has(flip.id))])
+                setFlips((f) => [...flips, ...(replace ? [] : f.filter(flip => !ids.has(flip.id)))])
+                if(replace && viewing() && !ids.has(viewing().id))setViewing(null);
             })
 
             ws().on('coinflip:join', (cfId, side, user) => {

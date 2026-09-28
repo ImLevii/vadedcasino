@@ -92,6 +92,8 @@ function Battle(props) {
                     setWinnerTeam(b.winnerTeam - 1)
                     setState('WINNERS')
                 }
+                if(b.control?.cancelledAt)setState('CANCELLED');
+                else if(b.control?.pausedAt)setState('PAUSED');
 
                 setBattle(b)
             })
@@ -366,6 +368,7 @@ function Battle(props) {
                             {/* Center case reel — mirrors csgoluck.com/case-battle center rail */}
                             <Show when={players() > 1}>
                               <div class={'center-display ' + String(state() || '').toLowerCase()}>
+                                <Show when={state()==='CANCELLED' || state()==='PAUSED'}><p role='status'>{state()==='CANCELLED' ? 'Battle cancelled. Stakes refunded.' : 'Battle paused by an administrator.'}</p></Show>
                                 {/* Decorative rail chrome — mirrors the reference layout */}
                                 <img class='center-watermark top' src='/assets/icons/logoswords.svg' alt='' aria-hidden='true'/>
                                 <img class='center-watermark bottom' src='/assets/icons/logoswords.svg' alt='' aria-hidden='true'/>

@@ -65,7 +65,7 @@ router.get('/', async (req, res) => {
     }
 
     const [topCountries] = await sql.query(`
-        SELECT u.country, (SUM(t.amount) / ? * 100) AS percentage FROM users AS u
+        SELECT u.country, COALESCE((SUM(t.amount) / NULLIF(?,0) * 100),0) AS percentage FROM users AS u
         JOIN transactions AS t ON u.id = t.userId WHERE t.type = 'deposit' AND t.method IN('crypto', 'giftcard', 'card')
         GROUP BY u.country ORDER BY percentage DESC LIMIT 4;
     `, [profit.total]);
@@ -74,10 +74,12 @@ router.get('/', async (req, res) => {
         SELECT 
         DATE_FORMAT(DATE_SUB(createdAt, INTERVAL WEEKDAY(createdAt) DAY), '%d/%m/%Y') AS \`from\`,
         DATE_FORMAT(DATE_ADD(DATE_SUB(createdAt, INTERVAL WEEKDAY(createdAt) DAY), INTERVAL 6 DAY), '%d/%m/%Y') AS \`to\`,
-        COUNT(id) AS players FROM users GROUP BY \`from\`,\`to\` ORDER BY MIN(createdAt) DESC LIMIT 9;
+        COUNT(id) AS players FROM users WHERE role != 'BOT' AND deletedAt IS NULL GROUP BY \`from\`,\`to\` ORDER BY MIN(createdAt) DESC LIMIT 9;
     `)
 
+    const [[ggr]]=await sql.query(`SELECT COALESCE(SUM(b.amount-b.winnings),0) AS total, COALESCE(SUM(CASE WHEN b.createdAt >= DATE_SUB(NOW(), INTERVAL 1 DAY) THEN b.amount-b.winnings ELSE 0 END),0) AS lastDay, COALESCE(SUM(CASE WHEN b.createdAt >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN b.amount-b.winnings ELSE 0 END),0) AS last7d, COALESCE(SUM(CASE WHEN b.createdAt >= DATE_SUB(NOW(), INTERVAL 31 DAY) THEN b.amount-b.winnings ELSE 0 END),0) AS last31d FROM bets b JOIN users u ON u.id = b.userId WHERE (b.completed = 1 OR b.game = 'case') AND u.role != 'BOT'`);
     res.json({
+        serverTime:Date.now(),ggr,
         profit,
         topCountries,
         growth

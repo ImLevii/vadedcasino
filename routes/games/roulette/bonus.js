@@ -37,7 +37,7 @@ function allocateShare(cents, participants) {
 async function distributeBonus(connection) {
     const units = await lockPot(connection);
     const [[paid]] = await connection.query('SELECT value FROM settings WHERE id = ?', [PAID_KEY]);
-    const [rounds] = await connection.query('SELECT id, result FROM roulette WHERE endedAt IS NOT NULL ORDER BY id DESC LIMIT 3');
+    const [rounds] = await connection.query("SELECT g.id, g.result FROM roulette g WHERE g.endedAt IS NOT NULL AND NOT EXISTS (SELECT 1 FROM gameOperationControls c WHERE c.game = 'roulette' AND c.gameId = g.id AND c.cancelledAt IS NOT NULL) ORDER BY g.id DESC LIMIT 3");
     if (rounds.length !== 3 || rounds.some(round => Number(round.result) !== 0
         || BigInt(round.id) <= BigInt(paid?.value || 0))) return null;
 
@@ -77,7 +77,7 @@ async function distributeBonus(connection) {
 async function loadBonus(sql) {
     const [[pot]] = await sql.query('SELECT value FROM settings WHERE id = ?', [POT_KEY]);
     const [[paid]] = await sql.query('SELECT value FROM settings WHERE id = ?', [PAID_KEY]);
-    const [rounds] = await sql.query('SELECT id, result FROM roulette WHERE endedAt IS NOT NULL ORDER BY id DESC LIMIT 3');
+    const [rounds] = await sql.query("SELECT g.id, g.result FROM roulette g WHERE g.endedAt IS NOT NULL AND NOT EXISTS (SELECT 1 FROM gameOperationControls c WHERE c.game = 'roulette' AND c.gameId = g.id AND c.cancelledAt IS NOT NULL) ORDER BY g.id DESC LIMIT 3");
     let streak = 0;
     for (const round of rounds) {
         if (Number(round.result) !== 0 || BigInt(round.id) <= BigInt(paid?.value || 0)) break;

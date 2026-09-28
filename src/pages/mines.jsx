@@ -1,6 +1,6 @@
 import {useWebsocket} from "../contexts/socketprovider";
 import {useUser} from "../contexts/usercontextprovider";
-import {createResource, createSignal, For} from "solid-js";
+import {createResource, createSignal, createEffect, onCleanup, For} from "solid-js";
 import {authedAPI, createNotification} from "../util/api";
 import {Meta, Title} from "@solidjs/meta";
 import {formatNumber} from "../util/numbers";
@@ -13,7 +13,15 @@ function Mines(props) {
     const [mines, setMines] = createSignal(3)
     const [revealed, setRevealed] = createSignal([])
     const [bombs, setBombs] = createSignal([])
-    const [game, { mutate: setGame }] = createResource(getActiveGame)
+    const [game, { mutate: setGame, refetch }] = createResource(getActiveGame)
+    const [ws]=useWebsocket()
+    createEffect(()=>{
+        const socket=ws();if(!socket)return;
+        refetch();
+        const refresh=data=>{if(data.game==='mines')refetch();};
+        socket.on('game:control',refresh);
+        onCleanup(()=>socket.off('game:control',refresh));
+    })
 
     const [isProcessing, setIsProcessing] = createSignal(false)
     const [random, setRandom] = createSignal(null)
@@ -21,7 +29,7 @@ function Mines(props) {
     async function getActiveGame() {
         let game = await authedAPI(`/mines`, 'GET', null)
 
-        if (!game || !game.activeGame) return null
+        if (!game || !game.activeGame) {setRevealed([]);setBombs([]);return null}
         game = game.activeGame
 
         setBet(game.amount)

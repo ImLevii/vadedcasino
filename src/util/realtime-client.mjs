@@ -33,9 +33,17 @@ export function createRealtimeClient(socket, { getToken, onReady, onDisconnect, 
                 replaying.delete(key);
             }
         }
-        if (!socket.connected && (event.endsWith(':subscribe') || event.endsWith(':unsubscribe') || event === 'chat:join')) return socket;
+        if (!socket.connected) {
+            const callback=args.at(-1);
+            if(typeof callback==='function')callback({error:'DISCONNECTED'});
+            return socket;
+        }
         return emit(event, ...args);
     };
+    socket.on('game:control',data=>{
+        if(!socket.connected || stopped)return;
+        for(const args of subscriptions.values())if(args[0]===data.game+':subscribe')emit(...args);
+    });
 
     function tick(epoch) {
         if (stopped || !socket.connected || epoch !== generation) return;

@@ -19,6 +19,7 @@ import AML from "./components/Documentation/aml";
 import UserModal from "./components/UserPopup/userpopup";
 import SignIn from "./components/Signin/signin";
 import Home from './pages/home';
+import {createBalanceSync} from './util/balance-sync.mjs';
 
 const Admin = lazy(() => import('./pages/admin'))
 const AdminDashboard = lazy(() => import('./components/Admin/dashboard'))
@@ -34,6 +35,8 @@ const AdminSlides = lazy(() => import('./components/Admin/slides'))
 const AdminStatsbook = lazy(() => import('./components/Admin/statsbook'))
 const AdminSettings = lazy(() => import('./components/Admin/settings'))
 const AdminGameSettings = lazy(() => import('./components/Admin/gamesettings'))
+const AdminOperations = lazy(() => import('./components/Admin/operations'))
+const AdminAudit = lazy(() => import('./components/Admin/audit'))
 const AdminProbability = lazy(() => import('./components/Admin/probability'))
 
 const Mines = lazy(() => import('./pages/mines'))
@@ -116,15 +119,12 @@ function App() {
         if (getUser()) mutateUser({...getUser(), staffMode:enabled})
       })
 
-      ws().on('balance', (type, amount, delay) => {
-        if (type === 'set') {
-          setTimeout(() => setBalance(+amount), +delay || 0)
-        }
-
-        if (type === 'add') {
-          setTimeout(() => setBalance((+user()?.balance || 0) + +amount), +delay || 0)
-        }
-      })
+      const balanceSync=createBalanceSync(()=>authedAPI('/user/balance','GET'),snapshot=>{
+        if(getUser() && String(getUser().id)===String(snapshot.id))setBalance(Number(snapshot.balance));
+      });
+      ws().on('balance',balanceSync.request);
+      balanceSync.request();
+      onCleanup(balanceSync.dispose);
 
       ws().on('xp', (xp) => {
         setXP(xp)
@@ -507,6 +507,12 @@ function App() {
                           }/>
 
                           <Route path='/games' element={
+                            <Suspense fallback={<Loader/>}><AdminOperations/></Suspense>
+                          }/>
+                          <Route path='/audit' element={
+                            <Suspense fallback={<Loader/>}><AdminAudit/></Suspense>
+                          }/>
+                          <Route path='/games/settings' element={
                             <Suspense fallback={<Loader/>}>
                               <AdminGameSettings/>
                             </Suspense>

@@ -24,6 +24,8 @@ export function WebsocketProvider(props) {
             onStatus: setStatus, serverless
         });
         socket.connect();
+        const presence=setInterval(()=>{if(socket.connected)socket.emit('presence:heartbeat');},20000);
+        socket.on('auth',()=>socket.emit('presence:heartbeat'));
         const resume = () => { if (document.visibilityState === 'visible') client.retry(); };
         document.addEventListener('visibilitychange', resume);
         window.addEventListener('online', resume);
@@ -31,6 +33,7 @@ export function WebsocketProvider(props) {
             document.removeEventListener('visibilitychange', resume);
             window.removeEventListener('online', resume);
             client.dispose();
+            clearInterval(presence);
         });
     });
 

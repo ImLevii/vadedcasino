@@ -41,8 +41,10 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
         await doTransaction(async (connection, commit) => {
 
             const roundId = roulette.round.id;
-            const [[activeRound]] = await connection.query('SELECT id, rolledAt, endedAt FROM roulette WHERE id = ? FOR UPDATE', [roundId]);
-            if (!activeRound || activeRound.rolledAt || activeRound.endedAt || roulette.round.rolledAt || roulette.round.id !== roundId) {
+            const [[activeRound]] = await connection.query('SELECT id, createdAt, rolledAt, endedAt FROM roulette WHERE id = ? FOR UPDATE', [roundId]);
+            const blocked = await require('../../../runtime/game-controls').admissionError(connection,'roulette',roundId);
+            if(blocked) return res.status(409).json({error:blocked});
+            if (!activeRound || activeRound.rolledAt || activeRound.endedAt || roulette.round.rolledAt || roulette.round.id !== roundId || Date.now() >= new Date(activeRound.createdAt).valueOf() + roulette.config.betTime) {
                 return res.json({ error: 'ALREADY_STARTED' });
             }
             // Contribution and balance debit share the same transaction and rollback.

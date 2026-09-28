@@ -71,10 +71,12 @@ function socketLogin(socket, token) {
 
     if (!valid) {
         socket.userId = null;
+        socket.adminAuthToken = null;
         return socket.emit('auth', { error: 'INVALID_TOKEN' });
     }
 
     socket.userId = valid.uid;
+    socket.adminAuthToken = token;
     socket.emit('auth', { success: true, userId: socket.userId });
 
     // JWT uid is a string but many emit sites use numeric DB ids
@@ -88,6 +90,29 @@ function socketLogin(socket, token) {
 }
 
 io.on('connection', function(socket) {
+    let lastSnapshot=0;
+    socket.on('admin:operations',async(filters,ack)=>{
+        if(typeof ack!=='function')return;
+        if(Date.now()-lastSnapshot<1500)return ack({error:'SLOW_DOWN'});
+        lastSnapshot=Date.now();
+        try{
+            const access=require('../routes/admin/access');
+            const user=await access.authorizeSocket(socket.adminAuthToken);
+            if(!user)return ack({error:'2FA_REQUIRED'});
+            const {listGames,detail}=require('../routes/admin/operations-read');
+            const payload=await listGames(sql,filters || {});
+            if(filters?.selected?.game && filters.selected.id) {
+                try{payload.selected=await detail(sql,filters.selected.game,filters.selected.id);payload.selected.actions=require('../routes/admin/operations-actions').actions(payload.selected,user);}
+                catch(error){payload.detailError=error.status ? error.code : 'DETAIL_UNAVAILABLE';}
+            }
+            ack(access.present(user,{...payload,permissions:access.permissions[user.role]}));
+        }catch(error){ack({error:'OPERATIONS_UNAVAILABLE'});}
+    });
+    socket.on('presence:heartbeat',async()=>{
+        if(Date.now()-(socket.lastPresence || 0)<15000)return;
+        socket.lastPresence=Date.now();
+        await require('../runtime/game-controls').presence(sql,socket);
+    });
 
     function onEvent(event, handler) {
         socket.on(event, (...args) => {
@@ -167,7 +192,7 @@ io.on('connection', function(socket) {
     socket.on('coinflip:subscribe', () => {
 
         socket.join('coinflips');
-        socket.emit('coinflips:push', Object.values(cachedCoinflips), new Date());
+        socket.emit('coinflips:push', Object.values(cachedCoinflips), new Date(), true);
 
     });
 
@@ -198,7 +223,7 @@ io.on('connection', function(socket) {
 
             }
 
-            socket.emit('battles:push', battles);
+            socket.emit('battles:push', battles, true);
 
         }
 
@@ -229,31 +254,8 @@ io.on('connection', function(socket) {
 
     socket.on('roulette:subscribe', () => {
         
-        // console.log(socket.userId, 'subscribed to roulette');
-
-        const round = {
-            id: roulette.round.id,
-            result: null,
-            color: null,
-            createdAt: roulette.round.createdAt,
-            rolledAt: roulette.round.rolledAt,
-            endedAt: roulette.round.endedAt,
-            status: 'created'
-        };
-        
-        if (round.rolledAt) {
-            round.status = 'rolling';
-            round.result = roulette.round.result;
-            round.color = roulette.round.color;
-        }
-        if (round.endedAt) round.status = 'ended';
-
         socket.join('roulette');
-        socket.emit('roulette:set', {
-            serverTime: new Date(),
-            ...roulette,
-            round
-        });
+        socket.emit('roulette:set', require('../routes/games/roulette/functions').snapshot());
 
     });
 
@@ -286,6 +288,9 @@ io.on('connection', function(socket) {
             round.endedAt = crash.round.endedAt;
             round.multiplier = crash.round.crashPoint;
         }
+        if(crash.round.control?.cancelledAt)round.status='cancelled';
+        else if(crash.round.control?.pausedAt)round.status='paused';
+        round.bettingLocked=!!crash.round.control?.locked;
 
         const createdAtMs = crash.round.createdAt
             ? (crash.round.createdAt instanceof Date

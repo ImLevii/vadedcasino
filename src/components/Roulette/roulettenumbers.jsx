@@ -8,31 +8,9 @@ function RouletteNumbers(props) {
 
     createEffect(() => setType(numberToColor(props.num)))
 
-    createEffect(() => {
-        if (typeof props.roll?.result === 'number') {
-            rollSpinner(props.roll?.result)
-        }
-    })
-
-    function rollSpinner(number) {
-        if (number === props.num) return
-
-        num.animate([
-            { filter: 'grayscale(0%)', offset: 0 },
-            { filter: 'grayscale(100%)', offset: 0.05 },
-            { filter: 'grayscale(100%)', offset: 0.9 },
-            { filter: 'grayscale(0%)', offset: 0.95 },
-            { filter: 'grayscale(0%)', offset: 1}
-        ], {
-            iterations: 1,
-            duration: 2000,
-            delay: props.config?.rollTime
-        })
-    }
-
-    return (
+return (
         <>
-            <div ref={num} class={'spinner-number ' + (type())}>
+            <div ref={num} style={{filter:props.landed && props.roll?.result!==props.num ? 'grayscale(1)' : 'none'}} class={'spinner-number ' + (type())}>
                 <p>{props.num}</p>
             </div>
 

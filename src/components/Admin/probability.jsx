@@ -41,7 +41,7 @@ function Probability() {
                                     <div class='game-card'>
                                         <div class='game-title'>{game.toUpperCase()}</div>
                                         <div class='house-edge'>
-                                            House Edge: <span class='value'>{info.houseEdge}%</span>
+                                            {info.edgeLabel || 'House edge'}: <span class='value'>{info.edgeValue || `${info.houseEdge}%`}</span>
                                         </div>
                                         <p class='desc'>{info.description}</p>
 
@@ -94,7 +94,7 @@ function Probability() {
                 </Show>
 
                 <div class='note'>
-                    All games use provably fair cryptographic seed generation. House edge values shown are current live settings configured in Game Control.
+                    These tables describe current configuration for future rounds. Active Crash and Roulette rounds retain their committed rules. Payout rounding and bonus awards affect realized returns; configured adjustments are not guarantees of revenue.
                 </div>
             </div>
 

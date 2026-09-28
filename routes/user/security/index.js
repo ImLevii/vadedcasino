@@ -54,16 +54,8 @@ router.post('/2fa/verify', [isAuthed, apiLimiter], async (req, res) => {
             ? await require('../../../runtime/kv').get('2fa-setup', req.userId) : pending2faSetups.get(req.userId);
         if (!setup || setup.expiresAt < Date.now()) return res.status(400).json({ error: 'NO_PENDING_SETUP' });
 
-        // TODO: 2FA verification disabled temporarily for debugging
-        // const verified = speakeasy.totp.verify({
-        //     secret: setup.secret,
-        //     encoding: 'base32',
-        //     token,
-        //     window: 1
-        // });
-
-        // if (!verified) return res.status(400).json({ error: 'INVALID_TOKEN' });
-        const verified = true;
+        const verified = speakeasy.totp.verify({secret:setup.secret,encoding:'base32',token,window:1});
+        if(!verified)return res.status(400).json({error:'INVALID_TOKEN'});
 
         await sql.query('UPDATE users SET `2fa` = ? WHERE id = ?', [setup.secret, req.userId]);
         pending2faSetups.delete(req.userId);
@@ -89,16 +81,8 @@ router.post('/2fa/disable', [isAuthed, apiLimiter], async (req, res) => {
         const [[user]] = await sql.query('SELECT id, `2fa` FROM users WHERE id = ?', [req.userId]);
         if (!user['2fa']) return res.status(400).json({ error: '2FA_NOT_ENABLED' });
 
-        // TODO: 2FA verification disabled temporarily for debugging
-        // const verified = speakeasy.totp.verify({
-        //     secret: user['2fa'],
-        //     encoding: 'base32',
-        //     token,
-        //     window: 1
-        // });
-
-        // if (!verified) return res.status(400).json({ error: 'INVALID_TOKEN' });
-        const verified = true;
+        const verified = speakeasy.totp.verify({secret:user['2fa'],encoding:'base32',token,window:1});
+        if(!verified)return res.status(400).json({error:'INVALID_TOKEN'});
 
         await sql.query('UPDATE users SET `2fa` = NULL WHERE id = ?', [req.userId]);
 

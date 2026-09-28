@@ -82,4 +82,13 @@ test('Neon event log relays between instances only after commit and preserves ro
     }), /rollback/);
     const [[row]] = await pool.query('SELECT COUNT(*) AS count FROM runtimeEvents');
     assert.equal(Number(row.count), 1);
+    await coordinate(async context=>{
+        a.events.bind(context);
+        await context.transaction(async(connection,commit,rollback)=>{
+            a.server.to('user:1').emit('balance','set',777);
+            await rollback();
+        });
+    });
+    await a.events.flush();await b.events.flush();
+    assert.equal(Number((await pool.query('SELECT COUNT(*) AS count FROM runtimeEvents'))[0][0].count),1,'Explicit savepoint rollback must discard buffered financial events');
 });

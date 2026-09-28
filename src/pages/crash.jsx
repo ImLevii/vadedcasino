@@ -123,10 +123,13 @@ function Crash(props) {
         } else if (data.round?.status === 'ended') {
           // Crashed state
           stopFlight(data.round.multiplier || 1.00);
+        } else {
+          cancelAnimation();setIsFlying(false);setIsCrashed(false);setCountdown(0);setMultiplier(1);
         }
       });
 
       ws().on('crash:new', (data) => {
+        if(round()?.id && Number(data.id)<=Number(round().id))return;
         setRound({ id: data.id, status: 'created', serverSeedHash: data.serverSeedHash });
         setBets([]);
         setBetQueued(false);
@@ -147,6 +150,8 @@ function Crash(props) {
       });
 
       ws().on('crash:start', (data) => {
+        if(round()?.id && Number(data.id)<Number(round().id) || round()?.status==='ended' && String(data.id)===String(round()?.id))return;
+        if(round()?.status==='started' && String(data.id)===String(round()?.id))return;
         setRound(prev => ({ ...(prev || {}), id: data?.id || prev?.id, status: 'started' }));
         setCountdown(0);
         startFlight();
@@ -171,6 +176,7 @@ function Crash(props) {
       });
 
       ws().on('crash:end', (data) => {
+        if(round()?.id && Number(data.id)<Number(round().id) || round()?.status==='ended' && String(data.id)===String(round()?.id))return;
         setRound(prev => ({ ...(prev || {}), id: data?.id || prev?.id, status: 'ended' }));
         stopFlight(data.crashPoint);
         setHistory(prev => [data.crashPoint, ...prev].slice(0, 30));
@@ -226,7 +232,7 @@ function Crash(props) {
 
   function isBettingOpen() {
     // Trust the server round state. Local countdown may drift or arrive late.
-    return ws()?.connected && round()?.status === 'created' && !isFlying() && !isCrashed();
+    return ws()?.connected && round()?.status === 'created' && !round()?.bettingLocked && !isFlying() && !isCrashed();
   }
 
   function normalizeAmount(value) {
@@ -389,7 +395,7 @@ function Crash(props) {
             <span class='status-dot'/>
             <div>
               <span>Round {round()?.id ? `#${round().id}` : ''}</span>
-              <strong>{isFlying() ? 'In flight' : isCrashed() ? 'Round crashed' : 'Betting open'}</strong>
+              <strong>{round()?.status==='cancelled' ? 'Cancelled · stakes refunded' : round()?.status==='paused' ? 'Betting paused' : isFlying() ? 'In flight' : isCrashed() ? 'Round crashed' : round()?.bettingLocked ? 'Betting locked' : 'Betting open'}</strong>
             </div>
           </div>
         </header>

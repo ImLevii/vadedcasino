@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const {admissionError}=require('../../../runtime/game-controls');
 
 const { doTransaction } = require('../../../database');
 
@@ -29,6 +30,8 @@ router.post('/create', isAuthed, apiLimiter, async (req, res) => {
     try {
 
         await doTransaction(async (connection, commit) => {
+            const blocked=await admissionError(connection,'coinflip');
+            if(blocked)return res.status(409).json({error:blocked});
 
             const [[user]] = await connection.query('SELECT id, username, balance, role, xp FROM users WHERE id = ? FOR UPDATE', [req.userId]);
 
@@ -117,6 +120,8 @@ async function joinCoinflip(req, res, bot = false) {
             //const [[coinflip]] = await sql.query('SELECT * FROM coinflips WHERE id = ? FOR UPDATE', [id]);
 
             if (!coinflip) return res.json({ error: 'INVALID_ID' });
+            const blocked=await admissionError(connection,'coinflip',id);
+            if(blocked)return res.status(409).json({error:blocked});
             if (coinflip.fire && coinflip.ice) return res.json({ error: 'ALREADY_STARTED' });
 
             let user;

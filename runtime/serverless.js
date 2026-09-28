@@ -20,6 +20,7 @@ async function initialize() {
             await require('../routes/homeSlides').seedDefaultHomeSlides();
             await require('../routes/auth/credentials').ensureEmailAccounts();
             await require('../socketio/chat/staff-mode').ensureStaffChatSchema(sql);
+            await require('./game-controls').ensureOperationsSchema(sql);
         });
         await events.initialize();
     })().catch(error => { initialized = null; throw error; });
@@ -36,10 +37,22 @@ async function refresh(scopes) {
     if (includes('surveys')) await require('../routes/surveys/functions').cacheSurveys();
     if (includes('slots')) await require('../routes/games/slots/functions').cacheSlots();
     if (['rain', 'crash', 'roulette', 'battles', 'coinflip', 'cases', 'mines'].some(includes)) await require('../socketio/rain').cacheRains();
-    if (includes('crash')) await require('../routes/games/crash/functions').cacheCrash();
-    if (includes('roulette')) await require('../routes/games/roulette/functions').cacheRoulette();
-    if (includes('battles')) await require('../routes/games/battles/functions').cacheBattles();
-    if (includes('coinflip')) await require('../routes/games/coinflip/functions').cacheCoinflips();
+    for(const [game,method] of [['crash','cacheCrash'],['roulette','cacheRoulette'],['battles','cacheBattles'],['coinflip','cacheCoinflips']]) {
+        if(!includes(game))continue;
+        const context=storage.getStore(),previousError=context.error;
+        try {
+            await context.transaction(async(connection,commit)=>{
+                await require('../routes/games/'+game+'/functions')[method]();
+                if(context.error && context.error!==previousError)throw context.error;
+                await require('./game-controls').health(connection,game);
+                await commit();
+            });
+        } catch(error) {
+            context.error=previousError;
+            await require('./game-controls').health(context.connection,game,error);
+            console.error('[game-advance]',game,error.code || 'ADVANCEMENT_FAILED');
+        }
+    }
     if (includes('leaderboard')) await require('../routes/leaderboard/functions').cacheLeaderboards();
     if (includes('chat')) await require('../socketio/chat/functions').cacheChannels();
     if (includes('bets')) await require('../socketio/bets').cacheBets();
@@ -65,6 +78,7 @@ async function run(work, { tick = false, scopes = ['all'] } = {}) {
             if (process.env.MEXC_API_KEY && process.env.MEXC_API_SECRET) await require('../routes/trading/crypto/withdraw/functions').updateSentWithdrawals();
             await sql.query('INSERT INTO runtimeState (id, value) VALUES (?, ?) ON CONFLICT (id) DO UPDATE SET value = EXCLUDED.value', ['maintenanceAt', String(Date.now())]);
             await sql.query('DELETE FROM runtimeEvents WHERE createdAt < DATE_SUB(NOW(), INTERVAL 10 MINUTE)');
+            await sql.query('DELETE FROM gameOperationPresence WHERE lastSeen < DATE_SUB(NOW(), INTERVAL 5 MINUTE)');
         }
         return result;
     });
@@ -151,7 +165,7 @@ function middleware(req, res, next) {
         };
         next();
       });
-    }, { scopes: req.path.startsWith('/admin') ? ['all'] : [req.path.split('/')[1]] }).then(() => {
+    }, { scopes: req.path.startsWith('/admin') ? ['admin'] : [req.path.split('/')[1]] }).then(() => {
         res.write = write;
         res.end = end;
         if (disconnected || res.destroyed) return;
