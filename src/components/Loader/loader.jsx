@@ -11,7 +11,7 @@ function Loader(props) {
         <div class='cosmic-loader' classList={{'cosmic-loader-compact': compact()}} role='status' aria-live='polite' aria-busy='true'>
             <div class='cosmic-loader-mark' style={{'max-height': props.max}} aria-hidden='true'>
                 <div class='cosmic-loader-orbit'/>
-                <img src='/assets/logo/cosmic-luck-chip.svg' alt='' width='40' height='40'/>
+                <img src='/assets/logo/cosmic-luck-logo.webp' alt='' width='210'/>
                 <span class='cosmic-loader-spark'/>
             </div>
             <Show when={!compact()}>

@@ -104,6 +104,12 @@ CREATE TABLE IF NOT EXISTS `users` (
     UNIQUE KEY `uq_googleId` (`googleId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Email login identities are separate from public profile fields.
+CREATE TABLE IF NOT EXISTS emailAccounts (
+    userId BIGINT NOT NULL PRIMARY KEY,
+    email VARCHAR(254) NOT NULL UNIQUE
+);
+
 -- ============================================================
 -- Bets (universal log)
 -- ============================================================

@@ -2,13 +2,14 @@ const express = require('express');
 const axios = require('axios');
 const bcrypt = require('bcrypt');
 const { saveProviderProfile } = require('./profiles');
+const { authUrls, beginAuth, validateAuth } = require('./redirects');
+const { ensureEmailAccounts, normalizeEmail, registerEmail, credentialLimiter } = require('./credentials');
 
 const { sql } = require('../../database');
 const { isAuthed, generateJwtToken, expiresIn, apiLimiter } = require('./functions');
 const { bannedUsers, lastLogouts } = require('../admin/config');
 
 const router = express.Router();
-const staffRoles = new Set(['ADMIN', 'OWNER', 'DEV']);
 
 async function ensureCredentialColumns() {
     const [columns] = await sql.query('DESCRIBE users');
@@ -25,7 +26,9 @@ async function ensureCredentialColumns() {
 }
 
 async function findCredentialUser(username) {
-    const query = 'SELECT id, username, passwordHash, perms, role FROM users WHERE LOWER(username) = ? LIMIT 1';
+    const query = username.includes('@')
+        ? 'SELECT users.id, users.username, users.passwordHash, users.banned, users.deletedAt FROM users JOIN emailAccounts ON emailAccounts.userId = users.id WHERE emailAccounts.email = ? LIMIT 1'
+        : 'SELECT id, username, passwordHash, banned, deletedAt FROM users WHERE LOWER(username) = ? AND passwordHash IS NOT NULL LIMIT 1';
     try {
         const [[user]] = await sql.query(query, [username.toLowerCase()]);
         return user;
@@ -37,16 +40,12 @@ async function findCredentialUser(username) {
     }
 }
 
-function requestOrigin(req) {
-    return `${req.protocol}://${req.get('host')}`;
-}
-
 function publicBaseUrl(req) {
-    return process.env.BASE_URL || requestOrigin(req);
+    return authUrls(req).base;
 }
 
 function frontendUrl(req) {
-    return (process.env.FRONTEND_URL || requestOrigin(req)).replace(/\/$/, '');
+    return authUrls(req).frontend;
 }
 
 function cookieOptions() {
@@ -66,7 +65,7 @@ function finishLogin(res, userId, username) {
 
 router.get('/google', (req, res) => {
     const clientId = process.env.GOOGLE_CLIENT_ID;
-    if (!clientId) return res.status(503).send('Google OAuth is not configured.');
+    if (!clientId || !process.env.GOOGLE_CLIENT_SECRET) return res.redirect(`${frontendUrl(req)}/?modal=login&error=google_unavailable`);
 
     const redirectUri = `${publicBaseUrl(req)}/auth/google/callback`;
     const params = new URLSearchParams({
@@ -77,11 +76,13 @@ router.get('/google', (req, res) => {
         access_type: 'online',
         prompt: 'select_account'
     });
+    params.set('state', beginAuth(res, 'google'));
     res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
 });
 
 router.get('/google/callback', async (req, res) => {
     const destination = frontendUrl(req);
+    if (!validateAuth(req, res, 'google')) return res.redirect(`${destination}/?modal=login&error=auth_expired`);
     const { code } = req.query;
     if (!code) return res.redirect(`${destination}/?modal=login&error=google_denied`);
 
@@ -121,10 +122,11 @@ router.get('/google/callback', async (req, res) => {
 
 router.get('/steam', (req, res) => {
     const baseUrl = publicBaseUrl(req);
+    const state = beginAuth(res, 'steam');
     const params = new URLSearchParams({
         'openid.ns': 'http://specs.openid.net/auth/2.0',
         'openid.mode': 'checkid_setup',
-        'openid.return_to': `${baseUrl}/auth/steam/callback`,
+        'openid.return_to': `${baseUrl}/auth/steam/callback?state=${state}`,
         'openid.realm': baseUrl,
         'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select',
         'openid.identity': 'http://specs.openid.net/auth/2.0/identifier_select'
@@ -134,8 +136,18 @@ router.get('/steam', (req, res) => {
 
 router.get('/steam/callback', async (req, res) => {
     const destination = frontendUrl(req);
+    if (!validateAuth(req, res, 'steam')) return res.redirect(`${destination}/?modal=login&error=auth_expired`);
+    if (req.query['openid.mode'] === 'cancel') return res.redirect(`${destination}/?modal=login&error=steam_denied`);
     try {
-        const verification = new URLSearchParams({ ...req.query, 'openid.mode': 'check_authentication' });
+        const claimedId = req.query['openid.claimed_id'];
+        const returnTo = `${publicBaseUrl(req)}/auth/steam/callback?state=${req.query.state}`;
+        if (typeof claimedId !== 'string' || !/^https:\/\/steamcommunity\.com\/openid\/id\/\d{17}$/.test(claimedId)
+            || req.query['openid.identity'] !== claimedId || req.query['openid.return_to'] !== returnTo
+            || req.query['openid.mode'] !== 'id_res') {
+            return res.redirect(`${destination}/?modal=login&error=steam_invalid`);
+        }
+        const verification = new URLSearchParams(Object.entries(req.query).filter(([key, value]) => key.startsWith('openid.') && typeof value === 'string'));
+        verification.set('openid.mode', 'check_authentication');
         const verificationResponse = await axios.post('https://steamcommunity.com/openid/login', verification.toString(), {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             timeout: 8000
@@ -173,22 +185,40 @@ router.get('/steam/callback', async (req, res) => {
     }
 });
 
-router.post('/login', apiLimiter, async (req, res) => {
+router.post('/register', apiLimiter, credentialLimiter(5), async (req, res) => {
     try {
-        const { username, password } = req.body || {};
-        if (typeof username !== 'string' || username.length < 2 || username.length > 20) {
+        const { username, password, agree } = req.body || {};
+        const email = normalizeEmail(req.body?.email);
+        if (!email) return res.status(400).json({error:'INVALID_EMAIL'});
+        if (typeof username !== 'string' || !/^[a-zA-Z0-9_]{3,20}$/.test(username)) return res.status(400).json({error:'INVALID_SIGNUP_USERNAME'});
+        if (typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password, 'utf8') > 72) return res.status(400).json({error:'INVALID_SIGNUP_PASSWORD'});
+        if (agree !== true) return res.status(400).json({error:'TERMS_REQUIRED'});
+        if (!require('../../runtime/context').enabled) { await ensureCredentialColumns(); await ensureEmailAccounts(); }
+        const account = await registerEmail({email, username, password});
+        if (account.error) return res.status(409).json(account);
+        return finishLogin(res, account.userId, account.username);
+    } catch (error) {
+        if (error.code === 'ER_DUP_ENTRY' || error.code === '23505') return res.status(409).json({error:'EMAIL_IN_USE'});
+        console.error('Registration failed:', error.code || 'UNKNOWN');
+        return res.status(500).json({error:'UNKNOWN_ERROR'});
+    }
+});
+
+router.post('/login', apiLimiter, credentialLimiter(30), async (req, res) => {
+    try {
+        const { password } = req.body || {};
+        const username = (req.body?.email || req.body?.username)?.trim?.();
+        if (typeof username !== 'string' || username.length < 2 || username.length > 254) {
             return res.status(400).json({ error: 'INVALID_USERNAME' });
         }
-        if (typeof password !== 'string' || password.length < 4 || password.length > 50) {
+        if (typeof password !== 'string' || password.length < 4 || Buffer.byteLength(password, 'utf8') > 72) {
             return res.status(400).json({ error: 'INVALID_PASSWORD' });
         }
 
+        if (!require('../../runtime/context').enabled && username.includes('@')) await ensureEmailAccounts();
         const user = await findCredentialUser(username);
-        if (!user?.passwordHash || bannedUsers.has(user.id)) {
+        if (!user?.passwordHash || user.deletedAt || user.banned || bannedUsers.has(user.id)) {
             return res.status(401).json({ error: 'INVALID_CREDENTIALS' });
-        }
-        if (user.perms < 1 && !staffRoles.has(user.role) && process.env.NODE_ENV !== 'production') {
-            return res.status(401).json({ error: 'UNAUTHORIZED' });
         }
 
         const matches = await bcrypt.compare(password, user.passwordHash);

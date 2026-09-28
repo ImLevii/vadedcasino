@@ -182,6 +182,19 @@ Google login requires `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. Configure
 their callback URLs as `${BASE_URL}/auth/steam/callback` and
 `${BASE_URL}/auth/google/callback`, respectively.
 
+On Vercel, provider callbacks and post-login redirects use the current HTTPS
+deployment host, ignoring stale local `BASE_URL` and `FRONTEND_URL` settings.
+Register the production Google callback in the Google OAuth console; both Google
+client credentials are required. Unconfigured Google login returns to the form
+with a helpful message. Provider callbacks validate browser-bound, expiring state.
+
+Players can also create an account with a username, email, and password. Email
+identities are normalized and stored in `emailAccounts`; passwords use bcrypt.
+The table is created automatically on Vercel initialization and for local email
+authentication. Registration creates a normal user with zero balance. Existing
+username/password accounts still work. Email delivery, verification, and password
+reset are not part of this registration flow.
+
 Run `npm run db:account-deletion` when upgrading an existing database to enable
 account deletion from `/admin/users` → View → Delete account. Admins must confirm
 the target account ID and cannot delete themselves, bots, or accounts with equal

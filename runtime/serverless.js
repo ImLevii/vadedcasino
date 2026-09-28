@@ -18,6 +18,7 @@ async function initialize() {
                 await context.connection.nativeQuery(statement);
             }
             await require('../routes/homeSlides').seedDefaultHomeSlides();
+            await require('../routes/auth/credentials').ensureEmailAccounts();
         });
         await events.initialize();
     })().catch(error => { initialized = null; throw error; });

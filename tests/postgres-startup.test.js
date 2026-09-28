@@ -87,18 +87,29 @@ test('fresh PostgreSQL starts all caches and serves login, API and chat', { time
     const untrusted = await fetch(origin + '/user', { method: 'OPTIONS', headers: { Origin: 'https://untrusted.example' } });
     assert.equal(untrusted.headers.get('access-control-allow-origin'), null);
 
-    // Exercise real callbacks, persistence, JWT cookies, bootstrap and image routes.
+    async function providerCallback(provider) {
+        const start = await fetch(origin + '/auth/' + provider, {redirect:'manual'});
+        const location = new URL(start.headers.get('location'));
+        const callback = provider === 'steam' ? new URL(location.searchParams.get('openid.return_to')) : new URL(origin + '/auth/google/callback');
+        if (provider === 'steam') {
+            callback.searchParams.set('openid.return_to', callback.href);
+            callback.searchParams.set('openid.claimed_id', 'https://steamcommunity.com/openid/id/76561198012345678');
+            callback.searchParams.set('openid.identity', 'https://steamcommunity.com/openid/id/76561198012345678');
+            callback.searchParams.set('openid.mode', 'id_res');
+        } else {
+            callback.searchParams.set('code', 'fixture-code');
+            callback.searchParams.set('state', location.searchParams.get('state'));
+        }
+        return fetch(origin + callback.pathname + callback.search, {redirect:'manual', headers:{Cookie:start.headers.get('set-cookie').split(';')[0]}});
+    }
     const providerSessions = {};
     for (const provider of ['steam', 'google']) {
-        const callback = provider === 'steam'
-            ? '/auth/steam/callback?openid.claimed_id=https://steamcommunity.com/openid/id/76561198012345678'
-            : '/auth/google/callback?code=fixture-code';
         let userId;
         for (let visit = 1; visit <= (provider === 'steam' ? 3 : 2); visit++) {
-            const response = await fetch(origin + callback, { redirect: 'manual' });
+            const response = await providerCallback(provider);
             assert.equal(response.status, 302);
             assert.doesNotMatch(response.headers.get('location'), /error=/, output);
-            const sessionCookie = response.headers.get('set-cookie').split(';')[0];
+            const sessionCookie = response.headers.getSetCookie().find(value => value.startsWith('jwt=')).split(';')[0];
             const profileResponse = await fetch(origin + '/user', { headers: { Cookie: sessionCookie } });
             assert.equal(profileResponse.status, 200, output);
             const profile = await profileResponse.json();
@@ -156,8 +167,8 @@ test('fresh PostgreSQL starts all caches and serves login, API and chat', { time
     assert.equal((await deleteRequest(target.id, cookie)).status, 404);
     const activeUsers = await (await fetch(origin + '/admin/users', {headers: {Cookie: cookie}})).json();
     assert.ok(!activeUsers.data.some(user => user.id === target.id));
-    const deletedLogin = await fetch(origin + '/auth/steam/callback?openid.claimed_id=https://steamcommunity.com/openid/id/76561198012345678', {redirect: 'manual'});
-    assert.equal(deletedLogin.headers.get('set-cookie'), null);
+    const deletedLogin = await providerCallback('steam');
+    assert.ok(!deletedLogin.headers.getSetCookie().some(value => value.startsWith('jwt=')));
     assert.match(deletedLogin.headers.get('location'), /error=steam_error/);
     const socket = io(origin, { transports: ['websocket'], autoConnect: false, reconnection: false });
     t.after(() => socket.disconnect());

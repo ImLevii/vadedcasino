@@ -1,0 +1,54 @@
+﻿.auth-overlay {position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;background:#030909c9;backdrop-filter:blur(12px);}
+.auth-dialog {position:relative;display:grid;grid-template-columns:minmax(0,1fr) 310px;width:min(880px,100%);max-height:calc(100dvh - 48px);overflow:auto;overscroll-behavior:contain;border:1px solid #ffffff14;border-radius:14px;background:#10171a;box-shadow:0 32px 100px #0009;outline:none;scrollbar-width:thin;scrollbar-color:#355047 transparent;}
+.auth-dialog *, .auth-dialog *::before, .auth-dialog *::after {box-sizing:border-box;}
+.auth-dialog button,.auth-dialog input,.auth-dialog a {font:inherit;}
+.auth-close {position:absolute;right:14px;top:14px;z-index:3;width:32px;height:32px;border:1px solid #ffffff20;border-radius:4px;background:#172421;color:#c5ddd3;font-size:23px!important;cursor:pointer;}
+.auth-close:hover {background:#294138;color:white;}
+.auth-main {min-width:0;padding:34px 38px 24px;}
+.auth-heading {margin-bottom:22px;}
+.auth-eyebrow {color:#75cf9f;font-size:10px;font-weight:700;letter-spacing:2px;}
+.auth-heading h1 {margin:9px 0 8px;color:#f0faf5;font-size:clamp(23px,2vw,28px);font-weight:800;line-height:1.2;letter-spacing:-.6px;}
+.auth-heading h1 span {color:#55e691;}
+.auth-heading p {margin:0;color:#94aaa1;font-size:12px;line-height:1.6;}
+.auth-tabs {display:flex;gap:4px;padding:4px;margin-bottom:20px;border:1px solid #ffffff0d;background:#091211;border-radius:5px;}
+.auth-tabs button {flex:1;min-height:38px;border:1px solid transparent;border-radius:4px;background:transparent;color:#99ada4;font-size:12px;font-weight:700;cursor:pointer;}
+.auth-tabs button.active {background:#1c382b;border-color:#65df9825;color:#8af0b2;box-shadow:inset 0 1px #a1ffca0a;}
+.auth-providers {display:grid;gap:9px;}
+.auth-provider {display:flex;justify-content:center;align-items:center;gap:11px;min-height:45px;border:1px solid #ffffff20;border-radius:4px;text-decoration:none;font-size:12px!important;font-weight:700!important;transition:filter .15s;}
+.auth-provider:hover {filter:brightness(1.15);}
+.auth-provider svg {flex-shrink:0;}
+.auth-steam {background:#1c2c39;color:#d8e7f1;border-color:#345269;}
+.auth-google {background:#f3f6f5;color:#28312e;}
+.auth-divider {display:flex;align-items:center;gap:12px;margin:21px 0;color:#93a59d;font-size:11px;white-space:nowrap;}
+.auth-divider span {height:1px;flex:1;background:#ffffff12;}
+.auth-form {display:flex;flex-direction:column;gap:15px;}
+.auth-field {display:flex;flex-direction:column;gap:8px;color:#c3d5cb;font-size:12px;font-weight:600;}
+.auth-field input {width:100%;height:46px;padding:0 13px;border:1px solid #ffffff18;border-radius:4px;background:#0b1215;color:#f0f8f4;font-size:14px;outline:none;transition:border-color .15s,box-shadow .15s;}
+.auth-field input::placeholder {color:#73877d;font-weight:400;}
+.auth-field input:focus {border-color:#5ada93;box-shadow:0 0 0 3px #50d78e12;}
+.auth-password-wrap {position:relative;}
+.auth-password-wrap input {padding-right:62px;}
+.auth-password-wrap button {position:absolute;right:8px;top:8px;height:30px;border:0;border-radius:4px;background:#ffffff08;color:#a4bdb0;padding:0 9px;font-size:11px;cursor:pointer;}
+.auth-terms {display:flex;align-items:flex-start;gap:9px;color:#9eb2a8;font-size:11px;line-height:1.65;}
+.auth-terms input {accent-color:#50df8c;width:17px;height:17px;flex-shrink:0;margin:1px 0 0;}
+.auth-dialog a:focus-visible,.auth-dialog button:focus-visible {outline:2px solid #79efaa;outline-offset:3px;}
+.auth-terms a,.auth-legal a {color:#8de7b1;text-decoration:none;}
+.auth-submit {display:flex;align-items:center;justify-content:center;gap:15px;min-height:47px;border:1px solid #73f7aa;border-radius:4px;background:linear-gradient(115deg,#6defa1,#23cd75);box-shadow:0 5px 22px #23d37820,inset 0 1px #ffffff35;color:#062e1b;font-weight:800!important;font-size:14px!important;cursor:pointer;}
+.auth-submit:hover {filter:brightness(1.07);}
+.auth-submit:disabled {opacity:.65;cursor:wait;}
+.auth-submit span {font-size:20px;}
+.auth-error {margin:0;padding:11px 12px;border:1px solid #f9818140;border-radius:4px;background:#b4434315;color:#ffc0bc;font-size:12px;line-height:1.5;}
+.auth-switch {margin:20px 0 0;text-align:center;color:#9eb4a8;font-size:12px;}
+.auth-switch button {padding:0;border:0;background:none;color:#78e9a7;font-weight:700;cursor:pointer;}
+.auth-legal {margin:20px 0 0;padding-top:17px;border-top:1px solid #ffffff0d;text-align:center;color:#82998c;font-size:10px;line-height:1.7;}
+.auth-art {position:relative;display:flex;flex-direction:column;align-items:center;justify-content:space-between;min-width:0;padding:65px 26px 38px;border-left:1px solid #ffffff0c;background:radial-gradient(ellipse at 55% 20%,#205b364d,transparent 60%),linear-gradient(155deg,#0a1b15,#08100f);overflow:hidden;}
+.auth-brand {width:100%;height:auto;filter:drop-shadow(0 0 18px #30eb6250);}
+.auth-art-orbit {display:grid;place-items:center;width:235px;height:235px;margin:25px 0;border:1px solid #61e59116;border-radius:50%;background:radial-gradient(circle,#259e4214,transparent 65%);}
+.auth-art-orbit img {width:140px;height:140px;object-fit:contain;filter:drop-shadow(0 0 30px #3edb6a40);transform:rotate(-14deg);}
+.auth-art-copy {align-self:stretch;}
+.auth-art-copy>span {font-size:9px;letter-spacing:1.8px;color:#69b78c;}
+.auth-art-copy h2 {margin:13px 0;color:#d3eddc;font-size:26px;line-height:1.22;font-weight:700;letter-spacing:-.7px;}
+.auth-art-copy p {margin:0;color:#7e9f8b;font-size:11px;line-height:1.6;}
+@media(max-width:720px){.auth-overlay{padding:14px;}.auth-dialog{display:block;max-width:460px;max-height:calc(100dvh - 28px);border-radius:10px;}.auth-art{display:none;}.auth-main{padding:32px 24px 24px;}.auth-heading{padding-right:22px;}.auth-heading h1{font-size:25px;}.auth-field input{font-size:16px;}}
+@media(max-width:360px){.auth-overlay{padding:8px;}.auth-dialog{max-height:calc(100dvh - 16px);}.auth-main{padding:32px 17px 20px;}.auth-heading h1{font-size:22px;}}
+@media(prefers-reduced-motion:reduce){.auth-dialog *{transition:none!important;}}
