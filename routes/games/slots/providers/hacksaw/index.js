@@ -38,9 +38,11 @@ const hacksawApi = axios.create({
 
 router.post('/play/authenticate', apiLimiter, async (req, res) => {
 
-    const userId = tokens[req.body.token];
+    const userId = require('../../../../../runtime/context').enabled
+        ? await require('../../../../../runtime/kv').get('slot-token', req.body.token) : tokens[req.body.token];
     if (!userId) return res.json({ error: 'UNAUTHORIZED' });
     delete tokens[req.body.token];
+    if (require('../../../../../runtime/context').enabled) await require('../../../../../runtime/kv').remove('slot-token', req.body.token);
 
     let user;
 

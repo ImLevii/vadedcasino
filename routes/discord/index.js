@@ -33,6 +33,7 @@ router.post('/link', isAuthed, async (req, res) => {
 
     const token = crypto.randomUUID();
     tokens[token] = req.userId;
+    if (require('../../runtime/context').enabled) await require('../../runtime/kv').set('discord', token, req.userId, 5 * 60 * 1000);
 
     res.json({ url: `https://discord.com/api/oauth2/authorize?client_id=${process.env.DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirect)}&response_type=code&scope=${scopes.join('%20')}&state=${token}` });
 
@@ -59,10 +60,11 @@ router.get('/callback', async (req, res) => {
     // res.send('Linking your Discord account... (this page will close automatically in a few seconds)');
 
     const token = req.query.state;
-    const userId = tokens[token];
+    const userId = require('../../runtime/context').enabled ? await require('../../runtime/kv').get('discord', token) : tokens[token];
 
     if (!userId) return res.send('Link expired'); // io.emit(invalid state)
     delete tokens[token];
+    if (require('../../runtime/context').enabled) await require('../../runtime/kv').remove('discord', token);
 
     const discordAuth = await getExistingAuth(userId);
     if (discordAuth) return res.render('discord', { discordUser }); // io.emit(already linked)

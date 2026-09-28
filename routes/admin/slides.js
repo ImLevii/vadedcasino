@@ -86,7 +86,7 @@ async function saveUploadedImage(fileName, dataUrl) {
     }
 
     const dirPath = path.join(process.cwd(), 'public', 'slides');
-    await fs.promises.mkdir(dirPath, { recursive: true });
+    if (!require('../../runtime/context').enabled) await fs.promises.mkdir(dirPath, { recursive: true });
 
     const baseName = slugify(path.parse(typeof fileName === 'string' ? fileName : '').name);
     const finalName = `${baseName}-${Date.now()}-${crypto.randomBytes(4).toString('hex')}.${parsed.ext}`;
@@ -105,6 +105,7 @@ async function saveUploadedImage(fileName, dataUrl) {
     else if (parsed.ext === 'gif') outputBuffer = await pipeline.gif().toBuffer();
     else outputBuffer = await pipeline.jpeg({ quality: 84, mozjpeg: true }).toBuffer();
 
+    if (require('../../runtime/context').enabled) return require('../../runtime/media').save('slides', finalName, outputBuffer);
     await fs.promises.writeFile(filePath, outputBuffer);
     return `/public/slides/${finalName}`;
 }

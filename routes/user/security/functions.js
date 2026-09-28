@@ -8,7 +8,7 @@ const CACHE_TTL = 60 * 1000;
 async function getSelfLockUntil(userId) {
 
     const cached = selfLockCache.get(userId);
-    if (cached && Date.now() - cached.fetchedAt < CACHE_TTL) return cached.until;
+    if (!require('../../../runtime/context').enabled && cached && Date.now() - cached.fetchedAt < CACHE_TTL) return cached.until;
 
     const [[user]] = await sql.query('SELECT selfLockUntil FROM users WHERE id = ?', [userId]);
     const until = user?.selfLockUntil ? new Date(user.selfLockUntil).getTime() : 0;

@@ -165,7 +165,7 @@ router.post('/stop', async (req, res) => {
 });
 
 // ── Schedule rain ─────────────────────────────────────────────
-router.post('/schedule', (req, res) => {
+router.post('/schedule', async (req, res) => {
     const amount = parseFloat(req.body.amount);
     if (!amount || isNaN(amount) || amount < 1 || amount > 1000000) return res.status(400).json({ error: 'INVALID_AMOUNT' });
 
@@ -177,19 +177,19 @@ router.post('/schedule', (req, res) => {
         ? durationMinutes * 60000
         : undefined;
 
-    const result = scheduleRain(amount, durationMs, delayMinutes * 60000);
+    const result = await scheduleRain(amount, durationMs, delayMinutes * 60000);
     sendLog('admin', `[\`${req.userId}\`] *${req.user.username}* scheduled a rain of R$${amount} in ${delayMinutes}m.`);
     res.json({ success: true, scheduledAt: result.scheduledAt });
 });
 
 // ── Cancel schedule ───────────────────────────────────────────
-router.post('/schedule/cancel', (req, res) => {
-    const cancelled = cancelScheduledRain();
+router.post('/schedule/cancel', async (req, res) => {
+    const cancelled = await cancelScheduledRain();
     res.json({ success: true, wasPending: cancelled });
 });
 
 // ── Update config ─────────────────────────────────────────────
-router.post('/config', (req, res) => {
+router.post('/config', async (req, res) => {
     const { systemRainAmount, systemRainDurationMinutes, joinTimeMinutes } = req.body;
 
     if (systemRainAmount !== undefined) {
@@ -205,6 +205,7 @@ router.post('/config', (req, res) => {
         if (!isNaN(jt) && jt >= 0.5 && jt <= 10) rains.joinTime = jt * 60000;
     }
 
+    if (require('../../runtime/context').enabled) await sql.query('INSERT INTO settings (id, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = VALUES(value)', ['rainConfig', JSON.stringify({ systemRainAmount: rains.systemRainAmount, systemRainDuration: rains.systemRainDuration, joinTime: rains.joinTime })]);
     sendLog('admin', `[\`${req.userId}\`] *${req.user.username}* updated rain config.`);
     res.json({ success: true, config: { systemRainAmount: rains.systemRainAmount, systemRainDuration: rains.systemRainDuration, joinTime: rains.joinTime } });
 });

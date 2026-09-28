@@ -249,6 +249,9 @@ else throw new Error(`Unsupported SQL_DIALECT: ${dialect}`);
 
 async function doTransaction(transactionLogic) {
 
+    const context = require('../runtime/context').storage.getStore();
+    if (context) return context.transaction(transactionLogic);
+
     if (dialect === 'sqlite') {
         const { DatabaseSync } = require('node:sqlite');
         const txDb = new DatabaseSync(sqliteFilePath);
@@ -326,8 +329,16 @@ async function doTransaction(transactionLogic) {
     }
 }
 
+const rawQuery = pool.query.bind(pool);
+pool.query = (...args) => {
+    const { storage, track } = require('../runtime/context');
+    const context = storage.getStore();
+    if (context?.closed) return Promise.reject(new Error('Request transaction is closed'));
+    return track(context ? context.connection.query(...args) : rawQuery(...args));
+};
+
 module.exports = {
     dialect,
     sql: pool,
-    doTransaction
+    doTransaction: require('../runtime/context').tracked(doTransaction)
 };

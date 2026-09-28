@@ -32,6 +32,7 @@ router.post('/2fa/setup', [isAuthed, apiLimiter], async (req, res) => {
         });
 
         pending2faSetups.set(req.userId, { secret: secret.base32, expiresAt: Date.now() + SETUP_TTL });
+        if (require('../../../runtime/context').enabled) await require('../../../runtime/kv').set('2fa-setup', req.userId, pending2faSetups.get(req.userId), SETUP_TTL);
 
         res.json({ success: true, secret: secret.base32, otpauthUrl: secret.otpauth_url });
 
@@ -49,7 +50,8 @@ router.post('/2fa/verify', [isAuthed, apiLimiter], async (req, res) => {
         const token = req.body.token;
         if (typeof token !== 'string' || !/^\d{6}$/.test(token)) return res.status(400).json({ error: 'INVALID_TOKEN' });
 
-        const setup = pending2faSetups.get(req.userId);
+        const setup = require('../../../runtime/context').enabled
+            ? await require('../../../runtime/kv').get('2fa-setup', req.userId) : pending2faSetups.get(req.userId);
         if (!setup || setup.expiresAt < Date.now()) return res.status(400).json({ error: 'NO_PENDING_SETUP' });
 
         // TODO: 2FA verification disabled temporarily for debugging
@@ -65,6 +67,7 @@ router.post('/2fa/verify', [isAuthed, apiLimiter], async (req, res) => {
 
         await sql.query('UPDATE users SET `2fa` = ? WHERE id = ?', [setup.secret, req.userId]);
         pending2faSetups.delete(req.userId);
+        if (require('../../../runtime/context').enabled) await require('../../../runtime/kv').remove('2fa-setup', req.userId);
 
         res.json({ success: true });
         sendLog('admin', `User \`${req.userId}\` enabled 2FA`);

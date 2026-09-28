@@ -99,10 +99,12 @@ async function sendMessage(socket, message, replyTo) {
                 return sendSystemMessage(socket, '200 wagered required to chat');
             }
 
-            const cooldown = cooldowns.get(socket.userId);
+            const cooldown = require('../../runtime/context').enabled
+                ? await require('../../runtime/kv').get('chat-limit', socket.userId) : cooldowns.get(socket.userId);
             if (cooldown && cooldown > now) return sendSystemMessage(socket, `You are on cooldown. Please wait ${Math.ceil((cooldown - now) / 1000)} seconds.`);
     
             cooldowns.set(socket.userId, now + 2000);
+            if (require('../../runtime/context').enabled) await require('../../runtime/kv').set('chat-limit', socket.userId, now + 2000, 2000);
 
             if (channels[socket.channel].locked) return sendSystemMessage(socket, 'Channel is locked.');
 

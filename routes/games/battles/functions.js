@@ -135,6 +135,9 @@ function battleEnded(battleId, winnerTeam, serverSeed, clientSeed) {
 
 async function cacheBattles() {
 
+    const serverless = require('../../../runtime/context').enabled;
+    if (serverless) for (const id of Object.keys(cachedBattles)) delete cachedBattles[id];
+
     await ensureBattleBots(sql);
 
     const [battles] = await sql.query(`
@@ -179,7 +182,7 @@ async function cacheBattles() {
         }
     });
 
-    battles.forEach(battle => {
+    for (const battle of battles) {
 
         const battleCases = cases.filter(e => rounds.some(r => r.id == e.id));
         const battleRounds = rounds.filter(e => e.battleId === battle.id);
@@ -189,10 +192,11 @@ async function cacheBattles() {
         cachedBattles[battle.id] = data;
 
         if (battlePlayers.length == (battle.teams * battle.playersPerTeam) && !battle.endedAt) {
-            startBattle(battle, battlePlayers).catch(error => console.error('[battles] Failed to resume battle:', battle.id, error));
+            if (serverless) await startBattle(battle, battlePlayers);
+            else startBattle(battle, battlePlayers).catch(error => console.error('[battles] Failed to resume battle:', battle.id, error));
         }
 
-    })
+    }
 
 }
 
@@ -276,6 +280,7 @@ async function startBattle(battle, players) {
         if (!error.message?.startsWith('RANDOM_ORG_')) throw error;
         if (cachedBattles[battle.id]) cachedBattles[battle.id].fairnessError = 'Waiting for verified randomness. Retrying automatically.';
         io.to('battle:' + battle.id).emit('battle:fairness', battle.id, { status: 'pending' });
+        if (require('../../../runtime/context').enabled) return;
         const timer = setTimeout(() => startBattle(battle, players).catch(() => {}), 30000);
         timer.unref?.();
         retryTimers.set(battle.id, timer);
@@ -324,11 +329,15 @@ async function runBattle(battle, players) {
         // Existing battles retain their original committed EOS seed/algorithm.
         let commitTo = battle.EOSBlock;
         if (!commitTo) {
-            commitTo = await getEOSBlockNumber() + 2;
+            const blockNumber = await getEOSBlockNumber();
+            if (!Number.isFinite(blockNumber)) return;
+            commitTo = blockNumber + 2;
             await sql.query('UPDATE battles SET EOSBlock = ? WHERE id = ?', [commitTo, battle.id]);
             battleCommitTo(battle.id, commitTo);
+            if (require('../../../runtime/context').enabled) return;
         }
         clientSeed = clientSeed || await waitForEOSBlock(commitTo);
+        if (!clientSeed) return;
     }
 
     let nonce = 0;
@@ -383,7 +392,9 @@ async function runBattle(battle, players) {
     const cachedBattle = cachedBattles[battle.id];
     cachedBattle.rounds = rounds;
 
-    if (battle.round) {
+    const serverless = require('../../../runtime/context').enabled;
+
+    if (battle.round && !serverless) {
 
         const timeTillNextRound = battle.createdAt.getTime() + (getRollTime(battle) * battle.round) - Date.now();
         await sleep(timeTillNextRound);
@@ -391,6 +402,8 @@ async function runBattle(battle, players) {
     }
 
     for (let i = battle.round; i < rounds.length; i++) {
+
+        if (serverless && battle.startedAt && Date.now() < new Date(battle.startedAt).valueOf() + getRollTime(battle) * i) return;
         
         const round = rounds[i];
 
@@ -444,6 +457,7 @@ async function runBattle(battle, players) {
 
                     await connection.query(`UPDATE battles SET round = ?, startedAt = NOW(), clientSeed = ? WHERE id = ?`, [round.round, clientSeed, battle.id]);
                     cachedBattle.startedAt = new Date();
+                    battle.startedAt = cachedBattle.startedAt;
                     cachedBattle.clientSeed = clientSeed;
                     cachedBattle.serverSeed = battle.serverSeed;
 
@@ -470,9 +484,12 @@ async function runBattle(battle, players) {
             // cachedBattle.rounds = rounds.slice(0, i + 1);
         }
 
+        if (serverless) return;
         await sleep(getRollTime(battle));
 
     }
+
+    if (serverless && Date.now() < new Date(battle.startedAt).valueOf() + getRollTime(battle) * rounds.length) return;
 
     const winnerTeams = Object.keys(teams).reduce((minKeys, currentKey) => {
         if (!minKeys.length) {
@@ -575,5 +592,5 @@ module.exports = {
     cachedBattles,
     minifyBattle,
     newBattlePlayer,
-    startBattle
+    startBattle: require('../../../runtime/context').tracked(startBattle)
 }

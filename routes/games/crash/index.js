@@ -24,7 +24,7 @@ router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
         return res.status(503).json({ error: 'ROUND_UNAVAILABLE' });
     }
 
-    if (crash.round.startedAt) return res.json({ error: 'ALREADY_STARTED' });
+    if (crash.round.startedAt || (require('../../../runtime/context').enabled && Date.now() >= new Date(crash.round.createdAt).valueOf() + crash.config.betTime)) return res.json({ error: 'ALREADY_STARTED' });
     if (crash.bets.find(bet => String(bet.user.id) === String(req.userId))) return res.json({ error: 'ALREADY_JOINED' });
 
     const amount = roundDecimal(req.body.amount);
@@ -102,7 +102,10 @@ router.post('/cashout', isAuthed, apiLimiter, async (req, res) => {
     if (!bet) return res.json({ error: 'NOT_JOINED' });
     if (bet.processingCashout) return res.json({ error: 'CASHOUT_IN_PROGRESS' });
 
-    const currentPoint = crash.round.currentMultiplier;
+    const elapsed = Date.now() - new Date(crash.round.startedAt).valueOf();
+    if (require('../../../runtime/context').enabled && elapsed >= Math.ceil(Math.log(+crash.round.crashPoint) / 0.00006)) return res.json({ error: 'ALREADY_ENDED' });
+    const currentPoint = require('../../../runtime/context').enabled
+        ? Math.floor(100 * Math.exp(0.00006 * elapsed)) / 100 : crash.round.currentMultiplier;
     
     if (!currentPoint || currentPoint < 1.01) return res.json({ error: 'INVALID_CASHOUT' });
     if (bet.cashoutPoint || (bet.autoCashoutPoint && (currentPoint >= bet.autoCashoutPoint))) return res.json({ error: 'ALREADY_CASHED_OUT' });

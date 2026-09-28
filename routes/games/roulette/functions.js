@@ -159,6 +159,8 @@ async function updateRoulette() {
 
 async function cacheRoulette() {
 
+    if (require('../../../runtime/context').enabled) return advanceRoulette();
+
     const [last] = await sql.query('SELECT result FROM roulette WHERE endedAt IS NOT NULL ORDER BY id DESC LIMIT ?', [lastResults]);
     roulette.last = last.map(bet => bet.result);
 
@@ -257,6 +259,45 @@ async function rouletteInterval() {
 
     // Use setTimeout instead of recursive call to prevent stack overflow
     setTimeout(rouletteInterval, 0);
+}
+
+async function advanceRoulette() {
+    const [[latest]] = await sql.query('SELECT * FROM roulette ORDER BY id DESC LIMIT 1');
+    const now = Date.now();
+    let round = latest;
+    if (!round || (round.endedAt && now >= new Date(round.endedAt).valueOf() + 2500)) {
+        round = await createRouletteRound();
+        io.to('roulette').emit('roulette:new', { id: round.id, createdAt: round.createdAt });
+    }
+    roulette.round = round;
+    const [rows] = await sql.query(`SELECT rb.*, u.username, u.xp, u.anon FROM rouletteBets rb JOIN users u ON u.id = rb.userId WHERE rb.roundId = ?`, [round.id]);
+    roulette.bets = rows.map(row => ({ id: row.id, color: row.color, amount: row.amount,
+        user: { id: row.userId, username: row.username, xp: row.xp, anon: row.anon } }));
+    if (!round.endedAt) {
+        const roll = round.rolledAt ? new Date(round.rolledAt).valueOf() : new Date(round.createdAt).valueOf() + roulette.config.betTime;
+        if (now >= roll && !round.rolledAt) {
+            round.rolledAt = new Date(roll);
+            await sql.query('UPDATE roulette SET rolledAt = ? WHERE id = ?', [round.rolledAt, round.id]);
+            io.to('roulette').emit('roulette:roll', { id: round.id, result: round.result, color: round.color });
+        }
+        if (now >= roll + roulette.config.rollTime) {
+            const settled = await settleRouletteBets(sql, round, roulette.bets);
+            round.endedAt = new Date(roll + roulette.config.rollTime);
+            await sql.query('UPDATE roulette SET endedAt = ? WHERE id = ?', [round.endedAt, round.id]);
+            const bonus = await distributeBonus(sql);
+            for (const bet of settled) if (bet.payout) io.to(String(bet.user.id)).emit('balance', 'add', bet.payout);
+            if (settled.length) await newBets(settled);
+            if (bonus) {
+                for (const payout of bonus.payouts) io.to(payout.userId).emit('balance', 'add', payout.amount);
+                io.to('roulette').emit('roulette:tripleGreenBonus:won', bonus);
+            }
+        }
+    }
+    await loadTripleGreenBonusPot();
+    const [last] = await sql.query('SELECT result FROM roulette WHERE endedAt IS NOT NULL ORDER BY id DESC LIMIT ?', [lastResults]);
+    roulette.last = last.map(row => row.result);
+    io.to('roulette').emit('roulette:bonus:streak', roulette.tripleGreenStreak);
+    io.to('roulette').emit('roulette:tripleGreenBonus:pot', roulette.tripleGreenBonusPot);
 }
 
 module.exports = {

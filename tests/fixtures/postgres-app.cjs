@@ -61,6 +61,15 @@ async function main() {
         if (url === 'https://oauth2.googleapis.com/token') return { data: { access_token: 'fixture-token' } };
         return { data: {} };
     };
-    require('../../app');
+    if (process.env.VERCEL === '1') {
+        await db.query('UPDATE users SET balance = 85 WHERE id = 1');
+        const crash = await db.query(`INSERT INTO crash ("serverSeed", "crashPoint", "createdAt", "startedAt") VALUES ('test-crash-seed', 2, NOW() - INTERVAL '40 seconds', NOW() - INTERVAL '30 seconds') RETURNING id`);
+        const cb = await db.query(`INSERT INTO "crashBets" ("userId", "roundId", amount, "autoCashoutPoint") VALUES (1, $1, 10, 1.2) RETURNING id`, [crash.rows[0].id]);
+        await db.query(`INSERT INTO bets ("userId", amount, edge, game, "gameId", completed) VALUES (1, 10, 0.75, 'crash', $1, 0)`, [cb.rows[0].id]);
+        const roulette = await db.query(`INSERT INTO roulette ("serverSeed", result, color, "createdAt", "rolledAt") VALUES ('test-roulette-seed', 1, 1, NOW() - INTERVAL '40 seconds', NOW() - INTERVAL '30 seconds') RETURNING id`);
+        const rb = await db.query(`INSERT INTO "rouletteBets" ("userId", "roundId", amount, color) VALUES (1, $1, 5, 1) RETURNING id`, [roulette.rows[0].id]);
+        await db.query(`INSERT INTO bets ("userId", amount, edge, game, "gameId", completed) VALUES (1, 5, 0.25, 'roulette', $1, 0)`, [rb.rows[0].id]);
+        require('../../api/index').listen(Number(process.env.PORT), '127.0.0.1');
+    } else require('../../app');
 }
 main().catch(error => { console.error(error); process.exit(1); });

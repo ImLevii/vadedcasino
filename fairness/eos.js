@@ -1,6 +1,6 @@
 const { JsonRpc, Api, RpcError } = require('eosjs');
 const fetch = require('node-fetch'); // node only
-const rpc = new JsonRpc('http://eos.greymass.com', { fetch });
+const rpc = new JsonRpc('https://eos.greymass.com', { fetch: (url, options) => fetch(url, { ...options, timeout: 3000 }) });
 
 async function getEOSBlockNumber() {
     try {
@@ -19,6 +19,7 @@ async function waitForEOSBlock(blockNumber) {
         try {
             block = await rpc.get_block(blockNumber);
         } catch (error) {
+            if (require('../runtime/context').enabled) return null;
             retries++;
             if (retries > 10) {
                 console.error(`Error in waitForEOSBlock ${blockNumber}:`, error);

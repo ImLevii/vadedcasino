@@ -20,13 +20,14 @@ test('API and socket resolution supports same-origin, separate backend, and sock
     assert.equal(resolveSocketUrl({ ...env, VITE_SOCKET_URL: 'https://socket.example/' }, origin), 'https://socket.example');
 });
 
-test('Vercel build rejects absent, unsafe, or frontend-only backend settings', () => {
+test('Vercel build supports the included same-origin API and rejects unsafe overrides', () => {
     const env = { VERCEL: '1', VERCEL_PROJECT_PRODUCTION_URL: 'vadedcasino.vercel.app' };
-    for (const url of ['', 'undefined', 'http://localhost:3000', 'https://vadedcasino.vercel.app', 'https://user:secret@api.example', 'https://api.example/wrong-path']) {
-        assert.throws(() => validateVercelEnv({ ...env, VITE_SERVER_URL: url }), /separately running HTTPS Node backend/);
+    for (const url of ['undefined', 'http://localhost:3000', 'https://user:secret@api.example', 'https://api.example/wrong-path']) {
+        assert.throws(() => validateVercelEnv({ ...env, VITE_SERVER_URL: url }), /HTTPS origin/);
     }
     assert.doesNotThrow(() => validateVercelEnv({ ...env, VITE_SERVER_URL: 'https://api.example' }));
-    assert.throws(() => validateVercelEnv({ ...env, VITE_SERVER_URL: 'https://api.example', VITE_SOCKET_URL: 'https://vadedcasino.vercel.app' }));
+    assert.doesNotThrow(() => validateVercelEnv(env));
+    assert.doesNotThrow(() => validateVercelEnv({ ...env, VITE_SERVER_URL: 'https://vadedcasino.vercel.app' }));
     assert.doesNotThrow(() => validateVercelEnv({}));
 });
 

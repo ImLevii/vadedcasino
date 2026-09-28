@@ -5,7 +5,7 @@
 #   vite build 'pnpm start' 'npm run server '
 # and crashing the container with "Could not resolve entry module".
 
-FROM node:20-bookworm-slim AS build
+FROM node:24-bookworm-slim AS build
 
 # Toolchain required to compile native deps (bcrypt, sharp).
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -30,7 +30,7 @@ RUN pnpm build
 
 # ---------------------------------------------------------------------------
 
-FROM node:20-bookworm-slim AS runtime
+FROM node:24-bookworm-slim AS runtime
 
 ENV NODE_ENV=production
 ENV PORT=3000

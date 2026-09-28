@@ -15,13 +15,16 @@ const authorizedAdmins = {};
 router.post('/2fa', apiLimiter, async (req, res) => {
 
     const jwt = getReqToken(req);
-    if (authorizedAdmins[jwt]) return res.json({ error: 'ALREADY_AUTHORIZED' });
+    const alreadyAuthorized = require('../../runtime/context').enabled
+        ? await require('../../runtime/kv').get('admin', jwt) : authorizedAdmins[jwt];
+    if (alreadyAuthorized) return res.json({ error: 'ALREADY_AUTHORIZED' });
 
     const [[user]] = await sql.query('SELECT id, username, 2fa, role FROM users WHERE id = ?', [req.userId]);
     if (!user || !adminRoles.includes(user.role)) return res.json({ error: 'UNAUTHORIZED' });
 
     // 2FA disabled - authorize admins directly without requiring a token
     authorizedAdmins[jwt] = true;
+    if (require('../../runtime/context').enabled) await require('../../runtime/kv').set('admin', jwt, true, 30 * 60 * 1000);
 
     setTimeout(() => {
         delete authorizedAdmins[jwt];
@@ -47,7 +50,10 @@ router.use(async (req, res, next) => {
     const [[user]] = await sql.query('SELECT id, role, username, perms FROM users WHERE id = ?', [req.userId]);
     if (!user || !adminRoles.includes(user.role)) return res.json({ error: 'UNAUTHORIZED' });
 
-    if (!authorizedAdmins[getReqToken(req)]) {
+    const authorized = require('../../runtime/context').enabled
+        ? await require('../../runtime/kv').get('admin', getReqToken(req))
+        : authorizedAdmins[getReqToken(req)];
+    if (!authorized) {
         return res.json({ error: '2FA_REQUIRED' });
     }
 

@@ -143,7 +143,7 @@ function getRewardsParams() {
     return rewardsParams;
 }
 
-loadRewardsConfig();
+if (!require('../../../runtime/context').enabled) loadRewardsConfig();
 
 function getDailyCaseTier(level) {
     return dailyCaseConfig.tiers.find(tier => level >= tier.minLevel) || null;
@@ -284,6 +284,7 @@ async function getRewardsOverview(userId) {
 }
 
 module.exports = {
+    loadRewardsConfig,
     dailyCaseConfig,
     depositCasesConfig,
     superchargeConfig,

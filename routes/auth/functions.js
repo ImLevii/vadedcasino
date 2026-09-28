@@ -3,7 +3,7 @@ const { createHash, createCipheriv, createDecipheriv } = require("crypto");
 const { bannedUsers, lastLogouts } = require('../admin/config');
 const rateLimit = require('express-rate-limit');
 
-const apiLimiter = rateLimit({
+const memoryLimiter = rateLimit({
 	windowMs: 300,
 	max: 1,
 	message: { error: 'SLOW_DOWN' },
@@ -11,6 +11,14 @@ const apiLimiter = rateLimit({
 	legacyHeaders: false,
     keyGenerator: (req, res) => `${req.baseUrl}${req.path}:${req.userId || req.ip}`
 })
+
+const apiLimiter = require('../../runtime/context').enabled ? async (req, res, next) => {
+    const store = require('../../runtime/kv');
+    const key = `${req.baseUrl}${req.path}:${req.userId || req.ip}`;
+    if (await store.get('api-limit', key)) return res.status(429).json({ error: 'SLOW_DOWN' });
+    await store.set('api-limit', key, true, 300);
+    next();
+} : memoryLimiter;
 
 const secret = process.env.JWT_SECRET || 'secret';
 

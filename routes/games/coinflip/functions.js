@@ -24,6 +24,8 @@ const minCoinflips = 10;
 
 async function cacheCoinflips() {
 
+    if (require('../../../runtime/context').enabled) for (const id of Object.keys(cachedCoinflips)) delete cachedCoinflips[id];
+
     const [coinflips] = await sql.query(`
         SELECT c.*,
         f.id AS fire_id, f.username AS fire_username, f.role AS fire_role, f.xp AS fire_xp,
@@ -87,7 +89,10 @@ async function cacheCoinflips() {
 
             cachedCoinflip.serverSeed = sha256(coinflip.serverSeed);
             cachedCoinflips[coinflip.id] = cachedCoinflip;
-            if (coinflip.fire && coinflip.ice) startCoinflip(coinflip);
+            if (coinflip.fire && coinflip.ice) {
+                if (require('../../../runtime/context').enabled) await startCoinflip(coinflip);
+                else startCoinflip(coinflip);
+            }
         } else {
             cachedCoinflips[coinflip.id] = coinflip;
         }
@@ -102,13 +107,16 @@ async function startCoinflip(coinflip) {
 
     if (!commitTo) {
         const blockNumber = await getEOSBlockNumber();
+        if (!Number.isFinite(blockNumber)) return;
         commitTo = blockNumber + 2;
     
         await sql.query("UPDATE coinflips SET EOSBlock = ? WHERE id = ?", [commitTo, coinflip.id]);
         coinflipCommitTo(coinflip.id, commitTo);
+        if (require('../../../runtime/context').enabled) return;
     }
 
     const clientSeed = coinflip.clientSeed || await waitForEOSBlock(commitTo);
+    if (!clientSeed) return;
     const winnerSide = getResult(combine(coinflip.serverSeed, clientSeed));
     const edge = getCoinflipEdge();
     const winnings = roundDecimal((coinflip.amount * 2) * (1 - edge / 100));
@@ -117,7 +125,11 @@ async function startCoinflip(coinflip) {
 
         const winner = coinflip[winnerSide];
 
+        let settled = false;
         await doTransaction(async (connection, commit) => {
+
+            const [[stored]] = await connection.query('SELECT winnerSide FROM coinflips WHERE id = ? FOR UPDATE', [coinflip.id]);
+            if (!stored || stored.winnerSide) return;
 
             await connection.query("UPDATE coinflips SET clientSeed = ?, winnerSide = ?, startedAt = NOW() WHERE id = ?", [clientSeed, winnerSide, coinflip.id]);
             if (winner.role != 'BOT') await connection.query("UPDATE users SET balance = balance + ? WHERE id = ?", [winnings, winner.id]);
@@ -128,9 +140,11 @@ async function startCoinflip(coinflip) {
             );
 
             await commit();
+            settled = true;
 
         });
 
+        if (!settled) return;
         const edge = getCoinflipEdge();
         newBets([coinflip.fire, coinflip.ice].map(user => {
             return {
@@ -186,6 +200,6 @@ function coinflipStarted(coinflipId, clientSeed, serverSeed, winnerSide) {
 
 module.exports = {
     cachedCoinflips,
-    startCoinflip,
+    startCoinflip: require('../../../runtime/context').tracked(startCoinflip),
     cacheCoinflips
 }

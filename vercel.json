@@ -3,11 +3,29 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 300,
+      "includeFiles": "{database/runtime.sql,socketio/chat/commands/**,public/assets/icons/**,views/**}"
+    }
+  },
   "rewrites": [
     {
-      "source": "/((?!assets/|public/|socket\\.io/|auth/|announcements/|slides(?:/|$)).*)",
+      "source": "/public/media/:path*",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/((?!api/|assets/|public/|socket\\.io/|auth/|discord/callback|announcements/|slides(?:/|$)|healthz|readyz).*)",
       "has": [{ "type": "header", "key": "accept", "value": ".*text/html.*" }],
       "destination": "/index.html"
+    },
+    {
+      "source": "/public/:path*",
+      "destination": "/:path*"
+    },
+    {
+      "source": "/((?!assets/|public/|api/).*)",
+      "destination": "/api/index"
     }
   ]
 }

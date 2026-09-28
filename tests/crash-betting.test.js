@@ -11,6 +11,7 @@ function fixture() {
     let commits = 0;
     const dependencies = {
         express,
+        '../../../runtime/context': { enabled: false },
         '../../../database': {doTransaction: fn => fn({query: async (sql, params) => {
             if (sql.startsWith('SELECT')) return [[user]];
             writes.push({sql, params});

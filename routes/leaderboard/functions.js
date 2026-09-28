@@ -40,6 +40,14 @@ let first = true;
 
 async function cacheLeaderboards() {
 
+    if (require('../../runtime/context').enabled) {
+        for (const type of Object.keys(leaderboards)) {
+            await cronLeaderboard(type);
+            await cacheLeaderboard(type);
+        }
+        return;
+    }
+
     const types = Object.keys(leaderboards);
 
     if (first) {
@@ -98,8 +106,8 @@ async function cronLeaderboard(type) {
 
         console.log('Inserting new leaderboard', type);
         const date = new Date();
-        const [newResult] = await sql.query(`INSERT INTO leaderboards (type, createdAt) VALUES (?, DATE(?))`, [type, date]);
-        date.setHours(0,0,0,0);
+        const [newResult] = await sql.query(`INSERT INTO leaderboards (type, createdAt) VALUES (?, DATE(?))`, [type, date.toISOString().slice(0, 10)]);
+        date.setUTCHours(0,0,0,0);
 
         leaderboards[type].cache = {
             id: newResult.insertId,
@@ -115,12 +123,16 @@ async function cronLeaderboard(type) {
     leaderboard.endsAt = new Date(new Date(leaderboard.createdAt).valueOf() + leaderboards[type].interval);
     leaderboard.endsIn = leaderboard.endsAt - Date.now();
 
+    if (require('../../runtime/context').enabled && (leaderboard.endsIn > 0 || !enabledFeatures.leaderboard)) return;
     if (leaderboard.endsIn > 0) return setTimeout(() => cronLeaderboard(type).catch(e => console.error('[cronLeaderboard]', e)), leaderboard.endsIn);
     if (!enabledFeatures.leaderboard) return setTimeout(() => cronLeaderboard(type).catch(e => console.error('[cronLeaderboard]', e)), 1000 * 60 * 5); // 5m
 
     try {
 
         await doTransaction(async (connection, commit, rollback) => {
+
+            const [[current]] = await connection.query('SELECT endedAt FROM leaderboards WHERE id = ? FOR UPDATE', [leaderboard.id]);
+            if (!current || current.endedAt) return;
 
             const [users] = await connection.query(
                 `SELECT SUM(bets.amount) as wagered, users.id, users.username, users.xp FROM bets
@@ -129,7 +141,7 @@ async function cronLeaderboard(type) {
                 [leaderboard.createdAt]
             );
 
-            await connection.query(`UPDATE leaderboards SET endedAt = DATE(?) WHERE id = ?`, [new Date(), leaderboard.id]);
+            await connection.query(`UPDATE leaderboards SET endedAt = DATE(?) WHERE id = ?`, [new Date().toISOString().slice(0, 10), leaderboard.id]);
 
             for (let i = 0; i < users.length; i++) {
 
@@ -137,7 +149,7 @@ async function cronLeaderboard(type) {
                 user.position = i + 1;
                 user.reward = leaderboards[type].rewards[user.position];
 
-                const [result] = await connection.query('INSERT INTO leaderboardUsers (leaderboardId, userId, position, totalWagered, amountWon, createdAt) VALUES (?, ?, ?, ?, ?, DATE(?))', [leaderboard.id, user.id, user.position, user.wagered, user.reward, new Date()]);
+                const [result] = await connection.query('INSERT INTO leaderboardUsers (leaderboardId, userId, position, totalWagered, amountWon, createdAt) VALUES (?, ?, ?, ?, ?, DATE(?))', [leaderboard.id, user.id, user.position, user.wagered, user.reward, new Date().toISOString().slice(0, 10)]);
                 await connection.query('UPDATE users SET balance = balance + ? WHERE id = ?', [user.reward, user.id]);
                 await connection.query('INSERT INTO transactions (userId, amount, type, method, methodId) VALUES (?, ?, ?, ?, ?)', [user.id, user.reward, 'in', 'leaderboard', result.insertId]);
 
@@ -160,6 +172,7 @@ async function cronLeaderboard(type) {
         console.error(e);
     }
 
+    if (require('../../runtime/context').enabled) return cronLeaderboard(type);
     cronLeaderboard(type).catch(e => console.error('[cronLeaderboard]', e));
 
 }

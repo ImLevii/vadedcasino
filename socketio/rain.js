@@ -66,9 +66,34 @@ async function getUserRain() {
 }
 
 async function cacheRains() {
+
+    const serverless = require('../runtime/context').enabled;
+    if (serverless) {
+        const [[config]] = await sql.query('SELECT value FROM settings WHERE id = ?', ['rainConfig']);
+        if (config) Object.assign(rains, JSON.parse(config.value));
+        rains.system = await getSystemRain();
+        const [[scheduled]] = await sql.query('SELECT value FROM settings WHERE id = ?', ['scheduledRain']);
+        if (scheduled?.value) {
+            const job = JSON.parse(scheduled.value);
+            if (Date.now() >= job.at) {
+                await sql.query('DELETE FROM settings WHERE id = ?', ['scheduledRain']);
+                await forceStartSystemRain(job.amount, job.durationMs);
+            }
+        }
+    }
     
     rains.user = await getUserRain();
     rains.system = await getSystemRain();
+
+    if (serverless) {
+        const [[duration]] = await sql.query('SELECT value FROM settings WHERE id = ?', ['rainDuration:' + rains.system.id]);
+        if (duration) rains.system._forceDuration = +duration.value;
+        if (rains.user) await rainInterval(rains.user);
+        await rainInterval(rains.system);
+        const endsIn = Math.max(0, toTimestampMs(rains.system.createdAt) + (rains.system._forceDuration || rains.systemRainDuration) - Date.now());
+        io.emit('rain', rains.system.amount, endsIn, rains.system.joinable);
+        return;
+    }
 
     if (rains.user) {
         rainInterval(rains.user);
@@ -82,6 +107,10 @@ async function rainInterval(rain) {
 
     const duration = rain._forceDuration || (rain.host ? rains.joinTime : rains.systemRainDuration);
     let endsIn = toTimestampMs(rain.createdAt) + duration - Date.now();
+    if (require('../runtime/context').enabled && endsIn > 0) {
+        rain.joinable = endsIn <= rains.joinTime;
+        return;
+    }
     // console.log(rain.id, rain.host?.id, 'endsIn', endsIn)
 
     if (endsIn > 0) {
@@ -195,6 +224,7 @@ async function rainInterval(rain) {
         // Don't spawn a new loop if this rain was force-stopped (the forceStart already spawned one)
         if (rain.forceStopped) return;
         rains.system = await getSystemRain();
+        if (require('../runtime/context').enabled) return;
         rainInterval(rains.system);
     }
 
@@ -203,7 +233,7 @@ async function rainInterval(rain) {
 module.exports = {
     rains,
     cacheRains,
-    rainInterval,
+    rainInterval: require('../runtime/context').tracked(rainInterval),
     forceStartSystemRain,
     forceEndSystemRain,
     cancelScheduledRain,
@@ -242,6 +272,12 @@ async function forceStartSystemRain(amount, durationMs) {
     };
     rains.system = newRain;
 
+    if (require('../runtime/context').enabled) {
+        await sql.query('INSERT INTO settings (id, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = VALUES(value)', ['rainDuration:' + newRain.id, String(duration)]);
+        newRain.joinable = true;
+        return newRain;
+    }
+
     rainInterval(rains.system);
 
     sendLog('rain', `System rain #${result.insertId} force-started by admin. Amount: R$${amount}, Duration: ${Math.round(duration / 60000)}m`);
@@ -261,11 +297,16 @@ async function forceEndSystemRain() {
 
     // Start fresh rain immediately
     rains.system = await getSystemRain();
+    if (require('../runtime/context').enabled) return true;
     rainInterval(rains.system);
     return true;
 }
 
-function cancelScheduledRain() {
+async function cancelScheduledRain() {
+    if (require('../runtime/context').enabled) {
+        const [result] = await sql.query('DELETE FROM settings WHERE id = ?', ['scheduledRain']);
+        return result.affectedRows > 0;
+    }
     if (scheduledRainTimer) {
         clearTimeout(scheduledRainTimer);
         scheduledRainTimer = null;
@@ -274,8 +315,13 @@ function cancelScheduledRain() {
     return false;
 }
 
-function scheduleRain(amount, durationMs, delayMs) {
-    cancelScheduledRain();
+async function scheduleRain(amount, durationMs, delayMs) {
+    if (require('../runtime/context').enabled) {
+        const at = Date.now() + delayMs;
+        await sql.query('INSERT INTO settings (id, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = VALUES(value)', ['scheduledRain', JSON.stringify({ amount, durationMs, at })]);
+        return { scheduledAt: new Date(at) };
+    }
+    await cancelScheduledRain();
     scheduledRainTimer = setTimeout(async () => {
         scheduledRainTimer = null;
         await forceStartSystemRain(amount, durationMs);

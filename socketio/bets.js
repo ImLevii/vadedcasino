@@ -231,6 +231,6 @@ async function emitTotalWagered(amountToIncrease = 0, socket = io) {
 module.exports = {
     cacheBets,
     getBets,
-    newBets,
+    newBets: require('../runtime/context').tracked(newBets),
     emitTotalWagered
 }

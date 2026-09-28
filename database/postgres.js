@@ -17,7 +17,8 @@ function poolOptions(connectionString) {
     return {
         connectionString: url.toString(),
         enableChannelBinding: true,
-        max: 10,
+        max: process.env.VERCEL === '1' ? 3 : 10,
+        allowExitOnIdle: process.env.VERCEL === '1',
         connectionTimeoutMillis: Math.max(1000, Number(process.env.SQL_CONNECT_TIMEOUT_MS) || 10000),
         idleTimeoutMillis: 30000,
         options: '-c timezone=UTC',
@@ -84,6 +85,7 @@ function createPostgresPool(connectionString, PoolClass = Pool) {
     rawPool.on('error', error => console.error('[database] PostgreSQL idle connection error:', error.code || 'UNKNOWN'));
     return {
         query: createQuery(rawPool),
+        nativeQuery: (...args) => rawPool.query(...args),
         async getConnection() {
             const client = await rawPool.connect();
             const command = async text => {
@@ -92,6 +94,7 @@ function createPostgresPool(connectionString, PoolClass = Pool) {
             };
             return {
                 query: createQuery(client),
+                nativeQuery: (...args) => client.query(...args),
                 beginTransaction: () => command('BEGIN'),
                 commit: () => command('COMMIT'),
                 rollback: () => command('ROLLBACK'),

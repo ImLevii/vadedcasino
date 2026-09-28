@@ -14,6 +14,7 @@ let query;
 before(async () => {
     db = new PGlite({ parsers: { 20: parseBigInt, 1700: Number } });
     await db.exec(buildSchema());
+    await db.exec(fs.readFileSync(path.join(root, 'database/runtime.sql'), 'utf8'));
     query = createQuery(db);
 });
 after(async () => { await db?.close(); });
@@ -261,6 +262,7 @@ test('roulette bet route funds the pot from every color and never from rejected 
     const roulette = {round:{id:900201},bets:[],config:{maxBet:25000},tripleGreenBonusPot:0};
     const dependencies = {
         express: require('express'),
+        '../../../runtime/context': { enabled: false },
         '../../../database': {doTransaction: async fn => {
             await db.query('SAVEPOINT test_bet');
             let committed = false;
@@ -352,6 +354,7 @@ test('PostgreSQL plans every static query in active HTTP routes and socket handl
 function loadRouteModule(file, dependencies) {
     const context = {module:{exports:{}},console,Buffer,process,setTimeout,clearTimeout,require:name=>{
         if (Object.hasOwn(dependencies, name)) return dependencies[name];
+        if (name.endsWith('/runtime/context')) return { enabled: false, tracked: fn => fn };
         if (['express','crypto'].includes(name)) return require(name);
         if (name === '../../../fairness/randomorg') return {...require('../fairness/randomorg'),createTicket:async()=> '0123456789abcdef'};
         if (name === './fairness') return {};
@@ -476,7 +479,7 @@ test('bot pool grows when seeded accounts are unavailable and keeps generated na
     } finally { await db.query('ROLLBACK'); }
 });
 
-for (const resumeFinalRound of [false, true]) test(`Call Bot provisions seats and ${resumeFinalRound ? 'resumes final-round settlement' : 'starts and settles a battle'}`, async () => {
+for (const resumeFinalRound of [false, true, 'vercel']) test(`Call Bot provisions seats and ${resumeFinalRound ? 'resumes final-round settlement' : 'starts and settles a battle'}`, async () => {
     await db.query('BEGIN');
     try {
         await query('INSERT INTO users (id, username, balance) VALUES (?, ?, 100)', [900304, 'Bot battle owner']);
@@ -492,6 +495,7 @@ for (const resumeFinalRound of [false, true]) test(`Call Bot provisions seats an
         const fairness = { generateServerSeed: () => 'seed', sha256: s => s, combine: (...parts) => parts.join('-'), getResult: () => 1 };
         const functions = loadRouteModule('routes/games/battles/functions.js', {
             '../../../database': transactionFixture(), '../../../utils': { ...routeUtils, sleep: async () => {} },
+            '../../../runtime/context': { enabled: resumeFinalRound === 'vercel', tracked: fn => fn },
             '../../../socketio/server': io, '../cases/functions': { mapItem: i => i },
             '../../../fairness/eos': { getEOSBlockNumber: async () => 100, waitForEOSBlock: async () => 'test-block-hash' },
             '../../../socketio/bets': { newBets() {} }, '../../../fairness': fairness,
@@ -525,6 +529,7 @@ for (const resumeFinalRound of [false, true]) test(`Call Bot provisions seats an
         assert.equal((await query('SELECT balance FROM users WHERE id = ?', [900304]))[0][0].balance, 100);
         if (resumeFinalRound) {
             await query('UPDATE battles SET round = 2, startedAt = NOW(), clientSeed = ?, EOSBlock = 102 WHERE id = ?', ['test-block-hash', b.insertId]);
+            if (resumeFinalRound === 'vercel') await query('UPDATE battles SET startedAt = ? WHERE id = ?', [new Date(Date.now() - 60000), b.insertId]);
             startArgs[0] = (await query('SELECT * FROM battles WHERE id = ?', [b.insertId]))[0][0];
             cached.startedAt = new Date();
         }

@@ -20,7 +20,19 @@ const io = require('./socketio/server');
 const cookieParser = require('cookie-parser');
 
 const app = express();
+const serverless = require('./runtime/context').enabled;
 app.disable('x-powered-by');
+if (serverless) app.set('trust proxy', 1);
+if (serverless) {
+    require('axios').defaults.timeout = 10000;
+    // Express 4 does not forward rejected async handlers to its error handler.
+    const Layer = require('express/lib/router/layer');
+    Layer.prototype.handle_request = function(req, res, next) {
+        if (this.handle.length > 3) return next();
+        try { Promise.resolve(this.handle(req, res, next)).catch(next); }
+        catch (error) { next(error); }
+    };
+}
 
 const startupState = {
     status: 'starting',
@@ -54,7 +66,7 @@ morgan.token('user-agent', function(req, res) {
     return req.headers['user-agent']
 });
 
-const logDirectory = path.join(__dirname, 'logs');
+const logDirectory = serverless ? path.join(require('node:os').tmpdir(), 'cosmicluck-logs') : path.join(__dirname, 'logs');
 const fs = require('fs');
 if (!fs.existsSync(logDirectory)) fs.mkdirSync(logDirectory, { recursive: true });
 
@@ -71,6 +83,7 @@ app.use(morgan('[:date[clf]] :ip :method :url :status :response-time ms - :user-
 }));
 
 app.use(bodyParser.json({
+    limit: serverless ? '4mb' : '8mb',
     verify: function (req, res, buf, encoding) {
         req.rawJsonBody = buf;
     }
@@ -91,9 +104,16 @@ app.get('/healthz', (req, res) => {
 });
 
 app.get('/readyz', (req, res) => {
+    if (serverless) return require('./runtime/serverless').run(() => {}).then(
+        () => res.json({ status: 'ready' }),
+        error => { console.error('[readiness]', error.code || error.message); res.status(503).json({ status: 'unavailable' }); }
+    );
     const ready = startupState.status === 'ready';
     res.status(ready ? 200 : 503).json(startupState);
 });
+
+if (serverless) app.use(require('./runtime/serverless').middleware);
+if (serverless) app.get('/public/media/:folder/:name', require('./runtime/media').serve);
 
 const authRoute = require('./routes/auth/core');
 const userRoute = require('./routes/user');
@@ -256,4 +276,13 @@ function timedPromise(task, name, timeoutMs) {
     });
 }
 
-start();
+if (serverless) {
+    const server = require('node:http').createServer(app);
+    require('./runtime/serverless').setup(io);
+    require('./socketio');
+    io.attach(server, { transports: ['websocket'] });
+    module.exports = server;
+} else {
+    start();
+    module.exports = app;
+}

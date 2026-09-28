@@ -145,11 +145,11 @@ async function cacheWithdrawalCoins() {
 
     }
 
-    setTimeout(cacheWithdrawalCoins, 1000 * 60 * 5); // 5 minutes
+    !require('../../../../runtime/context').enabled && setTimeout(cacheWithdrawalCoins, 1000 * 60 * 5); // 5 minutes
 
     } catch (e) {
         console.error('[cacheWithdrawalCoins] Error fetching MEXC data:', e.message);
-        setTimeout(cacheWithdrawalCoins, 1000 * 60 * 5);
+        !require('../../../../runtime/context').enabled && setTimeout(cacheWithdrawalCoins, 1000 * 60 * 5);
     }
 
 }
@@ -204,13 +204,14 @@ async function updateSentWithdrawals() {
 
     }
 
-    setTimeout(updateSentWithdrawals, 1000 * 60 * 1); // 1 minute
+    if (!require('../../../../runtime/context').enabled) setTimeout(updateSentWithdrawals, 1000 * 60 * 1); // 1 minute
 
 }
 
-updateSentWithdrawals().catch(e => console.error('[withdraw] updateSentWithdrawals startup error:', e.message));
+if (!require('../../../../runtime/context').enabled) updateSentWithdrawals().catch(e => console.error('[withdraw] updateSentWithdrawals startup error:', e.message));
 
 module.exports = {
+    updateSentWithdrawals,
     mexc,
     withdrawalCoins,
     chainsConfig,

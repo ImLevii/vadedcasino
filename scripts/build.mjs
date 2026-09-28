@@ -12,6 +12,7 @@ import { build, loadEnv } from 'vite';
 import { validateVercelEnv } from './validate-vercel-env.mjs';
 
 try {
+    if (process.env.VERCEL === '1') process.env.VITE_VERCEL_BACKEND = '1';
     validateVercelEnv({ ...loadEnv('production', process.cwd(), 'VITE_'), ...process.env });
     await build();
 } catch (err) {

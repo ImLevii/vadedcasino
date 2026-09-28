@@ -28,6 +28,7 @@ async function main() {
             await client.query('SELECT pg_advisory_xact_lock(738125920)');
             const schema = fs.readFileSync(path.join(root, 'database', 'schema.postgres.sql'), 'utf8');
             await client.query(schema);
+            await client.query(fs.readFileSync(path.join(root, 'database', 'runtime.sql'), 'utf8'));
             if (process.env.NEON_ADMIN_USERNAME) {
                 const hash = await bcrypt.hash(process.env.NEON_ADMIN_PASSWORD, 10);
                 // Never reset an existing account or password on subsequent runs.

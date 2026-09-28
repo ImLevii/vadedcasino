@@ -91,7 +91,7 @@ io.on('connection', function(socket) {
 
     function onEvent(event, handler) {
         socket.on(event, (...args) => {
-            Promise.resolve().then(() => handler(...args)).catch(error => {
+            return Promise.resolve().then(() => handler(...args)).catch(error => {
                 console.error(`[socket] ${event} failed:`, error.message);
                 if (event === 'chat:join') {
                     socket.emit('chat:join', { error: 'SERVICE_UNAVAILABLE' });
@@ -343,4 +343,4 @@ async function subscribeToBattle(socket, battleId, privKey = null) {
 
 }
 
-setInterval(() => sendOnlineUsers(io, true), 10000);
+if (!require('../runtime/context').enabled) setInterval(() => sendOnlineUsers(io, true), 10000);

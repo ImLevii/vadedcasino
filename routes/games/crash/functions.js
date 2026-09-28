@@ -141,6 +141,8 @@ async function getCrashRound() {
     const [[round]] = await sql.query('SELECT * FROM crash WHERE endedAt IS NULL ORDER BY id ASC LIMIT 1');
     if (!round) return createCrashRound();
 
+    if (require('../../../runtime/context').enabled) return round;
+
     const now = new Date();
 
     // Recovered round after a restart — restart its bet timer
@@ -371,6 +373,8 @@ async function crashInterval() {
 
 async function cacheCrash() {
 
+    if (require('../../../runtime/context').enabled) return advanceCrash();
+
     const [last] = await sql.query('SELECT crashPoint FROM crash WHERE endedAt IS NOT NULL ORDER BY id DESC LIMIT ?', [LAST_RESULTS]);
     crash.last = last.map(round => +round.crashPoint);
 
@@ -385,9 +389,64 @@ async function cacheCrash() {
 
 }
 
+// Advance from persisted timestamps in one request transaction. No timers or
+// process-local flags participate in deciding whether a payout has happened.
+async function advanceCrash() {
+    const [[latest]] = await sql.query('SELECT * FROM crash ORDER BY id DESC LIMIT 1');
+    const now = Date.now();
+    let round = latest;
+    if (!round || (round.endedAt && now >= timestampMs(round.endedAt) + ROUND_COOLDOWN)) {
+        round = await createCrashRound();
+        io.to('crash').emit('crash:new', { id: round.id, serverSeedHash: sha256(round.serverSeed), createdAt: round.createdAt, betTime: crash.config.betTime });
+    }
+    crash.round = { ...round, serverSeedHash: sha256(round.serverSeed) };
+    await loadPot();
+    const [rows] = await sql.query(`SELECT cb.*, u.username, u.role, u.xp, u.anon FROM crashBets cb JOIN users u ON u.id = cb.userId WHERE cb.roundId = ?`, [round.id]);
+    crash.bets = rows.map(row => ({ id: row.id, amount: row.amount, cashoutPoint: row.cashoutPoint, autoCashoutPoint: row.autoCashoutPoint,
+        user: { id: row.userId, username: row.username, role: row.role, xp: row.xp, anon: row.anon } }));
+    if (!round.endedAt) {
+        const start = round.startedAt ? timestampMs(round.startedAt) : timestampMs(round.createdAt) + crash.config.betTime;
+        if (now >= start) {
+            if (!round.startedAt) {
+                round.startedAt = new Date(start);
+                await sql.query('UPDATE crash SET startedAt = ? WHERE id = ?', [round.startedAt, round.id]);
+                io.to('crash').emit('crash:start', { id: round.id });
+            }
+            const end = start + Math.ceil(Math.log(+round.crashPoint) / 0.00006);
+            const multiplier = now >= end ? +round.crashPoint : Math.min(growthFunc(now - start), +round.crashPoint);
+            crash.round.startedAt = round.startedAt;
+            crash.round.currentMultiplier = multiplier;
+            const settled = [];
+            for (const bet of crash.bets) {
+                if (bet.cashoutPoint || !bet.autoCashoutPoint || bet.autoCashoutPoint > multiplier) continue;
+                const winnings = capWinnings(bet.amount, bet.autoCashoutPoint);
+                await sql.query('UPDATE crashBets SET cashoutPoint = ? WHERE id = ? AND cashoutPoint IS NULL', [bet.autoCashoutPoint, bet.id]);
+                await sql.query('UPDATE users SET balance = balance + ? WHERE id = ?', [winnings, bet.user.id]);
+                await sql.query('UPDATE bets SET completed = 1, winnings = ? WHERE game = ? AND gameId = ?', [winnings, 'crash', bet.id]);
+                bet.cashoutPoint = bet.autoCashoutPoint;
+                bet.winnings = winnings;
+                io.to(bet.user.id).emit('balance', 'add', winnings);
+                io.to('crash').emit('crash:cashout', { id: bet.id, cashoutPoint: bet.cashoutPoint, winnings });
+                settled.push({ user: bet.user, amount: bet.amount, edge: roundDecimal(bet.amount * 0.075), payout: winnings, game: 'crash' });
+            }
+            if (settled.length) await newBets(settled);
+            io.to('crash').emit('crash:tick', multiplier);
+            if (now >= end) {
+                crash.round.endedAt = new Date(end);
+                await sql.query('UPDATE crash SET endedAt = ? WHERE id = ?', [crash.round.endedAt, round.id]);
+                if (rows.length) await sql.query('UPDATE bets SET completed = 1 WHERE game = ? AND gameId IN (?)', ['crash', rows.map(row => row.id)]);
+                await awardPot();
+                io.to('crash').emit('crash:end', { id: round.id, crashPoint: +round.crashPoint, serverSeed: round.serverSeed });
+            }
+        }
+    }
+    const [last] = await sql.query('SELECT crashPoint FROM crash WHERE endedAt IS NOT NULL ORDER BY id DESC LIMIT ?', [LAST_RESULTS]);
+    crash.last = last.map(row => +row.crashPoint);
+}
+
 module.exports = {
     cacheCrash,
     crash,
     capWinnings,
-    addToPot
+    addToPot: require('../../../runtime/context').tracked(addToPot)
 }

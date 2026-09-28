@@ -19,6 +19,7 @@ const drops = {
 }
 
 function scheduleCaseCacheRefresh() {
+    if (require('../../../runtime/context').enabled) return;
     if (cacheCasesTimer) clearTimeout(cacheCasesTimer);
 
     cacheCasesTimer = setTimeout(() => {

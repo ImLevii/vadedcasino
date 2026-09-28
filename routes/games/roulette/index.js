@@ -20,7 +20,7 @@ router.use((req, res, next) => {
 router.post('/bet', isAuthed, apiLimiter, async (req, res) => {
 
     if (!roulette.round.id) return res.status(503).json({ error: 'GAME_UNAVAILABLE' });
-    if (roulette.round.rolledAt) return res.json({ error: 'ALREADY_STARTED' });
+    if (roulette.round.rolledAt || (require('../../../runtime/context').enabled && Date.now() >= new Date(roulette.round.createdAt).valueOf() + roulette.config.betTime)) return res.json({ error: 'ALREADY_STARTED' });
     const color = req.body.color;
 
     if (![0, 1, 2, 3].includes(color)) {

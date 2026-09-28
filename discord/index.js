@@ -17,7 +17,7 @@ const discordIds = {
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildPresences] });
 
-if (process.env.DISCORD_BOT_TOKEN) {
+if (process.env.DISCORD_BOT_TOKEN && !require('../runtime/context').enabled) {
     client.login(process.env.DISCORD_BOT_TOKEN);
 
     client.once(Events.ClientReady, c => {

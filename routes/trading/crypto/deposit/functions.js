@@ -75,7 +75,7 @@ async function cacheCryptos() {
 
     if (Object.values(cryptoData.currencies).some(e => !e.price)) {
         await updateRates();
-    } else {
+    } else if (!require('../../../../runtime/context').enabled) {
         updateRates();
     }
 
@@ -120,7 +120,7 @@ async function updateRates() {
         console.error(`Error updating crypto prices:`, formatConsoleError(e));
     }
 
-    setTimeout(updateRates, 1000 * 60 * 5); // 5min
+    if (!require('../../../../runtime/context').enabled) setTimeout(updateRates, 1000 * 60 * 5); // 5min
 
 }
 

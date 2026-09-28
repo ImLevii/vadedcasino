@@ -12,6 +12,11 @@ const xpMultiplier = 1; // 1 || 2;
 
 async function cacheAdmin() {
 
+    bannedUsers.clear();
+    sponsorLockedUsers.clear();
+    for (const key of Object.keys(bannedPhrases)) delete bannedPhrases[key];
+    for (const key of Object.keys(lastLogouts)) delete lastLogouts[key];
+
     const [bans] = await sql.query('SELECT id, banned, sponsorLock FROM users WHERE banned = 1 OR sponsorLock = 1');
     bans.forEach(e => {
         if (e.banned) bannedUsers.add(String(e.id));

@@ -48,7 +48,7 @@ async function cacheGameConfig() {
         gameConfigCache[row.game][row.key] = parsedValue;
     }
     
-    console.log(`[gameConfig] Cached settings for ${Object.keys(gameConfigCache).length} games`);
+    if (!require('../../runtime/context').enabled) console.log(`[gameConfig] Cached settings for ${Object.keys(gameConfigCache).length} games`);
 }
 
 function getGameConfig(game, key, defaultValue = undefined) {
@@ -103,7 +103,7 @@ async function getAllGameSettings() {
 }
 
 // Initialize cache on startup
-cacheGameConfig().catch(err => {
+if (!require('../../runtime/context').enabled) cacheGameConfig().catch(err => {
     console.error('[gameConfig] Failed to cache on startup:', err.message);
 });
 

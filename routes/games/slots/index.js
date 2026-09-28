@@ -152,6 +152,7 @@ router.post('/embed/:slug', isAuthed, async (req, res) => {
 
         const token = crypto.randomUUID();
         hacksawTokens[token] = req.userId;
+        if (require('../../../runtime/context').enabled) await require('../../../runtime/kv').set('slot-token', token, req.userId, 5 * 60 * 1000);
 
         const params = new URLSearchParams({
             language: 'en',

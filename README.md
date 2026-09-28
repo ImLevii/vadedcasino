@@ -62,40 +62,68 @@ STARTUP_CACHE_TIMEOUT_MS=15000
 
 After saving the settings, perform one Dokploy redeploy. The deployment log should show `Listening on 0.0.0.0:3000` before cache completion messages.
 
-### Vercel frontend + persistent Node backend
+### Vercel + Neon (no separate backend host)
 
-Vercel serves the Vite frontend from `dist`. This does not start `app.js`.
-The current backend owns in-memory game rounds, timers, and Socket.IO sessions;
-run one persistent Node process using the Dokploy settings above (or the included
-Dockerfile). It is not implemented as Vercel Functions.
+Use Node.js 24.x. Vercel builds the Vite frontend into `dist` and deploys
+`api/index.js` as the Express/Socket.IO backend. Both use the same public origin.
+The Vercel frontend uses WebSocket transport and restores subscriptions after
+reconnecting when a function reaches its maximum duration.
 
-1. Deploy the backend with `npm run build` followed by `npm start`, port `3000`.
-   Configure the database and server secrets on that host. Verify `/readyz`
-   returns HTTP 200 before directing players to it.
-2. On the backend, set `NODE_ENV=production`, `BASE_URL` to its public HTTPS
-   origin, and `FRONTEND_URL=https://vadedcasino.vercel.app`. The explicit
-   frontend origin enables API and Socket.IO CORS; arbitrary origins are not allowed.
-3. In Vercel project settings, choose **Vite**, build command `npm run build`,
-   output directory `dist`. Set `VITE_SERVER_URL` to the backend's HTTPS origin
-   (for example `https://api.your-domain.com`). `VITE_SOCKET_URL` defaults to that
-   same backend; only set it if Socket.IO runs at a different origin.
-4. Redeploy after changing Vite variables: they are compiled into browser assets.
-   Do not point them at `vadedcasino.vercel.app` or localhost. The build now
-   rejects missing/invalid backend settings on Vercel instead of shipping a
-   frontend that repeatedly calls nonexistent same-origin API routes.
+Set these **server-only** variables in Vercel's Production environment (and use
+an isolated Neon branch for Preview deployments):
 
-`vercel.json` handles browser navigation to SPA pages without rewriting the
-reported API and Socket.IO failures into HTML. It does not host or proxy the
-backend. Username/password login stores the returned token on the frontend and
-sends it in the Authorization header. OAuth cookies across unrelated domains
-need a separate same-origin auth proxy or shared-domain configuration; setting
-CORS alone does not transfer those cookies.
+| Variable | Value |
+| --- | --- |
+| `DATABASE_URL` | Rotated Neon pooled PostgreSQL connection string |
+| `SQL_DIALECT` | `postgres` |
+| `JWT_SECRET` | A stable random secret, at least 32 characters |
+| `NODE_ENV` | `production` |
+| `BASE_URL` | Your public HTTPS Vercel origin |
+| `FRONTEND_URL` | The same public HTTPS Vercel origin |
 
-For a single-origin deployment, serve the entire app on Dokploy instead and
-leave both `VITE_` URL settings blank. Local `npm run dev` also continues to use
-the existing Vite proxy when the settings are blank.
+Remove `VITE_SERVER_URL` and `VITE_SOCKET_URL` from Vercel and any production
+Vite env files. Blank values now intentionally use the included same-origin API.
+Never put database credentials or JWT secrets in variables prefixed `VITE_`.
+Keep the project preset **Vite**, build command `npm run build`, output directory
+`dist`, and enable Fluid compute. Commit/push the configuration, then redeploy.
 
-References: [Vite on Vercel](https://vercel.com/docs/frameworks/frontend/vite),
+For a fresh Neon database, apply `npm run db:neon:bootstrap` once from a trusted
+local shell with `DIRECT_DATABASE_URL` and `DATABASE_URL` set privately. This
+creates the application schema and seed settings. The API creates only its small
+runtime event/session/media tables automatically; it does not initialize the full
+application schema or an administrator. `npm run db:neon:check` verifies the
+connection. Optional OAuth/payment providers still require their own credentials.
+
+After deployment, verify `/readyz` returns HTTP 200, then check login, chat,
+subscriptions after reconnect, and game actions on a preview database.
+`/healthz` checks only process liveness. Schema initialization and environment
+settings must be completed before the live API can pass readiness.
+
+#### Runtime behavior
+
+Vercel requests use a PostgreSQL transaction and advisory lock to coordinate
+legacy caches across instances. Game actions, settlements, and event log writes
+commit together; HTTP success responses wait for that commit. Crash, Roulette,
+case battles, rain, and leaderboards advance from stored state instead of
+relying on a continuously running process. Admin sessions, pending 2FA setup,
+Discord linking, and slot authentication tokens persist in Neon with expiry.
+Admin image uploads are stored in Neon and served at `/public/media/...`; the
+processed image must be under 3 MB and the JSON request under 4 MB.
+
+Connected browsers request a tick once per second; a shared database timestamp
+coalesces those ticks. With no traffic, processing pauses and due work resumes
+on the next request. Countdown deadlines remain persisted, so a restart does
+not reopen betting. Cross-instance socket broadcasts use a Neon event log,
+polled while WebSocket connections are active. This initial implementation
+serializes game operations globally and prioritizes correctness; it needs load
+testing on Vercel/Neon before supporting substantial concurrent play.
+
+The optional long-running Discord bot is not part of this request-driven
+backend. Local `npm run dev` and standalone `npm start` retain their existing
+server mode.
+
+References: [Vercel WebSockets and Socket.IO](https://vercel.com/docs/functions/websockets),
+[Vercel function limits](https://vercel.com/docs/functions/limitations),
 [Vite environment variables](https://vite.dev/guide/env-and-mode).
 
 ## Fresh Neon / PostgreSQL development database

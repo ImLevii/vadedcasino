@@ -93,7 +93,7 @@ function mapApiError(res, err) {
 }
 
 function isManagedLocalImagePath(imagePath) {
-    return typeof imagePath === 'string' && /^\/public\/(cases|items)\//.test(imagePath);
+    return typeof imagePath === 'string' && /^\/public\/(?:media\/)?(cases|items)\//.test(imagePath);
 }
 
 function resolveManagedImagePathToDisk(imagePath) {
@@ -126,6 +126,11 @@ async function cleanupOrphanedImages(imagePaths) {
 
             const totalRefs = Number(refs?.caseRefs || 0) + Number(refs?.itemRefs || 0);
             if (totalRefs > 0) continue;
+
+            if (require('../../runtime/context').enabled && imagePath.startsWith('/public/media/')) {
+                await sql.query('DELETE FROM runtimeMedia WHERE id = ?', [imagePath]);
+                continue;
+            }
 
             const diskPath = resolveManagedImagePathToDisk(imagePath);
             if (!diskPath) continue;
@@ -185,7 +190,7 @@ async function saveUploadedImage(target, fileName, dataUrl) {
     const finalName = `${baseName}-${Date.now()}-${unique}.${parsed.ext}`;
 
     const dirPath = path.join(process.cwd(), 'public', folder);
-    await fs.promises.mkdir(dirPath, { recursive: true });
+    if (!require('../../runtime/context').enabled) await fs.promises.mkdir(dirPath, { recursive: true });
 
     const pipeline = sharp(parsed.buffer).rotate().resize({
         width: 1400,
@@ -207,6 +212,7 @@ async function saveUploadedImage(target, fileName, dataUrl) {
     }
 
     const filePath = path.join(dirPath, finalName);
+    if (require('../../runtime/context').enabled) return require('../../runtime/media').save(folder, finalName, outputBuffer);
     await fs.promises.writeFile(filePath, outputBuffer);
 
     return `/public/${folder}/${finalName}`;

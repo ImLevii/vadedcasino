@@ -13,7 +13,7 @@ let cachedAffiliates = {};
 
 async function getAffiliateData(userId) {
     
-    if (cachedAffiliates[userId]) return cachedAffiliates[userId];
+    if (!require('../../runtime/context').enabled && cachedAffiliates[userId]) return cachedAffiliates[userId];
 
     const [[user]] = await sql.query('SELECT affiliateCode, affiliateEarningsOffset FROM users WHERE id = ?', [userId]);
     const { lastClaimDate, unclaimedEarnings, totalWagered, totalEarnings, users } = await getAffiliateInfo(userId, user.affiliateEarningsOffset);
