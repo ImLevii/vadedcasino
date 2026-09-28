@@ -23,47 +23,59 @@ async function initialize() {
     return initialized;
 }
 
-async function refresh() {
+async function refresh(scopes) {
+    const includes = scope => scopes.includes('all') || scopes.includes(scope);
     await require('../routes/admin/config').cacheAdmin();
     await require('../routes/admin/gameConfig').cacheGameConfig();
-    await require('../routes/user/rewards/functions').loadRewardsConfig();
-    await require('../routes/games/cases/functions').cacheCases();
-    await require('../routes/games/cases/functions').cacheDrops();
-    await require('../routes/surveys/functions').cacheSurveys();
-    await require('../routes/games/slots/functions').cacheSlots();
-    await require('../routes/games/crash/functions').cacheCrash();
-    await require('../routes/games/roulette/functions').cacheRoulette();
-    await require('../socketio/rain').cacheRains();
-    await require('../routes/games/battles/functions').cacheBattles();
-    await require('../routes/games/coinflip/functions').cacheCoinflips();
-    await require('../routes/leaderboard/functions').cacheLeaderboards();
-    await require('../socketio/chat/functions').cacheChannels();
-    await require('../socketio/bets').cacheBets();
+    if (includes('user')) await require('../routes/user/rewards/functions').loadRewardsConfig();
+    if (includes('cases') || includes('battles')) await require('../routes/games/cases/functions').ensureCasesCacheFresh();
+    if (includes('drops')) await require('../routes/games/cases/functions').cacheDrops();
+    if (includes('surveys')) await require('../routes/surveys/functions').cacheSurveys();
+    if (includes('slots')) await require('../routes/games/slots/functions').cacheSlots();
+    if (['rain', 'crash', 'roulette', 'battles', 'coinflip', 'cases', 'mines'].some(includes)) await require('../socketio/rain').cacheRains();
+    if (includes('crash')) await require('../routes/games/crash/functions').cacheCrash();
+    if (includes('roulette')) await require('../routes/games/roulette/functions').cacheRoulette();
+    if (includes('battles')) await require('../routes/games/battles/functions').cacheBattles();
+    if (includes('coinflip')) await require('../routes/games/coinflip/functions').cacheCoinflips();
+    if (includes('leaderboard')) await require('../routes/leaderboard/functions').cacheLeaderboards();
+    if (includes('chat')) await require('../socketio/chat/functions').cacheChannels();
+    if (includes('bets')) await require('../socketio/bets').cacheBets();
     const { cachedRakebacks } = require('../routes/user/rakeback/functions');
     for (const key of Object.keys(cachedRakebacks)) delete cachedRakebacks[key];
 }
 
-async function run(work, { tick = false } = {}) {
+async function run(work, { tick = false, scopes = ['all'] } = {}) {
     if (storage.getStore()) return work();
     await initialize();
-    return coordinate(async context => {
+    const result = await coordinate(async context => {
         events.bind(context);
         if (tick) {
             const [[last]] = await sql.query('SELECT value FROM runtimeState WHERE id = ?', ['lastTick']);
             if (last && Date.now() - Number(last.value) < 900) return;
             await sql.query('INSERT INTO runtimeState (id, value) VALUES (?, ?) ON CONFLICT (id) DO UPDATE SET value = EXCLUDED.value', ['lastTick', String(Date.now())]);
         }
-        await refresh();
+        await refresh(scopes);
         const result = await work();
         const [[maintenance]] = await sql.query('SELECT value FROM runtimeState WHERE id = ?', ['maintenanceAt']);
         if (!maintenance || Date.now() - Number(maintenance.value) >= 60000) {
             await context.connection.nativeQuery('DELETE FROM "runtimeState" WHERE (value::jsonb ->> \'expiresAt\')::numeric < $1', [Date.now()]);
             if (process.env.MEXC_API_KEY && process.env.MEXC_API_SECRET) await require('../routes/trading/crypto/withdraw/functions').updateSentWithdrawals();
             await sql.query('INSERT INTO runtimeState (id, value) VALUES (?, ?) ON CONFLICT (id) DO UPDATE SET value = EXCLUDED.value', ['maintenanceAt', String(Date.now())]);
+            await sql.query('DELETE FROM runtimeEvents WHERE createdAt < DATE_SUB(NOW(), INTERVAL 10 MINUTE)');
         }
-        await sql.query('DELETE FROM runtimeEvents WHERE createdAt < DATE_SUB(NOW(), INTERVAL 10 MINUTE)');
         return result;
     });
+    // Deliver other instances' committed events during an active request too;
+    // correctness must not depend on a background interval getting CPU time.
+    await events.flush();
+    return result;
+}
+
+function socketScopes(name) {
+    if (name === 'auth') return ['rain'];
+    if (name.endsWith(':unsubscribe')) return [];
+    if (name.startsWith('cases:')) return ['drops'];
+    return [name.split(':')[0] === 'battle' ? 'battles' : name.split(':')[0]];
 }
 
 function setup(io) {
@@ -77,21 +89,31 @@ function setup(io) {
         const originalOn = socket.on.bind(socket);
         socket.on = (name, handler) => originalOn(name, (...args) => {
             if (name === 'disconnect' || name === 'error') return handler(...args);
-            run(() => handler(...args)).catch(error => {
+            run(() => handler(...args), { scopes: socketScopes(name) }).catch(error => {
                 console.error('[socket-request]', error.code || error.message);
                 socket.emit('toast', 'error', 'Service temporarily unavailable. Please try again.');
             });
         });
         let lastTick = 0;
+        let tickPending = false;
         originalOn('runtime:tick', ack => {
-            if (Date.now() - lastTick < 900) return typeof ack === 'function' && ack();
+            if (tickPending || Date.now() - lastTick < 900) return typeof ack === 'function' && ack({ ok: true });
             lastTick = Date.now();
-            run(() => {}, { tick: true }).then(() => { if (typeof ack === 'function') ack(); }, () => { if (typeof ack === 'function') ack(); });
+            tickPending = true;
+            run(() => {}, { tick: true, scopes: ['crash', 'roulette', 'battles', 'coinflip', 'leaderboard'] }).then(
+                () => { if (typeof ack === 'function') ack({ ok: true }); },
+                error => { console.error('[runtime-tick]', error.code || error.message); if (typeof ack === 'function') ack({ ok: false }); }
+            ).finally(() => { tickPending = false; });
         });
     });
 }
 
 function middleware(req, res, next) {
+    // Public presentation reads neither spend balances nor use game caches.
+    // In particular, image streams must never own the game transaction lock.
+    if (req.method === 'GET' && (/^\/(slides|announcements\/active)\/?$/.test(req.path) || /^\/user\/[^/]+\/img$/.test(req.path) || req.path.startsWith('/public/media/'))) {
+        return next();
+    }
     const end = res.end.bind(res);
     const write = res.write.bind(res);
     const chunks = [];
@@ -126,7 +148,7 @@ function middleware(req, res, next) {
         };
         next();
       });
-    }).then(() => {
+    }, { scopes: req.path.startsWith('/admin') ? ['all'] : [req.path.split('/')[1]] }).then(() => {
         res.write = write;
         res.end = end;
         if (disconnected || res.destroyed) return;

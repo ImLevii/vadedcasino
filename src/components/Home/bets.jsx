@@ -1,4 +1,4 @@
-import {createEffect, createResource, createSignal, For} from "solid-js";
+import {createEffect, createSignal, For, onCleanup, untrack} from "solid-js";
 import {api} from "../../util/api";
 import {useWebsocket} from "../../contexts/socketprovider";
 import Avatar from "../Level/avatar";
@@ -18,41 +18,26 @@ const gameToImage = {
 
 function Bets(props) {
 
-    let prevWs
-    let hasEmittedMe = false
     const [ws] = useWebsocket()
-    const [option, setOption] = createSignal('user')
+    const [option, setOption] = createSignal('all')
     const [bets, setBets] = createSignal([])
 
     createEffect(() => {
-        if (ws()?.connected && !prevWs?.connected) {
-            ws().emit('bets:subscribe', 'all')
+        const socket = ws()
+        if (!socket?.connected) return
+        const channel = option()
+        const onBets = (type, incoming, snapshot) => {
+            if (type !== untrack(option)) return
+            setBets(previous => (snapshot ? incoming : [...incoming, ...previous]).slice(0, 10))
         }
-
-        if (ws()) {
-            ws().on('bets', (type, bets) => {
-                if (type !== option()) {
-                    ws().emit('bets:unsubscribe', option())
-                    setBets([])
-                }
-
-                setOption(type)
-                setBets((b) => [...bets, ...b].slice(0, 10))
-            })
-        }
-
-        prevWs = ws()
-    })
-
-    createEffect(() => {
-        if (!hasEmittedMe && props.user && ws()) {
-            ws().emit('bets:subscribe', 'me')
-            hasEmittedMe = true
-        }
+        socket.on('bets', onBets)
+        socket.emit('bets:subscribe', channel)
+        onCleanup(() => { socket.off('bets', onBets); socket.emit('bets:unsubscribe', channel) })
     })
 
     function changeBetChannel(channel) {
-        ws().emit('bets:subscribe', channel)
+        setBets([])
+        setOption(channel)
     }
 
     return (

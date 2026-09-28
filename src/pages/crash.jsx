@@ -192,6 +192,9 @@ function Crash(props) {
 
     if (!ws() || !ws().connected) {
       hasConnected = false;
+      cancelAnimation();
+      setRound(null);
+      setIsFlying(false);
     }
   });
 
@@ -223,7 +226,7 @@ function Crash(props) {
 
   function isBettingOpen() {
     // Trust the server round state. Local countdown may drift or arrive late.
-    return round()?.status === 'created' && !isFlying() && !isCrashed();
+    return ws()?.connected && round()?.status === 'created' && !isFlying() && !isCrashed();
   }
 
   function normalizeAmount(value) {

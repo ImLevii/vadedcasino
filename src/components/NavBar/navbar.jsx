@@ -48,7 +48,7 @@ function NavBar(props) {
                     <div class='left'>
                         <div class='navbar-logo'>
                             <A href='/' aria-label='Cosmic Luck home'>
-                                <img src='/assets/logo/cosmic-luck-logo.png' alt='Cosmic Luck'/>
+                                <img src='/assets/logo/cosmic-luck-logo.webp' alt='Cosmic Luck'/>
                             </A>
                         </div>
                         <nav class='nav-links' aria-label='Primary navigation'>
@@ -111,7 +111,7 @@ function NavBar(props) {
                                     const wasOpen = userDropdown(); closeDropdowns(); setUserDropdown(!wasOpen); e.stopPropagation()
                                   }}>
                                     <img class='user-avatar'
-                                         src={`${import.meta.env.VITE_SERVER_URL}/user/${props.user?.id}/img`}
+                                         src={`${import.meta.env.VITE_SERVER_URL || ''}/user/${props.user?.id}/img`}
                                          alt='' onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = '/assets/icons/default-avatar.svg' }}
                                          width='34' height='34'/>
 

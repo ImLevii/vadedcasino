@@ -8,7 +8,7 @@ function Footer(props) {
             <div class='footer-container'>
                 <div class='links-section'>
                     <div class='logo'>
-                        <img src='/assets/logo/cosmic-luck-logo.png' width='220' alt='Cosmic Luck'/>
+                        <img src='/assets/logo/cosmic-luck-logo.webp' width='220' alt='Cosmic Luck'/>
                     </div>
 
                     <div class='links'>

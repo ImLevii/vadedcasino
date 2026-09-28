@@ -126,7 +126,7 @@ function SideBar(props) {
           <div class='chat-header'>
             <div class='room-title' style="display: flex; align-items: center;">
               <A href='/' style="display: flex; align-items: center;">
-                <img src='/assets/logo/cosmic-luck-logo.png' alt='Cosmic Luck' height='26'/>
+                <img src='/assets/logo/cosmic-luck-logo.webp' alt='Cosmic Luck' height='26'/>
               </A>
             </div>
             <button class='menu-dot chat-close' type='button' aria-label='Close chat' onClick={() => props.setChat(false)}>

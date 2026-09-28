@@ -1,4 +1,4 @@
-import {createEffect, For, Show} from "solid-js";
+import {createEffect, For, Show, onCleanup} from "solid-js";
 import RouletteIcon from "./rouletteicons";
 import RouletteNumbers from "./roulettenumbers";
 
@@ -12,6 +12,7 @@ function RouletteSpinner(props) {
     let icons
     let numbers
     let prev = 0
+    onCleanup(() => animations.forEach(animation => animation?.cancel()))
 
     createEffect(() => {
         if (typeof props.roll?.result === 'number') {
@@ -49,6 +50,8 @@ function RouletteSpinner(props) {
             duration: props.config?.rollTime,
             fill: 'forwards'
         })
+        const elapsed = Math.min(props.config?.rollTime || 5000, props.roll?.elapsedMs || 0)
+        for (const animation of animations) animation.currentTime = elapsed
     }
 
     function getRandomNumber(min, max) {

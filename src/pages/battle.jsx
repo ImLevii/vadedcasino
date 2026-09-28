@@ -53,6 +53,12 @@ function Battle(props) {
 
     createEffect(() => {
         if (ws() && ws().connected && !hasConnected) {
+            const socket = ws()
+            onCleanup(() => {
+                for (const event of ['battle', 'battle:join', 'battle:commit', 'battle:start', 'battle:round', 'battle:ended', 'battle:emoji', 'battle:fairness']) socket.off(event)
+                socket.emit('battles:unsubscribe', params.id)
+                hasConnected = false
+            })
             ws().emit('battles:subscribe', params.id, searchParams?.pk)
             ws().on('battle', (b) => {
 

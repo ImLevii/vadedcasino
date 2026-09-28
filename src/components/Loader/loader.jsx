@@ -1,54 +1,29 @@
+﻿import {createSignal, onCleanup, Show} from 'solid-js';
+import './loader.css';
+
 function Loader(props) {
+    const compact = () => props.small || props.type === 'small';
+    const [slow, setSlow] = createSignal(false);
+    const timer = setTimeout(() => setSlow(true), 6000);
+    onCleanup(() => clearTimeout(timer));
+
     return (
-        <>
-            <div class={'loader-container ' + (props?.type === 'small' ? 'small' : '')}>
-                <div class='loader' style={{ 'max-height': props?.max || 'unset' }} />
+        <div class='cosmic-loader' classList={{'cosmic-loader-compact': compact()}} role='status' aria-live='polite' aria-busy='true'>
+            <div class='cosmic-loader-mark' style={{'max-height': props.max}} aria-hidden='true'>
+                <div class='cosmic-loader-orbit'/>
+                <img src='/assets/logo/cosmic-luck-chip.svg' alt='' width='40' height='40'/>
+                <span class='cosmic-loader-spark'/>
             </div>
-
-            <style jsx>{`
-              .loader-container {
-                display: flex;
-                height: 100%;
-                width: 100%;
-                align-items: center;
-                justify-content: center;
-                padding: 15px 0;
-              }
-
-              .loader {
-                height: clamp(4rem, 12vw, 8rem);
-                aspect-ratio: 1;
-                border-radius: 50%;
-                border: 3px solid rgba(31, 214, 95, 0.2);
-                border-top-color: #1fd65f;
-                animation: spin 0.9s linear infinite;
-              }
-              
-              .small {
-                height: 100%;
-                width: unset;
-                aspect-ratio: 1;
-                padding: unset;
-                padding: 10px;
-              }
-              
-              .small .loader {
-                aspect-ratio: 1;
-                height: 100%;
-                min-height: 1.4rem;
-              }
-
-              @keyframes spin {
-                0% {
-                  transform: rotate(0deg);
-                }
-                100% {
-                  transform: rotate(360deg);
-                }
-              }
-            `}</style>
-        </>
+            <Show when={!compact()}>
+                <div class='cosmic-loader-copy'>
+                    <span class='cosmic-loader-eyebrow'>COSMIC LUCK</span>
+                    <p>{props.label || 'Getting things ready'}</p>
+                    <span class='cosmic-loader-detail'>{slow() ? 'Taking a little longer. Thanks for waiting.' : (props.detail || 'Your next round is on its way.')}</span>
+                </div>
+                <div class='cosmic-loader-pips' aria-hidden='true'><i/><i/><i/></div>
+            </Show>
+            <Show when={compact()}><span class='cosmic-loader-sr'>Loading</span></Show>
+        </div>
     );
 }
-
 export default Loader;

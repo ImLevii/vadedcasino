@@ -2,16 +2,16 @@ import {For} from "solid-js";
 import {A} from "@solidjs/router";
 
 const FEATURES = [
-  {name: 'CASE BATTLES',      href: '/battles',       accent: '#FF5141', img: '/assets/thumbnails/casebattles.jpeg'},
-    {name: 'CASE OPENING',      href: '/cases',         accent: '#1fd65f', img: '/assets/thumbnails/caseopening.jpeg'},
-    {name: 'DAILY CASES',       href: '/cases',         accent: '#1fd65f', img: '/assets/thumbnails/dailycases.jpeg'},
-    {name: 'SUPERCHARGE CASES', href: '/cases',         accent: '#f0c040', img: '/assets/thumbnails/superchargecases.jpeg'},
-    {name: 'MINES',             href: '/mines',         accent: '#40c9ac', img: '/assets/thumbnails/mines.jpeg'},
-    {name: 'GAME FAIRNESS',     href: '/docs/provably', accent: '#1fd65f', img: '/assets/thumbnails/gamefairness.jpeg'},
-    {name: 'AFFILIATES',        href: '/affiliates',    accent: '#40c9ac', img: '/assets/thumbnails/rewards.jpeg'},
-    {name: 'RANKINGS',          href: '/leaderboard',   accent: '#f0c040', img: '/assets/thumbnails/rankings.jpeg'},
-    {name: 'BUY COINS',         href: '/deposit',       accent: '#1fd65f', img: '/assets/thumbnails/market.jpeg', wide: true},
-    {name: 'CRASH',             href: '/crash',         accent: '#4176FF', img: '/assets/thumbnails/crash.jpeg', wide: true},
+  {name: 'CASE BATTLES',      href: '/battles',       accent: '#FF5141', img: '/assets/thumbnails/casebattles.webp'},
+    {name: 'CASE OPENING',      href: '/cases',         accent: '#1fd65f', img: '/assets/thumbnails/caseopening.webp'},
+    {name: 'DAILY CASES',       href: '/cases',         accent: '#1fd65f', img: '/assets/thumbnails/dailycases.webp'},
+    {name: 'SUPERCHARGE CASES', href: '/cases',         accent: '#f0c040', img: '/assets/thumbnails/superchargecases.webp'},
+    {name: 'MINES',             href: '/mines',         accent: '#40c9ac', img: '/assets/thumbnails/mines.webp'},
+    {name: 'GAME FAIRNESS',     href: '/docs/provably', accent: '#1fd65f', img: '/assets/thumbnails/gamefairness.webp'},
+    {name: 'AFFILIATES',        href: '/affiliates',    accent: '#40c9ac', img: '/assets/thumbnails/rewards.webp'},
+    {name: 'RANKINGS',          href: '/leaderboard',   accent: '#f0c040', img: '/assets/thumbnails/rankings.webp'},
+    {name: 'BUY COINS',         href: '/deposit',       accent: '#1fd65f', img: '/assets/thumbnails/market.webp', wide: true},
+    {name: 'CRASH',             href: '/crash',         accent: '#4176FF', img: '/assets/thumbnails/crash.webp', wide: true},
 ]
 
 function FeatureGrid() {

@@ -62,6 +62,8 @@ async function main() {
         return { data: {} };
     };
     if (process.env.VERCEL === '1') {
+        require('../../fairness').generateServerSeed = () => 'fixture-live-8';
+        await db.query(`UPDATE "gameSettings" SET value = '1000' WHERE game = 'crash' AND key = 'betTime'`);
         await db.query('UPDATE users SET balance = 85 WHERE id = 1');
         const crash = await db.query(`INSERT INTO crash ("serverSeed", "crashPoint", "createdAt", "startedAt") VALUES ('test-crash-seed', 2, NOW() - INTERVAL '40 seconds', NOW() - INTERVAL '30 seconds') RETURNING id`);
         const cb = await db.query(`INSERT INTO "crashBets" ("userId", "roundId", amount, "autoCashoutPoint") VALUES (1, $1, 10, 1.2) RETURNING id`, [crash.rows[0].id]);
@@ -75,6 +77,7 @@ async function main() {
         const coinflip = await db.query(`INSERT INTO coinflips ("ownerId", fire, ice, amount, "serverSeed", "clientSeed", "EOSBlock") VALUES (1, 1, 2, 1, 'test-coinflip-seed', 'test-client-seed', 100) RETURNING id`);
         await db.query(`INSERT INTO bets ("userId", amount, edge, game, "gameId", completed) VALUES (1, 1, 0.05, 'coinflip', $1, 0), (2, 1, 0.05, 'coinflip', $1, 0)`, [coinflip.rows[0].id]);
         const server = require('../../api/index');
+        Object.assign(require('../../routes/games/roulette/functions').roulette.config, {betTime: 1000, rollTime: 1000});
         const requestHandler = server.listeners('request')[0];
         server.removeAllListeners('request');
         server.on('request', (req, res) => {

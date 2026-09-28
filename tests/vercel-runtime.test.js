@@ -102,4 +102,21 @@ test('Vercel API recovers overdue rounds exactly once, serves auth and reconnect
     snapshot = once(socket, 'crash:set');
     socket.emit('crash:subscribe');
     assert.ok((await snapshot)[0].round.id);
+    const crashRounds = new Set();
+    const rouletteRounds = new Set();
+    socket.on('crash:end', round => crashRounds.add(round.id));
+    socket.on('roulette:roll', round => rouletteRounds.add(round.id));
+    socket.emit('roulette:subscribe');
+    const deadline = Date.now() + 16000;
+    while ((crashRounds.size < 2 || rouletteRounds.size < 2) && Date.now() < deadline) {
+        const [tick, catalogue] = await Promise.all([
+            socket.timeout(5000).emitWithAck('runtime:tick'),
+            fetch(origin + '/cases', {signal: AbortSignal.timeout(5000)})
+        ]);
+        assert.equal(tick.ok, true, output);
+        assert.equal(catalogue.status, 200, output);
+        await new Promise(resolve => setTimeout(resolve, 950));
+    }
+    assert.ok(crashRounds.size >= 2, 'Crash must keep completing rounds during API traffic');
+    assert.ok(rouletteRounds.size >= 2, 'Roulette must keep rolling during API traffic');
 });

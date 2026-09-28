@@ -1,4 +1,4 @@
-import {createResource, createSignal, onMount, onCleanup, For, Show} from "solid-js";
+import {createSignal, onMount, onCleanup, For, Show} from "solid-js";
 import {A} from "@solidjs/router";
 import {api} from "../../util/api";
 
@@ -44,11 +44,14 @@ function resolveAsset(path) {
 
 function Carousel() {
 
-  const [slides] = createResource(fetchSlides)
+  const [slides, setSlides] = createSignal(FALLBACK_SLIDES)
     const [index, setIndex] = createSignal(0)
     const [reducedMotion, setReducedMotion] = createSignal(true)
 
     onMount(() => {
+      let mounted = true
+      fetchSlides().then(data => { if (mounted) setSlides(data) })
+      onCleanup(() => { mounted = false })
       const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
       const updateMotion = () => setReducedMotion(preference.matches)
       updateMotion()
@@ -68,7 +71,7 @@ function Carousel() {
               <div class='header-media'>
                 <img class='header-animation' src='/assets/animations/cosmicluck-header-animation.webp' alt='' aria-hidden='true' />
                 <Show when={!reducedMotion()}>
-                  <video class='header-animation' autoplay muted loop playsinline preload='auto'
+                  <video class='header-animation' autoplay muted loop playsinline preload='metadata'
                          poster='/assets/animations/cosmicluck-header-animation.webp' aria-hidden='true'>
                     <source src='/assets/animations/cosmicluck-header-animation.mp4' type='video/mp4' />
                   </video>

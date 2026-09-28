@@ -57,7 +57,7 @@ function BottomNavBar(props) {
                 <div class='mobile-games-grid'>
                     <For each={GAMEMODES}>{mode => (
                         <A href={mode.href} class='mobile-game-link' onClick={() => setActive(false)}>
-                            <img src={mode.img} alt=''/>
+                            <img src={active() ? mode.img : undefined} alt='' loading='lazy' decoding='async'/>
                             <span>{mode.name}</span>
                         </A>
                     )}</For>

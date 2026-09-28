@@ -267,7 +267,7 @@ async function advanceRoulette() {
     let round = latest;
     if (!round || (round.endedAt && now >= new Date(round.endedAt).valueOf() + 2500)) {
         round = await createRouletteRound();
-        io.to('roulette').emit('roulette:new', { id: round.id, createdAt: round.createdAt });
+        io.to('roulette').emit('roulette:new', { id: round.id, createdAt: round.createdAt, serverTime: new Date(), betTime: roulette.config.betTime });
     }
     roulette.round = round;
     const [rows] = await sql.query(`SELECT rb.*, u.username, u.xp, u.anon FROM rouletteBets rb JOIN users u ON u.id = rb.userId WHERE rb.roundId = ?`, [round.id]);
@@ -278,7 +278,7 @@ async function advanceRoulette() {
         if (now >= roll && !round.rolledAt) {
             round.rolledAt = new Date(roll);
             await sql.query('UPDATE roulette SET rolledAt = ? WHERE id = ?', [round.rolledAt, round.id]);
-            io.to('roulette').emit('roulette:roll', { id: round.id, result: round.result, color: round.color });
+            io.to('roulette').emit('roulette:roll', { id: round.id, result: round.result, color: round.color, rolledAt: round.rolledAt, serverTime: new Date() });
         }
         if (now >= roll + roulette.config.rollTime) {
             const settled = await settleRouletteBets(sql, round, roulette.bets);

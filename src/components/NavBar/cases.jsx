@@ -3,10 +3,10 @@ import {addDropdown, closeDropdowns} from "../../util/api";
 import {A, useLocation} from "@solidjs/router";
 
 const CASE_LINKS = [
-    {name: 'CASE OPENING', href: '/cases', img: '/assets/thumbnails/caseopening.jpeg'},
-  {name: 'CASE BATTLES', href: '/battles', img: '/assets/thumbnails/casebattles.jpeg'},
-    {name: 'DAILY CASES', href: '/rewards/daily', img: '/assets/thumbnails/dailycases.jpeg'},
-    {name: 'SUPERCHARGE CASES', href: '/rewards/supercharge', img: '/assets/thumbnails/superchargecases.jpeg'},
+    {name: 'CASE OPENING', href: '/cases', img: '/assets/thumbnails/caseopening.webp'},
+  {name: 'CASE BATTLES', href: '/battles', img: '/assets/thumbnails/casebattles.webp'},
+    {name: 'DAILY CASES', href: '/rewards/daily', img: '/assets/thumbnails/dailycases.webp'},
+    {name: 'SUPERCHARGE CASES', href: '/rewards/supercharge', img: '/assets/thumbnails/superchargecases.webp'},
 ]
 
 function Cases() {
@@ -59,7 +59,7 @@ function Cases() {
                             <For each={CASE_LINKS}>{(c) => (
                                 <A href={c.href} class='case' onClick={() => setActive(false)}
                                    style={{'display':'flex','align-items':'center','gap':'12px'}}>
-                                    <div class='thumb' style={{'background-image': `url("${c.img}")`}}/>
+                                    <div class='thumb' style={{'background-image': active() ? `url("${c.img}")` : 'none'}}/>
                                     <p class='name'>{c.name}</p>
                                     <svg class='chevron' width="6" height="10" viewBox="0 0 6 10" fill="none"
                                          xmlns="http://www.w3.org/2000/svg">

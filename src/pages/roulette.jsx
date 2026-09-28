@@ -114,8 +114,14 @@ function Roulette(props) {
                 setTripleGreenBonusPot(Number(data.tripleGreenBonusPot || 0))
                 setBonusStreak(Number(data.tripleGreenStreak || 0))
 
-                let timeLeftToRoll = new Date(data.round.createdAt).getTime() + data.config.betTime - Date.now()
-                startCountdown(timeLeftToRoll)
+                stopRouletteTicking()
+                const now = new Date(data.serverTime).getTime()
+                const elapsedMs = data.round.rolledAt ? Math.max(0, now - new Date(data.round.rolledAt).getTime()) : 0
+                setRound({...data.round, elapsedMs})
+                const finished = data.round.status === 'ended' || (data.round.rolledAt && elapsedMs >= data.config.rollTime)
+                setState(finished ? 'WINNERS' : data.round.rolledAt ? 'ROLLING' : '')
+                startCountdown(data.round.rolledAt ? 0 : new Date(data.round.createdAt).getTime() + data.config.betTime - now)
+                if (data.round.rolledAt && !finished) rouletteResultTimer = setTimeout(() => setState('WINNERS'), data.config.rollTime - elapsedMs)
             })
 
             ws().on('roulette:bets', (b) => {
@@ -135,14 +141,17 @@ function Roulette(props) {
 
             ws().on('roulette:new', (roll) => {
                 setBets([])
+                setRound({...roll, status: 'created', result: null})
                 setState('')
               stopRouletteTicking()
 
-                startCountdown()
+                const remaining = roll.serverTime ? new Date(roll.createdAt).getTime() + (roll.betTime || config().betTime) - new Date(roll.serverTime).getTime() : config().betTime
+                startCountdown(remaining)
             })
 
             ws().on('roulette:roll', (roll) => {
                 startCountdown(0)
+                setState('ROLLING')
                 let prev10 = last10()
                 let newLast100 = last100()
 
@@ -155,10 +164,12 @@ function Roulette(props) {
                 // Capture rollTime once so both the ticker and the win-sound
                 // timeout reference the same value
                 const rollTime = config().rollTime || 5000
+                const elapsedMs = roll.rolledAt && roll.serverTime ? Math.max(0, new Date(roll.serverTime) - new Date(roll.rolledAt)) : 0
+                const remaining = Math.max(0, rollTime - elapsedMs)
 
                 // Tick only during the active-spin phase (first 90 % of rollTime).
                 // The remaining 10 % is the hold + snap — silence there feels correct.
-                startRouletteTicking(rollTime * 0.9)
+                if (remaining > 0) startRouletteTicking(remaining * 0.9)
 
                 // Win sound fires exactly when the animation finishes
                 rouletteResultTimer = setTimeout(() => {
@@ -173,9 +184,9 @@ function Roulette(props) {
                     setLast100(newLast100)
                     setLast10(prev10)
                     setState('WINNERS')
-                }, rollTime)
+                }, remaining)
 
-                setRound(roll)
+                setRound({...roll, status: 'rolling', elapsedMs})
             })
 
               ws().on('roulette:bonus:streak', value => setBonusStreak(Number(value || 0)))
@@ -199,6 +210,10 @@ function Roulette(props) {
 
         if (!ws() || !ws().connected) {
             hasConnected = false
+            cancelAnimationFrame(countdownFrame)
+            stopRouletteTicking()
+            setTimeLeft(0)
+            setState('CONNECTING')
         }
     })
 

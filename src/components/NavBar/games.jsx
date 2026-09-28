@@ -51,7 +51,7 @@ function Games() {
                             <For each={GAMEMODES}>{(mode) => (
                                 <A href={mode.href} class='gamemode' onClick={() => setActive(false)}
                                    style={{'display':'flex','align-items':'center','gap':'12px'}}>
-                                    <div class='thumb' style={{'background-image': `url("${mode.img}")`}}/>
+                                    <div class='thumb' style={{'background-image': active() ? `url("${mode.img}")` : 'none'}}/>
                                     <p class='name'>{mode.name}</p>
                                     <svg class='chevron' width="6" height="10" viewBox="0 0 6 10" fill="none"
                                          xmlns="http://www.w3.org/2000/svg">

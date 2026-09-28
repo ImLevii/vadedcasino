@@ -4,6 +4,7 @@
         url('/assets/fonts/geogrotesque-wide/GeogrotesqueWide-Th.ttf') format('truetype');
     font-weight: 100;
     font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
@@ -12,6 +13,7 @@
         url('/assets/fonts/geogrotesque-wide/GeogrotesqueWide-Lt.ttf') format('truetype');
     font-weight: 300;
     font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
@@ -20,6 +22,7 @@
         url('/assets/fonts/geogrotesque-wide/GeogrotesqueWide-Rg.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
@@ -28,6 +31,7 @@
     url('/assets/fonts/geogrotesque-wide/GeogrotesqueWide-Md.ttf') format('truetype');
     font-weight: 500;
     font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
@@ -36,6 +40,7 @@
     url('/assets/fonts/geogrotesque-wide/GeogrotesqueWide-SmBd.ttf') format('truetype');
     font-weight: 600;
     font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
@@ -44,4 +49,5 @@
     url('/assets/fonts/geogrotesque-wide/GeogrotesqueWide-Bd.ttf') format('truetype');
     font-weight: bold;
     font-style: normal;
+    font-display: swap;
 }

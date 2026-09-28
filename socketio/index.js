@@ -132,12 +132,12 @@ io.on('connection', function(socket) {
         if (!bets) return;
 
         socket.join(`bets:${type == 'me' ? socket.userId : type}`);
-        socket.emit('bets', type, bets);
+        socket.emit('bets', type, bets, true);
 
     });
 
     socket.on('bets:unsubscribe', (type) => {
-        socket.leave(`bets:${type}`);
+        socket.leave(`bets:${type == 'me' ? socket.userId : type}`);
     });
 
     socket.on('cases:subscribe', async () => {
@@ -237,6 +237,7 @@ io.on('connection', function(socket) {
             color: null,
             createdAt: roulette.round.createdAt,
             rolledAt: roulette.round.rolledAt,
+            endedAt: roulette.round.endedAt,
             status: 'created'
         };
         
@@ -245,6 +246,7 @@ io.on('connection', function(socket) {
             round.result = roulette.round.result;
             round.color = roulette.round.color;
         }
+        if (round.endedAt) round.status = 'ended';
 
         socket.join('roulette');
         socket.emit('roulette:set', {

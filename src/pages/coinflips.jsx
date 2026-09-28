@@ -41,6 +41,12 @@ function Coinflips(props) {
 
     createEffect(() => {
         if (ws() && ws().connected && !hasConnected) {
+            const socket = ws()
+            onCleanup(() => {
+                for (const event of ['coinflips:push', 'coinflip:join', 'coinflip:commit', 'coinflip:started']) socket.off(event)
+                socket.emit('coinflip:unsubscribe')
+                hasConnected = false
+            })
 
             unsubscribeFromGames(ws())
             subscribeToGame(ws(), 'coinflip')
@@ -51,7 +57,8 @@ function Coinflips(props) {
                     flip.endsAt = new Date(flip.startedAt).getTime() + END_DELAY
                 })
 
-                setFlips((f) => [...flips, ...f])
+                const ids = new Set(flips.map(flip => flip.id))
+                setFlips((f) => [...flips, ...f.filter(flip => !ids.has(flip.id))])
             })
 
             ws().on('coinflip:join', (cfId, side, user) => {

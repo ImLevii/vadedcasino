@@ -23,13 +23,20 @@ function Battles(props) {
 
     createEffect(() => {
         if (ws() && ws().connected && !hasConnected) {
+            const socket = ws()
+            onCleanup(() => {
+                for (const event of ['battles:push', 'battles:join', 'battles:start', 'battles:round', 'battles:ended']) socket.off(event)
+                socket.emit('battles:unsubscribe')
+                hasConnected = false
+            })
             unsubscribeFromGames(ws())
             subscribeToGame(ws(), 'battles')
 
             ws().on('battles:push', (b) => {
                 let curBattles = battles() || []
                 b.forEach((battle) => battle.players = fillEmptySlots(battle.playersPerTeam * battle.teams, battle.players))
-                setBattles([...b, ...curBattles])
+                const ids = new Set(b.map(battle => battle.id))
+                setBattles([...b, ...curBattles.filter(battle => !ids.has(battle.id))])
             })
 
             ws().on('battles:join', (id, user) => {

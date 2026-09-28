@@ -8,6 +8,7 @@ import Navbar from "./components/NavBar/navbar";
 import {Toaster} from "solid-toast";
 import Loader from "./components/Loader/loader";
 import LoadingScreen from "./components/Loader/loadingscreen";
+import ConnectionStatus from './components/Loader/connectionstatus';
 import {Redirect} from "./util/redirect";
 import {useWebsocket} from "./contexts/socketprovider";
 import {ADMIN_ROLES} from "./resources/users";
@@ -17,6 +18,7 @@ import Rakeback from "./components/Rakeback/rakeback";
 import AML from "./components/Documentation/aml";
 import UserModal from "./components/UserPopup/userpopup";
 import SignIn from "./components/Signin/signin";
+import Home from './pages/home';
 
 const Admin = lazy(() => import('./pages/admin'))
 const AdminDashboard = lazy(() => import('./components/Admin/dashboard'))
@@ -48,7 +50,6 @@ const Privacy = lazy(() => import('./components/Documentation/privacy'))
 const Provably = lazy(() => import('./components/Documentation/provably'))
 const FAQ = lazy(() => import('./components/Documentation/faq'))
 
-const Home = lazy(() => import('./pages/home'))
 
 const Profile = lazy(() => import('./pages/profile'))
 const Rewards = lazy(() => import('./pages/rewards'))
@@ -229,6 +230,7 @@ function App() {
 
                 <div class={'content ' + (isImmersiveBattle() ? 'battle-immersive-content' : '')}>
                   <div class='page-shell'>
+                  <ConnectionStatus/>
                   <Routes>
                     <Route path='/' element={
                       <Suspense fallback={<Loader/>}>

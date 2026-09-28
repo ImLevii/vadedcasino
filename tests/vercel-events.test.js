@@ -49,6 +49,9 @@ test('Neon event log relays between instances only after commit and preserves ro
         return socket;
     }
     const receiver = await client(b.url, 'user:1');
+    const localReceiver = await client(a.url, 'user:1');
+    let localDeliveries = 0;
+    localReceiver.on('balance', () => localDeliveries++);
     const outsider = await client(b.url, 'user:2');
     let leaked = 0;
     outsider.on('balance', () => leaked++);
@@ -66,8 +69,12 @@ test('Neon event log relays between instances only after commit and preserves ro
     assert.equal(delivered, false);
     releaseCommit();
     await sending;
+    await b.events.flush();
     assert.deepEqual(await received, ['set', 123]);
     assert.equal(leaked, 0);
+    await a.events.flush();
+    await new Promise(resolve => setTimeout(resolve, 30));
+    assert.equal(localDeliveries, 1, 'Commit delivery and event-log catch-up must not duplicate local events');
     await assert.rejects(coordinate(async context => {
         a.events.bind(context);
         a.server.to('user:1').emit('balance', 'set', 999);
