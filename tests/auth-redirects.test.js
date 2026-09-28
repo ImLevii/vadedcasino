@@ -17,3 +17,13 @@ test('provider callback state is tied to the browser, expires, and cannot cross 
  const expired=require('jsonwebtoken').sign({state,provider:'steam'},process.env.JWT_SECRET||'secret',{expiresIn:-1});
  assert.equal(validateAuth({cookies:{oauth_steam:expired},query:{state}},res,'steam'),false);
 });
+test('Vercel always issues secure authentication cookies even with a stale development NODE_ENV',()=>{
+ const previous=process.env.VERCEL;const previousNode=process.env.NODE_ENV;
+ try {
+  process.env.VERCEL='1';process.env.NODE_ENV='development';
+  beginAuth({cookie:(name,value,options)=>assert.equal(options.secure,true)},'steam');
+ } finally {
+  if(previous===undefined)delete process.env.VERCEL;else process.env.VERCEL=previous;
+  if(previousNode===undefined)delete process.env.NODE_ENV;else process.env.NODE_ENV=previousNode;
+ }
+});

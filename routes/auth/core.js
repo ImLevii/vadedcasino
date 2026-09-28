@@ -53,7 +53,7 @@ function cookieOptions() {
         maxAge: expiresIn * 1000,
         path: '/',
         sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production'
+        secure: process.env.VERCEL === '1' || process.env.NODE_ENV === 'production'
     };
 }
 

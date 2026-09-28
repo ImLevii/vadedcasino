@@ -12,7 +12,7 @@ function authUrls(req, env = process.env) {
     return { base: (env.BASE_URL || origin).replace(/\/+$/, ''), frontend: (env.FRONTEND_URL || origin).replace(/\/+$/, '') };
 }
 function stateOptions() {
-    return { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/auth', maxAge: 600000 };
+    return { httpOnly: true, secure: process.env.VERCEL === '1' || process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/auth', maxAge: 600000 };
 }
 function beginAuth(res, provider) {
     const state = randomBytes(24).toString('hex');
