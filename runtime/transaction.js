@@ -36,6 +36,12 @@ function createCoordinator(pool) {
             };
             try {
                 await connection.beginTransaction();
+                // A disconnected request can suspend its Vercel instance before
+                // JavaScript reaches finally. PostgreSQL must release its lock
+                // independently; otherwise every other game waits indefinitely.
+                await connection.query("SET LOCAL idle_in_transaction_session_timeout = '10s'");
+                await connection.query("SET LOCAL lock_timeout = '5s'");
+                await connection.query("SET LOCAL statement_timeout = '15s'");
                 await connection.query('SELECT pg_advisory_xact_lock(738125921)');
                 return await storage.run(context, async () => {
                     const result = await work(context);

@@ -96,12 +96,22 @@ function middleware(req, res, next) {
     const write = res.write.bind(res);
     const chunks = [];
     let endArgs;
+    let disconnected = false;
+    let cancelRoute;
+    const onClose = () => {
+        if (res.writableFinished) return;
+        disconnected = true;
+        cancelRoute?.(new Error('Client disconnected'));
+    };
+    res.once('close', onClose);
     run(async () => {
+      if (disconnected || res.destroyed) throw new Error('Client disconnected');
       if (req.path.startsWith('/trading')) {
           await require('../routes/trading/crypto/deposit/functions').cacheCryptos();
           await require('../routes/trading/crypto/withdraw/functions').cacheWithdrawalCoins();
       }
       return new Promise((resolve, reject) => {
+        cancelRoute = reject;
         res.write = (chunk, encoding, callback) => {
             if (chunk) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk, typeof encoding === 'string' ? encoding : undefined));
             if (typeof encoding === 'function') encoding();
@@ -119,17 +129,19 @@ function middleware(req, res, next) {
     }).then(() => {
         res.write = write;
         res.end = end;
+        if (disconnected || res.destroyed) return;
         for (const chunk of chunks) write(chunk);
         end(...endArgs);
     }, error => {
         console.error('[serverless-request]', error.code || error.message);
         res.write = write;
         res.end = end;
+        if (disconnected || res.destroyed) return;
         if (res.headersSent) return res.destroy();
         res.removeHeader('Content-Length');
         res.removeHeader('Set-Cookie');
         res.status(503).json({ error: 'SERVICE_UNAVAILABLE' });
-    });
+    }).finally(() => res.off('close', onClose));
 }
 
 module.exports = { setup, middleware, run };

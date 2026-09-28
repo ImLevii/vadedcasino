@@ -74,7 +74,19 @@ async function main() {
         await db.query("INSERT INTO users (id, username) VALUES (2, 'coinflip-opponent')");
         const coinflip = await db.query(`INSERT INTO coinflips ("ownerId", fire, ice, amount, "serverSeed", "clientSeed", "EOSBlock") VALUES (1, 1, 2, 1, 'test-coinflip-seed', 'test-client-seed', 100) RETURNING id`);
         await db.query(`INSERT INTO bets ("userId", amount, edge, game, "gameId", completed) VALUES (1, 1, 0.05, 'coinflip', $1, 0), (2, 1, 0.05, 'coinflip', $1, 0)`, [coinflip.rows[0].id]);
-        require('../../api/index').listen(Number(process.env.PORT), '127.0.0.1');
+        const server = require('../../api/index');
+        const requestHandler = server.listeners('request')[0];
+        server.removeAllListeners('request');
+        server.on('request', (req, res) => {
+            if (req.url !== '/__test/disconnect') return requestHandler(req, res);
+            req.path = req.url;
+            require('../../runtime/serverless').middleware(req, res, async () => {
+                await require('../../database').sql.query('UPDATE users SET balance = balance + 999 WHERE id = 1');
+                console.log('DISCONNECT_ROUTE_STARTED');
+                // Simulate a route whose caller leaves before a response exists.
+            });
+        });
+        server.listen(Number(process.env.PORT), '127.0.0.1');
     } else require('../../app');
 }
 main().catch(error => { console.error(error); process.exit(1); });

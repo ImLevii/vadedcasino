@@ -56,6 +56,17 @@ test('Vercel API recovers overdue rounds exactly once, serves auth and reconnect
         assert.equal(response.status, 200, `${path}: ${output}`);
         assert.match(response.headers.get('content-type'), /application\/json/);
     }
+    const abandoned = require('node:http').get(origin + '/__test/disconnect');
+    abandoned.on('error', () => {});
+    t.after(() => abandoned.destroy());
+    for (let i = 0; i < 100 && !output.includes('DISCONNECT_ROUTE_STARTED'); i++) {
+        await new Promise(resolve => setTimeout(resolve, 20));
+    }
+    assert.ok(output.includes('DISCONNECT_ROUTE_STARTED'), output);
+    abandoned.destroy();
+    const afterDisconnect = await fetch(origin + '/user', { headers: { cookie }, signal: AbortSignal.timeout(4000) });
+    assert.equal(afterDisconnect.status, 200, output);
+    assert.equal((await afterDisconnect.json()).balance, 108.9, 'Abandoned requests must roll back and release the game lock');
     const admin = await fetch(origin + '/admin/2fa', { method: 'POST', headers: { cookie } });
     assert.equal((await admin.json()).success, true, output);
     const settings = await fetch(origin + '/admin/games/settings', { headers: { cookie } });
