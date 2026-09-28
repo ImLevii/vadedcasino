@@ -6,7 +6,9 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
     try {
-        await seedDefaultHomeSlides();
+        // Vercel initializes schema and defaults once under the shared lock.
+        // Public reads must not race schema writes against live game requests.
+        if (!require('../runtime/context').enabled) await seedDefaultHomeSlides();
 
         const [rows] = await sql.query(
             `SELECT id, title, subtitle, cta, href, tag, accentColor, image, backgroundImage

@@ -129,7 +129,7 @@ async function seedDefaultHomeSlides() {
     return inserted;
 }
 
-ensureHomeSlidesTable().catch(() => {});
+if (!require('../runtime/context').enabled) ensureHomeSlidesTable().catch(() => {});
 
 module.exports = {
     DEFAULT_HOME_SLIDES,

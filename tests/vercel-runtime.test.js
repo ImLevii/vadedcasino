@@ -29,6 +29,12 @@ test('Vercel API recovers overdue rounds exactly once, serves auth and reconnect
         await new Promise(resolve => setTimeout(resolve, 100));
     }
     assert.equal(ready?.status, 200, output);
+    const slides = await Promise.all(Array.from({ length: 5 }, async () => {
+        const response = await fetch(origin + '/slides');
+        assert.equal(response.status, 200, output);
+        return (await response.json()).data;
+    }));
+    for (const rows of slides) assert.equal(rows.length, 3, 'Concurrent public reads must return seeded slides exactly once');
     const login = await fetch(origin + '/auth/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ username: 'pgsmoke', password: 'postgres-smoke-password' }) });
     assert.equal(login.status, 200, output);
     const cookie = login.headers.get('set-cookie')?.split(';')[0];

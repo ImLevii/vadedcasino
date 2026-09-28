@@ -17,6 +17,7 @@ async function initialize() {
             for (const statement of fs.readFileSync(path.join(__dirname, '../database/runtime.sql'), 'utf8').split(';').filter(s => s.trim())) {
                 await context.connection.nativeQuery(statement);
             }
+            await require('../routes/homeSlides').seedDefaultHomeSlides();
         });
         await events.initialize();
     })().catch(error => { initialized = null; throw error; });
@@ -112,7 +113,7 @@ function middleware(req, res, next) {
     // Public presentation reads neither spend balances nor use game caches.
     // In particular, image streams must never own the game transaction lock.
     if (req.method === 'GET' && (/^\/(slides|announcements\/active)\/?$/.test(req.path) || /^\/user\/[^/]+\/img$/.test(req.path) || req.path.startsWith('/public/media/'))) {
-        return next();
+        return initialize().then(() => next(), next);
     }
     const end = res.end.bind(res);
     const write = res.write.bind(res);
