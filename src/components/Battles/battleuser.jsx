@@ -4,7 +4,7 @@ import Level from "../Level/level";
 function BattleUser(props) {
 
     function sumItemsWon() {
-        return getOwnPulls().reduce((total, item) => total + (item?.price || 0), 0)
+        return getOwnPulls().reduce((total, item) => total + Number(item?.price || 0), 0)
     }
 
     function isBot() {
@@ -15,8 +15,8 @@ function BattleUser(props) {
     function getOwnPulls() {
         if (!Array.isArray(props?.wonItems)) return []
         return props?.wonItems?.filter(item => {
-            if (props?.state !== 'WINNERS' && item.round >= props?.round) return false
-            return item.userId === props?.player?.id
+            if (props?.state !== 'WINNERS' && item.round > (props.revealedRound || 0)) return false
+            return item.slot ? item.slot === props.index + 1 : item.userId === props?.player?.id
         })
     }
 

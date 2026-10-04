@@ -1,5 +1,5 @@
 import {useParams, useSearchParams, useNavigate} from "@solidjs/router";
-import {createEffect, createResource, createSignal, For, onCleanup, Show} from "solid-js";
+import {batch, createEffect, createSignal, For, on, onCleanup, Show} from "solid-js";
 import {useWebsocket} from "../contexts/socketprovider";
 import Loader from "../components/Loader/loader";
 import BattleColumn from "../components/Battles/battlecolumn";
@@ -7,7 +7,7 @@ import BattleDropHistory from "../components/Battles/battledrophistory";
 import {calculateWinnings, fillEmptySlots, getRoundWinner, getWonItems} from "../util/battleutil";
 import {Title} from "@solidjs/meta";
 import {resolveImageSrc} from "../util/image";
-import {playGameSFX} from "../util/sound";
+import {playGameSFX, stopSFXChannel} from "../util/sound";
 import Avatar from "../components/Level/avatar";
 import BattleFairness from "../components/Battles/battlefairness";
 
@@ -17,16 +17,18 @@ function Battle(props) {
     const navigate = useNavigate()
     const [searchParams, setSearchParams] = useSearchParams()
 
-    let hasConnected = false
+    const emojiTimers = new Set()
     const [ws] = useWebsocket()
 
     let prevBattle = null
-    const [battle, { mutate: setBattle }] = createResource(() => params.id, subscribeToBattle)
+    const [battle, setBattle] = createSignal(null)
 
     const [players, setPlayers] = createSignal(0)
     const [state, setState] = createSignal('WAITING')
     const [rounds, setRounds] = createSignal([], { equals: false })
     const [round, setRound] = createSignal(0)
+    const [revealedRound, setRevealedRound] = createSignal(0)
+    const completedLanes = new Set()
     const [block, setBlock] = createSignal('')
     const [inspecting, setInspecting] = createSignal(false)
     const [fairnessOpen, setFairnessOpen] = createSignal(false)
@@ -43,28 +45,22 @@ function Battle(props) {
     const [wonItems, setWonItems] = createSignal([])
     const [won, setWon] = createSignal(0)
 
-    function subscribeToBattle(id) {
-        if (ws() && ws().connected) {
-            ws().emit('battles:subscribe', id, searchParams?.pk)
-        }
-
-        return null
-    }
-
-    createEffect(() => {
-        if (ws() && ws().connected && !hasConnected) {
-            const socket = ws()
-            onCleanup(() => {
-                for (const event of ['battle', 'battle:join', 'battle:commit', 'battle:start', 'battle:round', 'battle:ended', 'battle:emoji', 'battle:fairness']) socket.off(event)
-                socket.emit('battles:unsubscribe', params.id)
-                hasConnected = false
-            })
-            ws().emit('battles:subscribe', params.id, searchParams?.pk)
-            ws().on('battle', (b) => {
+    createEffect(on(() => [ws(), params.id, searchParams.pk], ([socket, subscriptionId, privateKey]) => {
+        if (!socket?.connected) return
+        const handlers = new Map()
+        const listen = (event, handler) => { handlers.set(event, handler); socket.on(event, handler) }
+        onCleanup(() => {
+          for (const [event, handler] of handlers) socket.off(event, handler)
+          socket.emit('battles:unsubscribe', subscriptionId)
+        })
+            listen('battle', (snapshot) => {
+                if (String(snapshot.id) !== String(subscriptionId)) return
+                const b = {...snapshot}
+                batch(() => {
 
                 if (prevBattle !== b.id) {
                     resetValues()
-                    ws().emit('battles:unsubscribe', prevBattle)
+                    if (prevBattle != null) socket.emit('battles:unsubscribe', prevBattle)
                 }
                 prevBattle = b.id
 
@@ -74,6 +70,8 @@ function Battle(props) {
                 b.players = fillEmptySlots(max, b.players)
 
                 setPlayers(max)
+                if (round() !== b.round) completedLanes.clear()
+                setRevealedRound(value => Math.max(value, Math.max(0, b.round - 1)))
                 setRound(b.round)
                 initRounds(b)
 
@@ -81,11 +79,12 @@ function Battle(props) {
                     setState('EOS')
                     setBlock(b.EOSBlock)
                 }
+                if (b.round < 1 && !b.EOSBlock) setState('WAITING')
 
                 if (b.round > 0 && !b.endedAt) {
                     setState('ROLLING')
                     let itemsInRound = wonItems().slice((b.round - 1) * players(), b.round * players())
-                    setRoundWinners(getRoundWinner(itemsInRound, b.playersPerTeam))
+                    setRoundWinners(getRoundWinner(itemsInRound, b.playersPerTeam, b.gamemode))
                 }
 
                 if (b.endedAt) {
@@ -96,11 +95,12 @@ function Battle(props) {
                 else if(b.control?.pausedAt)setState('PAUSED');
 
                 setBattle(b)
+                })
             })
 
-            ws().on('battle:fairness', (id) => { if (id === battle()?.id) setFairnessRevision(n => n + 1) })
+            listen('battle:fairness', (id) => { if (id === battle()?.id) setFairnessRevision(n => n + 1) })
 
-            ws().on('battle:join', (id, user) => {
+            listen('battle:join', (id, user) => {
                 let curBattle = battle()
                 if (id !== curBattle?.id) return
 
@@ -108,13 +108,13 @@ function Battle(props) {
                 setBattle({...curBattle})
             })
 
-            ws().on('battle:commit', (id, block) => {
+            listen('battle:commit', (id, block) => {
                 if (id !== battle()?.id) return
                 setState('EOS')
                 setBlock(block)
             })
 
-            ws().on('battle:start', (battleId, rounds, clientSeed, serverSeed) => {
+            listen('battle:start', (battleId, rounds, clientSeed, serverSeed) => {
                 if (battleId !== battle()?.id) return
                 setFairnessRevision(n => n + 1)
                 setRounds(rounds)
@@ -122,18 +122,22 @@ function Battle(props) {
                 setWon(calculateWinnings(battle().cases, rounds, battle().playersPerTeam))
             })
 
-            ws().on('battle:round', (battleId, roundNum) => {
+            listen('battle:round', (battleId, roundNum) => {
                 if (battleId !== battle()?.id) return
                 setFairnessRevision(n => n + 1)
+                if (state() === 'WINNERS' || roundNum < round()) return
+                if (roundNum === round() && state() === 'ROLLING') return
                 setState('ROLLING')
+                completedLanes.clear()
+                setRevealedRound(value => Math.max(value, roundNum - 1))
                 setRound(roundNum)
 
                 let itemsInRound = wonItems().slice((roundNum - 1) * players(), roundNum * players())
-                setRoundWinners(getRoundWinner(itemsInRound, battle().playersPerTeam))
+                setRoundWinners(getRoundWinner(itemsInRound, battle().playersPerTeam, battle().gamemode))
             })
 
-            ws().on('battle:ended', (battleId, { winnerTeam, serverSeed, clientSeed }) => {
-              if (battleId !== battle()?.id) return
+            listen('battle:ended', (battleId, { winnerTeam, serverSeed, clientSeed }) => {
+              if (battleId !== battle()?.id || state() === 'WINNERS') return
               setFairnessRevision(n => n + 1)
               playGameSFX('battle-win', '/assets/sfx/winorcashout.mp3', {
                 channel: 'result-win',
@@ -144,34 +148,29 @@ function Battle(props) {
                 setState('WINNERS')
             })
 
-            ws().on('battle:emoji', (battleId, emoji) => {
+            listen('battle:emoji', (battleId, emoji) => {
                 if (battleId !== battle()?.id) return
                 spawnEmoji(emoji)
             })
-        }
-
-        hasConnected = !!ws()?.connected
-    })
+        socket.emit('battles:subscribe', subscriptionId, privateKey)
+    }))
 
     onCleanup(() => {
-        if (ws() && ws().connected) {
-            ws().emit('battles:unsubscribe', prevBattle)
-            ws().off('battle')
-            ws().off('battle:join')
-            ws().off('battle:commit')
-            ws().off('battle:start')
-            ws().off('battle:round')
-            ws().off('battle:ended')
-            ws().off('battle:emoji')
-            ws().off('battle:fairness')
-        }
+      emojiTimers.forEach(clearTimeout)
+      stopSFXChannel('result-win')
     })
+
+    function onRoundComplete(index, completedRound) {
+      if (completedRound !== round() || state() !== 'ROLLING') return
+      completedLanes.add(index)
+      if (completedLanes.size >= players()) setRevealedRound(completedRound)
+    }
 
     function initRounds(battle) {
         if (!battle || battle.round < 1) return
 
         setRound(battle.round)
-        setRounds([...battle.rounds])
+        setRounds([...(battle.rounds || [])])
         setWonItems(getWonItems(battle.rounds, battle.cases))
         setWon(calculateWinnings(battle.cases, battle.rounds, battle.playersPerTeam))
     }
@@ -185,6 +184,10 @@ function Battle(props) {
         setWon(0)
         setWonItems([])
         setRounds([])
+        completedLanes.clear()
+        setRevealedRound(0)
+        setWinnerTeam(0)
+        setRoundWinners([])
         setRound(0)
     }
 
@@ -220,19 +223,20 @@ function Battle(props) {
         const id = Date.now() + Math.random()
         const x = 5 + Math.random() * 90
         setFloatingEmojis(prev => [...prev, { id, emoji, x }])
-        setTimeout(() => setFloatingEmojis(prev => prev.filter(e => e.id !== id)), 2800)
+        const timer = setTimeout(() => { emojiTimers.delete(timer); setFloatingEmojis(prev => prev.filter(e => e.id !== id)) }, 2800)
+        emojiTimers.add(timer)
     }
 
     // Calculate team totals
     function getTeamTotal(teamIndex) {
         if (!battle() || !wonItems()) return 0
-        const teamPlayerIds = battle()?.players
+        const teamSlots = battle()?.players
             ?.filter((p, idx) => Math.floor(idx / battle()?.playersPerTeam) === teamIndex)
-            ?.map(p => p?.id)
+            ?.map(p => p?.slot)
         
         return wonItems()
-            .filter(item => teamPlayerIds?.includes(item.userId) && (state() === 'WINNERS' || item.round < round()))
-            .reduce((sum, item) => sum + (item?.price || 0), 0)
+            .filter(item => teamSlots?.includes(item.slot) && (state() === 'WINNERS' || item.round <= revealedRound()))
+            .reduce((sum, item) => sum + Number(item?.price || 0), 0)
     }
 
     function getWinningPlayers() {
@@ -332,7 +336,7 @@ function Battle(props) {
                             <For each={battle()?.cases || []}>{c => (
                               <div class='inspected-case'>
                                 <img src={resolveImageSrc(c.img)} alt='' onError={useImageFallback}/>
-                                <div><strong>{c.name}</strong><span>{battle().rounds.filter(r => r.caseId === c.id).length} rounds ? {Number(c.price || 0).toFixed(2)} each</span></div>
+                                <div><strong>{c.name}</strong><span>{battle().rounds.filter(r => r.caseId === c.id).length} rounds · {Number(c.price || 0).toFixed(2)} each</span></div>
                               </div>
                             )}</For>
                           </div>
@@ -358,6 +362,8 @@ function Battle(props) {
                                     creator={isCreator()}
                                     total={won()}
                                     wonItems={wonItems()}
+                                    revealedRound={revealedRound()}
+                                    onRoundComplete={onRoundComplete}
                                     roundWinners={roundWinners()}
                                     compact={true}
                                     side='left'
@@ -387,7 +393,7 @@ function Battle(props) {
                                 </div>
                                 <Show when={state() === 'WINNERS'}>
                                   <div class='winner-callout'>
-                                    <span class='winner-label'>{battle()?.teams === 2 ? (winnerTeam() === 0 ? 'Left team wins' : 'Right team wins') : `Team ${winnerTeam() + 1} wins`}</span>
+                                    <span class='winner-label'>{battle()?.gamemode === 'group' ? 'Group winnings' : battle()?.teams === 2 ? (winnerTeam() === 0 ? 'Left team wins' : 'Right team wins') : `Team ${winnerTeam() + 1} wins`}</span>
                                     <div class='winner-avatars'>
                                       <For each={getWinningPlayers()}>{(p) => (
                                         <Avatar height='40' id={p?.id} xp={p?.xp || 0}/>
@@ -400,8 +406,9 @@ function Battle(props) {
                                     </div>
                                     <div class='winner-amount'>
                                       <img src='/assets/chips/chip-green.png' height='14' width='14' alt=''/>
-                                      <span>{getTeamTotal(winnerTeam()).toFixed(2)}</span>
+                                      <span>{Number(won() || 0).toFixed(2)}</span>
                                     </div>
+                                    <span class='payout-caption'>Per winning player</span>
                                   </div>
                                 </Show>
                               </div>
@@ -427,6 +434,8 @@ function Battle(props) {
                                       creator={isCreator()}
                                       total={won()}
                                       wonItems={wonItems()}
+                                    revealedRound={revealedRound()}
+                                    onRoundComplete={onRoundComplete}
                                       roundWinners={roundWinners()}
                                       compact={true}
                                       side='right'
@@ -484,6 +493,7 @@ function Battle(props) {
                             rounds={battle()?.rounds || []}
                             state={state()}
                             round={round()}
+                            revealedRound={revealedRound()}
                           />
                         </Show>
 
@@ -496,6 +506,9 @@ function Battle(props) {
 
           .fairness-btn { display:flex; align-items:center; justify-content:center; gap:6px; white-space:nowrap; background:#121b16; color:#a7b6ac; border:1px solid #2b3c30; border-radius:4px; padding:7px 10px; font:inherit; font-size:11px; cursor:pointer; }
           .fairness-btn:hover { color:#1fd65f; border-color:#258b49; }
+          .payout-caption { color:#84958b; font-size:8px; margin-top:5px; }
+          .battle-container button:focus-visible { outline:2px solid #1fd65f; outline-offset:3px; }
+          @media(prefers-reduced-motion:reduce) { .battle-container * { animation:none!important; transition:none!important; } }
 
           .battle-container {
             width: 100%;

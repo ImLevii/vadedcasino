@@ -1,21 +1,22 @@
+// Display strips and demo results share the case's weighted distribution.
+// Normalize rounding drift so every strip has a complete landing slot.
+export const pickCaseItem = (caseItems, random = Math.random) => {
+    const pool = (caseItems || []).filter(item => Number(item.probability) > 0)
+    const total = pool.reduce((sum, item) => sum + Number(item.probability), 0)
+    if (!total) return caseItems?.[0]
+    let ticket = Math.max(0, Math.min(1, random())) * total
+    for (const item of pool) {
+        ticket -= Number(item.probability)
+        if (ticket < 0) return item
+    }
+    return pool[pool.length - 1]
+}
+
 export const generateRandomItems = (caseItems, chance) => {
     if (!Array.isArray(caseItems)) return [];
 
-    const randomImages = [];
-    const sortedItems = caseItems.slice().sort((a, b) => a.price - b.price);
-
-    for (let i = 0; i < 56; i++) {
-        let randomTicket = chance ? chance.random() * 100 : Math.random() * 100;
-        for (let item of sortedItems) {
-            randomTicket -= item.probability;
-            if (randomTicket <= 0) {
-                randomImages.push(item);
-                break;
-            }
-        }
-    }
-
-    return randomImages;
+    if (!caseItems.length) return [];
+    return Array.from({length: 56}, () => pickCaseItem(caseItems, chance ? () => chance.random() : Math.random));
 }
 
 // ── Cosmic Spin ──

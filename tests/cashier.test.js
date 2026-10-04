@@ -6,7 +6,7 @@ const net = require("node:net");
 const { randomUUID, createHmac } = require("node:crypto");
 const jwt = require("jsonwebtoken");
 test(
-  "cashier: authenticated gift cards, atomic deposit settlement and durable payout reconciliation",
+  "cashier: gift cards, retired provider creation blocks, historical settlement and payout recovery",
   { timeout: 60000 },
   async (t) => {
     const reservation = net.createServer().listen(0, "127.0.0.1");
@@ -121,6 +121,13 @@ test(
       20,
     );
     assert.equal(redeem.success, true, JSON.stringify(redeem) + " " + output);
+    const afterGift = await state();
+    // The fixture issues a $25 gift card at $0.70 per coin, rounded down.
+    assert.equal(afterGift.users.find(user => user.id === 20).balance, 135.71);
+    assert.equal(afterGift.ledger.filter(row => row.method === "giftcard" && row.methodId === cards.data[0].id).length, 1);
+    await new Promise(resolve => setTimeout(resolve, 310));
+    assert.equal((await request("/trading/deposit/giftcards/redeem", { code: first.codes[0] }, "POST", 20)).error, "INVALID_CODE");
+    assert.equal((await state()).users.find(user => user.id === 20).balance, 135.71);
     assert.equal(
       (
         await request(
@@ -204,7 +211,7 @@ test(
           20,
         )
       ).error,
-      "INVALID_AMOUNT",
+      "PAYMENT_PROVIDER_REMOVED",
     );
     const depositList = await request("/admin/cashier/crypto?kind=deposits");
     assert.equal(
@@ -218,18 +225,18 @@ test(
       approval,
     );
     assert.equal(
-      approved.success,
-      true,
+      approved.error,
+      "PAYMENT_PROVIDER_REMOVED",
       JSON.stringify(approved) + " " + output,
     );
     await request("/admin/cashier/crypto/accept/901", approval);
     after = await state();
-    assert.deepEqual(after.calls.payouts, [901]);
+    assert.deepEqual(after.calls.payouts, [902]);
     const uncertain = await request(
       "/admin/cashier/crypto/accept/902",
       action(),
     );
-    assert.equal(uncertain.error, "PAYOUT_REQUIRES_RECONCILIATION");
+    assert.equal(uncertain.error, "PAYMENT_PROVIDER_REMOVED");
     after = await state();
     assert.equal(after.withdrawals.find((t) => t.id === 902).status, "sending");
     assert.equal(
@@ -238,7 +245,7 @@ test(
     );
     await request("/admin/cashier/crypto/accept/902", action());
     after = await state();
-    assert.deepEqual(after.calls.payouts, [901, 902]);
+    assert.deepEqual(after.calls.payouts, [902]);
     assert.equal(
       (await request("/admin/cashier/crypto/reconcile/902", action())).success,
       true,

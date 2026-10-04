@@ -4,6 +4,7 @@ import Avatar from "../Level/avatar";
 import {getCents} from "../../util/balance";
 import {authedAPI} from "../../util/api";
 import {resolveImageSrc} from "../../util/image";
+import CosmicGem from '../Cases/cosmicgem';
 
 function BattleRow(props) {
 
@@ -55,12 +56,15 @@ function BattleRow(props) {
   }
 
   const state = createMemo(() => {
+    if (props.battle?.control?.cancelledAt) return 'cancelled'
+    if (props.battle?.control?.pausedAt) return 'paused'
     if (props?.battle?.endedAt) return 'finished'
     if (props?.battle?.startedAt) return 'rolling'
     return 'waiting'
   })
 
   function statusKind() {
+    if (state() === 'cancelled' || state() === 'paused') return state()
     if (state() === 'rolling') return 'live'
     if (state() === 'finished') return 'ended'
     if (isFull()) return 'full'
@@ -106,7 +110,7 @@ function BattleRow(props) {
         privKey: props?.battle?.privKey
       }), true)
 
-      if (!res.success) return
+      if (!res?.success) return
       props?.ws?.emit('battles:subscribe', props?.battle?.id, props?.battle?.privKey)
       navigate(battleHref())
     } finally {
@@ -140,7 +144,7 @@ function BattleRow(props) {
             </div>
 
             <div class='drops-row'>
-              <span class='drops-label'>Drops</span>
+              <span class='drops-label'>Entry pool</span>
               <span class='drops-amount'>
                 <img src='/assets/icons/coin.svg' height='13' width='13' alt=''/>
                 {Math.floor(potValue())}.{getCents(potValue())}
@@ -151,26 +155,24 @@ function BattleRow(props) {
                   {joining() ? 'Joining…' : 'Join'}
                 </button>
               ) : (
-                <button class='action watch' type='button'>
+                <A class='action watch' href={battleHref()}>
                   <svg viewBox='0 0 24 24' width='13' height='13' fill='none' aria-hidden='true'><path d='M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z' stroke='currentColor' stroke-width='1.8'/><circle cx='12' cy='12' r='2.5' stroke='currentColor' stroke-width='1.8'/></svg>
-                  {state() === 'finished' ? 'See Result' : 'Watch'}
-                  <A class='gamemode-link' href={battleHref()}/>
-                </button>
+                  {state() === 'finished' ? 'See Result' : state() === 'cancelled' ? 'Cancelled' : state() === 'paused' ? 'Paused' : 'Watch'}
+                </A>
               )}
             </div>
           </div>
 
           <div class='mid'>
-            <button class='inspect' type='button'>
+            <A class='inspect' href={battleHref()}>
               Inspect
-              <A class='gamemode-link' href={battleHref()}/>
-            </button>
+            </A>
 
             <div class='badge-row'>
               <For each={badges()}>{(badge) => (
                 <div class={'badge ' + (badge ? 'active ' + badge.kind : 'empty')} title={badge?.label || ''}>
                   {badge && (
-                    <svg viewBox='0 0 24 24' width='13' height='13'>{badgeIcon(badge.kind)}</svg>
+                    <Show when={badge.kind === 'cosmic'} fallback={<svg viewBox='0 0 24 24' width='13' height='13'>{badgeIcon(badge.kind)}</svg>}><span class='badge-gem' style={{display:'block',width:'13px',height:'16px'}}><CosmicGem motion={false}/></span></Show>
                   )}
                 </div>
               )}</For>
@@ -309,6 +311,7 @@ function BattleRow(props) {
         }
 
         .action {
+          text-decoration:none;
           margin-left: auto;
           min-height: 34px;
           padding: 0 16px;
@@ -358,6 +361,7 @@ function BattleRow(props) {
         }
 
         .inspect {
+          text-decoration:none;
           min-height: 34px;
           padding: 0 14px;
           display: flex;
@@ -380,6 +384,8 @@ function BattleRow(props) {
           border-color: rgba(255,255,255,.16);
           background: rgba(255,255,255,.05);
         }
+        .battle-row a:focus-visible,.battle-row button:focus-visible { outline:2px solid #1fd65f; outline-offset:3px; }
+        @media(prefers-reduced-motion:reduce) { .battle-row,.battle-row * { animation:none!important; transition:none!important; } }
 
         .badge-row {
           display: flex;

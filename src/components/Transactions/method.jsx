@@ -13,7 +13,7 @@ function Method(props) {
         <>
             <div class={'method-container' + getState()} onClick={() => {
                 if (props?.disabled) return createNotification('error', 'This payment method is currently disabled')
-                props?.click()
+                props.click?.()
             }} aria-disabled={!!props?.disabled}>
                 <div class='icon'>
                     <img classList={{wide: props?.wideImg}} src={props?.img} alt={props?.display || props?.name}/>

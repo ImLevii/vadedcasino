@@ -63,6 +63,7 @@ function CaseItem(props) {
 
                 <div class='item-info'>
                     <div class='item-top-row'>
+                        <span class='drop-chance'>{Number(props.probability || 0).toLocaleString(undefined, {maximumFractionDigits:3})}%</span>
                         {getExterior(props?.name) && (
                             <span class='ext-tag' style={`color: ${getExteriorColor(getExterior(props?.name))}`}>
                                 {getExterior(props?.name)}
@@ -155,6 +156,7 @@ function CaseItem(props) {
                 gap: 4px;
                 margin-bottom: 1px;
               }
+              .drop-chance { margin-left:auto; order:1; color:#82938b; font-size:9px; font-variant-numeric:tabular-nums; }
 
               .ext-tag {
                 font-family: 'Geogrotesque Wide', sans-serif;

@@ -197,6 +197,8 @@ function mapItem(e) {
         name: e.name,
         img: e.img || catalogItem?.img || `/items/${encodeURIComponent(e.itemId)}/img`,
         price: e.price,
+        rangeFrom: e.rangeFrom,
+        rangeTo: e.rangeTo,
         probability: +getItemProbability(e.rangeFrom, e.rangeTo).toFixed(3) // roundDecimal(getItemProbability(e.rangeFrom, e.rangeTo), 3)
     }
 

@@ -1,0 +1,147 @@
+.provider-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+.provider-card {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 18px;
+}
+.provider-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.provider-card h2 {
+  margin: 7px 0 0;
+  font-size: 20px;
+}
+.provider-directions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.provider-directions > div {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  font-size: 12px;
+}
+.provider-directions small {
+  line-height: 18px;
+  color: #929caa;
+}
+.provider-policy {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid #52462b;
+  border-radius: 7px;
+  color: #d6c297;
+  background: #2e281b;
+  font-size: 11px;
+  line-height: 18px;
+}
+.provider-credentials-summary {
+  font-size: 11px;
+  color: #8d9bab;
+}
+.provider-card footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid #2a3540;
+}
+.provider-check {
+  font-size: 12px;
+  color: #a8d1b6;
+  margin: 0;
+}
+.provider-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.provider-switches {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  font-size: 12px;
+}
+.provider-switches label,
+.provider-clear {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.provider-clear {
+  font-size: 10px;
+  color: #a2acba;
+}
+.provider-endpoint {
+  padding: 12px;
+  border: 1px solid #2a3540;
+  border-radius: 6px;
+  background: #101821;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.provider-caption {
+  color: #8392a3;
+  font-size: 11px;
+  line-height: 19px;
+  margin-top: 16px;
+}
+.provider-caption a {
+  color: #84d8a5;
+}
+.provider-reference {
+  display: block;
+  max-width: 260px;
+  font-size: 10px;
+  color: #8795a6;
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+.provider-subtabs {
+  margin-bottom: 20px;
+}
+.provider-filters {
+  display: flex !important;
+  flex-wrap: wrap;
+}
+.provider-filters .adm-field {
+  flex: 1;
+  min-width: 130px;
+}
+@media (max-width: 650px) {
+  .provider-form-grid,
+  .provider-grid {
+    grid-template-columns: 1fr;
+  }
+  .provider-card {
+    padding: 16px;
+  }
+  .provider-subtabs {
+    overflow-x: auto;
+  }
+  .provider-directions {
+    gap: 10px;
+  }
+}
+.provider-receipt-confirm {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.provider-receipt-confirm input {
+  flex: 0 0 auto;
+  margin-top: 3px;
+}

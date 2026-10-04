@@ -1,14 +1,14 @@
+const {
+  paymentEnv,
+  configuration,
+  context,
+} = require("../../trading/providers/config");
 const express = require("express");
 const router = express.Router();
 const { sql, doTransaction } = require("../../../database");
 const { durable } = require("../../../runtime/cashier");
 const actions = require("./actions");
-const {
-  mexc,
-  getWalletBalance,
-  cacheWithdrawalCoins,
-  withdrawalCoins,
-} = require("../../trading/crypto/withdraw/functions");
+const { mexc } = require("../../trading/crypto/withdraw/functions");
 router.get("/", async (req, res) => {
   try {
     const kind = req.query.kind === "deposits" ? "deposits" : "withdrawals";
@@ -55,20 +55,23 @@ router.get("/", async (req, res) => {
         " ORDER BY c.id DESC LIMIT ? OFFSET ?",
       [...args, 20, (page - 1) * 20],
     );
+    const depositConfig = await configuration("coinpayments");
     res.json({
       data,
       page,
       pages,
       total: Number(total),
+      retired: true,
       provider: {
-        deposits:
+        deposits: context.run(depositConfig, () =>
           require("../../trading/crypto/deposit/provider").configuration(),
+        ),
         withdrawals: {
           configured: !!(
-            process.env.MEXC_API_KEY && process.env.MEXC_API_SECRET
+            paymentEnv("MEXC_API_KEY") && paymentEnv("MEXC_API_SECRET")
           ),
           missing: ["MEXC_API_KEY", "MEXC_API_SECRET"].filter(
-            (k) => !process.env[k],
+            (k) => !paymentEnv(k),
           ),
         },
       },
@@ -123,94 +126,7 @@ router.post("/deny/:id", async (req, res) => {
   }
 });
 router.post("/accept/:id", async (req, res) => {
-  const id = Number(req.params.id);
-  if (!Number.isSafeInteger(id) || id < 1)
-    return res.status(400).json({ error: "INVALID_ID" });
-  const request = actions.intent(req.user, "crypto.accept", id, req.body);
-  if (request.error) return res.status(request.status).json(request);
-  if (!process.env.MEXC_API_KEY || !process.env.MEXC_API_SECRET)
-    return res.status(503).json({ error: "CRYPTO_PROVIDER_UNAVAILABLE" });
-  let claimed = false;
-  try {
-    const [[snapshot]] = await sql.query(
-      "SELECT * FROM cryptoWithdraws WHERE id=?",
-      [id],
-    );
-    if (!snapshot)
-      return res.status(404).json({ error: "TRANSACTION_NOT_FOUND" });
-    if (snapshot.status !== "pending")
-      return res.status(409).json({ error: "TRANSACTION_NOT_PENDING" });
-    await cacheWithdrawalCoins();
-    const coin = withdrawalCoins[snapshot.currency],
-      chain = coin?.chains?.find((c) => c.id === snapshot.chain);
-    if (!chain)
-      return res.status(503).json({ error: "PAYMENT_NETWORK_UNAVAILABLE" });
-    const amount = Number(snapshot.cryptoAmount),
-      step = chain.precision || 0.00000001;
-    const sendAmount = Number(
-      (Math.floor((amount + Number.EPSILON) / step) * step).toFixed(8),
-    );
-    if (
-      !Number.isFinite(sendAmount) ||
-      sendAmount <= 0 ||
-      sendAmount < chain.min ||
-      sendAmount > chain.max
-    )
-      return res.status(400).json({ error: "INVALID_AMOUNT" });
-    if (sendAmount + chain.fee > (await getWalletBalance(snapshot.currency)))
-      return res.status(400).json({ error: "HOT_WALLET_BALANCE" });
-    // Commit the claim before contacting the exchange. An uncertain response stays reserved.
-    const claim = await durable(() =>
-      actions.perform(
-        req.user,
-        "crypto.accept",
-        id,
-        req.body,
-        async (connection) => {
-          const [[tx]] = await connection.query(
-            "SELECT * FROM cryptoWithdraws WHERE id=? FOR UPDATE",
-            [id],
-          );
-          if (tx.status !== "pending")
-            return actions.fail("TRANSACTION_NOT_PENDING", 409);
-          await connection.query(
-            "UPDATE cryptoWithdraws SET status=?,modifiedAt=NOW() WHERE id=?",
-            ["sending", id],
-          );
-          return { success: true, claimed: true };
-        },
-      ),
-    );
-    if (claim.error || claim.replayed)
-      return res.status(claim.status || 200).json(claim);
-    claimed = true;
-    const { data } = await mexc({
-      url: "/api/v3/capital/withdraw",
-      method: "POST",
-      sign: true,
-      params: {
-        coin: snapshot.currency,
-        netWork: chain.providerNetwork || snapshot.chain,
-        address: snapshot.address,
-        amount: sendAmount.toString(),
-        withdrawOrderId: "cosmicluck-" + id,
-      },
-    });
-    if (!data?.id) throw new Error("PAYOUT_UNCONFIRMED");
-    await durable(() =>
-      sql.query(
-        "UPDATE cryptoWithdraws SET exchangeId=?,status=?,modifiedAt=NOW() WHERE id=? AND status=?",
-        [String(data.id), "sent", id, "sending"],
-      ),
-    );
-    res.json({ success: true });
-  } catch {
-    res.status(claimed ? 202 : 503).json({
-      error: claimed
-        ? "PAYOUT_REQUIRES_RECONCILIATION"
-        : "CRYPTO_PROVIDER_UNAVAILABLE",
-    });
-  }
+  return res.status(410).json({ error: "PAYMENT_PROVIDER_REMOVED" });
 });
 router.post("/reconcile/:id", async (req, res) => {
   const id = Number(req.params.id);
@@ -218,7 +134,7 @@ router.post("/reconcile/:id", async (req, res) => {
     return res.status(400).json({ error: "INVALID_ID" });
   const request = actions.intent(req.user, "crypto.reconcile", id, req.body);
   if (request.error) return res.status(request.status).json(request);
-  if (!process.env.MEXC_API_KEY || !process.env.MEXC_API_SECRET)
+  if (!paymentEnv("MEXC_API_KEY") || !paymentEnv("MEXC_API_SECRET"))
     return res.status(503).json({ error: "CRYPTO_PROVIDER_UNAVAILABLE" });
   try {
     const [[snapshot]] = await sql.query(

@@ -1,9 +1,12 @@
 import {For, Show} from "solid-js";
 import {resolveImageSrc} from "../../util/image";
 import IndicatorLine from "../IndicatorLine/indicatorline";
+import {useDialog} from '../../util/dialog';
 
 function CasePreview(props) {
     const {case: caseData, onClose} = props
+    let dialog
+    useDialog(() => dialog, onClose)
 
     function getRarityColor(price) {
         if (price < 1000) return '#A9B5D2'
@@ -77,28 +80,13 @@ function CasePreview(props) {
         return { label: 'Low', color: '#1fd65f' }
     }
 
-    // Compute winning ticket ranges (1,000,000 total tickets)
-    function getTicketRange(items, index) {
-        const sorted = items.slice().sort((a, b) => a.probability - b.probability)
-        let start = 0
-        for (let i = 0; i < index; i++) {
-            start += Math.round(sorted[i].probability * 10000)
-        }
-        const count = Math.round(sorted[index].probability * 10000)
-        const end = start + count - 1
-        return {
-            start: start.toLocaleString(),
-            end: end.toLocaleString()
-        }
-    }
-
     return (
         <>
             {/* Overlay */}
             <div class='preview-overlay' onClick={onClose}/>
 
             {/* Modal */}
-            <div class='preview-modal'>
+            <div ref={dialog} class='preview-modal' role='dialog' aria-modal='true' aria-label='Case Inspection' data-case-dialog tabIndex='-1'>
                 {/* Header */}
                 <div class='preview-header'>
                     <span class='header-title'>Case Inspection</span>
@@ -175,7 +163,6 @@ function CasePreview(props) {
                                 const ext = getExterior(item.name)
                                 const rarityColor = getRarityColor(item.price)
                                 const rarityLabel = getRarityLabel(item.price)
-                                const range = getTicketRange(caseData?.items || [], index())
 
                                 return (
                                     <div class='item-card' style={`--rc: ${rarityColor}`}>
@@ -222,9 +209,9 @@ function CasePreview(props) {
                                                 </div>
                                                 <span class='chance-pct'>{item.probability}%</span>
                                             </div>
-                                            <p class='ticket-range'>
-                                                Winning Tickets {range.start} - {range.end}
-                                            </p>
+                                            <Show when={Number.isFinite(Number(item.rangeFrom)) && item.rangeFrom != null && item.rangeTo != null}>
+                                                <p class='ticket-range'>Winning Tickets {Number(item.rangeFrom).toLocaleString()} – {Number(item.rangeTo).toLocaleString()}</p>
+                                            </Show>
                                         </div>
                                     </div>
                                 )
@@ -257,7 +244,7 @@ function CasePreview(props) {
 
                     border-radius: 14px;
                     border: 1px solid rgba(255, 255, 255, 0.07);
-                    background: #191f2a;
+                    background: #15191f;
                     box-shadow: 0 28px 80px rgba(0, 0, 0, 0.7);
 
                     display: flex;
@@ -273,7 +260,7 @@ function CasePreview(props) {
                     position: relative;
                     padding: 16px 20px;
                     border-bottom: 1px solid rgba(255, 255, 255, 0.065);
-                    background: #1e2533;
+                    background: #1b2027;
                     flex-shrink: 0;
                 }
 

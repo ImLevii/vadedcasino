@@ -225,8 +225,9 @@ export default function Admin() {
                     <For
                       each={[
                         ["", "Gift cards"],
-                        ["crypto", "Crypto"],
+                        ["crypto", "Archived crypto"],
                         ["skindeck", "Skins"],
+                        ["providers", "Payment providers"],
                       ]}
                     >
                       {([value, label]) => (

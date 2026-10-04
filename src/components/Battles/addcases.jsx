@@ -1,8 +1,11 @@
 import {createSignal, For} from "solid-js";
 import CaseButton from "../Cases/casebutton";
 import {getCents} from "../../util/balance";
+import {useDialog} from '../../util/dialog';
 
 function AddCases(props) {
+  let dialog
+  useDialog(() => dialog, () => props.close())
 
   const [search, setSearch] = createSignal('')
   const [sort, setSort] = createSignal('DESCENDING')
@@ -13,9 +16,9 @@ function AddCases(props) {
     let sorted
 
     if (sort() === "DESCENDING")
-      sorted = props?.cases.sort((a, b) => b.price - a.price)
+      sorted = props?.cases.slice().sort((a, b) => b.price - a.price)
     else
-      sorted = props?.cases.sort((a, b) => a.price - b.price)
+      sorted = props?.cases.slice().sort((a, b) => a.price - b.price)
 
     sorted = sorted.filter(c => {
       if (filter() === 'OFFICIAL' && c.community) return false
@@ -29,9 +32,9 @@ function AddCases(props) {
   return (
     <>
       <div class='modal fadein' onClick={() => props.close()}>
-        <div class='cases-container' onClick={(e) => e.stopPropagation()}>
+        <div ref={dialog} class='cases-container' role='dialog' aria-modal='true' aria-label='Case selection' data-case-dialog tabIndex='-1' onClick={(e) => e.stopPropagation()}>
           <div class='header'>
-            <button class='exit bevel-light' onClick={() => props.close()}>
+            <button class='exit bevel-light' aria-label='Close case selection' onClick={() => props.close()}>
               <svg xmlns="http://www.w3.org/2000/svg" width="10" height="8" viewBox="0 0 10 8" fill="none">
                 <path
                   d="M3.9497 0.447999L5.21006 1.936L6.45216 0.447999C6.68353 0.149333 6.95752 0 7.27413 0H9.6122C9.79486 0 9.90445 0.0533333 9.94099 0.16C9.9897 0.256 9.95925 0.362666 9.84966 0.48L6.79921 3.968L9.88619 7.52C9.99578 7.63733 10.0262 7.74933 9.97752 7.856C9.94099 7.952 9.83139 8 9.64873 8H6.96361C6.68353 8 6.40954 7.85067 6.14163 7.552L4.863 6.048L3.58438 7.552C3.31647 7.85067 3.04857 8 2.78067 8H0.351272C0.180788 8 0.071191 7.952 0.0224814 7.856C-0.0262283 7.74933 0.00421525 7.63733 0.113812 7.52L3.27385 3.936L0.296473 0.48C0.186876 0.362666 0.150344 0.256 0.186876 0.16C0.235586 0.0533333 0.351272 0 0.533933 0H3.10946C3.42607 0 3.70615 0.149333 3.9497 0.447999Z"

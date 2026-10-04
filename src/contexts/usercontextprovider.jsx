@@ -1,5 +1,6 @@
 import {api, authedAPI, createNotification, fetchUser, getJWT} from "../util/api";
 import {createContext, createResource, createSignal, onCleanup, useContext} from "solid-js";
+import {createBalanceSync} from "../util/balance-sync.mjs";
 
 const UserContext = createContext();
 
@@ -27,6 +28,9 @@ export function UserProvider(props) {
                 ...newUser
             })
         },
+        refreshBalance() {
+            balanceSync.request()
+        },
         setNotifications(newNotis) {
             let newUser = user()
             newUser.notifications = newNotis
@@ -48,6 +52,18 @@ export function UserProvider(props) {
             return fetched()
         }
     }]
+
+    // HTTP payment confirmation and socket events share one authoritative read.
+    // Never apply payment amounts locally: confirmations can be replayed.
+    const balanceSync = createBalanceSync(
+        () => authedAPI('/user/balance', 'GET'),
+        snapshot => {
+            const current = user()
+            if (current && String(current.id) === String(snapshot.id))
+                mutate({...current, balance: Number(snapshot.balance)})
+        }
+    )
+    onCleanup(balanceSync.dispose)
 
     async function getUser() {
         try {

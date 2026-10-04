@@ -13,6 +13,7 @@ import {
 } from "./system";
 import AdminCryptoCashier from "../Cashier/cryptotxs";
 import AdminSkinDeckCashier from "../Cashier/skindecktxs";
+import AdminProviders from "./providers";
 import {
   useCashierList,
   Pager,
@@ -383,6 +384,7 @@ export default function AdminCashier() {
   const [params] = useSearchParams();
   return (
     <Switch fallback={<GiftCards />}>
+      <Match when={params.type === "providers"}><AdminProviders /></Match>
       <Match when={params.type === "crypto"}>
         <AdminCryptoCashier />
       </Match>

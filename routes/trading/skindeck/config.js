@@ -1,3 +1,4 @@
+const { paymentEnv } = require('../providers/config');
 const MODES = new Set(['sandbox', 'live']);
 
 function parseEnabled(value) {
@@ -5,14 +6,14 @@ function parseEnabled(value) {
 }
 
 function getSkinDeckConfig() {
-    const mode = (process.env.SKINDECK_MODE || 'sandbox').toLowerCase();
+    const mode = (paymentEnv('SKINDECK_MODE') || 'sandbox').toLowerCase();
     if (!MODES.has(mode)) throw new Error('SKINDECK_MODE must be sandbox or live.');
 
     return {
-        enabled: parseEnabled(process.env.SKINDECK_ENABLED),
+        enabled: parseEnabled(paymentEnv('SKINDECK_ENABLED')),
         mode,
-        apiKey: process.env.SKINDECK_API_KEY || '',
-        webhookSecret: process.env.SKINDECK_WEBHOOK_SECRET || '',
+        apiKey: paymentEnv('SKINDECK_API_KEY') || '',
+        webhookSecret: paymentEnv('SKINDECK_WEBHOOK_SECRET') || '',
         apiUrl: process.env.SKINDECK_API_URL || 'https://api.skindeck.com/v1'
     };
 }

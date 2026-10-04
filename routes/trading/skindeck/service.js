@@ -71,8 +71,9 @@ async function assertWithdrawalEligibility(connection, user, providerValue) {
             `SELECT
                 (SELECT COALESCE(SUM(fiatAmount), 0) FROM cryptoWithdraws WHERE userId = ? AND status = 'completed') +
                 (SELECT COALESCE(SUM(providerValue), 0) FROM paymentTransactions
-                 WHERE userId = ? AND provider = 'skindeck' AND type = 'withdrawal' AND status = 'completed') AS sum`,
-            [user.id, user.id]
+                 WHERE userId = ? AND provider = 'skindeck' AND type = 'withdrawal' AND status NOT IN ('failed','cancelled','expired')) +
+                (SELECT COALESCE(SUM(fiatCents),0)/100 FROM providerPayments WHERE userId=? AND mode='live' AND type='withdrawal' AND status NOT IN ('failed','cancelled')) AS sum`,
+            [user.id, user.id, user.id]
         );
         if (previousWithdrawals.sum + providerValue > 150) throw paymentError('KYC');
     }
@@ -166,7 +167,9 @@ async function settleDeposit({
         const payment = await getLockedPayment(connection, { internalRef, providerRef });
         if (!payment) return null;
         if (payment.type !== 'deposit') throw new Error('Payment is not a deposit.');
-        if (isTerminalStatus(payment.status)) {
+        // A verified completed trade can arrive after expiry or a lost creation
+        // response. Only an already credited deposit must ignore that success.
+        if (payment.status === 'completed' || (isTerminalStatus(payment.status) && status !== 'completed')) {
             await commit();
             return { payment, duplicate: true, balanceDelta: 0 };
         }

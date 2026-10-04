@@ -1,5 +1,5 @@
 import SpinnerItem from "./spinneritem";
-import {createEffect, createSignal, onCleanup, For, Show} from "solid-js";
+import {createEffect, createSignal, on, onCleanup, For, Index, Show} from "solid-js";
 import IndicatorLine from "../IndicatorLine/indicatorline";
 
 function CaseSpinner(props) {
@@ -12,8 +12,7 @@ function CaseSpinner(props) {
   const itemCenter = itemWidth / 2
   const idleItemIndex = 6
   const idleStart = idleItemIndex * itemStep + itemCenter
-  const verticalIdleStart = idleItemIndex * itemStep
-  const idleEnd = idleStart + itemStep
+  const verticalIdleStart = idleStart
   const spinEasing = 'cubic-bezier(.08,.78,.16,1)'
 
   const [particles, setParticles] = createSignal([])
@@ -102,16 +101,17 @@ function CaseSpinner(props) {
   const loopWidth = () => (props?.items?.length || 0) * itemStep
   const loopDuration = () => Math.max(20, (props?.items?.length || 0) * 1.4)
 
-    createEffect(() => {
+    createEffect(on(() => props.spinning, () => {
       if (props.spinning === 'spinning') {
         const frame = requestAnimationFrame(() => animate())
         onCleanup(() => cancelAnimationFrame(frame))
       }
       if (props.spinning === 'cosmic') triggerCosmicParticles()
       if (props.spinning === '' || props.spinning === 'loading') resetTrack()
-    })
+    }))
 
     function animate() {
+      if (!spinner || props.spinning !== 'spinning' || !props.items?.[50]) return
 
       const vertical = isVertical()
       const currentPosition = getCurrentTranslateX()
@@ -135,10 +135,10 @@ function CaseSpinner(props) {
           {transform: `translateX(-${lastItem}px)`, offset: 1, easing: 'cubic-bezier(.18,.72,.22,1)'}
             ],
             {
-          duration: props?.spinTime || 4800,
+          duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : props?.spinTime || 4800,
                 fill: 'forwards'
             })
-        props.onSpinStart?.()
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) props.onSpinStart?.()
         spinAnimation.onfinish = () => props.onSpinEnd?.()
     }
 
@@ -197,20 +197,22 @@ function CaseSpinner(props) {
                   <div class='flash-overlay'/>
                 </Show>
                 <div class='particle-container'>
-                  <For each={particles()}>{(p) =>
+                  <Index each={particles()}>{(particle) => {
+                    const p = () => particle()
+                    return (
                     <div
                       class='particle'
                       style={{
-                        transform: `translate(calc(-50% + ${p.x}px), calc(-50% + ${p.y}px)) rotate(${p.rotation}deg) scale(${p.life})`,
-                        width: `${p.size}px`,
-                        height: `${p.size}px`,
-                        background: p.color,
-                        opacity: p.life,
-                        'box-shadow': `0 0 5px ${p.color}`,
-                        'border-radius': p.round ? '50%' : '1px'
+                        transform: `translate(calc(-50% + ${p().x}px), calc(-50% + ${p().y}px)) rotate(${p().rotation}deg) scale(${p().life})`,
+                        width: `${p().size}px`,
+                        height: `${p().size}px`,
+                        background: p().color,
+                        opacity: p().life,
+                        'box-shadow': `0 0 5px ${p().color}`,
+                        'border-radius': p().round ? '50%' : '1px'
                       }}
-                    />
-                  }</For>
+                    />)
+                  }}</Index>
                 </div>
                 <div class={'spinner-items ' + (isVertical() ? 'vertical ' : '') + (isIdle() ? 'idle-track' : '')} ref={spinner}
                      style={{
@@ -242,6 +244,8 @@ function CaseSpinner(props) {
               .case-spinner-container.case-opening { flex:1; min-width:0; height:150px; border:0; border-radius:0; background:transparent; box-shadow:none; backdrop-filter:none; }
               .case-spinner-container.case-opening.vertical { height:280px; }
               .case-spinner-container.case-opening.idle { box-shadow:none; }
+              .case-spinner-container[data-phase=win] .center-indicator { background:linear-gradient(180deg,#1fd65f08,#1fd65f03); border:1px solid #1fd65f30; border-radius:4px; }
+              @media(prefers-reduced-motion:reduce) { .spinner-items.idle-track { animation:none!important; }.particle,.shockwave,.flash-overlay { display:none; } }
               .case-opening .fade-left { width:12%; background:linear-gradient(to right,#181b22,transparent); }
               .case-opening .fade-right { width:12%; background:linear-gradient(to left,#181b22,transparent); }
               .case-opening.vertical .fade-top { background:linear-gradient(to bottom,#181b22,transparent); }
@@ -388,8 +392,7 @@ function CaseSpinner(props) {
 
                 position: absolute;
                 left: 50%;
-                transform: translateX(-869px);
-                transform: translateX(-${idleStart}px);
+                transform: translateX(var(--idle-from, -869px));
                 will-change: transform;
                 z-index: 2;
               }
@@ -400,7 +403,7 @@ function CaseSpinner(props) {
                 flex-direction: column;
                 left: 0;
                 top: 50%;
-                transform: translateY(-${verticalIdleStart}px);
+                transform: translateY(var(--idle-from, -869px));
               }
 
               .spinner-items.idle-track {
@@ -416,13 +419,13 @@ function CaseSpinner(props) {
               }
 
               @keyframes idleCarousel {
-                0% { transform: translateX(var(--idle-from, -${idleStart}px)); }
-                100% { transform: translateX(var(--idle-to, -${idleEnd}px)); }
+                0% { transform: translateX(var(--idle-from, -869px)); }
+                100% { transform: translateX(var(--idle-to, -8373px)); }
               }
 
               @keyframes idleCarouselVertical {
-                0% { transform: translateY(var(--idle-from, -${idleStart}px)); }
-                100% { transform: translateY(var(--idle-to, -${idleEnd}px)); }
+                0% { transform: translateY(var(--idle-from, -869px)); }
+                100% { transform: translateY(var(--idle-to, -8373px)); }
               }
 
               /* Cosmic Spin Particle & Shockwave Styles */

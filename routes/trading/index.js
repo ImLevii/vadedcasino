@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+router.use(require('./providers/legacy').trading);
+router.use('/providers', require('./providers'));
 
 const cryptoRoute = require('./crypto');
 const skinDeckRoute = require('./skindeck');

@@ -208,6 +208,20 @@ test('provider references cannot be rebound through an internal reference', asyn
         error => error.code === 'PAYMENT_REFERENCE_MISMATCH');
 });
 
+test('verified SkinDeck success after failure or expiry credits once', async () => {
+    for (const status of ['failed', 'cancelled', 'expired']) {
+        const state = {payment: {id: 43, providerRef: 'late-success', userId: '100', type: 'deposit', status},
+            balance: 0, genericTransactions: 0, commits: 0};
+        const {settleDeposit} = loadServiceWithFakeDatabase(state);
+        const event = {providerRef: 'late-success', providerStatus: 'verified-success', status: 'completed',
+            providerValue: 7, providerCurrency: 'USD'};
+        assert.equal((await settleDeposit(event)).balanceDelta, 10);
+        assert.equal((await settleDeposit(event)).duplicate, true);
+        assert.equal(state.balance, 10);
+        assert.equal(state.genericTransactions, 1);
+    }
+});
+
 test('small confirmed deposits preserve fractional coins and remain idempotent', async () => {
     const state = {payment: {id: 42, providerRef: 'small', userId: '100', type: 'deposit', status: 'pending'},
         balance: 0, genericTransactions: 0, commits: 0};

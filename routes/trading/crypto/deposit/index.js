@@ -1,35 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const { sql, doTransaction } = require("../../../../database");
+const { sql } = require("../../../../database");
 const { isAuthed, apiLimiter } = require("../../../auth/functions");
-const {
-  cryptoData,
-  cacheCryptos,
-  current,
-  coinpayments,
-} = require("./functions");
-const { enabledFeatures } = require("../../../admin/config");
+const { cacheCryptos } = require("./functions");
 const provider = require("./provider");
 const { settle } = require("./settlement");
 router.get("/", async (req, res) => {
-  const configured = provider.configuration().configured,
-    available = configured && !!enabledFeatures.cryptoDeposits;
-  if (available) await cacheCryptos();
-  res.json({
-    provider: "CoinPayments",
-    available,
-    reason: !configured
-      ? "CRYPTO_PROVIDER_UNAVAILABLE"
-      : !enabledFeatures.cryptoDeposits
-        ? "DISABLED"
-        : null,
-    currencies: Object.values(cryptoData.currencies).map((c) => ({
-      ...c,
-      price: current(c) ? c.price : null,
-      available: available && current(c),
-    })),
-    coinRate: cryptoData.coinRate,
-  });
+  return res.json(require("../../providers/legacy").removedCatalog());
 });
 router.get("/transactions", isAuthed, async (req, res) => {
   try {
@@ -49,67 +26,7 @@ router.get("/transactions", isAuthed, async (req, res) => {
   }
 });
 router.post("/wallet", isAuthed, apiLimiter, async (req, res) => {
-  if (!enabledFeatures.cryptoDeposits)
-    return res.status(400).json({ error: "DISABLED" });
-  const config = provider.configuration();
-  if (!config.configured)
-    return res.status(503).json({ error: "CRYPTO_PROVIDER_UNAVAILABLE" });
-  const currency = cryptoData.currencies[req.body.currency];
-  if (!currency) return res.status(400).json({ error: "INVALID_CURRENCY" });
-  try {
-    await cacheCryptos();
-    if (!current(currency))
-      return res.status(503).json({ error: "PAYMENT_RATE_UNAVAILABLE" });
-    const wallet = await doTransaction(async (connection, commit) => {
-      await connection.query("SELECT id FROM users WHERE id=? FOR UPDATE", [
-        req.userId,
-      ]);
-      let [[row]] = await connection.query(
-        "SELECT w.id,w.address,m.destinationTag FROM cryptoWallets w LEFT JOIN cryptoWalletMetadata m ON m.walletId=w.id WHERE w.userId=? AND w.currency=? ORDER BY w.id LIMIT 1",
-        [req.userId, currency.id],
-      );
-      if (!row) {
-        const result = await coinpayments.getCallbackAddress({
-          currency: currency.id,
-          ipn_url: config.callbackUrl,
-          label: "Cosmic Luck deposit",
-        });
-        if (
-          typeof result.address !== "string" ||
-          !result.address ||
-          result.address.length > 512
-        )
-          throw provider.failure("CRYPTO_PROVIDER_UNAVAILABLE");
-        const [created] = await connection.query(
-          "INSERT INTO cryptoWallets (userId,currency,address) VALUES (?,?,?)",
-          [req.userId, currency.id, result.address],
-        );
-        const tag = result.dest_tag == null ? null : String(result.dest_tag);
-        await connection.query(
-          "INSERT INTO cryptoWalletMetadata (walletId,destinationTag) VALUES (?,?)",
-          [created.insertId, tag],
-        );
-        row = { address: result.address, destinationTag: tag };
-      }
-      await commit();
-      return row;
-    });
-    res.json({
-      coinRate: cryptoData.coinRate,
-      currency,
-      address: wallet.address,
-      destinationTag: wallet.destinationTag || null,
-    });
-  } catch (e) {
-    res
-      .status(503)
-      .json({
-        error:
-          e.code === "PAYMENT_RATE_UNAVAILABLE"
-            ? e.code
-            : "CRYPTO_PROVIDER_UNAVAILABLE",
-      });
-  }
+  return res.status(410).json({ error: "PAYMENT_PROVIDER_REMOVED" });
 });
 // Turning off new deposits never disables settlement of money already sent.
 router.post("/ipn", async (req, res) => {

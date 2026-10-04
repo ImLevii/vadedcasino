@@ -127,6 +127,8 @@ function setup(io) {
 }
 
 function middleware(req, res, next) {
+    // Provider handlers commit claims/settlement in explicit durable transactions.
+    if (req.path.startsWith('/trading/providers') || req.path.startsWith('/admin/cashier/providers')) return run(() => {}, {scopes:['admin']}).then(() => next(), next);
     // These handlers explicitly commit a payment claim before external transfers.
     if (req.method === 'POST' && /^\/admin\/cashier\/crypto\/(accept|reconcile)\/\d+$/.test(req.path)) return run(() => {}, {scopes:['admin']}).then(() => next(), next);
     // Public presentation reads neither spend balances nor use game caches.

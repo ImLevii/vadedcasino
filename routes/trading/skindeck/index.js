@@ -138,8 +138,8 @@ router.get('/capabilities', (req, res) => {
         mode: capabilities.mode,
         configured: capabilities.configured,
         contractReady: capabilities.contractReady,
-        deposits: capabilities.enabled,
-        withdrawals: capabilities.enabled
+        deposits: capabilities.enabled && (require('../providers/config').context.getStore()?.depositsEnabled ?? true),
+        withdrawals: capabilities.enabled && (require('../providers/config').context.getStore()?.withdrawalsEnabled ?? true)
     });
 });
 

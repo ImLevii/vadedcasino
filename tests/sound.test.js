@@ -17,7 +17,7 @@ function setup() {
     cancelAnimationFrame: id => frames.delete(id),
     window: {localStorage: {getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, String(value))}, addEventListener() {}},
   });
-  vm.runInContext(fs.readFileSync('src/util/sound.js', 'utf8').replaceAll('export ', '') + '\nglobalThis.sfx = {playGameSFX, stopSFXChannel, setSFXVolume, playCosmicSFX, GAME_SOUNDS, startReelSFX};', context);
+  vm.runInContext(fs.readFileSync('src/util/sound.js', 'utf8').replaceAll('export ', '') + '\nglobalThis.sfx = {playGameSFX, stopSFXChannel, setSFXVolume, playCosmicSFX, prepareCosmicSFX, GAME_SOUNDS, startReelSFX};', context);
   return {audio, plays, frame: time => { const pending = [...frames.values()]; frames.clear(); pending.forEach(fn => fn(time)); }, ...context.sfx};
 }
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -54,6 +54,23 @@ test('simultaneous cosmic reels play the gem once and a throttled cleanup cannot
   assert.equal(s.audio[0].paused, false);
   assert.equal(s.audio[0].src, s.GAME_SOUNDS.cosmicGem);
   stop();
+});
+
+test('gesture preparation unlocks all reel and result clips silently without interrupting active playback', async () => {
+  const s = setup();
+  s.prepareCosmicSFX();
+  assert.equal(s.audio.length, 6);
+  assert.ok(s.audio.every(clip => clip.volume === 0));
+  const stop = s.playGameSFX('case-roll', s.GAME_SOUNDS.rouletteClick, {channel:'case-roll', volume:.4});
+  await Promise.resolve();
+  assert.equal(s.audio.find(clip => !clip.paused).volume, .4);
+  const count = s.plays.length;
+  s.prepareCosmicSFX();
+  assert.equal(s.plays.length, count);
+  stop();
+  s.setSFXVolume(0);
+  s.prepareCosmicSFX();
+  assert.equal(s.plays.length, count);
 });
 test('leaving a channel cancels scheduled playback and fades', async () => {
   const s = setup();

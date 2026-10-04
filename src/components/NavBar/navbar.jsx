@@ -70,7 +70,6 @@ function NavBar(props) {
                                 </button>
                                 <div class='balance' aria-label='Account balance'>
                                   <svg class='wallet-icon' width='21' height='21' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' aria-hidden='true'><path d='M20 8V6a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h11a3 3 0 0 0 3-3v-2M3 7h14a3 3 0 0 1 3 3v1'/><path d='M16 10h5v7h-5a3.5 3.5 0 0 1 0-7Z'/><path d='M16 13.5h1'/></svg>
-                                  <img class='coin' src='/assets/icons/coin.svg' height='18' width='18' alt='Coins'/>
                                   <div class='balance-hover'>
                                     <p class='coins'><Countup end={props?.user?.balance} gray={false}/></p>
                                     <p class='fiat'><span>$ </span><Countup end={(props?.user?.balance || 0) * USD_PER_COIN} gray={false}/></p>

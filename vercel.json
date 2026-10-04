@@ -6,7 +6,7 @@
   "functions": {
     "api/index.js": {
       "maxDuration": 300,
-      "includeFiles": "{database/runtime.sql,database/operations.sql,database/cashier.sql,socketio/chat/commands/**,public/assets/icons/**,views/**}"
+      "includeFiles": "{database/runtime.sql,database/operations.sql,database/cashier.sql,database/providers.sql,socketio/chat/commands/**,public/assets/icons/**,views/**}"
     }
   },
   "rewrites": [

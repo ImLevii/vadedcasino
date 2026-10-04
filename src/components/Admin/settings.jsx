@@ -20,8 +20,6 @@ function formatFeatureName(id) {
         'promoCodes': 'Promo Codes',
         'affiliates': 'Affiliates',
         'surveys': 'Surveys',
-        'cryptoDeposits': 'Crypto Deposits',
-        'cryptoWithdrawals': 'Crypto Withdrawals',
         'skindeck': 'SkinDeck',
         'rainCaptcha': 'Rain Captcha',
         'rainDailyDepositRequirement': 'Rain Daily Deposit Requirement'

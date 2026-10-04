@@ -30,6 +30,10 @@ export const words = (value) =>
     .toLowerCase()
     .replace(/^./, (c) => c.toUpperCase());
 const messages = {
+  PAYMENT_PROVIDER_REMOVED:
+    "This provider has been retired. New payments are unavailable; existing payments can still be reconciled or refunded where eligible.",
+  PAYMENT_DIRECTION_UNSUPPORTED:
+    "This payment method does not support withdrawals in this integration.",
   PAYOUT_REQUIRES_RECONCILIATION:
     "The provider response is uncertain. Funds remain reserved. Close this dialog and use Reconcile with provider to check the existing transfer.",
   PAYOUT_NOT_CONFIRMED_KEEP_RESERVED:

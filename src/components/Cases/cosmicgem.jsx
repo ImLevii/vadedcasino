@@ -6,7 +6,7 @@ export default function CosmicGem(props) {
   const silhouette = 'M80 6Q82 6 84 9L147 69Q151 73 149 79L140 130Q140 134 136 138L84 191Q80 196 76 191L24 137Q21 134 20 129L11 77Q10 72 14 68L76 9Q78 6 80 6Z';
   return <span class={'cosmic-gem ' + (props.motion !== false ? 'animated ' : '') + (props.active ? 'charged' : '')} role='img' aria-label='Cosmic Spin emerald'>
     <span class='gem-aura'/><span class='gem-shadow'/>
-    <svg class='crystal' viewBox='0 0 160 200' fill='none' aria-hidden='true'>
+    <svg class='crystal' width='24' height='30' viewBox='0 0 160 200' fill='none' aria-hidden='true'>
       <defs>
         <linearGradient id={id + '-crown'} x1='41' y1='79' x2='83' y2='13' gradientUnits='userSpaceOnUse'>
           <stop stop-color='#e5ffc5'/><stop offset='.43' stop-color='#9fff78'/><stop offset='1' stop-color='#30ce54'/>
@@ -52,10 +52,10 @@ export default function CosmicGem(props) {
       <path class='edge-glint glint-lower' d='m51 144 3-5 2 6 5 2-6 1-2 4-1-5-4-1Z' fill='#e5ffc1'/>
     </svg>
     <style jsx>{`
-      .cosmic-gem { width:100%; height:100%; display:grid; place-items:center; position:relative; isolation:isolate; perspective:360px; }
+      .cosmic-gem { width:100%; height:100%; min-width:0; min-height:0; display:grid; place-items:center; position:relative; isolation:isolate; perspective:360px; pointer-events:none; }
       .gem-aura { position:absolute; inset:12% 18%; border-radius:50%; opacity:.4; background:radial-gradient(ellipse,rgba(31,214,95,.28),rgba(31,214,95,.06) 47%,transparent 72%); }
       .gem-shadow { position:absolute; bottom:1%; left:30%; width:40%; height:5%; border-radius:50%; background:rgba(0,0,0,.5); filter:blur(3px); }
-      .crystal { width:100%; height:100%; position:relative; overflow:visible; transform-origin:50% 54%; filter:drop-shadow(0 3px 4px rgba(0,0,0,.5)) drop-shadow(0 0 2px rgba(31,214,95,.18)); }
+      .cosmic-gem > .crystal { display:block; width:100%; height:100%; max-width:100%; max-height:100%; position:relative; overflow:hidden; transform-origin:50% 54%; filter:drop-shadow(0 3px 4px rgba(0,0,0,.5)) drop-shadow(0 0 2px rgba(31,214,95,.18)); }
       .reflection { opacity:0; transform:translateX(0); }
       .edge-glint { opacity:.8; } .glint-lower { opacity:.35; }
       .animated .crystal { animation:emerald-sway 7s ease-in-out infinite; }

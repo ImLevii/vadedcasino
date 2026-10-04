@@ -1,3 +1,4 @@
+const { paymentEnv, context: providerContext } = require('../../providers/config');
 const crypto = require('crypto');
 const axios = require('axios');
 
@@ -16,11 +17,12 @@ const mexc = axios.create({
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'X-MEXC-APIKEY': process.env.MEXC_API_KEY,
+        'X-MEXC-APIKEY': paymentEnv('MEXC_API_KEY'),
     }
 });
 
 mexc.interceptors.request.use((config) => {
+    config.headers['X-MEXC-APIKEY'] = paymentEnv('MEXC_API_KEY');
 
     if (!config.sign) return config;
 
@@ -83,7 +85,7 @@ const defaultCurrencyPrice = 1;
 async function cacheWithdrawalCoins() {
     if (Date.now() - refreshedAt < 60000) return;
     
-    if (!process.env.MEXC_API_KEY || !process.env.MEXC_API_SECRET) {
+    if (!paymentEnv('MEXC_API_KEY') || !paymentEnv('MEXC_API_SECRET')) {
         return;
     }
 
@@ -154,25 +156,32 @@ async function cacheWithdrawalCoins() {
 }
 
 function getSignature(data) {
-    return crypto.createHmac('sha256', process.env.MEXC_API_SECRET).update(data).digest('hex');
+    return crypto.createHmac('sha256', paymentEnv('MEXC_API_SECRET')).update(data).digest('hex');
 }
 
 const balanceQueue = new PQueue({ interval: 1000, intervalCap: 2 });
 
 async function getWalletBalance(asset = defaultCurrency) {
-    
-    return balanceQueue.add(async () => {
+    const config = providerContext.getStore();
+    return balanceQueue.add(() => providerContext.run(config, async () => {
 
         const { data } = await mexc('/api/v3/account', { sign: true });
 
         const balance = data.balances.find(e => e.asset === asset);
         return balance ? Math.max(0, Number(balance.free) || 0) : 0;
 
-    });
+    }));
     
 }
 
-async function updateSentWithdrawals() {
+async function updateSentWithdrawals(configured = false) {
+    if (!configured) {
+        try {
+            const providerSettings = require('../../providers/config');
+            const config = await providerSettings.configuration('mexc');
+            return providerSettings.context.run(config, () => updateSentWithdrawals(true));
+        } catch { /* During schema startup, continue with environment credentials. */ }
+    }
 
     const [pendingTxs] = await sql.query('SELECT id, exchangeId, currency, chain, userId FROM cryptoWithdraws WHERE status = ?', ['sent']);
     const pendingTxsMap = new Map(pendingTxs.map(e => [String(e.exchangeId), e]));

@@ -57,8 +57,8 @@ export default function AdminCryptoCashier() {
     <>
       <PageHeader
         eyebrow="CASHIER / CRYPTO"
-        title="Crypto transactions"
-        description="Review deposits, approve withdrawals, and reconcile pending transfers."
+        title="Archived crypto transactions"
+        description="Review historical deposits, refund queued withdrawals and reconcile transfers already sent. New crypto payments are retired."
       >
         <button
           class="adm-button"
@@ -68,7 +68,7 @@ export default function AdminCryptoCashier() {
           Refresh
         </button>
       </PageHeader>
-      <Show when={list.data()?.provider}>
+      <Show when={list.data()?.provider && !list.data()?.retired}>
         <div class="cashier-providers">
           <For each={["deposits", "withdrawals"]}>
             {(key) => (
@@ -272,13 +272,6 @@ export default function AdminCryptoCashier() {
                     onClick={() => open(dialog().tx, "deny")}
                   >
                     Deny & refund
-                  </button>
-                  <button
-                    class="adm-button primary"
-                    disabled={!list.data()?.provider?.withdrawals?.configured}
-                    onClick={() => open(dialog().tx, "accept")}
-                  >
-                    Review approval
                   </button>
                 </Show>
                 <Show when={["sending", "sent"].includes(dialog().tx.status)}>

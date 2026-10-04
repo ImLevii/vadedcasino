@@ -6,6 +6,10 @@ const adapter = require('../../database/postgres');
 async function main() {
     const db = new PGlite({ parsers: { 20: adapter.parseBigInt, 1700: Number } });
     await db.exec(buildSchema());
+    if (process.env.PROVIDERS_TEST === '1') {
+        // Existing deployments may have the first provider schema, without settlement fields.
+        await db.exec('ALTER TABLE "providerPayments" DROP COLUMN "settled", DROP COLUMN "settlementRef", DROP COLUMN "flow"');
+    }
     const hash = await require('bcrypt').hash('postgres-smoke-password', 4);
     await db.query('INSERT INTO users (id, username, "passwordHash", role, perms) VALUES (1, $1, $2, $3, 4)', ['pgsmoke', hash, 'OWNER']);
     let queue = Promise.resolve();
@@ -32,6 +36,7 @@ async function main() {
     adapter.createPostgresPool = url => createPool(url, EmbeddedPool);
     // Keep third-party traffic out of a database smoke test.
     const axios = require('axios');
+    const providerFixture=process.env.PROVIDERS_TEST==='1'?await require('./payment-providers.cjs').install(db,axios):null;
     const cashierTest=process.env.CASHIER_TEST==='1';
     const cashierCalls={payouts:[],giftcardBroadcasts:0};
     if(cashierTest){
@@ -40,6 +45,8 @@ async function main() {
         await db.query(`INSERT INTO users (id,username,role,perms,balance,"cryptoAllowance") VALUES (20,'Cashier player','USER',0,100,100),(21,'Cashier rollback','USER',0,100,100)`);
         await db.query(`INSERT INTO "cryptoWallets" ("userId",currency,address) VALUES (20,'LTC','fixture-wallet'),(21,'LTC','rollback-wallet')`);
         await db.query(`INSERT INTO "cryptoWithdraws" (id,"userId","coinAmount","fiatAmount","cryptoAmount",address,currency,chain,status) VALUES (901,20,10,7,7,'fixture-destination','LTC','LTC','pending'),(902,20,12,8.4,8.4,'fixture-uncertain','LTC','LTC','pending'),(903,20,8,5.6,5.6,'fixture-cancel','LTC','LTC','pending')`);
+        await db.query(`UPDATE "cryptoWithdraws" SET status='sending' WHERE id=902`);
+        cashierCalls.payouts.push(902); // Transfer accepted before the provider was retired.
         await db.query(`INSERT INTO transactions ("userId",amount,type,method,"methodId") VALUES (20,10,'out','crypto',901),(20,12,'out','crypto',902),(20,8,'out','crypto',903)`);
         await db.exec(`CREATE FUNCTION reject_cashier_credit() RETURNS trigger AS $$ BEGIN IF NEW.id = 21 AND NEW.balance > OLD.balance THEN RAISE EXCEPTION 'fixture credit failure'; END IF; RETURN NEW; END $$ LANGUAGE plpgsql; CREATE TRIGGER cashier_failed_credit BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION reject_cashier_credit();`);
         const originalCreate=axios.create;
@@ -125,6 +132,7 @@ async function main() {
         if(cashierTest){const io=require('../../socketio/server');const emit=io.emit.bind(io);io.emit=(name,...args)=>{if(name==='admin:giftcards:created')cashierCalls.giftcardBroadcasts++;return emit(name,...args);};}
         server.removeAllListeners('request');
         server.on('request', (req, res) => {
+            if(providerFixture?.handle(req,res))return;
             if(cashierTest&&req.url==='/__test/cashier'){
                 require('../../runtime/serverless').run(async()=>{
                     const {sql}=require('../../database');

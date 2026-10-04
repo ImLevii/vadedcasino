@@ -1,4 +1,5 @@
 import {resolveImageSrc} from "../../util/image";
+import CosmicGem from '../Cases/cosmicgem';
 
 function BattleSpinnerItem(props) {
 
@@ -61,9 +62,9 @@ function BattleSpinnerItem(props) {
 
     return (
         <>
-            <div class={'case-item-container ' + (props.index === 50 ? 'winning-item' : '')} style={{ '--rarity': getRarity(props?.price) }}>
+            <div class={'case-item-container ' + (props.index === 50 && props.revealed ? 'winning-item' : '')} style={{ '--rarity': getRarity(props?.price) }}>
                 <div class='rarity-glow'/>
-                <img class='item-image' src={resolveImageSrc(props.img, '/assets/logo/cosmic-luck-logo.png')} height='80' alt='' draggable={false} onError={useImageFallback}/>
+                {props.cosmic ? <span class='battle-cosmic-gem'><CosmicGem motion={props.charged} active={props.charged}/></span> : <img class='item-image' src={resolveImageSrc(props.img, '/assets/logo/cosmic-luck-logo.png')} height='80' alt='' draggable={false} onError={useImageFallback}/>}
                 <div class='item-details'>
                     {getExterior(props.name) && (
                         <span class='ext-badge' style={{ color: getExteriorColor(getExterior(props.name)) }}>
@@ -71,7 +72,7 @@ function BattleSpinnerItem(props) {
                         </span>
                     )}
                     <span class='item-name'>{getSkinName(props.name)}</span>
-                    <span class='item-price'>
+                    <span class='item-price' style={{display: props.cosmic ? 'none' : 'flex'}}>
                         <img src='/assets/chips/chip-green.png' alt='' height='10' width='10'/>
                         {formatPrice(props.price)}
                     </span>
@@ -118,6 +119,11 @@ function BattleSpinnerItem(props) {
               .winning-item .rarity-glow {
                 opacity: .08;
               }
+              .battle-cosmic-gem { display:block; width:48px; height:60px; flex-shrink:0; z-index:1; }
+              .winning-item { box-shadow:inset 0 0 18px #1fd65f0b; }
+              .winning-item .item-image { animation:winning-pull .32s ease-out both; }
+              @keyframes winning-pull { from { transform:scale(.94); } to { transform:scale(1); } }
+              @media(prefers-reduced-motion:reduce) { .winning-item .item-image { animation:none; } }
 
               .item-image {
                 position: relative;

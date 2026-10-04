@@ -1,6 +1,7 @@
 import {useNavigate} from "@solidjs/router";
 import {resolveImageSrc} from "../util/image";
 import CasePreview from "../components/Cases/casepreview";
+import CosmicGem from '../components/Cases/cosmicgem';
 import {createEffect, createResource, createSignal, For, onCleanup, Show} from "solid-js";
 import {authedAPI} from "../util/api";
 
@@ -233,7 +234,7 @@ function CreateBattle(props) {
             <div class='builder-toolbar'>
                 <button class='secondary exit' onClick={()=>navigate('/battles')}>&lsaquo; Exit</button>
                 <div class='builder-options'>
-                    <button class='secondary toggle' classList={{enabled:cosmicSpin()}} aria-pressed={cosmicSpin()} onClick={()=>setCosmicSpin(!cosmicSpin())}><OptionIcon kind='spin'/>Cosmic Spin<span class='switch'/></button>
+                    <button class='secondary toggle' classList={{enabled:cosmicSpin()}} aria-label='Cosmic Spin' title='Reveal rare drops with a second spin. Drop odds stay the same.' aria-pressed={cosmicSpin()} onClick={()=>setCosmicSpin(!cosmicSpin())}><span class='builder-cosmic-gem' aria-hidden='true' style={{display:'inline-flex',width:'18px',height:'22px',flex:'0 0 18px',overflow:'hidden'}}><CosmicGem motion={cosmicSpin()}/></span>Cosmic Spin<span class='switch'/></button>
                     <button class='secondary toggle' classList={{enabled:playBots()}} aria-pressed={playBots()} onClick={()=>setPlayBots(!playBots())}><OptionIcon kind='bot'/>Play Bots<span class='switch'/></button>
                     <button class='secondary toggle' classList={{enabled:isPrivate()}} aria-pressed={isPrivate()} onClick={()=>setIsPrivate(!isPrivate())}><OptionIcon kind='private'/>Private<span class='switch'/></button>
                 </div>

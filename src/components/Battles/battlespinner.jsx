@@ -1,5 +1,5 @@
 import {authedAPI, getRandomNumber} from "../../util/api"
-import {createEffect, createSignal, For, Index, onCleanup, Show} from "solid-js"
+import {createEffect, createMemo, createSignal, For, Index, on, onCleanup, Show} from "solid-js"
 import BattleSpinnerItem from "./battlespinneritem"
 import {generateRandomItems, generateRareItems, getRareItems, isRareItem, maskRareItems} from "../../resources/cases"
 import Avatar from "../Level/avatar"
@@ -15,6 +15,7 @@ function BattleSpinner(props) {
   let spinner
 
   const [items, setItems] = createSignal([])
+  const [phase, setPhase] = createSignal('idle')
   const [color, setColor] = createSignal('')
   const navigate = useNavigate()
   let cosmicTimer
@@ -48,6 +49,7 @@ function BattleSpinner(props) {
 
   function triggerCosmicParticles(soundOwner) {
     if (props.index === soundOwner) stopCosmicSound = playCosmicSFX()
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     setShowFlash(true);
     scheduleSound(() => setShowFlash(false), 250);
@@ -55,7 +57,7 @@ function BattleSpinner(props) {
     setShowShockwave(true);
     scheduleSound(() => setShowShockwave(false), 850);
 
-    const particleCount = 50;
+    const particleCount = 20;
     const colors = [
       '#1fd65f',
       '#14b04a',
@@ -67,14 +69,15 @@ function BattleSpinner(props) {
     const newParticles = [];
     for (let i = 0; i < particleCount; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 2.5 + Math.random() * 8.5;
+      const speed = 1.4 + Math.random() * 3.5;
       newParticles.push({
         id: Math.random(),
         x: 0,
         y: 0,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed - (1 + Math.random() * 2),
-        size: 5 + Math.random() * 9,
+        size: 2 + Math.random() * 3,
+        round: Math.random() > .45,
         color: colors[Math.floor(Math.random() * colors.length)],
         life: 1.0,
         decay: 0.016 + Math.random() * 0.024,
@@ -121,7 +124,7 @@ function BattleSpinner(props) {
     if (!Array.isArray(props?.wonItems) || !props?.player?.id) return []
 
     return props.wonItems
-      .filter(item => item?.userId === props.player.id)
+      .filter(item => item.slot ? item.slot === props.index + 1 : item?.userId === props.player.id)
       .slice()
       .sort((a, b) => (a?.round || 0) - (b?.round || 0))
       .slice(-5)
@@ -131,6 +134,7 @@ function BattleSpinner(props) {
     return getRecentPulls().reduce((latest, item) => Math.max(latest, item?.round || 0), 0)
   }
 
+  const rollKey = createMemo(() => `${props.battle?.id}:${props.round}:${props.state}:${props.rounds?.[props.round - 1]?.items?.[props.index]?.itemId || ''}`)
   createEffect(() => {
     if (!props?.player) return setColor('')
     if (props.state === 'WAITING' || props?.state === 'EOS') return setColor('gold')
@@ -139,7 +143,7 @@ function BattleSpinner(props) {
     return setColor('')
   })
 
-  createEffect(() => {
+  createEffect(on(rollKey, () => {
     if (props?.round && props?.state === 'ROLLING') {
       let chanceObj = new Chance(props?.battle?.id + '-' + props?.index)
 
@@ -150,8 +154,9 @@ function BattleSpinner(props) {
       let caseItems = battleCase?.items
       let spinnerItems = generateRandomItems(caseItems, chanceObj)
 
-      let winningId = currentRound?.items[props?.index].itemId
+      let winningId = currentRound?.items?.[props?.index]?.itemId
       let winningItem = caseItems?.find(item => winningId === item.id)
+      if (!winningItem || !spinnerItems.length) return
       spinnerItems[50] = winningItem
 
       // Cosmic Spin - rare items (including a rare win) show as the Cosmic logo
@@ -164,25 +169,33 @@ function BattleSpinner(props) {
         channel: 'battle-result-win', volume: .5, fadeInMs: 30,
       })
       setItems([...spinnerItems])
+      setPhase('spinning')
+      const finish = () => {
+        setPhase('win')
+        props.onRoundComplete?.(props.index, props.round)
+      }
       scheduleAnimation(false, 0, () => {
         // One result cue per round, after the last phase has actually landed.
         if (soundOwner < 0 && props.index === 0) playResult()
-        if (!hit) return
+        if (!hit) return finish()
+        setPhase('cosmic')
         triggerCosmicParticles(soundOwner)
         cosmicTimer = setTimeout(() => {
           let rareReel = generateRareItems(caseItems, battleCase?.price, chanceObj)
           rareReel[50] = winningItem
           setItems([...rareReel])
+          setPhase('spinning')
           scheduleAnimation(true, soundOwner, () => {
             if (props.index === soundOwner) playResult()
+            finish()
           })
-        }, 300)
+        }, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 180 : 1100)
       })
       // Reactive round changes and navigation must cancel the previous round.
       onCleanup(clearRoundEffects)
 
     }
-  })
+  }))
 
   function clearRoundEffects() {
     clearTimeout(cosmicTimer)
@@ -191,6 +204,9 @@ function BattleSpinner(props) {
     if (spinAnimation) { spinAnimation.onfinish = null; spinAnimation.cancel(); spinAnimation = null }
     soundTimers.forEach(clearTimeout)
     soundTimers.clear()
+    setParticles([])
+    setShowShockwave(false)
+    setShowFlash(false)
     stopCosmicSound()
     stopBattleTicking()
     if (props?.index === 0) stopSFXChannel('battle-result-win')
@@ -215,7 +231,7 @@ function BattleSpinner(props) {
     const center = viewport.clientWidth / 2
     const startPosition = Math.max(0, startItem.offsetLeft + (startItem.offsetWidth / 2) - center)
     const landingOffset = getRandomNumber(-20, 20, chanceObj)
-    const endPosition = winnerItem.offsetLeft + (winnerItem.offsetWidth / 2) - center + landingOffset
+    const endPosition = winnerItem.offsetLeft + (winnerItem.offsetWidth / 2) - center
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const duration = reducedMotion ? 1 : 5000
 
@@ -225,13 +241,12 @@ function BattleSpinner(props) {
 
     spinAnimation = spinner.animate(
       [
-        { transform: `translateX(-${startPosition}px)` },
-        { transform: `translateX(-${endPosition + 10}px)`, offset: .94 },
+        { transform: `translateX(-${startPosition}px)`, easing:'cubic-bezier(.08,.7,.14,1)' },
+        { transform: `translateX(-${endPosition + landingOffset}px)`, offset: .94, easing:'cubic-bezier(.18,.72,.22,1)' },
         { transform: `translateX(-${endPosition}px)` }
       ],
       {
         duration,
-        easing: 'cubic-bezier(.08,.7,.14,1)',
         fill: 'forwards'
       }
     )
@@ -291,12 +306,12 @@ function BattleSpinner(props) {
 
   return (
     <>
-      <div class={'spinner ' + (color())}>
+      <div data-phase={phase()} class={'spinner ' + (color())}>
 
         {props?.player && props?.state === 'WINNERS' ? (
           <div class='result-lane'>
             <div class='resting-track'>
-              <For each={previewItems()}>{(item, i) => <BattleSpinnerItem img={item.img} name={item.name} price={item.price} index={i() === 4 ? 50 : -1}/>}</For>
+              <For each={previewItems()}>{(item, i) => <BattleSpinnerItem img={item.img} name={item.name} price={item.price} revealed={true} index={i() === 4 ? 50 : -1}/>}</For>
             </div>
           </div>
         ) : props?.player && props?.state === 'ROLLING' ? (
@@ -313,20 +328,20 @@ function BattleSpinner(props) {
               <div class='flash-overlay'/>
             </Show>
             <div class='particle-container'>
-              <For each={particles()}>{(p) =>
+              <Index each={particles()}>{(p) =>
                 <div
                   class='particle'
                   style={{
-                    transform: `translate(calc(-50% + ${p.x}px), calc(-50% + ${p.y}px)) rotate(${p.rotation}deg) scale(${p.life})`,
-                    width: `${p.size}px`,
-                    height: `${p.size}px`,
-                    background: p.color,
-                    opacity: p.life,
-                    'box-shadow': `0 0 14px ${p.color}, 0 0 5px ${p.color}`,
-                    'border-radius': Math.random() > 0.45 ? '50%' : '3px'
+                    transform: `translate(calc(-50% + ${p().x}px), calc(-50% + ${p().y}px)) rotate(${p().rotation}deg) scale(${p().life})`,
+                    width: `${p().size}px`,
+                    height: `${p().size}px`,
+                    background: p().color,
+                    opacity: p().life,
+                    'box-shadow': `0 0 5px ${p().color}`,
+                    'border-radius': p().round ? '50%' : '1px'
                   }}
                 />
-              }</For>
+              }</Index>
             </div>
 
             <div class='spinner-items' ref={spinner}>
@@ -335,6 +350,9 @@ function BattleSpinner(props) {
                   img={item()?.img}
                   name={item()?.name}
                   price={item()?.price}
+                  cosmic={item()?.cosmic}
+                  charged={phase() === 'cosmic' && index === 50}
+                  revealed={phase() === 'win' || phase() === 'cosmic'}
                   index={index}
                 />
               )}</Index>
@@ -349,9 +367,9 @@ function BattleSpinner(props) {
               <svg class='seat-icon' width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' aria-hidden='true'>
                 <Show when={props.player} fallback={<><circle cx='12' cy='8' r='3'/><path d='M5 21v-3a7 7 0 0 1 14 0v3M18 5h6m-3-3v6'/></>}><path d='m6 12 4 4 8-8'/><circle cx='12' cy='12' r='10'/></Show>
               </svg>
-              <strong>{props.player ? (props.state === 'EOS' ? 'Starting soon' : 'Ready') : 'Waiting for player'}</strong>
+              <strong>{props.state === 'CANCELLED' ? 'Cancelled' : props.state === 'PAUSED' ? 'Paused' : props.player ? (props.state === 'EOS' ? 'Starting soon' : 'Ready') : 'Waiting for player'}</strong>
               <Show when={!props.player} fallback={<span>Waiting for the battle to start</span>}>
-                <button class='call' disabled={joining()} onClick={joinBattle}>{joining() ? 'Joining?' : props.creator ? 'Call bot' : 'Join battle'}</button>
+                <button class='call' disabled={joining() || props.state !== 'WAITING'} onClick={joinBattle}>{joining() ? 'Joining…' : props.creator ? 'Call bot' : 'Join battle'}</button>
               </Show>
             </div>
           </div>

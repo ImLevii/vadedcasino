@@ -1,3 +1,4 @@
+const { paymentEnv } = require('../../providers/config');
 const axios = require("axios");
 const crypto = require("node:crypto");
 const failure = (code) => Object.assign(new Error(code), { code });
@@ -7,7 +8,7 @@ function configuration() {
     "COINPAYMENTS_SECRET",
     "COINPAYMENTS_IPN_SECRET",
     "COINPAYMENTS_MERCHANT_ID",
-  ].filter((key) => !process.env[key]);
+  ].filter((key) => !paymentEnv(key));
   let origin;
   try {
     origin = new URL(
@@ -32,17 +33,17 @@ function configuration() {
   };
 }
 async function command(cmd, args = {}) {
-  if (!process.env.COINPAYMENTS_KEY || !process.env.COINPAYMENTS_SECRET)
+  if (!paymentEnv('COINPAYMENTS_KEY') || !paymentEnv('COINPAYMENTS_SECRET'))
     throw failure("CRYPTO_PROVIDER_UNAVAILABLE");
   const body = new URLSearchParams({
     version: "1",
     cmd,
-    key: process.env.COINPAYMENTS_KEY,
+    key: paymentEnv('COINPAYMENTS_KEY'),
     format: "json",
     ...args,
   }).toString();
   const hmac = crypto
-    .createHmac("sha512", process.env.COINPAYMENTS_SECRET)
+    .createHmac("sha512", paymentEnv('COINPAYMENTS_SECRET'))
     .update(body)
     .digest("hex");
   try {
@@ -67,20 +68,20 @@ async function command(cmd, args = {}) {
 }
 function verify(raw, signature, event) {
   if (
-    !process.env.COINPAYMENTS_IPN_SECRET ||
-    !process.env.COINPAYMENTS_MERCHANT_ID
+    !paymentEnv('COINPAYMENTS_IPN_SECRET') ||
+    !paymentEnv('COINPAYMENTS_MERCHANT_ID')
   )
     throw failure("CRYPTO_PROVIDER_UNAVAILABLE");
   if (!Buffer.isBuffer(raw) || !/^[a-f0-9]{128}$/i.test(signature || ""))
     throw failure("INVALID_SIGNATURE");
   const expected = crypto
-    .createHmac("sha512", process.env.COINPAYMENTS_IPN_SECRET)
+    .createHmac("sha512", paymentEnv('COINPAYMENTS_IPN_SECRET'))
     .update(raw)
     .digest();
   if (
     !crypto.timingSafeEqual(expected, Buffer.from(signature, "hex")) ||
     event?.ipn_mode !== "hmac" ||
-    event?.merchant !== process.env.COINPAYMENTS_MERCHANT_ID
+    event?.merchant !== paymentEnv('COINPAYMENTS_MERCHANT_ID')
   )
     throw failure("INVALID_SIGNATURE");
 }

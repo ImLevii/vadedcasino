@@ -3,6 +3,8 @@ const path = require("path");
 const { randomBytes } = require("node:crypto");
 const { perform } = require("./actions");
 const router = express.Router();
+router.use('/providers', require('./providers'));
+router.use(require('../../trading/providers/legacy').admin);
 router.get("/", (req, res) =>
   res.sendFile(path.join(__dirname, "../../../dist/index.html")),
 );

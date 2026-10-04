@@ -75,7 +75,7 @@ function Notifications(props) {
                   const wasOpen = active(); closeDropdowns(); setActive(!wasOpen)
                   e.stopPropagation()
                 }}>
-          <img src='/assets/icons/bell.svg' height='18' width='23' alt=''/>
+          <img src='/assets/icons/bell.svg' height='23' width='19' alt=''/>
 
           {user().notifications > 0 && (
             <div className='alert'>
@@ -140,7 +140,7 @@ function Notifications(props) {
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 8px;
+          border-radius: var(--button-radius);
           border: 1px solid rgba(31,214,95,0.28);
           background: radial-gradient(80% 80% at 50% 0%, rgba(31,214,95,0.15), transparent 72%), linear-gradient(180deg, rgba(26, 42, 37, 0.82), rgba(11, 19, 20, 0.94));
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 20px rgba(0,0,0,0.2);
@@ -389,7 +389,6 @@ function Notifications(props) {
           .panel-header { padding: 10px; }
           .clear-all { padding: 0 8px; }
         }
-        .bell { background:var(--nav-glass); border-color:var(--nav-edge); border-radius:10px; box-shadow:var(--nav-shadow); }
         .bell:hover,.bell.active { background:linear-gradient(145deg,#ffffff12,#1fd65f12); border-color:#1fd65f55; box-shadow:inset 0 1px 0 #ffffff12; }
         .notis-wrapper { background:linear-gradient(145deg,#ffffff09,#ffffff02),#10191cf2; border-color:#ffffff18; border-radius:14px; }
       `}</style>

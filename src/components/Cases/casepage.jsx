@@ -1,11 +1,11 @@
-import {batch, createEffect, createResource, createSignal, For, onCleanup, Show} from "solid-js";
+import {batch, createEffect, createResource, createSignal, For, on, onCleanup, Show} from "solid-js";
 import {A, useParams} from "@solidjs/router";
 import Loader from "../Loader/loader";
 import CaseItem from "./caseitem";
 import CaseSpinner from "./casespinner";
 import {authedAPI, createNotification} from "../../util/api";
 import {useUser} from "../../contexts/usercontextprovider";
-import {generateRandomItems, generateRareItems, getRareItems, isRareItem, maskRareItems} from "../../resources/cases";
+import {generateRandomItems, generateRareItems, getRareItems, isRareItem, maskRareItems, pickCaseItem} from "../../resources/cases";
 import {resolveImageSrc} from "../../util/image";
 import CasePreview from "./casepreview";
 import CosmicGem from './cosmicgem';
@@ -22,11 +22,14 @@ function CasePage(props) {
   const [spinning, setSpinning] = createSignal('')
   const [reelStates, setReelStates] = createSignal([])
   const [offset, setOffset] = createSignal(0)
-  const [winningItems, setWinningItems] = createSignal([])
   const [spinTime, setSpinTime] = createSignal(4800)
   const [itemTime, setItemTime] = createSignal(2200)
   const [cosmicSpin, setCosmicSpin] = createSignal(false)
   const [showPreview, setShowPreview] = createSignal(false)
+  const [demo, setDemo] = createSignal(false)
+  const [lastResults, setLastResults] = createSignal([])
+  let generation = 0
+  let disposed = false
 
   const timers = new Set()
   const schedule = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn() }, ms); timers.add(id); return id }
@@ -59,15 +62,31 @@ function CasePage(props) {
     stopSFXChannel('case-roll')
   }
 
-  createEffect(() => {
+  createEffect(on(() => caseObj(), () => {
     if (caseObj() && caseObj()?.items) {
       let items = []
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < amount(); i++) {
         items[i] = generateRandomItems(caseObj()?.items)
       }
       setSpinnerItems(items)
     }
-  })
+  }))
+
+  function cancelOpening() {
+    generation++
+    reelFinished = () => {}
+    timers.forEach(clearTimeout)
+    timers.clear()
+    cancelAnimationFrame(revealFrame)
+    stopCosmicSound()
+    stopTicking()
+    stopSFXChannel('result-win')
+  }
+
+  createEffect(on(() => params.slug, () => {
+    cancelOpening()
+    batch(() => { setSpinning(''); setReelStates([]); setLastResults([]); setShowPreview(false) })
+  }))
 
   async function fetchCase(slug) {
     try {
@@ -83,29 +102,17 @@ function CasePage(props) {
     if (spinning() !== '' || !caseObj()?.items?.length) return
 
     prepareCosmicSFX()
-    let items = []
-    const sortedItems = caseObj()?.items?.slice().sort((a, b) => a.price - b.price);
-
-    for (let i = 0; i < amount(); i++) {
-      let randomTicket = Math.random() * 100;
-      for (let item of sortedItems) {
-        randomTicket -= item.probability;
-        if (randomTicket <= 0) {
-          items.push(item)
-          break;
-        }
-      }
-    }
-
+    setDemo(true)
+    const items = Array.from({length: amount()}, () => pickCaseItem(caseObj().items))
     spinCases(items)
   }
 
-  function buyCases(results, newBal) {
+  function buyCases(results) {
     let winningItems = []
     for (let result of results) {
       winningItems.push(result.item)
     }
-    spinCases(winningItems, newBal)
+    spinCases(winningItems)
   }
 
   function getRandomNumber(min, max) {
@@ -113,7 +120,14 @@ function CasePage(props) {
     return Math.floor(Math.random() * range) + min;
   }
 
-  function spinCases(winningItems, newBal) {
+  function spinCases(winningItems) {
+    if (!winningItems.length || winningItems.some(item => !item)) {
+      setSpinning('')
+      return createNotification('error', 'The opening result could not be displayed. Please refresh your account.')
+    }
+    const run = ++generation
+    setLastResults([])
+    setAmount(winningItems.length)
     setOffset(getRandomNumber(-64, 64))
 
     const casePrice = caseObj()?.price
@@ -122,20 +136,24 @@ function CasePage(props) {
     const anyRare = cosmicReels.some(Boolean)
 
     let items = []
-    for (let i = 0; i < amount(); i++) {
+    for (let i = 0; i < winningItems.length; i++) {
       items[i] = generateRandomItems(caseObj()?.items)
       items[i][50] = winningItems[i]
       // Cosmic Spin - every rare item (including a rare win) shows as the Cosmic logo
       if (cosmic) items[i] = maskRareItems(items[i], casePrice)
     }
 
-    setWinningItems(winningItems)
-    setSpinnerItems(items)
-    setReelStates(winningItems.map(() => 'spinning'))
-    setSpinning('spinning')
+    batch(() => {
+      setSpinnerItems(items)
+      setReelStates(winningItems.map(() => 'spinning'))
+      setSpinning('spinning')
+    })
 
     const finish = () => {
+      if (disposed || run !== generation) return
       stopTicking()
+      stopCosmicSound()
+      setLastResults(winningItems)
       setReelStates(winningItems.map(() => 'win'))
       setSpinning('win')
       playGameSFX('case-win', '/assets/sfx/winorcashout.mp3', {
@@ -143,18 +161,17 @@ function CasePage(props) {
         volume: 0.62,
         fadeInMs: 80,
       })
-      if (Number.isFinite(newBal))
-        setBalance(newBal)
-      schedule(() => batch(() => { setReelStates([]); setSpinning('') }), itemTime() - 500)
+      schedule(() => { if (run === generation) batch(() => { setReelStates([]); setSpinning('') }) }, itemTime() - 500)
     }
 
     const whenReelsFinish = (indices, callback) => {
       const pending = new Set(indices)
       reelFinished = index => {
+        if (disposed || run !== generation || !pending.has(index)) return
         pending.delete(index)
         if (pending.size) return
         reelFinished = () => {}
-        schedule(callback, 80)
+        schedule(() => { if (run === generation) callback() }, 80)
       }
     }
 
@@ -165,6 +182,7 @@ function CasePage(props) {
         setReelStates(cosmicReels.map(hit => hit ? 'cosmic' : 'win'))
         stopCosmicSound = playCosmicSFX()
         schedule(() => {
+          if (run !== generation) return
           batch(() => {
             setReelStates(cosmicReels.map(hit => hit ? 'loading' : 'win'))
             setOffset(getRandomNumber(-64, 64))
@@ -179,7 +197,7 @@ function CasePage(props) {
             whenReelsFinish(cosmicReels.flatMap((hit, i) => hit ? [i] : []), finish)
             setReelStates(cosmicReels.map(hit => hit ? 'spinning' : 'win'))
           })
-        }, 1100)
+        }, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 180 : 1100)
       })
     } else {
       whenReelsFinish(winningItems.map((_, i) => i), finish)
@@ -198,12 +216,8 @@ function CasePage(props) {
   }
 
   onCleanup(() => {
-    reelFinished = () => {}
-    timers.forEach(clearTimeout)
-    cancelAnimationFrame(revealFrame)
-    stopCosmicSound()
-    stopTicking()
-    stopSFXChannel('result-win')
+    disposed = true
+    cancelOpening()
   })
 
   function getRiskLabel(items) {
@@ -270,10 +284,22 @@ function CasePage(props) {
                     if (!user()) return createNotification('error', 'Sign in to open cases, or try a demo spin.')
                     if (Number(user().balance) < Number(caseObj().price) * amount()) return createNotification('error', 'Insufficient balance for this opening.')
                     prepareCosmicSFX()
+                    setDemo(false)
+                    const requestGeneration = generation
                     setSpinning('loading')
-                    let res = await authedAPI(`/cases/${caseObj()?.id}/open`, 'POST', JSON.stringify({ amount: amount() }), true)
-                    if (!res?.results?.length) return setSpinning('')
-                    buyCases(res.results, res.balance)
+                    try {
+                      let res = await authedAPI(`/cases/${caseObj()?.id}/open`, 'POST', JSON.stringify({ amount: amount() }), true)
+                      // Settlement is authoritative and updates the balance even if the view changed.
+                      if (res?.results?.length && Number.isFinite(Number(res.balance)) && user()) setBalance(Number(res.balance))
+                      if (disposed || requestGeneration !== generation) return
+                      if (!res?.results?.length) return setSpinning('')
+                      buyCases(res.results)
+                    } catch {
+                      if (!disposed && requestGeneration === generation) {
+                        setSpinning('')
+                        createNotification('error', 'Unable to load the opening. Please check your account before trying again.')
+                      }
+                    }
                   }}
                 >
                   {spinning() !== '' ? (
@@ -294,12 +320,12 @@ function CasePage(props) {
               </div>
         <div class='case-toolbar'>
           {/* Cosmic Spin */}
-          <button class='fast-toggle cosmic-toggle' aria-pressed={cosmicSpin()} disabled={spinning() !== ''} onClick={() => {
+          <button class='fast-toggle cosmic-toggle' aria-label='Cosmic Spin' title='Reveal rare drops with a second spin. Drop odds stay the same.' aria-pressed={cosmicSpin()} disabled={spinning() !== ''} onClick={() => {
             if (spinning() !== '') return
             setCosmicSpin(!cosmicSpin())
           }}>
 
-            <span class='cosmic-icon'><CosmicGem/></span>
+            <span class='cosmic-icon' aria-hidden='true'><CosmicGem motion={cosmicSpin()}/></span>
             <span>Cosmic Spin</span>
           </button>
 
@@ -331,6 +357,8 @@ function CasePage(props) {
             </button>
           </div>
         </div>
+
+
 
             </div>
           </div>
@@ -365,6 +393,14 @@ function CasePage(props) {
             </div>
           </Show>
         </div>
+
+        <Show when={lastResults().length}>
+          <div class='opening-results' role='status' aria-live='polite'>
+            <span class='result-caption'>{demo() ? 'Demo results' : 'Your drops'}</span>
+            <For each={lastResults()}>{item => <div class='opening-drop'><img src={resolveImageSrc(item.img)} alt=''/><div><strong>{item.name}</strong><span><img src='/assets/icons/coin.svg' alt=''/>{Number(item.price || 0).toFixed(2)}</span></div></div>}</For>
+            <span class='result-total'>Total <strong>{lastResults().reduce((sum, item) => sum + Number(item.price || 0), 0).toFixed(2)}</strong></span>
+          </div>
+        </Show>
 
         {/* ── Case contains grid ── */}
         <Show when={!caseObj.loading}>
@@ -415,7 +451,16 @@ function CasePage(props) {
         .case-toolbar { gap:8px; }
         .fast-toggle { height:40px; display:inline-flex; align-items:center; gap:8px; padding:0 12px; border:2px solid #262a34; border-radius:4px; background:#11141b; color:#9298a5; }
         .fast-toggle[aria-pressed=true] { color:#1fd65f; border-color:#1fd65f70; background:#1fd65f0d; }
-        .cosmic-icon { display:inline-flex; width:24px; height:24px; flex-shrink:0; }
+        .cosmic-icon { display:inline-flex; width:20px; height:24px; flex:0 0 20px; overflow:hidden; }
+        .opening-results { display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding:14px 16px; margin-top:12px; border:1px solid #29332e; border-radius:7px; background:#12191a; }
+        .result-caption { font-size:11px; color:#a7b6b0; }
+        .opening-drop { display:flex; align-items:center; gap:8px; min-width:0; flex:1 1 160px; }
+        .opening-drop>img { width:48px; height:36px; object-fit:contain; }.opening-drop>div { display:grid; gap:5px; min-width:0; }
+        .opening-drop strong { color:#eef3ef; font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .opening-drop span { display:flex; align-items:center; gap:5px; font-size:12px; color:#1fd65f; font-variant-numeric:tabular-nums; }.opening-drop span img { width:12px; height:12px; }
+        .result-total { display:grid; gap:5px; font-size:10px; margin-left:auto; }.result-total strong { color:#1fd65f; font-size:14px; }
+        .case-page button { transition:background .18s,border-color .18s,color .18s; }.case-page .demo-btn:hover:not(:disabled),.case-page .action-btn:hover,.case-page .preview-btn:hover { background:#2a303a; color:#fff; }
+        @media(prefers-reduced-motion:reduce) { .case-page * { animation:none!important; transition:none!important; } }
         .preview-btn { width:40px; padding:0; }
         .spinner-section { width:100%; overflow:hidden; background:#181b22; border:1px solid #20242c; border-radius:7px; }
         .spinner-track { min-height:280px; padding:64px 16px; display:flex; align-items:center; overflow:hidden; }

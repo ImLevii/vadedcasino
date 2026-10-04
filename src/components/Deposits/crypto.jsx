@@ -9,6 +9,7 @@ import {
 import QRCode from "qrcode";
 import { authedAPI, createNotification } from "../../util/api";
 import { openSupport } from "../../util/support";
+import DepositAction from "./action";
 export default function CryptoDeposit(props) {
   const [wallet, setWallet] = createSignal(null),
     [busy, setBusy] = createSignal(false),
@@ -98,14 +99,6 @@ export default function CryptoDeposit(props) {
   onCleanup(() => clearInterval(timer));
   return (
     <div class="wallet-crypto">
-      <div class="wallet-currency-title">
-        <img src={props.img} alt="" />
-        <div>
-          <h3>{currency()?.name || props.currency}</h3>
-          <p>{currency()?.network || props.currency}</p>
-        </div>
-        <span class="wallet-pill">CRYPTO</span>
-      </div>
       <Show
         when={!props.catalogLoading}
         fallback={
@@ -137,7 +130,7 @@ export default function CryptoDeposit(props) {
           <label class="wallet-label" for="deposit-amount">
             Estimate your deposit
           </label>
-          <div class="wallet-amount">
+          <div class="wallet-amount input-shell">
             <input
               id="deposit-amount"
               type="number"
@@ -186,19 +179,22 @@ export default function CryptoDeposit(props) {
           <Show
             when={wallet()}
             fallback={
+              <DepositAction mount={props.actionMount}>
               <button
-                class="wallet-button primary full"
+                class="wallet-button primary"
                 onClick={generate}
                 disabled={busy()}
               >
                 {busy() ? "Preparing your address…" : "Get deposit address →"}
               </button>
+              </DepositAction>
             }
           >
             <div class="wallet-network-note">
               Only send <strong>{props.currency.split(".")[0]}</strong> using{" "}
               <strong>{currency()?.network}</strong>.
             </div>
+            <DepositAction mount={props.actionMount}><button class="wallet-button primary" onClick={() => copy(wallet().address)}>Copy deposit address</button></DepositAction>
             <div class="wallet-address-grid">
               <div class="wallet-qr">
                 <Show when={qr()} fallback={<span>Preparing QR code…</span>}>
@@ -238,9 +234,9 @@ export default function CryptoDeposit(props) {
           </Show>
         </Show>
       </Show>
-      <section class="wallet-history">
+      <details class="wallet-history">
+        <summary>Recent crypto deposits</summary>
         <div class="wallet-section-title">
-          <h3>Recent crypto deposits</h3>
           <button
             class="wallet-text-button"
             disabled={history.loading}
@@ -317,7 +313,7 @@ export default function CryptoDeposit(props) {
             </div>
           </Show>
         </Show>
-      </section>
+      </details>
     </div>
   );
 }

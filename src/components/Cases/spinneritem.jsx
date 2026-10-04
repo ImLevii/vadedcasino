@@ -4,94 +4,19 @@ import CosmicGem from './cosmicgem';
 
 function SpinnerItem(props) {
 
-    let item
-    let image
-    let scaleAnim
-    let opacityAnim
-    let swords
-    let animationFrame
-    const spinEasing = 'cubic-bezier(.08,.78,.16,1)'
-
+    let item, image, swords;
+    let revealAnimation;
     createEffect(() => {
-        if (props?.spinning === 'spinning') {
-            animationFrame = requestAnimationFrame(() => animate())
-        }
-
-        if (props?.spinning === '') {
-            resetAnimations()
-        }
-    })
-    onCleanup(() => {
-        cancelAnimationFrame(animationFrame)
-        resetAnimations()
-        swords?.getAnimations()?.forEach(animation => animation.cancel())
-    })
-
-    function resetAnimations() {
-        if (scaleAnim) scaleAnim.cancel()
-        if (opacityAnim) opacityAnim.cancel()
-        scaleAnim = null
-        opacityAnim = null
-        if (image) image.style.transform = ''
-        if (item) item.style.opacity = ''
-        if (swords) swords.style.opacity = ''
-    }
-
-    function animate() {
-        const lastIndex = 50
-        const startIndex = 6
-
-        if (props?.index < startIndex || props?.index > lastIndex) return
-
-        const width = 134 // 130px item + 4px gap
-        const firstItem = startIndex * width
-        const lastItem = (lastIndex - startIndex + 1) * width // 46 because we start at 5, 51 - 5 is 46
-
-        let indexPx = props?.index * width
-        let firstItemEnd = firstItem - width
-
-        let startOffset = Math.min(1, (indexPx - firstItem) / (lastItem + props?.offset))
-        let endOffset = props?.index === lastIndex ? 1 : Math.min(1, (indexPx - firstItemEnd) / (lastItem + props?.offset))
-        let midPoint = startOffset + (endOffset - startOffset)
-        let endScale = props.index === lastIndex ? 1.2 : 1
-
-        if (scaleAnim) scaleAnim.cancel()
-        if (opacityAnim) opacityAnim.cancel()
-        swords?.getAnimations()?.forEach(animation => animation.cancel())
-
-        let config = {
-            duration: props?.spinTime || 4800,
-            easing: spinEasing,
-            fill: 'forwards',
-        }
-
-        // Spinner tick SFX is handled once at the reel level to avoid stacked sounds.
-
-        scaleAnim = image.animate(
-            {
-                transform: ['scale(1)', 'scale(1)', 'scale(1.2)', `scale(${endScale})`],
-                offset: [0, startOffset, midPoint, endOffset]
-            },
-            config
-        )
-
-        // Basically making it so the opacity is instant compared to the scale effect
-        opacityAnim = item.animate(
-            {
-                opacity: [0.3, 0.3, 1, 1, 1, endScale > 1 ? 1 : 0.3],
-                offset: [0, Math.max(0, startOffset - 0.001), startOffset, midPoint, endOffset, Math.min(endOffset + 0.001, 1)]
-            },
-            config
-        )
-
-        swords.animate(
-            {
-                opacity: [0.3, 0.3, 0.55, 0.55, 0.55, endScale > 1 ? 0.55 : 0.3],
-                offset: [0, Math.max(0, startOffset - 0.001), startOffset, midPoint, endOffset, Math.min(endOffset + 0.001, 1)]
-            },
-            config
-        )
-    }
+      const phase = props.spinning;
+      if (props.index !== 50 || !image) return;
+      revealAnimation?.cancel();
+      if (phase === 'win' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        revealAnimation = image.animate([
+          {transform:'scale(1)'}, {transform:'scale(1.09)', offset:.55}, {transform:'scale(1.04)'}
+        ], {duration:360, easing:'cubic-bezier(.2,.8,.3,1)', fill:'forwards'});
+      }
+    });
+    onCleanup(() => revealAnimation?.cancel());
 
     function backImage(price) {
         if (price >= 250000) {
@@ -165,10 +90,11 @@ function SpinnerItem(props) {
             </div>
 
             <style jsx>{`
-              .case-item-container .cosmic-image, .case-item-container.vertical .cosmic-image { width:90px; height:90px; flex-shrink:0; }
+              .case-item-container .cosmic-image, .case-item-container.vertical .cosmic-image { width:58px; height:72px; flex-shrink:0; }
+              .case-item-container.opening-item.revealed { opacity:1; }
               .cosmic-label { position:absolute; bottom:7px; color:#b9ffd0; font-size:9px; font-weight:900; letter-spacing:1.3px; text-shadow:0 0 9px #1fd65f; z-index:3; }
               .cosmic-back { visibility:hidden; }
-              .case-item-container.opening-item { opacity:.9; }
+              .case-item-container.opening-item { opacity:.72; }
               .opening-item .card-bg { inset:10px 2px; border:1px solid #090c11; border-radius:4px; background:#101319; box-shadow:none; opacity:1; backdrop-filter:none; }
               .opening-item.vertical .card-bg { inset:0; }
               .opening-item.vertical.revealed .item-image { max-width:74px; height:58px; margin-bottom:46px; }

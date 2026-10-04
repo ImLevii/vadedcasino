@@ -13,6 +13,25 @@ const FEATURES = [
     {name: 'BUY COINS',         href: '/deposit',       accent: '#1fd65f', img: '/assets/thumbnails/market.webp', wide: true},
     {name: 'CRASH',             href: '/crash',         accent: '#4176FF', img: '/assets/thumbnails/crash.webp', wide: true},
 ]
+  const PAYMENT_LOGO_ROWS = [
+    [
+      ['mastercard.png', 'Mastercard'],
+      ['visa.png', 'Visa'],
+      ['paypal.png', 'PayPal'],
+      ['googlepay.png', 'Google Pay'],
+      ['g2a.png', 'G2A'],
+      ['kinguin.png', 'Kinguin'],
+    ],
+    [
+      ['bitcoin.png', 'Bitcoin'],
+      ['ethereum.png', 'Ethereum'],
+      ['litecoin.png', 'Litecoin'],
+      ['usdt.png', 'Tether'],
+      ['usdc.png', 'USD Coin'],
+      ['bnb.png', 'BNB'],
+      ['dogecoin.png', 'Dogecoin'],
+    ],
+  ]
 
 function FeatureGrid() {
     return (
@@ -49,6 +68,36 @@ function FeatureGrid() {
                 )}</For>
             </div>
 
+              <section class='payment-carousel' aria-label='Available payment methods'>
+                <h2>Select your preferred payment method</h2>
+                <div class='payment-carousel-row'>
+                  <div class='payment-carousel-track' aria-hidden='true'>
+                    <For each={[0, 1, 2, 3]}>{() => (
+                      <div class='payment-carousel-sequence'>
+                        <For each={PAYMENT_LOGO_ROWS[0]}>{([icon, name]) => (
+                          <div class='payment-carousel-tile'>
+                            <img src={'/assets/icons/' + icon} alt={name}/>
+                          </div>
+                        )}</For>
+                      </div>
+                    )}</For>
+                  </div>
+                </div>
+                <div class='payment-carousel-row'>
+                  <div class='payment-carousel-track reverse' aria-hidden='true'>
+                    <For each={[0, 1, 2, 3]}>{() => (
+                      <div class='payment-carousel-sequence'>
+                        <For each={PAYMENT_LOGO_ROWS[1]}>{([icon, name]) => (
+                          <div class='payment-carousel-tile'>
+                            <img src={'/assets/icons/' + icon} alt={name}/>
+                          </div>
+                        )}</For>
+                      </div>
+                    )}</For>
+                  </div>
+                </div>
+              </section>
+
             <style jsx>{`
               .section-header {
                 display: flex;
@@ -79,6 +128,116 @@ function FeatureGrid() {
                 display: grid;
                 grid-template-columns: repeat(4, minmax(0, 1fr));
                 gap: 16px;
+              }
+
+              .payment-carousel {
+                position: relative;
+                isolation: isolate;
+                margin-top: 8px;
+                padding: 22px 0 20px;
+                overflow: hidden;
+                border-block: 1px solid rgba(145, 179, 165, 0.12);
+                background: linear-gradient(105deg, #121719 0%, #171d1f 50%, #121719 100%);
+              }
+
+              .payment-carousel h2 {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 14px;
+                margin: 0 16px 18px;
+                color: #f1f5f3;
+                text-align: center;
+                font-size: 18px;
+                line-height: 1.25;
+                font-weight: 700;
+              }
+
+              .payment-carousel h2::before,
+              .payment-carousel h2::after {
+                content: '';
+                width: 38px;
+                height: 1px;
+                background: linear-gradient(90deg, transparent, #43c98c99);
+              }
+
+              .payment-carousel h2::after {
+                transform: scaleX(-1);
+              }
+
+              .payment-carousel-row {
+                overflow: hidden;
+                margin-top: 10px;
+                mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+                -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+              }
+
+              .payment-carousel-track {
+                display: flex;
+                width: max-content;
+                animation: payment-carousel-scroll 34.8s linear infinite;
+              }
+
+              .payment-carousel-track.reverse {
+                animation-direction: reverse;
+                animation-duration: 40.6s;
+              }
+
+              .payment-carousel-sequence {
+                display: flex;
+                flex: 0 0 auto;
+                gap: 12px;
+                padding-right: 12px;
+              }
+
+              .payment-carousel-tile {
+                display: grid;
+                place-items: center;
+                flex: 0 0 104px;
+                height: 58px;
+                padding: 9px 12px;
+                border: 1px solid rgba(255, 255, 255, 0.045);
+                border-radius: 5px;
+                background: linear-gradient(135deg, #202729, #191f21);
+                box-shadow: inset 0 1px rgba(255, 255, 255, 0.035);
+                transition: border-color 180ms ease, background 180ms ease;
+              }
+
+              .payment-carousel-tile:hover {
+                border-color: rgba(96, 220, 157, 0.32);
+                background: linear-gradient(135deg, #252f30, #1b2424);
+              }
+
+              .payment-carousel-tile img {
+                display: block;
+                max-width: 78px;
+                max-height: 36px;
+                object-fit: contain;
+              }
+
+              @keyframes payment-carousel-scroll {
+                to { transform: translateX(-25%); }
+              }
+
+              @media (prefers-reduced-motion: reduce) {
+                .payment-carousel-row {
+                  overflow-x: auto;
+                  mask-image: none;
+                  -webkit-mask-image: none;
+                }
+                .payment-carousel-track { animation: none; }
+              }
+
+              @container (max-width: 520px) {
+                .payment-carousel { padding: 18px 0 16px; }
+                .payment-carousel h2 { gap: 9px; font-size: 16px; }
+                .payment-carousel h2::before,
+                .payment-carousel h2::after { width: 20px; }
+                .payment-carousel-sequence { gap: 9px; }
+                .payment-carousel-tile { flex-basis: 90px; height: 52px; }
+                .payment-carousel-sequence { padding-right: 9px; }
+                .payment-carousel-track { animation-duration: 29.7s; }
+                .payment-carousel-track.reverse { animation-duration: 34.65s; }
               }
 
               .feature {

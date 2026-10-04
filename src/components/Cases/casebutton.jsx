@@ -1,4 +1,4 @@
-import {createSignal, Show} from "solid-js";
+import {createSignal, onCleanup, Show} from "solid-js";
 import {A} from "@solidjs/router";
 import CaseTitle from "./casetitle";
 import CasePreview from "./casepreview";
@@ -9,6 +9,8 @@ function CaseButton(props) {
     const [showPreview, setShowPreview] = createSignal(false)
     const [previewData, setPreviewData] = createSignal(null)
     const [loadingPreview, setLoadingPreview] = createSignal(false)
+    let disposed = false
+    onCleanup(() => { disposed = true })
 
     const readFavorites = () => { try { const list = JSON.parse(localStorage.getItem('battle-favorite-cases') || '[]'); return Array.isArray(list) ? list : [] } catch { return [] } }
     const [favorite, setFavorite] = createSignal(readFavorites().includes(props.c?.id))
@@ -35,6 +37,7 @@ function CaseButton(props) {
         setLoadingPreview(true);
         try {
             const res = await authedAPI(`/cases/${props.c.slug}`, 'GET', null);
+            if (disposed) return;
             if (res && !res.error && Array.isArray(res.items)) {
                 setPreviewData(res);
                 setShowPreview(true);
@@ -130,6 +133,7 @@ function CaseButton(props) {
 
             <style jsx>{`
               .case-button {
+                outline-offset:3px;
                 min-height: 330px;
                 box-sizing: border-box;
 
@@ -154,6 +158,9 @@ function CaseButton(props) {
                 transform: translateY(-4px) scale(1.01);
                 box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 22px 48px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(31, 214, 95, 0.08), 0 0 30px rgba(31, 214, 95, 0.06);
               }
+              .case-button:focus-within { border-color:#1fd65f70; }
+              .case-button button:focus-visible,.case-button a:focus-visible { outline:2px solid #1fd65f; outline-offset:3px; }
+              @media(prefers-reduced-motion:reduce) { .case-button,.case-button * { animation:none!important; transition:none!important; }.case-button:hover { transform:none; } }
 
               .case-button::before {
                 content: '';

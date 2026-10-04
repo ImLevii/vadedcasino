@@ -1,6 +1,9 @@
 import { createSignal } from "solid-js";
 import { authedAPI, createNotification } from "../../util/api";
-export default function GiftcardDeposit() {
+import DepositAction from "./action";
+import { useUser } from "../../contexts/usercontextprovider";
+export default function GiftcardDeposit(props) {
+  const [, { refreshBalance }] = useUser();
   const [code, setCode] = createSignal(""),
     [busy, setBusy] = createSignal(false);
   async function redeem(e) {
@@ -21,24 +24,19 @@ export default function GiftcardDeposit() {
     );
     setBusy(false);
     if (result?.success) {
+      refreshBalance();
       setCode("");
       createNotification("success", "Your gift card has been redeemed.");
     }
   }
   return (
     <div class="wallet-gift">
-      <div class="wallet-gift-preview">
-        <img src="/assets/logo/cosmic-luck-logo.png" alt="Cosmic Luck" />
-        <span>GIFT CARD</span>
-        <strong>A little more luck.</strong>
-        <small>Redeem. Play. Enjoy.</small>
-      </div>
       <h3>Redeem your gift card</h3>
       <p class="wallet-caption">
         Enter a Cosmic Luck gift-card code to add its value to your balance.
         Gift cards for other sites are not supported.
       </p>
-      <form onSubmit={redeem}>
+      <form id="gift-deposit-form" onSubmit={redeem}>
         <label class="wallet-label" for="gift-code">
           Gift-card code
         </label>
@@ -54,13 +52,15 @@ export default function GiftcardDeposit() {
           disabled={busy()}
           required
         />
-        <button
-          class="wallet-button primary full"
+      </form>
+      <DepositAction mount={props.actionMount}>
+        <button form="gift-deposit-form"
+          class="wallet-button primary"
           disabled={busy() || !code().trim()}
         >
           {busy() ? "Redeeming…" : "Redeem gift card →"}
         </button>
-      </form>
+      </DepositAction>
     </div>
   );
 }

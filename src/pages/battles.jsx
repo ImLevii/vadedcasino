@@ -1,4 +1,4 @@
-import {createEffect, createSignal, For, Show, onCleanup} from "solid-js";
+import {createEffect, createSignal, For, Show, on, onCleanup} from "solid-js";
 import BattleRow from "../components/Battles/battlerow";
 import {useWebsocket} from "../contexts/socketprovider";
 import Loader from "../components/Loader/loader";
@@ -18,30 +18,27 @@ function Battles(props) {
     const [battles, setBattles] = createSignal(null, { equals: false })
     const [user] = useUser()
 
-    let hasConnected = false
+
     const [ws] = useWebsocket()
 
-    createEffect(() => {
-        if (ws() && ws().connected && !hasConnected) {
-            const socket = ws()
-            onCleanup(() => {
-                for (const event of ['battles:push', 'battles:join', 'battles:start', 'battles:round', 'battles:ended']) socket.off(event)
-                socket.emit('battles:unsubscribe')
-                hasConnected = false
-            })
-            unsubscribeFromGames(ws())
-            subscribeToGame(ws(), 'battles')
-
-            ws().on('battles:push', (b, replace=false) => {
+    createEffect(on(ws, socket => {
+      if (!socket?.connected) return
+      const handlers = new Map()
+      const listen = (event, handler) => { handlers.set(event, handler); socket.on(event, handler) }
+      onCleanup(() => {
+        for (const [event, handler] of handlers) socket.off(event, handler)
+        socket.emit('battles:unsubscribe')
+      })
+            listen('battles:push', (b, replace=false) => {
                 let curBattles = battles() || []
                 b.forEach((battle) => battle.players = fillEmptySlots(battle.playersPerTeam * battle.teams, battle.players))
                 const ids = new Set(b.map(battle => battle.id))
                 setBattles([...b, ...(replace ? [] : curBattles.filter(battle => !ids.has(battle.id)))])
             })
 
-            ws().on('battles:join', (id, user) => {
+            listen('battles:join', (id, user) => {
                 let battleIndex = battles()?.findIndex(b => id === b.id)
-                if (battleIndex < 0) return
+                if (!Number.isInteger(battleIndex) || battleIndex < 0) return
 
                 let curBattle = battles()[battleIndex]
                 if (id !== curBattle.id) return
@@ -50,9 +47,9 @@ function Battles(props) {
                 setBattles([...battles().slice(0, battleIndex), {...curBattle}, ...battles().slice(battleIndex + 1)])
             })
 
-            ws().on('battles:start', (id, winnerTeam) => {
+            listen('battles:start', (id, winnerTeam) => {
                 let battleIndex = battles()?.findIndex(b => id === b.id)
-                if (battleIndex < 0) return
+                if (!Number.isInteger(battleIndex) || battleIndex < 0) return
 
                 let curBattle = battles()[battleIndex]
                 if (id !== curBattle.id) return
@@ -61,9 +58,9 @@ function Battles(props) {
                 setBattles([...battles().slice(0, battleIndex), {...curBattle}, ...battles().slice(battleIndex + 1)])
             })
 
-              ws().on('battles:round', (id, roundNum) => {
+              listen('battles:round', (id, roundNum) => {
                 let battleIndex = battles()?.findIndex(b => id === b.id)
-                if (battleIndex < 0) return
+                if (!Number.isInteger(battleIndex) || battleIndex < 0) return
 
                 let curBattle = battles()[battleIndex]
                 if (id !== curBattle.id) return
@@ -77,9 +74,9 @@ function Battles(props) {
                 setBattles([...battles().slice(0, battleIndex), {...curBattle}, ...battles().slice(battleIndex + 1)])
               })
 
-            ws().on('battles:ended', (id, winnerTeam) => {
+            listen('battles:ended', (id, winnerTeam) => {
                 let battleIndex = battles()?.findIndex(b => id === b.id)
-                if (battleIndex < 0) return
+                if (!Number.isInteger(battleIndex) || battleIndex < 0) return
 
                 let curBattle = battles()[battleIndex]
                 if (id !== curBattle.id) return
@@ -89,21 +86,9 @@ function Battles(props) {
                 setBattles([...battles().slice(0, battleIndex), {...curBattle}, ...battles().slice(battleIndex + 1)])
             })
 
-            hasConnected = true
-        }
-
-        hasConnected = !!ws()?.connected
-    })
-
-        onCleanup(() => {
-          if (!ws()) return
-
-          ws().off('battles:push')
-          ws().off('battles:join')
-          ws().off('battles:start')
-          ws().off('battles:round')
-          ws().off('battles:ended')
-        })
+      unsubscribeFromGames(socket)
+      subscribeToGame(socket, 'battles')
+    }))
 
     function getBattleMode(battle) {
         if (battle.gamemode === 'group') return 'GROUP'

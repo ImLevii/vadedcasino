@@ -16,6 +16,7 @@ function BattleColumn(props) {
                                 player={props?.player}
                                 creator={props?.creator}
                                 wonItems={props?.wonItems}
+                                revealedRound={props.revealedRound}
                                 compact={props?.compact}
                                 side={props?.side}
                 />
@@ -37,6 +38,7 @@ function BattleColumn(props) {
                              total={props?.total}
                              roundWinners={props?.roundWinners}
                              compact={props?.compact}
+                             onRoundComplete={props.onRoundComplete}
                              side={props?.side}
                 />
               </div>

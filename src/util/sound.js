@@ -50,13 +50,26 @@ function ensureAudio(key, src) {
 // Preload and unlock the gem recording directly from the spin gesture.
 export function prepareCosmicSFX() {
   if (typeof window === 'undefined' || parseGlobalVolume() <= 0) return;
-  const audio = ensureAudio('cosmic-gem', GAME_SOUNDS.cosmicGem);
-  if (playbackState.has(audio)) return;
-  audio.volume = 0;
-  try {
-    audio.play()?.then(() => { if (!playbackState.has(audio)) { audio.pause(); audio.currentTime = 0; } }).catch(noop);
-  } catch { /* Browser audio may be unavailable. */ }
+  for (const [key, src] of [
+    ['cosmic-gem', GAME_SOUNDS.cosmicGem],
+    ['case-roll', GAME_SOUNDS.rouletteClick],
+    ['battle-roll', GAME_SOUNDS.rouletteClick],
+    ['case-win', '/assets/sfx/winorcashout.mp3'],
+    ['battle-win', '/assets/sfx/winorcashout.mp3'],
+    ['battle-round-win', '/assets/sfx/winorcashout.mp3'],
+  ]) {
+    const audio = ensureAudio(key, src);
+    if (playbackState.has(audio) || unlockedAudio.has(audio)) continue;
+    audio.volume = 0;
+    try {
+      audio.play()?.then(() => {
+        unlockedAudio.add(audio);
+        if (!playbackState.has(audio)) { audio.pause(); audio.currentTime = 0; }
+      }).catch(noop);
+    } catch { /* Browser audio may be unavailable. */ }
+  }
 }
+const unlockedAudio = new WeakSet();
 
 export function playCosmicSFX() {
   return playGameSFX('cosmic-gem', GAME_SOUNDS.cosmicGem, {
@@ -140,6 +153,7 @@ export function installUIClickSFX(root = document) {
     if (!target?.closest || target.closest('[data-ui-sound="off"], [inert], [aria-disabled="true"]')) return;
     const control = target.closest('button, a[href], [role="button"], summary, input[type="button"], input[type="submit"]');
     if (!control || control.matches(':disabled')) return;
+    prepareCosmicSFX();
     playGameSFX('ui-click', GAME_SOUNDS.rouletteClick, {
       channel: 'ui-click', volume: .28, startTime: 1.35, durationMs: 90, minIntervalMs: 40,
     });

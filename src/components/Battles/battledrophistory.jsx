@@ -4,21 +4,21 @@ import {resolveImageSrc} from "../../util/image";
 
 function BattleDropHistory(props) {
 
-    function getRoundItem(playerId, round) {
+    function getRoundItem(playerId, round, slot) {
       if (!Array.isArray(props?.wonItems) || !playerId) return null
-      if (props.state !== 'WINNERS' && round >= (props.round || 0)) return null
-      return props.wonItems.find(item => item.userId === playerId && item.round === round)
+      if (props.state !== 'WINNERS' && round > (props.revealedRound || 0)) return null
+      return props.wonItems.find(item => (item.slot ? item.slot === slot : item.userId === playerId) && item.round === round)
     }
 
-    function getPlayerTotal(playerId) {
+    function getPlayerTotal(playerId, slot) {
       if (!Array.isArray(props?.wonItems) || !playerId) return 0
 
       return props.wonItems
         .filter(item => {
-          if (props.state !== 'WINNERS' && item?.round >= (props.round || 0)) return false
-          return item?.userId === playerId
+          if (props.state !== 'WINNERS' && item?.round > (props.revealedRound || 0)) return false
+          return item.slot ? item.slot === slot : item?.userId === playerId
         })
-        .reduce((sum, item) => sum + (item?.price || 0), 0)
+        .reduce((sum, item) => sum + Number(item?.price || 0), 0)
     }
 
     function roundSlots() {
@@ -78,7 +78,7 @@ function BattleDropHistory(props) {
     return (
       <>
         <div class='drop-history' style={{ '--players': props.players?.length || 2 }}>
-          <For each={props?.players || []}>{(player) => (
+          <For each={props?.players || []}>{(player, playerIndex) => (
             <div class='player-column'>
               <div class='player-header'>
                 <Avatar height='20' id={player?.id || '?'} xp={player?.xp || 0} dark={!player}/>
@@ -86,14 +86,14 @@ function BattleDropHistory(props) {
                   <span class='player-name'>{player?.username || 'Waiting...'}</span>
                   <div class='player-total'>
                     <img src='/assets/chips/chip-green.png' height='10' width='10' alt=''/>
-                    <span>{formatPrice(getPlayerTotal(player?.id))}</span>
+                    <span>{formatPrice(getPlayerTotal(player?.id, playerIndex() + 1))}</span>
                   </div>
                 </div>
               </div>
 
               <div class='player-drops'>
                 <For each={roundSlots()}>{(_, roundIndex) => {
-                  const item = () => getRoundItem(player?.id, roundIndex() + 1)
+                  const item = () => getRoundItem(player?.id, roundIndex() + 1, playerIndex() + 1)
                   const ext = () => getExterior(item()?.name)
 
                   return (
@@ -206,6 +206,9 @@ function BattleDropHistory(props) {
           .drop-card:hover {
             border-color: #3c4550;
           }
+          .drop-card.filled { animation:drop-reveal .3s ease-out both; border-color:#303a36; }
+          @keyframes drop-reveal { from { opacity:.3; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+          @media(prefers-reduced-motion:reduce) { .drop-card.filled { animation:none; } }
 
           .drop-img-wrap {
             margin: 7px 7px 0;

@@ -1,28 +1,43 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const { sql } = require('../../database');
-const { enabledFeatures } = require('./config');
-const { sendLog } = require('../../utils');
+const { sql } = require("../../database");
+const { enabledFeatures } = require("./config");
+const { sendLog } = require("../../utils");
 
-router.get('/', (req, res) => {
-    res.json(enabledFeatures);
+router.get("/", (req, res) => {
+  res.json(
+    Object.fromEntries(
+      Object.entries(enabledFeatures).filter(
+        ([id]) =>
+          !["cryptoDeposits", "cryptoWithdrawals", "cardDeposits"].includes(id),
+      ),
+    ),
+  );
 });
 
-router.post('/:id', async (req, res) => {
+router.post("/:id", async (req, res) => {
+  const feature = req.params.id;
+  if (["cryptoDeposits", "cryptoWithdrawals", "cardDeposits"].includes(feature))
+    return res.status(410).json({ error: "PAYMENT_PROVIDER_REMOVED" });
+  if (enabledFeatures[feature] === undefined)
+    return res.status(400).json({ error: "INVALID_FEATURE" });
 
-    const feature = req.params.id;
-    if (enabledFeatures[feature] === undefined) return res.status(400).json({ error: 'INVALID_FEATURE' });
+  const enable = req.body.enable;
+  if (enable !== true && enable !== false)
+    return res.status(400).json({ error: "INVALID_ENABLE" });
 
-    const enable = req.body.enable;
-    if (enable !== true && enable !== false) return res.status(400).json({ error: 'INVALID_ENABLE' });
+  enabledFeatures[feature] = enable;
+  await sql.query("UPDATE features SET enabled = ? WHERE id = ?", [
+    enable,
+    feature,
+  ]);
 
-    enabledFeatures[feature] = enable;
-    await sql.query('UPDATE features SET enabled = ? WHERE id = ?', [enable, feature]);
-
-    sendLog('admin', `[\`${req.userId}\`] *${req.user.username}* ${enable ? 'enabled' : 'disabled'} feature \`${feature}\`.`);
-    res.json({ success: true });
-
+  sendLog(
+    "admin",
+    `[\`${req.userId}\`] *${req.user.username}* ${enable ? "enabled" : "disabled"} feature \`${feature}\`.`,
+  );
+  res.json({ success: true });
 });
 
 module.exports = router;

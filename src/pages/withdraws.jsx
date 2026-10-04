@@ -3,13 +3,14 @@ import {createResource, createSignal, For, Show} from "solid-js";
 import Method from "../components/Transactions/method";
 import {api, authedAPI, createNotification} from "../util/api";
 import {openSupport} from "../util/support";
-import CryptoWithdraw from "../components/Withdraws/crypto";
 import SkinDeckWithdraw from "../components/Withdraws/skindeck";
+import ProviderPayment from "../components/Deposits/provider";
 import KYCModal from "../components/KYC/kyc";
 import {Title} from "@solidjs/meta";
 
 const METHODS = [
-  {name: 'CRYPTO', display: 'Cryptocurrency', category: 'Withdraw Method', img: '/assets/icons/crypto.svg', tab: 'crypto', badge: 'Instant', badgeType: 'good'},
+  {name: 'PAYPAL', display: 'PayPal', category: 'Withdraw Method', img: '/assets/icons/paypal.png', tab: 'paypal', badge: 'Payout', badgeType: 'neutral'},
+  {name: 'STRIPE', display: 'Stripe Connect', category: 'Withdraw Method', img: '/assets/icons/stripe.svg', tab: 'stripe', badge: 'Test mode', badgeType: 'neutral'},
 ]
 
 const SKINDECK_METHOD = {name: 'SKINDECK', display: 'CS2 Skins', category: 'Withdraw Method', img: '/assets/icons/cs2-logo.svg', wideImg: true, tab: 'skins', badge: 'Instant', badgeType: 'good'}
@@ -42,7 +43,7 @@ function Withdraws(props) {
     if (searchParams.type === name.toLowerCase()) {
       return setSearchParams({type: null})
     }
-    setSearchParams({type: name.toLowerCase(), market: null, sort: null})
+    setSearchParams({type: name.toLowerCase(), market: null, sort: null, payment: null, checkout: null})
   }
 
   function isTabActive(name) {
@@ -59,8 +60,9 @@ function Withdraws(props) {
   }
 
   const withdrawComponents = {
-    'crypto': () => <CryptoWithdraw setKYC={setKYC}/>,
     'skindeck': () => <SkinDeckWithdraw/>,
+    'paypal': () => <ProviderPayment provider="paypal" direction="withdrawal" setKYC={setKYC}/>,
+    'stripe': () => <ProviderPayment provider="stripe" direction="withdrawal" setKYC={setKYC}/>,
   }
 
   function methodsForCategory(category) {
@@ -76,6 +78,7 @@ function Withdraws(props) {
         <KYCModal close={() => setKYC(false)}/>
       )}
 
+      <Show when={searchParams.type === 'skindeck'} fallback={
       <div class={'withdraws-wrapper'}>
         <div className='withdraws-container'>
           <div className='top-bar'>
@@ -133,6 +136,9 @@ function Withdraws(props) {
           </div>
         </div>
       </div>
+      }>
+        <SkinDeckWithdraw onBack={() => setSearchParams({type: null})}/>
+      </Show>
 
       <style jsx>{`
         .withdraws-wrapper {

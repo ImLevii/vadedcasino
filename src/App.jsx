@@ -19,7 +19,6 @@ import AML from "./components/Documentation/aml";
 import UserModal from "./components/UserPopup/userpopup";
 import SignIn from "./components/Signin/signin";
 import Home from './pages/home';
-import {createBalanceSync} from './util/balance-sync.mjs';
 
 const Admin = lazy(() => import('./pages/admin'))
 const AdminDashboard = lazy(() => import('./components/Admin/dashboard'))
@@ -87,7 +86,7 @@ function App() {
 
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [user, {hasFetched, setBalance, setXP, getUser, mutateUser}] = useUser()
+  const [user, {hasFetched, refreshBalance, setXP, getUser, mutateUser}] = useUser()
   const [ws] = useWebsocket()
   const [chat, setChat] = createSignal(false)
 
@@ -119,12 +118,10 @@ function App() {
         if (getUser()) mutateUser({...getUser(), staffMode:enabled})
       })
 
-      const balanceSync=createBalanceSync(()=>authedAPI('/user/balance','GET'),snapshot=>{
-        if(getUser() && String(getUser().id)===String(snapshot.id))setBalance(Number(snapshot.balance));
-      });
-      ws().on('balance',balanceSync.request);
-      balanceSync.request();
-      onCleanup(balanceSync.dispose);
+      ws().on('balance',refreshBalance);
+      refreshBalance();
+      const socket = ws();
+      onCleanup(() => socket.off('balance', refreshBalance));
 
       ws().on('xp', (xp) => {
         setXP(xp)
@@ -376,6 +373,18 @@ function App() {
                       </Suspense>
                     }/>
 
+                    <Route path='/deposit' element={
+                      <Suspense fallback={<Loader/>}>
+                        <Deposit/>
+                      </Suspense>
+                    }/>
+
+                    <Route path='/buy' element={
+                      <Suspense fallback={<Loader/>}>
+                        <Deposit/>
+                      </Suspense>
+                    }/>
+
                     {user() && (
                       <>
                         <Route path='/affiliates' element={
@@ -410,12 +419,6 @@ function App() {
                         <Route path='/rewards/supercharge' element={
                           <Suspense fallback={<Loader/>}>
                             <Rewards/>
-                          </Suspense>
-                        }/>
-
-                        <Route path='/deposit' element={
-                          <Suspense fallback={<Loader/>}>
-                            <Deposit/>
                           </Suspense>
                         }/>
 
